@@ -8,6 +8,7 @@ public class VIPCommand extends CommandHandler {
 	public VIPCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("broadcaster");
+		this.setHelptext("Syntax: !vip <name>");
 	}
 
 	@Override

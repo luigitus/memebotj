@@ -8,13 +8,13 @@ public class CommandList extends CommandHandler {
 
 	public CommandList(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setHelptext("Displays a command list");
 	}
 
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		channelHandler.sendMessage(
-				"Use !help for further information || Built in commands: !addcommand, !deletecommand, !editcommand, !editchannel, !mehug || Channel commands: "
+				"Use !help for further information || Commands: "
 						+ channelHandler.getChannelPageBaseURL() + "/index.html",
 				this.getChannelOrigin());
 	}

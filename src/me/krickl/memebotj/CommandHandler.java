@@ -25,6 +25,7 @@ public class CommandHandler {
 	int counter = 0;
 	ArrayList<String> aliases = new ArrayList<String>();
 	boolean locked = false;
+	boolean texttrigger = false;
 
 	private MongoCollection<Document> commandCollection;
 
@@ -153,9 +154,9 @@ public class CommandHandler {
 		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
 		formattedOutput = formattedOutput.replace("{debugch}", this.toString());
 		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL());
-		formattedOutput = formattedOutput.replace("{version}", Memebot.version);
-		formattedOutput = formattedOutput.replace("{developer}", Memebot.dev);
-		formattedOutput = formattedOutput.replace("{appname}", Memebot.appName);
+		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
+		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
+		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
 
 		try {
 			for (int i = counterStart; i <= this.param; i++) {
@@ -225,6 +226,9 @@ public class CommandHandler {
 		} else if (modType.equals("lock") && CommandHandler.checkPermission(sender.getUsername(), "broadcaster", userList) ) {
 			this.locked = Boolean.parseBoolean(newValue);
 			success = true;
+		} else if (modType.equals("texttrigger")) {
+			this.texttrigger = Boolean.parseBoolean(newValue);
+			success = true;
 		}
 
 		return success;
@@ -247,7 +251,8 @@ public class CommandHandler {
 				.append("qsuffix", this.quoteSuffix).append("qprefix", this.quotePrefix)
 				.append("qmodaccess", this.quoteModAccess).append("costf", this.pointCost)
 				.append("counter", this.counter).append("listcontent", this.listContent)
-				.append("locked", this.locked);
+				.append("locked", this.locked)
+				.append("texttrigger", this.texttrigger);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -297,6 +302,7 @@ public class CommandHandler {
 			this.counter = channelData.getInteger("counter", this.counter);
 			this.listContent = (ArrayList<String>) channelData.getOrDefault("listcontent", this.listContent);
 			this.locked = (boolean)channelData.getOrDefault("locked", this.locked);
+			this.texttrigger = (boolean)channelData.getOrDefault("texttrigger", this.texttrigger);
 		}
 	}
 
@@ -315,7 +321,7 @@ public class CommandHandler {
 			return true;
 		} else if (reqPermLevel.equals("vip") && userList.get(sender).isVIP()) {
 			return true;
-		} else if (reqPermLevel.equals(sender) && userList.get(sender).isBroadcaster()) {
+		} else if (reqPermLevel.equals("broadcaster") && userList.get(sender).isBroadcaster()) {
 			return true;
 		} else if (reqPermLevel.equals("viewers")) {
 			return true;
@@ -323,11 +329,7 @@ public class CommandHandler {
 
 		return false;
 	}
-
-	// this function will be used for commands that require special scrips. Soon
-	// this'll be used for built in commands
-	// every new built in command should be implemented subclassing a
-	// CommandHandler
+	
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 
 	}
@@ -450,6 +452,30 @@ public class CommandHandler {
 
 	public void setCounter(int counter) {
 		this.counter = counter;
+	}
+
+	public ArrayList<String> getAliases() {
+		return aliases;
+	}
+
+	public void setAliases(ArrayList<String> aliases) {
+		this.aliases = aliases;
+	}
+
+	public boolean isTexttrigger() {
+		return texttrigger;
+	}
+
+	public void setTexttrigger(boolean texttrigger) {
+		this.texttrigger = texttrigger;
+	}
+
+	public MongoCollection<Document> getCommandCollection() {
+		return commandCollection;
+	}
+
+	public void setCommandCollection(MongoCollection<Document> commandCollection) {
+		this.commandCollection = commandCollection;
 	}
 
 }

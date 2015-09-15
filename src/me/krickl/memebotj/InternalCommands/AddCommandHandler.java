@@ -9,6 +9,7 @@ public class AddCommandHandler extends CommandHandler {
 	public AddCommandHandler(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("moderators");
+		this.setHelptext("Syntax: !addcommand <command> <output>");
 	}
 
 	@Override

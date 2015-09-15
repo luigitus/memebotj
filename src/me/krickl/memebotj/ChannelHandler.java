@@ -16,6 +16,7 @@ import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
+import me.krickl.memebotj.InternalCommands.BlacklistCommand;
 import me.krickl.memebotj.InternalCommands.EditChannel;
 import me.krickl.memebotj.InternalCommands.EditCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
@@ -32,7 +33,8 @@ import me.krickl.memebotj.InternalCommands.PointsCommand;
 import me.krickl.memebotj.InternalCommands.QuitCommand;
 import me.krickl.memebotj.InternalCommands.RaceCommand;
 import me.krickl.memebotj.InternalCommands.SaveCommand;
-import me.krickl.memebotj.InternalCommands.SuggestNameCommand;
+import me.krickl.memebotj.InternalCommands.SpeedrunCommand;
+import me.krickl.memebotj.InternalCommands.FilenameCommand;
 import me.krickl.memebotj.InternalCommands.VIPCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
@@ -156,15 +158,17 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"));
 		this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"));
 		this.internalCommands.add(new PickNameCommand(this.channel, "!getname", "#internal#"));
-		this.internalCommands.add(new SuggestNameCommand(this.channel, "!name", "#internal#"));
-		this.internalCommands.add(new SuggestNameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
+		this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"));
+		this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
+		this.internalCommands.add(new SpeedrunCommand(this.channel, "!pb", "#internal#"));
+		this.internalCommands.add(new BlacklistCommand(this.channel, "!blacklist", "#internal#"));
 		
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
 		fileNameList.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#", this.channel), userList);
 		this.internalCommands.add(fileNameList);
 		
-		this.sendMessage(this.greetMessage.replace("{appname}", Memebot.appName).replace("{version}", Memebot.version), this.channel);
+		this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version).replace("{build}", BuildInfo.revisionNumber).replace("{builddate}", BuildInfo.timeStamp), this.channel);
 	}
 
 	private void joinChannel(String channel) {
@@ -267,6 +271,76 @@ public class ChannelHandler implements Runnable {
 			bw.write("Command Type");
 			bw.write("</td>");
 			bw.write("</tr>");
+			
+			//internal commands
+			for (CommandHandler ch : this.internalCommands) {
+				bw.write("<tr>");
+				bw.write("<td>");
+				if (ch.getCmdtype().equals("list")) {
+					bw.write("<a href=\"" + this.channelPageBaseURL + "/" + ch.getCommand() + ".html\">"
+							+ ch.getCommand() + "</a>");
+
+					// write quote html
+					BufferedWriter bwq = new BufferedWriter(
+							new FileWriter(this.htmlDir + "/" + ch.getCommand() + ".html"));
+					bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>");
+					bwq.write("<html>");
+					bwq.write("<h1>");
+					bwq.write(ch.getCommand());
+					bwq.write("</h1>");
+
+					bwq.write("<table style=\"width:100%\">");
+					bwq.write("<tr>");
+
+					bwq.write("<td>");
+					bwq.write("#");
+					bwq.write("</td>");
+
+					bwq.write("<td>");
+					bwq.write("Content");
+					bwq.write("</td>");
+					bwq.write("</tr>");
+
+					int c = 0;
+					for (String item : ch.getListContent()) {
+						bwq.write("<tr>");
+						bwq.write("<td>");
+						bwq.write(Integer.toString(c));
+						bwq.write("</td>");
+
+						bwq.write("<td>");
+						bwq.write(item);
+						bwq.write("</td>");
+
+						bwq.write("</tr>");
+
+						c++;
+					}
+
+					bwq.write("</table>");
+					bwq.write(this.refreshTag.replace("{seconds}", "20"));
+					bwq.write("</html>");
+					bwq.close();
+				} else {
+					bw.write(ch.getCommand());
+				}
+				bw.write("</td>");
+				bw.write("<td>");
+				bw.write(ch.getHelptext());
+				bw.write("</td>");
+				bw.write("<td>");
+				bw.write(ch.getUnformattedOutput());
+				bw.write("</td>");
+				bw.write("<td>");
+				bw.write(ch.getAccess());
+				bw.write("</td>");
+				bw.write("<td>");
+				bw.write(ch.getCmdtype());
+				bw.write("</td>");
+				bw.write("</tr>");
+			}
+			
+			//channel commands
 			for (CommandHandler ch : this.channelCommands) {
 				bw.write("<tr>");
 				bw.write("<td>");
@@ -548,8 +622,8 @@ public class ChannelHandler implements Runnable {
 		String[] ircmsgList = null;
 
 		// do not allow blacklisted users to exec commands
-		for (String blackListedUser : Memebot.blackList) {
-			if (senderName.equalsIgnoreCase(blackListedUser)) {
+		for (String key : this.userList.keySet()) {
+			if (!this.userList.get(key).isExecCommands() && key.equals(senderName)) {
 				return;
 			}
 		}
@@ -628,6 +702,8 @@ public class ChannelHandler implements Runnable {
 		if ((p = this.findCommand(msg)) != -1) {
 			this.channelCommands.get(p).execCommand(sender, this, data, userList);
 		}
+		
+		// check text trigger
 
 		// exec other channel's command
 		for (ChannelHandler ch : Memebot.joinedChannels) {

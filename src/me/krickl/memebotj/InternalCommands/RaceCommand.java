@@ -8,7 +8,8 @@ public class RaceCommand extends CommandHandler {
 
 	public RaceCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setAccess("moderators");
+		this.setHelptext("Syntax: !race <channel1> <channel2> <channel3> ... || !race");
 	}
 
 	@Override

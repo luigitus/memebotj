@@ -9,6 +9,7 @@ public class EditCommand extends CommandHandler {
 	public EditCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("moderators");
+		this.setHelptext("Syntax !chmod <command> <name|access|param|cooldown|message|helptext|cmdtype> <new value>");
 	}
 
 	@Override

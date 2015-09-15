@@ -9,7 +9,8 @@ public class SaveCommand extends CommandHandler {
 
 	public SaveCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setAccess("botadmin");
+		this.setHelptext("Saves everything to database");
 	}
 
 	@Override

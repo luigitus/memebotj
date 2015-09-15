@@ -8,7 +8,7 @@ public class WhoisCommand extends CommandHandler {
 
 	public WhoisCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setHelptext("Syntax: !whois <name>");
 	}
 
 	@Override

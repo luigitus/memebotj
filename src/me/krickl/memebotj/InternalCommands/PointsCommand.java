@@ -7,7 +7,7 @@ import me.krickl.memebotj.UserHandler;
 public class PointsCommand extends CommandHandler {
 	public PointsCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setHelptext("Shows points of user");
 	}
 
 	@Override

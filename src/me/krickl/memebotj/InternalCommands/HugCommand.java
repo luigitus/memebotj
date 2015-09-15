@@ -8,7 +8,7 @@ public class HugCommand extends CommandHandler {
 
 	public HugCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setHelptext("Give people a hug :D");
 	}
 
 	@Override

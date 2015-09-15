@@ -8,7 +8,7 @@ public class ModeratorsCommand extends CommandHandler {
 
 	public ModeratorsCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setHelptext("Displays a list of moderators");
 	}
 
 	@Override

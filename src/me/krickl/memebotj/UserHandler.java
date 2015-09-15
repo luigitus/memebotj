@@ -8,6 +8,8 @@ public class UserHandler {
 	private boolean isMod = false;
 	private boolean isVIP = false;
 	private boolean isBroadcaster = false;
+	private boolean execCommands = true;
+	private boolean newUser = false;
 	private String username = "";
 	private String channelOrigin = "";
 	private double points = 0;
@@ -38,7 +40,8 @@ public class UserHandler {
 		Document channelQuery = new Document("_id", this.username);
 
 		Document channelData = new Document("_id", this.username).append("pointsf", this.points)
-				.append("vip", this.isVIP).append("autogreet", this.autogreet);
+				.append("vip", this.isVIP).append("autogreet", this.autogreet)
+				.append("execcommands", this.execCommands);
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -64,6 +67,9 @@ public class UserHandler {
 			this.isVIP = channelData.getBoolean("vip", this.isVIP);
 			this.points = (double)channelData.getOrDefault("pointsf", this.points);
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString();
+			this.execCommands = (boolean)channelData.getOrDefault("execcommands", this.execCommands);
+		} else {
+			this.newUser = true;
 		}
 	}
 
@@ -133,6 +139,30 @@ public class UserHandler {
 
 	public void setAutogreet(String autogreet) {
 		this.autogreet = autogreet;
+	}
+
+	public boolean isExecCommands() {
+		return execCommands;
+	}
+
+	public void setExecCommands(boolean execCommands) {
+		this.execCommands = execCommands;
+	}
+
+	public MongoCollection<Document> getUserCollection() {
+		return userCollection;
+	}
+
+	public void setUserCollection(MongoCollection<Document> userCollection) {
+		this.userCollection = userCollection;
+	}
+
+	public boolean isNewUser() {
+		return newUser;
+	}
+
+	public void setNewUser(boolean newUser) {
+		this.newUser = newUser;
 	}
 
 }

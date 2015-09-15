@@ -58,10 +58,7 @@ import com.mongodb.client.MongoDatabase;
 
 public class Memebot {
 	private static final Logger log = Logger.getLogger(ChannelHandler.class.getName());
-
-	public static String appName = "memebot";
-	public static String version = "1.1.0e";
-	public static String dev = "Lukas Krickl";
+	
 	public static String ircServer = "irc.twitch.tv";
 	public static int port = 6667;
 	public static String mongoHost = "localhost";
@@ -76,17 +73,11 @@ public class Memebot {
 	public static String botPassword = null;
 	public static String clientID = null;
 	public static String clientSecret = null;
-	public static String[] botAdmins = { "#internal#" }; // internal
-																	// is used
-																	// for
-																	// commands
-																	// sent by
-																	// the bot
-	
+	public static List<String> botAdmins = new ArrayList<String>();
 	public static String mongoUser = "";
 	public static String mongoPassword = "";
 	public static boolean useMongoAuth = false;
-	public static String[] blackList = { "lubot_" };
+	//public static List<BlacklistModel> blackList = new ArrayList<BlacklistModel>();
 	public static int pid = 0;
 	public static ArrayList<String> channels = new ArrayList<String>();
 	
@@ -105,7 +96,7 @@ public class Memebot {
 
 	public static Cooldown messageLimitCooldown = new Cooldown(30);
 
-	public static MongoCollection<Document> chatlogCollection;
+	public static MongoCollection<Document> internalCollection;
 	
 	public static String webBaseURL = "";
 
@@ -138,15 +129,14 @@ public class Memebot {
 		}
 		
 		//read botadmin file
+		Memebot.botAdmins.add("#internal#");
 		try {
-			List<String> botAdminBuffer = Files.readAllLines(Paths.get(Memebot.memebotDir + "/botadmins.cfg"));
-			botAdminBuffer.add("#internal#");
-			Memebot.botAdmins = (String[]) botAdminBuffer.toArray();
+			Memebot.botAdmins = Files.readAllLines(Paths.get(Memebot.memebotDir + "/botadmins.cfg"));
+			Memebot.botAdmins.add("#internal#");
 		} catch (IOException e3) {
 			// TODO Auto-generated catch block
 			e3.printStackTrace();
 		}
-		
 		
 		Memebot.ircServer = config.getProperty("ircserver", Memebot.ircServer);
 		Memebot.port = Integer.parseInt(config.getProperty("ircport", Integer.toString(Memebot.port)));
@@ -168,7 +158,7 @@ public class Memebot {
 		OutputStream out;
 		try {
 			out = new FileOutputStream(new File(Memebot.configFile));
-			config.store(out, String.format("%s version %s config file", Memebot.appName, Memebot.version));
+			config.store(out, String.format("%s version %s config file", BuildInfo.appName, BuildInfo.version));
 			out.close();
 		} catch (FileNotFoundException e2) {
 			// TODO Auto-generated catch block
@@ -182,15 +172,14 @@ public class Memebot {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				log.warning("Process received SIGTERM...\nExiting now.");
+				log.warning("Process received SIGTERM...");
 				for (ChannelHandler ch : Memebot.joinedChannels) {
 					ch.writeDBChannelData();
 					ch.setJoined(false);
 				}
-				log.warning("Done. Exiting.");
 			}
 		});
-		log.info(String.format("%s version %s\n", Memebot.appName, Memebot.version));
+		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName, BuildInfo.version, BuildInfo.revisionNumber, BuildInfo.timeStamp));
 
 		// get pid and write to file
 		File f = new File(memebotDir + "/pid");
@@ -215,8 +204,11 @@ public class Memebot {
 				Memebot.mongoClient = new MongoClient(Memebot.mongoHost, Memebot.mongoPort);
 			}
 			Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
-			Memebot.chatlogCollection = Memebot.db.getCollection("#internal#_chatlog");
+			Memebot.internalCollection = Memebot.db.getCollection("#internal#");
 		}
+		
+		// read blacklist
+		// TODO read blacklist
 
 		try {
 			channels = (ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),

@@ -8,7 +8,7 @@ public class MujuruGame extends CommandHandler {
 
 	public MujuruGame(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setHelptext("");
 	}
 	
 	@Override

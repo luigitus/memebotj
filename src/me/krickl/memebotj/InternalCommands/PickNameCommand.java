@@ -6,10 +6,11 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.CommandHandler;
 import me.krickl.memebotj.UserHandler;
 
+@Deprecated
 public class PickNameCommand extends CommandHandler {
 	public PickNameCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		// TODO Auto-generated constructor stub
+		this.setHelptext("This command is deprecated");
 	}
 
 	@Override

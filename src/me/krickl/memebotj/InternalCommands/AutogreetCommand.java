@@ -9,6 +9,7 @@ public class AutogreetCommand extends CommandHandler {
 	public AutogreetCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("moderators");
+		this.setHelptext("Syntax: !autogreet <add/remove/get> <name>");
 	}
 
 	@Override
