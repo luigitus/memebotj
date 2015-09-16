@@ -74,7 +74,6 @@ public class UserHandler {
 	}
 
 	public void update() {
-		this.points += 0;
 	}
 
 	public boolean isMod() {

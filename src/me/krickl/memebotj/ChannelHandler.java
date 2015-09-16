@@ -1,15 +1,24 @@
 package me.krickl.memebotj;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.bson.Document;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -54,7 +63,7 @@ public class ChannelHandler implements Runnable {
 	private String channelInfoURL = "";
 	private String channelFollowersURL = "";
 	private String raceBaseURL = "http://kadgar.net/live";
-	private String greetMessage = "Hello I'm {appname} {version} the dankest irc bot ever RitzMitz";
+	private String greetMessage = "Hello I'm {appname} {version} build {build} built on {builddate} the dankest irc bot ever RitzMitz";
 	private String currentRaceURL = "";
 	private ArrayList<String> fileNameList = new ArrayList<String>();
 	private int maxFileNameLen = 8;
@@ -80,6 +89,8 @@ public class ChannelHandler implements Runnable {
 
 	private Thread t;
 	private boolean isJoined = true;
+	private boolean allowAutogreetForNonMods = false;
+	private boolean isLive = false;
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);
@@ -571,6 +582,33 @@ public class ChannelHandler implements Runnable {
 	public void update() {
 		if (this.updateCooldown.canContinue()) {
 			this.updateCooldown.startCooldown();
+			
+			//check if channel is live using kraken api
+			try {
+				URL url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				String dataBuffer = "";
+				String data = "";
+				while((dataBuffer = in.readLine()) != null) {
+					data = data + dataBuffer;
+				}
+				in.close();
+				
+				if(data.indexOf("\"stream\":null") != -1) {
+					log.info(String.format("Stream %s is offline", this.channel));
+					this.isLive = false;
+				} else {
+					log.info(String.format("Stream %s is live", this.channel));
+					this.isLive = true;
+				}
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			// this.saveChannelData();
 			this.writeDBChannelData();
@@ -579,7 +617,9 @@ public class ChannelHandler implements Runnable {
 			for (String key : this.userList.keySet()) {
 				UserHandler uh = this.userList.get(key);
 				uh.update();
-				uh.setPoints(uh.getPoints() + this.pointsPerUpdate);
+				if(this.isLive) {
+					uh.setPoints(uh.getPoints() + this.pointsPerUpdate);
+				}
 				// uh.saveUserData();
 				uh.writeDBUserData();
 			}
@@ -639,7 +679,7 @@ public class ChannelHandler implements Runnable {
 
 		try {
 			// get irc message
-			ircmsgBuffer = rawircmsgList.split(" :");
+			ircmsgBuffer = rawircmsgList.split("PRIVMSG " + this.channel + " :");
 			ircmsgList = ircmsgBuffer[1].split(" ");
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// check other message
@@ -675,7 +715,9 @@ public class ChannelHandler implements Runnable {
 			} else if (ircmsgList[1].equals("JOIN")) {
 				if (sender != null) {
 					if (this.autogreetList.containsKey(sender.getUsername())) {
-						this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
+						if(this.allowAutogreetForNonMods || sender.isMod()) {
+							this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
+						}
 					}
 				}
 			}
@@ -762,8 +804,12 @@ public class ChannelHandler implements Runnable {
 	}
 
 	public int findCommand(String command) {
-		for (int i = 0; i < this.channelCommands.size(); i++) {
-			if (this.channelCommands.get(i).command.equals(command)) {
+		return this.findCommand(command, this.channelCommands);
+	}
+	
+	public int findCommand(String command, ArrayList<CommandHandler> commandList) {
+		for (int i = 0; i < commandList.size(); i++) {
+			if (commandList.get(i).command.equals(command)) {
 				return i;
 			}
 		}
@@ -1021,5 +1067,13 @@ public class ChannelHandler implements Runnable {
 
 	public void setPointsPerUpdate(double pointsPerUpdate) {
 		this.pointsPerUpdate = pointsPerUpdate;
+	}
+
+	public boolean isAllowAutogreetForNonMods() {
+		return allowAutogreetForNonMods;
+	}
+
+	public void setAllowAutogreetForNonMods(boolean allowAutogreetForNonMods) {
+		this.allowAutogreetForNonMods = allowAutogreetForNonMods;
 	}
 }

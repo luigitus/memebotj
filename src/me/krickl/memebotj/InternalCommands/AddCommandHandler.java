@@ -19,6 +19,8 @@ public class AddCommandHandler extends CommandHandler {
 			if (channelHandler.findCommand(data[0]) == -1) {
 				newCommand.editCommand("name", data[0], new UserHandler("#internal#", "#internal#"),
 						channelHandler.getUserList());
+				newCommand.editCommand("access", "viewers", new UserHandler("#internal#", "#internal#"),
+						channelHandler.getUserList());
 				String output = "";
 
 				for (int i = 1; i < data.length; i++) {

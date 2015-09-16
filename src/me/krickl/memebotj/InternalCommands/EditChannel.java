@@ -36,6 +36,9 @@ public class EditChannel extends CommandHandler {
 						channelHandler.getOtherLoadedChannels().remove(index);
 					}
 				}
+			} else if(data[0].equals("autogreetmodonly")) {
+				channelHandler.setAllowAutogreetForNonMods(!channelHandler.isAllowAutogreetForNonMods());
+				channelHandler.sendMessage(String.format("Autogreet for non mods set to %s", Boolean.toString(channelHandler.isAllowAutogreetForNonMods())), this.getChannelOrigin());
 			} else {
 				if (channelHandler.getBuiltInStrings().containsKey(data[0])) {
 					channelHandler.getBuiltInStrings().put(data[0], newEntry);

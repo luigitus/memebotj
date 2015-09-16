@@ -44,6 +44,8 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -110,6 +112,24 @@ public class Memebot {
 		// initial setup
 		new File(home + "/.memebot").mkdir();
 		new File(home + "/.memebot/channels");
+		
+		// calculate build hash from md-5 sum of jar file
+		try {
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			byte[] jarBytes = Files.readAllBytes(Paths.get(Memebot.class.getProtectionDomain().getCodeSource().getLocation().getPath()));
+			byte[] hashBytes = digest.digest(jarBytes);
+			
+			//to hex string
+			for(byte b : hashBytes) {
+				BuildInfo.revisionNumber = BuildInfo.revisionNumber + String.format("%02x", b);
+			}
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e4) {
+			// TODO Auto-generated catch block
+			e4.printStackTrace();
+		}
 		
 		//read config
 		Properties config = new Properties();
