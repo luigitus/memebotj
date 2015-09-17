@@ -3,12 +3,15 @@ package me.krickl.memebotj;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
 public class CommandHandler {
+	private static final Logger log = Logger.getLogger(CommandHandler.class.getName());
+	
 	String channelOrigin = null;
 	String command = "null";
 	int param = 0;
@@ -174,6 +177,11 @@ public class CommandHandler {
 
 		this.commandScript(sender, channelHandler, data);
 
+		//write changes to db
+		if(!sender.getUsername().equals("#readonly#")) {
+			this.writeDBCommand();
+		}
+		
 		return "OK";
 	}
 
@@ -231,6 +239,8 @@ public class CommandHandler {
 			success = true;
 		}
 
+		this.writeDBCommand();
+		
 		return success;
 	}
 
@@ -241,6 +251,7 @@ public class CommandHandler {
 
 		// System.out.printf("Saving data in db for channel %s\n",
 		// this.command);
+		log.info(String.format("Writing data for command %s to db", this.command));
 
 		Document channelQuery = new Document("_id", this.command);
 

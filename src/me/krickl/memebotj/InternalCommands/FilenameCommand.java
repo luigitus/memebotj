@@ -41,6 +41,8 @@ public class FilenameCommand extends CommandHandler {
 					channelHandler.sendMessage(String.format("%s added name %s", sender.getUsername(), data[0]), this.getChannelOrigin());
 				}
 			}
+			
+			channelHandler.writeDBChannelData();
 		} catch (ArrayIndexOutOfBoundsException e) {
 			
 		} catch (java.lang.IllegalArgumentException e) {

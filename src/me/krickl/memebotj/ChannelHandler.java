@@ -37,7 +37,6 @@ import me.krickl.memebotj.InternalCommands.JoinCommand;
 import me.krickl.memebotj.InternalCommands.ModeratorsCommand;
 import me.krickl.memebotj.InternalCommands.MujuruGame;
 import me.krickl.memebotj.InternalCommands.PartCommand;
-import me.krickl.memebotj.InternalCommands.PickNameCommand;
 import me.krickl.memebotj.InternalCommands.PointsCommand;
 import me.krickl.memebotj.InternalCommands.QuitCommand;
 import me.krickl.memebotj.InternalCommands.RaceCommand;
@@ -89,7 +88,7 @@ public class ChannelHandler implements Runnable {
 
 	private Thread t;
 	private boolean isJoined = true;
-	private boolean allowAutogreetForNonMods = false;
+	private boolean allowAutogreet = true;
 	private boolean isLive = false;
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
@@ -168,7 +167,6 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new WhoisCommand(this.channel, "!whois", "#internal#"));
 		this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"));
 		this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"));
-		this.internalCommands.add(new PickNameCommand(this.channel, "!getname", "#internal#"));
 		this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"));
 		this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
 		this.internalCommands.add(new SpeedrunCommand(this.channel, "!pb", "#internal#"));
@@ -554,13 +552,13 @@ public class ChannelHandler implements Runnable {
 			this.userList.get(key).writeDBUserData();
 		}
 
-		for (CommandHandler ch : this.channelCommands) {
+		/*for (CommandHandler ch : this.channelCommands) {
 			ch.writeDBCommand();
 		}
 
 		for (CommandHandler ch : this.internalCommands) {
 			ch.writeDBCommand();
-		}
+		}*/
 	}
 
 	public void sendMessage(String msg, String channel) {
@@ -583,7 +581,7 @@ public class ChannelHandler implements Runnable {
 		if (this.updateCooldown.canContinue()) {
 			this.updateCooldown.startCooldown();
 			
-			//check if channel is live using kraken api
+			//check if channel is live using twitch api
 			try {
 				URL url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster);
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -715,7 +713,7 @@ public class ChannelHandler implements Runnable {
 			} else if (ircmsgList[1].equals("JOIN")) {
 				if (sender != null) {
 					if (this.autogreetList.containsKey(sender.getUsername())) {
-						if(this.allowAutogreetForNonMods || sender.isMod()) {
+						if(this.allowAutogreet) {
 							this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
 						}
 					}
@@ -1069,11 +1067,11 @@ public class ChannelHandler implements Runnable {
 		this.pointsPerUpdate = pointsPerUpdate;
 	}
 
-	public boolean isAllowAutogreetForNonMods() {
-		return allowAutogreetForNonMods;
+	public boolean isAllowAutogreet() {
+		return allowAutogreet;
 	}
 
-	public void setAllowAutogreetForNonMods(boolean allowAutogreetForNonMods) {
-		this.allowAutogreetForNonMods = allowAutogreetForNonMods;
+	public void setAllowAutogreet(boolean allowAutogreetForNonMods) {
+		this.allowAutogreet = allowAutogreetForNonMods;
 	}
 }

@@ -20,6 +20,7 @@ public class BlacklistCommand extends CommandHandler {
 				UserHandler uh = channelHandler.getUserList().get(key);
 				if( uh.getUsername().equals(data[1]) ) {
 					uh.setExecCommands(false);
+					uh.writeDBUserData();
 					success = true;
 				}
 			}
