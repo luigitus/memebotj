@@ -192,7 +192,7 @@ public class CommandHandler {
 	}
 
 	public boolean editCommand(String modType, String newValue, UserHandler sender, HashMap<String, UserHandler> userList) {
-		if (!CommandHandler.checkPermission(sender.getUsername(), "moderators", userList)) {
+		if (!CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
 			return false;
 		}
 		

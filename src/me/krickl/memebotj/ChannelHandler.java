@@ -488,6 +488,7 @@ public class ChannelHandler implements Runnable {
 			this.otherLoadedChannels = (ArrayList<String>) channelData.getOrDefault("otherchannels",
 					this.otherLoadedChannels);
 			this.pointsPerUpdate = (double)channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate);
+			this.allowAutogreet = (boolean)channelData.getOrDefault("allowautogreet", this.allowAutogreet);
 			
 			Document bultinStringsDoc = (Document) channelData.getOrDefault("builtinstrings", new Document());
 			Document autogreetDoc = (Document) channelData.getOrDefault("autogreet", new Document());
@@ -538,7 +539,8 @@ public class ChannelHandler implements Runnable {
 				.append("raceurl", this.raceBaseURL).append("fileanmelist", this.fileNameList)
 				.append("otherchannels", this.otherLoadedChannels).append("builtinstrings", bultinStringsDoc)
 				.append("autogreet", autogreetDoc)
-				.append("pointsperupdate", this.pointsPerUpdate);
+				.append("pointsperupdate", this.pointsPerUpdate)
+				.append("allowautogreet", this.allowAutogreet);
 
 		try {
 			if (this.channelCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -593,7 +595,11 @@ public class ChannelHandler implements Runnable {
 				}
 				in.close();
 				
-				if(data.indexOf("\"stream\":null") != -1) {
+				JSONParser parser = new JSONParser();
+				JSONObject obj = (JSONObject)parser.parse(data);
+				String isOnline = (String)obj.get("stream");
+				
+				if(isOnline == null) {
 					log.info(String.format("Stream %s is offline", this.channel));
 					this.isLive = false;
 				} else {
@@ -604,6 +610,9 @@ public class ChannelHandler implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -711,7 +720,7 @@ public class ChannelHandler implements Runnable {
 					}
 				}
 			} else if (ircmsgList[1].equals("JOIN")) {
-				if (sender != null) {
+				if (sender != null) {					
 					if (this.autogreetList.containsKey(sender.getUsername())) {
 						if(this.allowAutogreet) {
 							this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
@@ -743,7 +752,7 @@ public class ChannelHandler implements Runnable {
 			this.channelCommands.get(p).execCommand(sender, this, data, userList);
 		}
 		
-		// check text trigger
+		// TODO check text trigger
 
 		// exec other channel's command
 		for (ChannelHandler ch : Memebot.joinedChannels) {

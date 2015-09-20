@@ -2,8 +2,8 @@ package me.krickl.memebotj;
 
 public class BuildInfo {
 	public static final String appName = "memebot";
-	public static final String version = "1.1.1";
+	public static final String version = "1.1.2";
 	public static final String dev = "Lukas Krickl";
-    public static String revisionNumber = Integer.toHexString(0);
-    public static final String timeStamp = "Wed, 16-September-2015";
+    public static String revisionNumber = "no_build_available";
+    public static final String timeStamp = "20-September-2015";
 }
