@@ -24,18 +24,9 @@ public class FilenameCommand extends CommandHandler {
 					int index = rand.nextInt(channelHandler.getFileNameList().size() - 1);
 					channelHandler.setCurrentFileName(channelHandler.getFileNameList().get(index));
 					
-					//if name is too long reroll - this allows to have names of more than one length in the list
-					int i = 0;
-					while(channelHandler.getFileNameList().get(index).length() > channelHandler.getMaxFileNameLen()) {
-						index = rand.nextInt(channelHandler.getFileNameList().size() - 1);
-						channelHandler.setCurrentFileName(channelHandler.getFileNameList().get(index));
-						//try getting a good name a few times. if it fails return a name that is longer than max len
-						if(i > channelHandler.getFileNameList().size() / 2) {
-							break;
-						}
-						
-						i++;
-					}
+					//TODO if name is too long reroll - this allows to have names of more than one length in the list
+					//TODO try getting a good name a few times. if it fails return a name that is longer than max len
+					
 					channelHandler.getFileNameList().remove(index);
 					channelHandler.sendMessage("Filename: " + channelHandler.getCurrentFileName().split("#")[0] + " suggested by " + channelHandler.getCurrentFileName().split("#")[1], this.getChannelOrigin());
 					

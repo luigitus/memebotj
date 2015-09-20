@@ -597,7 +597,7 @@ public class ChannelHandler implements Runnable {
 				
 				JSONParser parser = new JSONParser();
 				JSONObject obj = (JSONObject)parser.parse(data);
-				String isOnline = (String)obj.get("stream");
+				Object isOnline = obj.get("stream");
 				
 				if(isOnline == null) {
 					log.info(String.format("Stream %s is offline", this.channel));

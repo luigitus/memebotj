@@ -119,6 +119,7 @@ public class Memebot {
 			byte[] jarBytes = Files.readAllBytes(Paths.get(Memebot.class.getProtectionDomain().getCodeSource().getLocation().getPath()));
 			byte[] hashBytes = digest.digest(jarBytes);
 			
+			BuildInfo.revisionNumber = "";
 			//to hex string
 			for(byte b : hashBytes) {
 				BuildInfo.revisionNumber = BuildInfo.revisionNumber + String.format("%02x", b);
