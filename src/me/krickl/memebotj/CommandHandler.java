@@ -29,6 +29,11 @@ public class CommandHandler {
 	ArrayList<String> aliases = new ArrayList<String>();
 	boolean locked = false;
 	boolean texttrigger = false;
+	
+	int neededCommandPower = 10;
+	int neededModCommandPower = 25;
+	int neededBroadcasterCommandPower = 50;
+	int neededBotAdminCommandPower = 75;
 
 	private MongoCollection<Document> commandCollection;
 
@@ -237,6 +242,14 @@ public class CommandHandler {
 		} else if (modType.equals("texttrigger")) {
 			this.texttrigger = Boolean.parseBoolean(newValue);
 			success = true;
+		} else if (modType.equals("modpower")) {
+			this.neededModCommandPower = Integer.parseInt(newValue);
+		} else if (modType.equals("viewerpower")) {
+			this.neededCommandPower = Integer.parseInt(newValue);
+		} else if (modType.equals("broadcasterpower")) {
+			this.neededBroadcasterCommandPower = Integer.parseInt(newValue);
+		} else if (modType.equals("botadminpower")) {
+			this.neededBotAdminCommandPower = Integer.parseInt(newValue);
 		}
 
 		this.writeDBCommand();
@@ -263,7 +276,11 @@ public class CommandHandler {
 				.append("qmodaccess", this.quoteModAccess).append("costf", this.pointCost)
 				.append("counter", this.counter).append("listcontent", this.listContent)
 				.append("locked", this.locked)
-				.append("texttrigger", this.texttrigger);
+				.append("texttrigger", this.texttrigger)
+				.append("viewerpower", this.neededCommandPower)
+				.append("modpower", this.neededModCommandPower)
+				.append("broadcasterpower", this.neededBroadcasterCommandPower)
+				.append("botadminpower", this.neededBotAdminCommandPower);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -314,9 +331,32 @@ public class CommandHandler {
 			this.listContent = (ArrayList<String>) channelData.getOrDefault("listcontent", this.listContent);
 			this.locked = (boolean)channelData.getOrDefault("locked", this.locked);
 			this.texttrigger = (boolean)channelData.getOrDefault("texttrigger", this.texttrigger);
+			this.neededCommandPower = (int)channelData.getOrDefault("viewerpower", this.neededCommandPower);
+			this.neededModCommandPower = (int)channelData.getOrDefault("modpower", this.neededModCommandPower);
+			this.neededBroadcasterCommandPower = (int)channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower);
+			this.neededBotAdminCommandPower = (int)channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower);
 		}
 	}
 
+	public static boolean checkPermission(String sender, int reqPermLevel, HashMap<String, UserHandler> userList) {
+		for (String user : Memebot.botAdmins) {
+			if (sender.equals(user)) {
+				return true;
+			}
+		}
+		
+		if (!userList.containsKey(sender) && !sender.equals("#readonly#")) {
+			return false;
+		}
+		
+		if (userList.get(sender).getCommandPower() >= reqPermLevel) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@Deprecated
 	public static boolean checkPermission(String sender, String reqPermLevel, HashMap<String, UserHandler> userList) {
 		for (String user : Memebot.botAdmins) {
 			if (sender.equals(user)) {

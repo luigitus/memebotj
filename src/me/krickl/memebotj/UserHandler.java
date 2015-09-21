@@ -10,6 +10,7 @@ public class UserHandler {
 	private boolean isBroadcaster = false;
 	private boolean execCommands = true;
 	private boolean newUser = false;
+	private int commandPower = 10;
 	private String username = "";
 	private String channelOrigin = "";
 	private double points = 0;
@@ -41,7 +42,8 @@ public class UserHandler {
 
 		Document channelData = new Document("_id", this.username).append("pointsf", this.points)
 				.append("vip", this.isVIP).append("autogreet", this.autogreet)
-				.append("execcommands", this.execCommands);
+				.append("execcommands", this.execCommands)
+				.append("commandpower", this.commandPower);
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -68,6 +70,7 @@ public class UserHandler {
 			this.points = (double)channelData.getOrDefault("pointsf", this.points);
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString();
 			this.execCommands = (boolean)channelData.getOrDefault("execcommands", this.execCommands);
+			this.commandPower = (int)channelData.getOrDefault("commandpower", this.commandPower);
 		} else {
 			this.newUser = true;
 		}
@@ -162,6 +165,14 @@ public class UserHandler {
 
 	public void setNewUser(boolean newUser) {
 		this.newUser = newUser;
+	}
+
+	public int getCommandPower() {
+		return commandPower;
+	}
+
+	public void setCommandPower(int commandPower) {
+		this.commandPower = commandPower;
 	}
 
 }

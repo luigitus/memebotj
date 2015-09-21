@@ -25,7 +25,7 @@ import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
-import me.krickl.memebotj.InternalCommands.BlacklistCommand;
+import me.krickl.memebotj.InternalCommands.UserPowerCommand;
 import me.krickl.memebotj.InternalCommands.EditChannel;
 import me.krickl.memebotj.InternalCommands.EditCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
@@ -170,7 +170,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"));
 		this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
 		this.internalCommands.add(new SpeedrunCommand(this.channel, "!pb", "#internal#"));
-		this.internalCommands.add(new BlacklistCommand(this.channel, "!blacklist", "#internal#"));
+		this.internalCommands.add(new UserPowerCommand(this.channel, "!up", "#internal#"));
 		
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
@@ -707,8 +707,10 @@ public class ChannelHandler implements Runnable {
 				if (user != null) {
 					if (ircmsgList[3].equals("+o")) {
 						user.setMod(true);
+						user.setCommandPower(25);
 					} else {
 						user.setMod(false);
+						user.setCommandPower(10);
 					}
 				}
 			} else if (ircmsgList[1].equals("PART")) {
@@ -739,6 +741,7 @@ public class ChannelHandler implements Runnable {
 		if (sender.getUsername().equalsIgnoreCase(this.broadcaster)) {
 			sender.setMod(true);
 			sender.setBroadcaster(true);
+			sender.setCommandPower(50);
 		}
 
 		// changed feature
