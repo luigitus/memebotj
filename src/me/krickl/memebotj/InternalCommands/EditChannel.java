@@ -9,6 +9,7 @@ public class EditChannel extends CommandHandler {
 	public EditChannel(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("broadcaster");
+		this.setNeededCommandPower(50);
 		this.setHelptext("");
 	}
 

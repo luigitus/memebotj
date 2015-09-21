@@ -9,6 +9,7 @@ public class QuitCommand extends CommandHandler {
 	public QuitCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("botadmin");
+		this.setNeededCommandPower(75);
 		this.setUnformattedOutput("Quitting bot MrDestructoid");
 		this.setHelptext("Quits the bot");
 	}

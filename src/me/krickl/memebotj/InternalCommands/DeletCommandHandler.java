@@ -9,6 +9,7 @@ public class DeletCommandHandler extends CommandHandler {
 	public DeletCommandHandler(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("moderators");
+		this.setNeededCommandPower(25);
 		this.setHelptext("Syntax: !deletecommand <command>");
 	}
 

@@ -14,7 +14,7 @@ public class RaceCommand extends CommandHandler {
 
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
-		if (data.length >= 1 && CommandHandler.checkPermission(sender.getUsername(), this.getQuoteModAccess(),
+		if (data.length >= 1 && CommandHandler.checkPermission(sender.getUsername(), this.getNeededModCommandPower(),
 				channelHandler.getUserList())) {
 			channelHandler.setCurrentRaceURL(channelHandler.getRaceBaseURL() + "/" + channelHandler.getBroadcaster());
 			for (int i = 0; i < data.length; i++) {

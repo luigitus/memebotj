@@ -25,7 +25,7 @@ public class UserHandler {
 		if (Memebot.useMongo) {
 			this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
 		}
-
+		this.commandPower = 10;
 		// this.loadUserData();
 		this.readDBUserData();
 	}

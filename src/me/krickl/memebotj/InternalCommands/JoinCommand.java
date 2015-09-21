@@ -13,6 +13,7 @@ public class JoinCommand extends CommandHandler {
 	public JoinCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("botadmin");
+		this.setNeededCommandPower(75);
 		this.setHelptext("Syntax: !mejoin <channel>");
 	}
 

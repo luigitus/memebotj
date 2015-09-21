@@ -9,6 +9,7 @@ public class PartCommand extends CommandHandler {
 	public PartCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("botadmin");
+		this.setNeededCommandPower(75);
 		this.setHelptext("Syntax: !mepart");
 	}
 

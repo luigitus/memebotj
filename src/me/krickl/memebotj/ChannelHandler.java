@@ -341,7 +341,7 @@ public class ChannelHandler implements Runnable {
 				bw.write(ch.getUnformattedOutput());
 				bw.write("</td>");
 				bw.write("<td>");
-				bw.write(ch.getAccess());
+				bw.write(Integer.toString(ch.getNeededCommandPower()));
 				bw.write("</td>");
 				bw.write("<td>");
 				bw.write(ch.getCmdtype());
@@ -409,7 +409,7 @@ public class ChannelHandler implements Runnable {
 				bw.write(ch.getUnformattedOutput());
 				bw.write("</td>");
 				bw.write("<td>");
-				bw.write(ch.getAccess());
+				bw.write(Integer.toString(ch.getNeededCommandPower()));
 				bw.write("</td>");
 				bw.write("<td>");
 				bw.write(ch.getCmdtype());

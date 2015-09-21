@@ -66,11 +66,10 @@ public class CommandHandler {
 			return "cooldown";
 		}
 
-		if (!CommandHandler.checkPermission(sender.getUsername(), this.access, userList)) {
+		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededCommandPower, userList)) {
 			return "denied";
 		}
-
-		if (sender.getPoints() < this.pointCost && !CommandHandler.checkPermission(sender.getUsername(), "botadmin", userList)) {
+		if (sender.getPoints() < this.pointCost && !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, userList) && this.pointCost > 0) {
 			channelHandler.sendMessage(String.format("Sorry, you don't have %f points", this.pointCost) , this.channelOrigin);
 			return "cost";
 		}
@@ -83,7 +82,7 @@ public class CommandHandler {
 		if (this.cmdtype.equals("list")) {
 			try {
 				if (data[1].equals("add")
-						&& CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
+						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					String newEntry = "";
 					for (int i = 2; i < data.length; i++) {
 						newEntry = newEntry + " " + data[i];
@@ -91,7 +90,7 @@ public class CommandHandler {
 					this.listContent.add(newEntry);
 					formattedOutput = "Added.";
 				} else if (data[1].equals("remove")
-						&& CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
+						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					try {
 						this.listContent.remove(Integer.parseInt(data[2]));
 						formattedOutput = "Removed.";
@@ -99,7 +98,7 @@ public class CommandHandler {
 						formattedOutput = e.toString();
 					}
 				} else if (data[1].equals("edit")
-						&& CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
+						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					String newEntry = "";
 					for (int i = 3; i < data.length; i++) {
 						newEntry = newEntry + " " + data[i];
@@ -139,13 +138,13 @@ public class CommandHandler {
 
 			try {
 				if (data[1].equals("add")
-						&& CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
+						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					counter = counter + modifier;
 				} else if (data[1].equals("sub")
-						&& CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
+						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					counter = counter - modifier;
 				} else if (data[1].equals("set")
-						&& CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
+						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					counter = modifier;
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {
@@ -197,7 +196,7 @@ public class CommandHandler {
 	}
 
 	public boolean editCommand(String modType, String newValue, UserHandler sender, HashMap<String, UserHandler> userList) {
-		if (!CommandHandler.checkPermission(sender.getUsername(), this.quoteModAccess, userList)) {
+		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 			return false;
 		}
 		
@@ -236,7 +235,7 @@ public class CommandHandler {
 		} else if (modType.equals("cost")) {
 			this.pointCost = Double.parseDouble(newValue);
 			success = true;
-		} else if (modType.equals("lock") && CommandHandler.checkPermission(sender.getUsername(), "broadcaster", userList) ) {
+		} else if (modType.equals("lock") && CommandHandler.checkPermission(sender.getUsername(), this.neededBroadcasterCommandPower, userList) ) {
 			this.locked = Boolean.parseBoolean(newValue);
 			success = true;
 		} else if (modType.equals("texttrigger")) {
@@ -348,8 +347,8 @@ public class CommandHandler {
 		if (!userList.containsKey(sender) && !sender.equals("#readonly#")) {
 			return false;
 		}
-		
-		if (userList.get(sender).getCommandPower() >= reqPermLevel) {
+
+		if ( reqPermLevel <= userList.get(sender).getCommandPower()) {
 			return true;
 		}
 		
@@ -527,6 +526,38 @@ public class CommandHandler {
 
 	public void setCommandCollection(MongoCollection<Document> commandCollection) {
 		this.commandCollection = commandCollection;
+	}
+
+	public int getNeededCommandPower() {
+		return neededCommandPower;
+	}
+
+	public void setNeededCommandPower(int neededCommandPower) {
+		this.neededCommandPower = neededCommandPower;
+	}
+
+	public int getNeededModCommandPower() {
+		return neededModCommandPower;
+	}
+
+	public void setNeededModCommandPower(int neededModCommandPower) {
+		this.neededModCommandPower = neededModCommandPower;
+	}
+
+	public int getNeededBroadcasterCommandPower() {
+		return neededBroadcasterCommandPower;
+	}
+
+	public void setNeededBroadcasterCommandPower(int neededBroadcasterCommandPower) {
+		this.neededBroadcasterCommandPower = neededBroadcasterCommandPower;
+	}
+
+	public int getNeededBotAdminCommandPower() {
+		return neededBotAdminCommandPower;
+	}
+
+	public void setNeededBotAdminCommandPower(int neededBotAdminCommandPower) {
+		this.neededBotAdminCommandPower = neededBotAdminCommandPower;
 	}
 
 }

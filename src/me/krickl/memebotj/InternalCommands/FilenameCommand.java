@@ -19,7 +19,7 @@ public class FilenameCommand extends CommandHandler {
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			if (data[0].equals("get")) {
-				if (CommandHandler.checkPermission(sender.getUsername(), "broadcaster", channelHandler.getUserList())) {
+				if (CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(), channelHandler.getUserList())) {
 					Random rand = new Random();
 					int index = rand.nextInt(channelHandler.getFileNameList().size() - 1);
 					channelHandler.setCurrentFileName(channelHandler.getFileNameList().get(index));
@@ -39,7 +39,7 @@ public class FilenameCommand extends CommandHandler {
 			}
 			
 			if (data[0].length() <= channelHandler.getMaxFileNameLen()) {
-				if (sender.getPoints() < 100 && !CommandHandler.checkPermission(sender.getUsername(), "botadmin", channelHandler.getUserList())) {
+				if (sender.getPoints() < 100 && !CommandHandler.checkPermission(sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
 					channelHandler.sendMessage(String.format("Sorry, you don't have %f points", 100) , this.getChannelOrigin());
 				} else {
 					channelHandler.getFileNameList().add(data[0] + "#" + sender.getUsername());

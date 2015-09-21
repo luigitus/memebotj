@@ -10,6 +10,7 @@ public class UserPowerCommand extends CommandHandler {
 	public UserPowerCommand(String channel, String command, String dbprefix) {
 		super(channel);
 		this.setAccess("botadmin");
+		this.setNeededCommandPower(75);
 	}
 	
 	@Override

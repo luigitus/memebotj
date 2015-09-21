@@ -10,6 +10,7 @@ public class SaveCommand extends CommandHandler {
 	public SaveCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("botadmin");
+		this.setNeededCommandPower(75);
 		this.setHelptext("Saves everything to database");
 	}
 

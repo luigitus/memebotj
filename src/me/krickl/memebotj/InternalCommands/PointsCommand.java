@@ -18,7 +18,7 @@ public class PointsCommand extends CommandHandler {
 						+ Double.toString(channelHandler.getUserList().get(sender.getUsername()).getPoints()), this.getChannelOrigin());
 			} else {
 				try {
-					if (channelHandler.getUserList().containsKey(data[1]) && CommandHandler.checkPermission(sender.getUsername(), "botadmin", channelHandler.getUserList())) {
+					if (channelHandler.getUserList().containsKey(data[1]) && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
 						UserHandler target = channelHandler.getUserList().get(data[1]);
 						double number = Double.parseDouble(data[2]);
 						if (data[0].equals("add")) {
