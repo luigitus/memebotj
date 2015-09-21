@@ -6,7 +6,6 @@ import com.mongodb.client.MongoCollection;
 
 public class UserHandler {
 	private boolean isMod = false;
-	private boolean isVIP = false;
 	private boolean isBroadcaster = false;
 	private boolean execCommands = true;
 	private boolean newUser = false;
@@ -17,6 +16,7 @@ public class UserHandler {
 	//private boolean isJoined = false;
 	private Cooldown userCooldown = new Cooldown(0);
 	private String autogreet = "";
+	private int timeouts = 0;
 	private MongoCollection<Document> userCollection;
 
 	public UserHandler(String username, String channel) {
@@ -26,6 +26,8 @@ public class UserHandler {
 			this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
 		}
 		this.commandPower = 10;
+		this.isMod = false;
+		this.isBroadcaster = false;
 		// this.loadUserData();
 		this.readDBUserData();
 	}
@@ -41,9 +43,11 @@ public class UserHandler {
 		Document channelQuery = new Document("_id", this.username);
 
 		Document channelData = new Document("_id", this.username).append("pointsf", this.points)
-				.append("vip", this.isVIP).append("autogreet", this.autogreet)
+				.append("mod", this.isMod).append("autogreet", this.autogreet)
 				.append("execcommands", this.execCommands)
-				.append("commandpower", this.commandPower);
+				.append("commandpower", this.commandPower)
+				.append("broadcaster", this.isBroadcaster)
+				.append("timeouts", this.timeouts);
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -66,11 +70,13 @@ public class UserHandler {
 
 		// read data
 		if (channelData != null) {
-			this.isVIP = channelData.getBoolean("vip", this.isVIP);
+			this.isMod = channelData.getBoolean("vip", this.isMod);
 			this.points = (double)channelData.getOrDefault("pointsf", this.points);
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString();
 			this.execCommands = (boolean)channelData.getOrDefault("execcommands", this.execCommands);
 			this.commandPower = (int)channelData.getOrDefault("commandpower", this.commandPower);
+			this.isBroadcaster = (boolean)channelData.getOrDefault("broadcaster", this.isBroadcaster);
+			this.timeouts = (int)channelData.getOrDefault("timeouts", this.timeouts);
 		} else {
 			this.newUser = true;
 		}
@@ -127,14 +133,6 @@ public class UserHandler {
 		this.userCooldown = userCooldown;
 	}
 
-	public boolean isVIP() {
-		return isVIP;
-	}
-
-	public void setVIP(boolean isVIP) {
-		this.isVIP = isVIP;
-	}
-
 	public String getAutogreet() {
 		return autogreet;
 	}
@@ -173,6 +171,14 @@ public class UserHandler {
 
 	public void setCommandPower(int commandPower) {
 		this.commandPower = commandPower;
+	}
+
+	public int getTimeouts() {
+		return timeouts;
+	}
+
+	public void setTimeouts(int timeouts) {
+		this.timeouts = timeouts;
 	}
 
 }

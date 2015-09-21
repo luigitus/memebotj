@@ -43,7 +43,6 @@ import me.krickl.memebotj.InternalCommands.RaceCommand;
 import me.krickl.memebotj.InternalCommands.SaveCommand;
 import me.krickl.memebotj.InternalCommands.SpeedrunCommand;
 import me.krickl.memebotj.InternalCommands.FilenameCommand;
-import me.krickl.memebotj.InternalCommands.VIPCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
 public class ChannelHandler implements Runnable {
@@ -163,7 +162,6 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new QuitCommand(this.channel, "!mequit", "#internal#"));
 		this.internalCommands.add(new RaceCommand(this.channel, "!race", "#internal#"));
 		this.internalCommands.add(new SaveCommand(this.channel, "!mesave", "#internal#"));
-		this.internalCommands.add(new VIPCommand(this.channel, "!vip", "#internal#"));
 		this.internalCommands.add(new WhoisCommand(this.channel, "!whois", "#internal#"));
 		this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"));
 		this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"));
@@ -707,7 +705,9 @@ public class ChannelHandler implements Runnable {
 				if (user != null) {
 					if (ircmsgList[3].equals("+o")) {
 						user.setMod(true);
-						user.setCommandPower(25);
+						if(!user.isBroadcaster()) {
+							user.setCommandPower(25);
+						}
 					} else {
 						user.setMod(false);
 						user.setCommandPower(10);
@@ -727,6 +727,17 @@ public class ChannelHandler implements Runnable {
 						if(this.allowAutogreet) {
 							this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
 						}
+					}
+				}
+			} else if (ircmsgList[1].equals("CLEARCHAT")) {
+				if(this.userList.containsKey(ircmsgList[3].replace(":", ""))) {
+					this.userList.get(ircmsgList[3].replace(":", "")).setTimeouts(this.userList.get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);
+					this.userList.get(ircmsgList[3].replace(":", "")).writeDBUserData();
+				} else {
+					UserHandler uh = new UserHandler(ircmsgList[3].replace(":", ""), this.channel);
+					if(!uh.isNewUser()) {
+						uh.setTimeouts(uh.getTimeouts() + 1);
+						uh.writeDBUserData();
 					}
 				}
 			}

@@ -369,8 +369,6 @@ public class CommandHandler {
 
 		if (reqPermLevel.equals("moderators") && userList.get(sender).isMod()) {
 			return true;
-		} else if (reqPermLevel.equals("vip") && userList.get(sender).isVIP()) {
-			return true;
 		} else if (reqPermLevel.equals("broadcaster") && userList.get(sender).isBroadcaster()) {
 			return true;
 		} else if (reqPermLevel.equals("viewers")) {
