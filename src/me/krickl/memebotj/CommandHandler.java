@@ -347,9 +347,15 @@ public class CommandHandler {
 		if (!userList.containsKey(sender) && !sender.equals("#readonly#")) {
 			return false;
 		}
-
-		if ( reqPermLevel <= userList.get(sender).getCommandPower()) {
-			return true;
+		
+		if(userList.containsKey(sender)) {
+			if ( reqPermLevel <= userList.get(sender).getCommandPower()) {
+				return true;
+			}
+		} else if (sender.equals("#readonly#")) {
+			if(reqPermLevel <= 10) {
+				return true;
+			}
 		}
 		
 		return false;

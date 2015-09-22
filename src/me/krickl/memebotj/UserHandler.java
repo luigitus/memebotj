@@ -10,6 +10,8 @@ public class UserHandler {
 	private boolean execCommands = true;
 	private boolean newUser = false;
 	private int commandPower = 10;
+	private int autoCommandPower = 10;
+	private int customCommandPower = 0;
 	private String username = "";
 	private String channelOrigin = "";
 	private double points = 0;
@@ -25,11 +27,11 @@ public class UserHandler {
 		if (Memebot.useMongo) {
 			this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
 		}
-		this.commandPower = 10;
 		this.isMod = false;
 		this.isBroadcaster = false;
 		// this.loadUserData();
 		this.readDBUserData();
+		this.setCommandPower(this.autoCommandPower);
 	}
 
 	public void writeDBUserData() {
@@ -45,7 +47,7 @@ public class UserHandler {
 		Document channelData = new Document("_id", this.username).append("pointsf", this.points)
 				.append("mod", this.isMod).append("autogreet", this.autogreet)
 				.append("execcommands", this.execCommands)
-				.append("commandpower", this.commandPower)
+				.append("ccommandpower", this.customCommandPower)
 				.append("broadcaster", this.isBroadcaster)
 				.append("timeouts", this.timeouts);
 
@@ -74,7 +76,7 @@ public class UserHandler {
 			this.points = (double)channelData.getOrDefault("pointsf", this.points);
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString();
 			this.execCommands = (boolean)channelData.getOrDefault("execcommands", this.execCommands);
-			this.commandPower = (int)channelData.getOrDefault("commandpower", this.commandPower);
+			this.customCommandPower = (int)channelData.getOrDefault("ccommandpower", this.customCommandPower);
 			this.isBroadcaster = (boolean)channelData.getOrDefault("broadcaster", this.isBroadcaster);
 			this.timeouts = (int)channelData.getOrDefault("timeouts", this.timeouts);
 		} else {
@@ -170,7 +172,8 @@ public class UserHandler {
 	}
 
 	public void setCommandPower(int commandPower) {
-		this.commandPower = commandPower;
+		this.autoCommandPower = commandPower;
+		this.commandPower = commandPower + this.customCommandPower;
 	}
 
 	public int getTimeouts() {
@@ -179,6 +182,22 @@ public class UserHandler {
 
 	public void setTimeouts(int timeouts) {
 		this.timeouts = timeouts;
+	}
+
+	public int getCustomCommandPower() {
+		return customCommandPower;
+	}
+
+	public void setCustomCommandPower(int customCommandPower) {
+		this.customCommandPower = customCommandPower;
+	}
+
+	public int getAutoCommandPower() {
+		return autoCommandPower;
+	}
+
+	public void setAutoCommandPower(int autoCommandPower) {
+		this.autoCommandPower = autoCommandPower;
 	}
 
 }

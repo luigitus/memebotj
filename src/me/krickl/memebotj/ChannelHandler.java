@@ -168,7 +168,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"));
 		this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
 		this.internalCommands.add(new SpeedrunCommand(this.channel, "!pb", "#internal#"));
-		this.internalCommands.add(new UserPowerCommand(this.channel, "!up", "#internal#"));
+		this.internalCommands.add(new UserPowerCommand(this.channel, "!userpower", "#internal#"));
 		
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");

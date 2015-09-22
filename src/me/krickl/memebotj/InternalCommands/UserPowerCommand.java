@@ -8,7 +8,7 @@ import me.krickl.memebotj.UserHandler;
 public class UserPowerCommand extends CommandHandler {
 
 	public UserPowerCommand(String channel, String command, String dbprefix) {
-		super(channel);
+		super(channel, command, dbprefix);
 		this.setAccess("botadmin");
 		this.setNeededCommandPower(75);
 	}
@@ -17,19 +17,33 @@ public class UserPowerCommand extends CommandHandler {
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			boolean success = false;
+			int newCP = Integer.parseInt(data[1]);
 			for(String key : channelHandler.getUserList().keySet()) {
+				
 				UserHandler uh = channelHandler.getUserList().get(key);
-				if( uh.getUsername().equals(data[1]) ) {
-					uh.setCommandPower(Integer.parseInt(data[1]));
+				if( uh.getUsername().equals(data[0]) ) {
+					if((newCP + uh.getAutoCommandPower() ) > sender.getCommandPower()) {
+						channelHandler.sendMessage("You cannot set the command power of a user higher than yours", this.getChannelOrigin());
+						return;
+					}
+					
+					uh.setCustomCommandPower(Integer.parseInt(data[1]));
+					uh.setCommandPower(uh.getAutoCommandPower());
 					uh.writeDBUserData();
 					success = true;
 				}
 			}
 			
 			if(!success) {
-				UserHandler uh = new UserHandler(data[1], channelHandler.getChannel());
+				UserHandler uh = new UserHandler(data[0], channelHandler.getChannel());
 				if(!uh.isNewUser()) {
-					uh.setCommandPower(Integer.parseInt(data[1]));
+					if((newCP + uh.getAutoCommandPower() ) > sender.getCommandPower()) {
+						channelHandler.sendMessage("You cannot set the command power of a user higher than yours", this.getChannelOrigin());
+						return;
+					}
+					
+					uh.setCustomCommandPower(Integer.parseInt(data[1]));
+					uh.setCommandPower(uh.getAutoCommandPower());
 					uh.writeDBUserData();
 					success = true;
 				}
@@ -38,9 +52,11 @@ public class UserPowerCommand extends CommandHandler {
 			if(success) {
 				channelHandler.sendMessage("Changed user power to " + data[1], this.getChannelOrigin());
 			} else {
-				channelHandler.sendMessage("This user never joined this channel: " + data[1], this.getChannelOrigin());
+				channelHandler.sendMessage("This user never joined this channel: " + data[0], this.getChannelOrigin());
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
+			
+		} catch(NumberFormatException e) {
 			
 		}
 	}
