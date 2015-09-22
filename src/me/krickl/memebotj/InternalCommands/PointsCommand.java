@@ -18,8 +18,17 @@ public class PointsCommand extends CommandHandler {
 						+ Double.toString(channelHandler.getUserList().get(sender.getUsername()).getPoints()), this.getChannelOrigin());
 			} else {
 				try {
+					UserHandler target = null;
 					if (channelHandler.getUserList().containsKey(data[1]) && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
-						UserHandler target = channelHandler.getUserList().get(data[1]);
+						target = channelHandler.getUserList().get(data[1]);
+					} else {
+						target = new UserHandler(data[1], this.getChannelOrigin());
+						if(target.isNewUser()) {
+							target = null;
+						}
+					}
+					
+					if(target != null) {
 						double number = Double.parseDouble(data[2]);
 						if (data[0].equals("add")) {
 							target.setPoints(target.getPoints() + number);
