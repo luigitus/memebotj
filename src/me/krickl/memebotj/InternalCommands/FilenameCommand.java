@@ -40,7 +40,7 @@ public class FilenameCommand extends CommandHandler {
 			
 			if (data[0].length() <= channelHandler.getMaxFileNameLen()) {
 				if (sender.getPoints() < 100 && !CommandHandler.checkPermission(sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
-					channelHandler.sendMessage(String.format("Sorry, you don't have %f points", 100) , this.getChannelOrigin());
+					channelHandler.sendMessage(String.format("Sorry, you don't have %f %s", 100, channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")) , this.getChannelOrigin());
 				} else {
 					channelHandler.getFileNameList().add(data[0] + "#" + sender.getUsername());
 					if( !this.getCommand().equals("~name") ) {

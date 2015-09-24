@@ -41,6 +41,7 @@ import me.krickl.memebotj.InternalCommands.PointsCommand;
 import me.krickl.memebotj.InternalCommands.QuitCommand;
 import me.krickl.memebotj.InternalCommands.RaceCommand;
 import me.krickl.memebotj.InternalCommands.SaveCommand;
+import me.krickl.memebotj.InternalCommands.SendMessageCommand;
 import me.krickl.memebotj.InternalCommands.SpeedrunCommand;
 import me.krickl.memebotj.InternalCommands.FilenameCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
@@ -54,27 +55,26 @@ public class ChannelHandler implements Runnable {
 	// private ArrayList<String> modList = new ArrayList<String>();
 	// private ArrayList<String> viewerList = new ArrayList<String>();
 	private HashMap<String, UserHandler> userList = new HashMap<String, UserHandler>();
-	private Cooldown updateCooldown = new Cooldown(10);
+	private Cooldown updateCooldown = new Cooldown(60);
 	private ArrayList<CommandHandler> channelCommands = new ArrayList<CommandHandler>();
 	private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
 	private String followerNotification = ""; // if notification is empty it'll not send
 	private String channelInfoURL = "";
 	private String channelFollowersURL = "";
 	private String raceBaseURL = "http://kadgar.net/live";
-	private String greetMessage = "Hello I'm {appname} {version} build {build} built on {builddate} the dankest irc bot ever RitzMitz";
+	private String greetMessage = "Hello I'm {appname} {version} build {build} the dankest irc bot ever RitzMitz";
 	private String currentRaceURL = "";
 	private ArrayList<String> fileNameList = new ArrayList<String>();
 	private int maxFileNameLen = 8;
 	private String currentFileName = "";
 
 	private HashMap<String, String> builtInStrings = new HashMap<String, String>();
-	private ArrayList<String> songList = new ArrayList<String>();
-	private int maxSongLen = 600; // song length in seconds
-	private String emebdCodeYT = "<iframe width=\"420\" height=\"315\" src=\"{url}\" frameborder=\"0\" allowfullscreen></iframe>";
+	//private ArrayList<String> songList = new ArrayList<String>();
+	//private int maxSongLen = 600; // song length in seconds
+	//private String emebdCodeYT = "<iframe width=\"420\" height=\"315\" src=\"{url}\" frameborder=\"0\" allowfullscreen></iframe>";
 	private String channelPageURL;
 	private String channelPageBaseURL;
 	private String htmlDir;
-	private String refreshTag = "";//"<meta http-equiv=\"refresh\" content=\"{seconds}\" />";
 	private String youtubeAPIURL = "https://www.googleapis.com/youtube/v3/videos?id={videoid}&part=contentDetails&key="
 			+ Memebot.youtubeAPIKey;
 
@@ -121,6 +121,8 @@ public class ChannelHandler implements Runnable {
 		builtInStrings.put("DELCOM_NOT_FOUND", "Could not find command {param1}");
 		builtInStrings.put("DELCOM_OK", "{param1} removed");
 		builtInStrings.put("CHCHANNEL_SYNTAX", "Syntax: {param1}");
+		builtInStrings.put("CURRENCY_NAME", "points");
+		builtInStrings.put("CURRENCY_EMOTE", "points");
 
 		// create dirs
 		File htmlDirF = new File(this.htmlDir);
@@ -158,7 +160,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new ModeratorsCommand(this.channel, "!moderators", "#internal#"));
 		this.internalCommands.add(new JoinCommand(this.channel, "!mejoin", "#internal#"));
 		this.internalCommands.add(new PartCommand(this.channel, "!mepart", "#internal#"));
-		this.internalCommands.add(new PointsCommand(this.channel, "!points", "#internal#"));
+		this.internalCommands.add(new PointsCommand(this.channel, "!" + builtInStrings.get("CURRENCY_NAME"), "#internal#"));
 		this.internalCommands.add(new QuitCommand(this.channel, "!mequit", "#internal#"));
 		this.internalCommands.add(new RaceCommand(this.channel, "!race", "#internal#"));
 		this.internalCommands.add(new SaveCommand(this.channel, "!mesave", "#internal#"));
@@ -169,6 +171,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
 		this.internalCommands.add(new SpeedrunCommand(this.channel, "!pb", "#internal#"));
 		this.internalCommands.add(new UserPowerCommand(this.channel, "!userpower", "#internal#"));
+		this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"));
 		
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
@@ -325,7 +328,6 @@ public class ChannelHandler implements Runnable {
 					}
 
 					bwq.write("</table>");
-					bwq.write(this.refreshTag.replace("{seconds}", "20"));
 					bwq.write("</html>");
 					bwq.close();
 				} else {
@@ -393,7 +395,6 @@ public class ChannelHandler implements Runnable {
 					}
 
 					bwq.write("</table>");
-					bwq.write(this.refreshTag.replace("{seconds}", "20"));
 					bwq.write("</html>");
 					bwq.close();
 				} else {
@@ -416,7 +417,6 @@ public class ChannelHandler implements Runnable {
 			}
 
 			bw.write("</table>");
-			bw.write(this.refreshTag.replace("{seconds}", "20"));
 			bw.write("</html>");
 			bw.close();
 			
@@ -456,7 +456,6 @@ public class ChannelHandler implements Runnable {
 			}
 
 			bwf.write("</table>");
-			bwf.write(this.refreshTag.replace("{seconds}", "20"));
 			bwf.write("</html>");
 			
 			
@@ -754,6 +753,13 @@ public class ChannelHandler implements Runnable {
 			sender.setBroadcaster(true);
 			sender.setCommandPower(50);
 		}
+		
+		//check botadmin status
+		for(String user : Memebot.botAdmins) {
+			if(user.equalsIgnoreCase(sender.getUsername())) {
+				sender.setCommandPower(75);
+			}
+		}
 
 		// changed feature
 		// for( int i = 0; i < 1; i++) {
@@ -763,10 +769,17 @@ public class ChannelHandler implements Runnable {
 		// check channel commands
 		int p = -1;
 		if ((p = this.findCommand(msg)) != -1) {
-			this.channelCommands.get(p).execCommand(sender, this, data, userList);
+			if(!this.channelCommands.get(p).isTexttrigger()) {
+				this.channelCommands.get(p).execCommand(sender, this, data, userList);
+			}
 		}
 		
-		// TODO check text trigger
+		// check text trigger
+		for(CommandHandler ch : this.channelCommands) {
+			if(ch.isTexttrigger() && (rawircmsg.indexOf(ch.getCommand()) != -1)) {
+				ch.execCommand(sender, this, new String[]{""}, userList);
+			}
+		}
 
 		// exec other channel's command
 		for (ChannelHandler ch : Memebot.joinedChannels) {
@@ -970,30 +983,6 @@ public class ChannelHandler implements Runnable {
 		this.builtInStrings = builtInStrings;
 	}
 
-	public ArrayList<String> getSongList() {
-		return songList;
-	}
-
-	public void setSongList(ArrayList<String> songList) {
-		this.songList = songList;
-	}
-
-	public int getMaxSongLen() {
-		return maxSongLen;
-	}
-
-	public void setMaxSongLen(int maxSongLen) {
-		this.maxSongLen = maxSongLen;
-	}
-
-	public String getEmebdCodeYT() {
-		return emebdCodeYT;
-	}
-
-	public void setEmebdCodeYT(String emebdCodeYT) {
-		this.emebdCodeYT = emebdCodeYT;
-	}
-
 	public String getChannelPageURL() {
 		return channelPageURL;
 	}
@@ -1016,14 +1005,6 @@ public class ChannelHandler implements Runnable {
 
 	public void setHtmlDir(String htmlDir) {
 		this.htmlDir = htmlDir;
-	}
-
-	public String getRefreshTag() {
-		return refreshTag;
-	}
-
-	public void setRefreshTag(String refreshTag) {
-		this.refreshTag = refreshTag;
 	}
 
 	public String getYoutubeAPIURL() {

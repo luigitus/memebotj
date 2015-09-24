@@ -40,6 +40,9 @@ public class EditChannel extends CommandHandler {
 			} else if(data[0].equals("allowautogreet")) {
 				channelHandler.setAllowAutogreet(!channelHandler.isAllowAutogreet());
 				channelHandler.sendMessage(String.format("Autogreet set to %s", Boolean.toString(channelHandler.isAllowAutogreet())), this.getChannelOrigin());
+			} else if(data[0].equals("maxnamelen")) {
+				channelHandler.setMaxFileNameLen(Integer.parseInt(data[1]));
+				channelHandler.sendMessage("Changed max filename length to " + data[1], this.getChannelOrigin());
 			} else {
 				if (channelHandler.getBuiltInStrings().containsKey(data[0])) {
 					channelHandler.getBuiltInStrings().put(data[0], newEntry);
@@ -54,6 +57,8 @@ public class EditChannel extends CommandHandler {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("CHCHANNEL_SYNTAX"),
 					this.getChannelOrigin());
+		} catch(NumberFormatException e) {
+			
 		}
 	}
 }

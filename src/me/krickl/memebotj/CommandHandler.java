@@ -70,7 +70,7 @@ public class CommandHandler {
 			return "denied";
 		}
 		if (sender.getPoints() < this.pointCost && !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, userList) && this.pointCost > 0) {
-			channelHandler.sendMessage(String.format("Sorry, you don't have %f points", this.pointCost) , this.channelOrigin);
+			channelHandler.sendMessage(String.format("Sorry, you don't have %f %s", this.pointCost, channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")) , this.channelOrigin);
 			return "cost";
 		}
 

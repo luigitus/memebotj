@@ -15,7 +15,7 @@ public class PointsCommand extends CommandHandler {
 		if (channelHandler.getUserList().containsKey(sender.getUsername())) {
 			if(data.length < 1) {
 				channelHandler.sendMessage(sender.getUsername() + ": "
-						+ Double.toString(channelHandler.getUserList().get(sender.getUsername()).getPoints()), this.getChannelOrigin());
+						+ Double.toString(channelHandler.getUserList().get(sender.getUsername()).getPoints()) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"), this.getChannelOrigin());
 			} else {
 				try {
 					UserHandler target = null;
@@ -36,7 +36,7 @@ public class PointsCommand extends CommandHandler {
 							target.setPoints(target.getPoints() - number);
 						}
 						
-						channelHandler.sendMessage(String.format("%s your new total is: %f", target.getUsername(), target.getPoints()), this.getChannelOrigin());
+						channelHandler.sendMessage(String.format("%s your new total is: %f %s", target.getUsername(), target.getPoints(), channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
 					}
 				} catch (ArrayIndexOutOfBoundsException e) {
 					

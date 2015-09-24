@@ -2,21 +2,27 @@ package me.krickl.memebotj.InternalCommands;
 
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.CommandHandler;
+import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 
-public class QuitCommand extends CommandHandler {
+public class SendMessageCommand extends CommandHandler {
 
-	public QuitCommand(String channel, String command, String dbprefix) {
+	public SendMessageCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("botadmin");
 		this.setNeededCommandPower(75);
-		this.setUnformattedOutput("You have been terminated MrDestructoid");
-		this.setHelptext("Quits the bot");
 	}
-
+	
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
-		System.exit(0);
+		String msg = "";
+		for(String s : data) {
+			msg = msg + " " + s;
+		}
+		
+		for(ChannelHandler ch : Memebot.joinedChannels) {
+			ch.sendMessage(msg, ch.getChannel());
+		}
 	}
 
 }
