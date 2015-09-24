@@ -89,6 +89,10 @@ public class ChannelHandler implements Runnable {
 	private boolean isJoined = true;
 	private boolean allowAutogreet = true;
 	private boolean isLive = false;
+	
+	private int currentMessageCount = 0;
+	private Cooldown messageLimitCooldown = new Cooldown(30);
+	private Cooldown preventMessageCooldown = new Cooldown(30);
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);
@@ -561,10 +565,16 @@ public class ChannelHandler implements Runnable {
 	}
 
 	public void sendMessage(String msg, String channel) {
-		if (Memebot.currentMessageCount >= Memebot.messageLimit) {
-			log.warning("Reached global message limit for 30 seconds. try again later");
+		if(!this.preventMessageCooldown.canContinue()) {
+			return;
 		}
-		Memebot.currentMessageCount++;
+		
+		if (this.currentMessageCount >= Memebot.messageLimit) {
+			log.warning("Reached global message limit for 30 seconds. try again later");
+			this.preventMessageCooldown.startCooldown();
+			
+		}
+		this.currentMessageCount++;
 
 		try {
 			this.connection.getOutToServer().flush();
@@ -577,6 +587,11 @@ public class ChannelHandler implements Runnable {
 	}
 
 	public void update() {
+		if (this.messageLimitCooldown.canContinue()) {
+			this.messageLimitCooldown.startCooldown();
+			this.currentMessageCount = 0;
+		}
+		
 		if (this.updateCooldown.canContinue()) {
 			this.updateCooldown.startCooldown();
 			
@@ -776,8 +791,12 @@ public class ChannelHandler implements Runnable {
 		
 		// check text trigger
 		for(CommandHandler ch : this.channelCommands) {
-			if(ch.isTexttrigger() && (rawircmsg.indexOf(ch.getCommand()) != -1)) {
-				ch.execCommand(sender, this, new String[]{""}, userList);
+			if(ch.isTexttrigger()) {
+				for(String s : ircmsgList) {
+					if (s.equals(ch.getCommand())) {
+						ch.execCommand(sender, this, new String[]{""}, userList);
+					}
+				}
 			}
 		}
 

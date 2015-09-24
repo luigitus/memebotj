@@ -94,9 +94,6 @@ public class Memebot {
 	public static String lastError = "";
 
 	public static final int messageLimit = 19; // message limit per 30 seconds
-	public static int currentMessageCount = 0;
-
-	public static Cooldown messageLimitCooldown = new Cooldown(30);
 
 	public static MongoCollection<Document> internalCollection;
 	
