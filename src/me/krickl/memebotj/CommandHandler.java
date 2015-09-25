@@ -34,6 +34,8 @@ public class CommandHandler {
 	int neededModCommandPower = 25;
 	int neededBroadcasterCommandPower = 50;
 	int neededBotAdminCommandPower = 75;
+	
+	int userCooldownLen = 0;
 
 	private MongoCollection<Document> commandCollection;
 
@@ -62,8 +64,23 @@ public class CommandHandler {
 
 	public String execCommand(UserHandler sender, ChannelHandler channelHandler, String[] data,
 			HashMap<String, UserHandler> userList) {
+		
+		//check global cooldown
 		if (!this.cooldown.canContinue() || (!sender.getUserCooldown().canContinue() && !sender.isMod())) {
 			return "cooldown";
+		}
+		
+		//check user cooldown
+		if (!sender.getUserCommandCooldowns().containsKey(this.command)) {
+			sender.getUserCommandCooldowns().put(this.command, new Cooldown(this.userCooldownLen));
+		} else {
+			if(sender.getUserCommandCooldowns().get(this.command).getCooldownLen() != this.userCooldownLen) {
+				sender.getUserCommandCooldowns().get(this.command).setCooldownLen(this.userCooldownLen);
+			}
+		}
+		
+		if (!sender.getUserCommandCooldowns().get(this.command).canContinue() && !CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
+			return "usercooldown";
 		}
 
 		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededCommandPower, userList)) {
@@ -156,6 +173,7 @@ public class CommandHandler {
 
 		this.cooldown.startCooldown();
 		sender.getUserCooldown().startCooldown();
+		sender.getUserCommandCooldowns().get(this.command).startCooldown();
 
 		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername());
 		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter));
@@ -245,12 +263,19 @@ public class CommandHandler {
 			success = true;
 		} else if (modType.equals("modpower")) {
 			this.neededModCommandPower = Integer.parseInt(newValue);
+			success = true;
 		} else if (modType.equals("viewerpower")) {
 			this.neededCommandPower = Integer.parseInt(newValue);
+			success = true;
 		} else if (modType.equals("broadcasterpower")) {
 			this.neededBroadcasterCommandPower = Integer.parseInt(newValue);
+			success = true;
 		} else if (modType.equals("botadminpower")) {
 			this.neededBotAdminCommandPower = Integer.parseInt(newValue);
+			success = true;
+		} else if (modType.equals("usercooldown")) {
+			this.userCooldownLen = Integer.parseInt(newValue);
+			success = true;
 		}
 
 		this.writeDBCommand();
@@ -281,7 +306,8 @@ public class CommandHandler {
 				.append("viewerpower", this.neededCommandPower)
 				.append("modpower", this.neededModCommandPower)
 				.append("broadcasterpower", this.neededBroadcasterCommandPower)
-				.append("botadminpower", this.neededBotAdminCommandPower);
+				.append("botadminpower", this.neededBotAdminCommandPower)
+				.append("usercooldown", this.userCooldownLen);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -336,6 +362,7 @@ public class CommandHandler {
 			this.neededModCommandPower = (int)channelData.getOrDefault("modpower", this.neededModCommandPower);
 			this.neededBroadcasterCommandPower = (int)channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower);
 			this.neededBotAdminCommandPower = (int)channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower);
+			this.userCooldownLen = (int)channelData.getOrDefault("usercooldown", this.userCooldownLen);
 		}
 	}
 

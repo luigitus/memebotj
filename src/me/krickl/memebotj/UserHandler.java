@@ -1,5 +1,7 @@
 package me.krickl.memebotj;
 
+import java.util.HashMap;
+
 import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -20,6 +22,7 @@ public class UserHandler {
 	private String autogreet = "";
 	private int timeouts = 0;
 	private MongoCollection<Document> userCollection;
+	private HashMap<String, Cooldown> userCommandCooldowns = new HashMap<String, Cooldown>();
 
 	public UserHandler(String username, String channel) {
 		this.username = username;
@@ -198,6 +201,14 @@ public class UserHandler {
 
 	public void setAutoCommandPower(int autoCommandPower) {
 		this.autoCommandPower = autoCommandPower;
+	}
+	
+	public HashMap<String, Cooldown> getUserCommandCooldowns() {
+		return userCommandCooldowns;
+	}
+
+	public void setUserCommandCooldowns(HashMap<String, Cooldown> userCooldowns) {
+		this.userCommandCooldowns = userCooldowns;
 	}
 
 }
