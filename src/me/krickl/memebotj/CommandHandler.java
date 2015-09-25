@@ -107,8 +107,7 @@ public class CommandHandler {
 					this.listContent.set(Integer.parseInt(data[2]), newEntry);
 					formattedOutput = "Edited";
 				} else if(data[1].equals("list")) {
-					channelHandler.sendMessage("List: " + channelHandler.getChannelPageBaseURL() + "/" + this.command, this.channelOrigin);
-					formattedOutput = "";
+					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + this.command;
 				} else {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data[1])
