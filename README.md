@@ -1,6 +1,15 @@
 
 #Memebot is a simple, yet powerful irc bot designed specifically for use with twitch.tv.
 
+#Compilation
+
+To compile memebot you will need the following libraries:
+
+- bson
+- mongodb-driver
+- mongodb
+- json-simple
+
 ##Basic commands:
 
 Most of the commands have an attached helptext and do not need further expalnation. Just use !help <command>.
