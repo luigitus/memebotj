@@ -21,6 +21,10 @@ public class Cooldown {
 	public void setCooldownLen(int cooldownLen) {
 		this.cooldownLen = cooldownLen;
 	}
+	
+	public void setCooldownEnd(int cooldownEnd) {
+		this.cooldownEnd = cooldownEnd;
+	}
 
 	public boolean canContinue() {
 		if (this.cooldownEnd > (int) (System.currentTimeMillis() / 1000L)) {

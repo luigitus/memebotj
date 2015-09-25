@@ -29,6 +29,7 @@ import me.krickl.memebotj.InternalCommands.UserPowerCommand;
 import me.krickl.memebotj.InternalCommands.EditChannel;
 import me.krickl.memebotj.InternalCommands.EditCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
+import me.krickl.memebotj.InternalCommands.DampeCommand;
 import me.krickl.memebotj.InternalCommands.DeletCommandHandler;
 import me.krickl.memebotj.InternalCommands.HelpCommand;
 import me.krickl.memebotj.InternalCommands.HugCommand;
@@ -164,7 +165,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new ModeratorsCommand(this.channel, "!moderators", "#internal#"));
 		this.internalCommands.add(new JoinCommand(this.channel, "!mejoin", "#internal#"));
 		this.internalCommands.add(new PartCommand(this.channel, "!mepart", "#internal#"));
-		this.internalCommands.add(new PointsCommand(this.channel, "!" + builtInStrings.get("CURRENCY_NAME"), "#internal#"));
+		this.internalCommands.add(new PointsCommand(this.channel, "!" + builtInStrings.get("CURRENCY_NAME").replace(" ", ""), "#internal#"));
 		this.internalCommands.add(new QuitCommand(this.channel, "!mequit", "#internal#"));
 		this.internalCommands.add(new RaceCommand(this.channel, "!race", "#internal#"));
 		this.internalCommands.add(new SaveCommand(this.channel, "!mesave", "#internal#"));
@@ -176,6 +177,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new SpeedrunCommand(this.channel, "!pb", "#internal#"));
 		this.internalCommands.add(new UserPowerCommand(this.channel, "!userpower", "#internal#"));
 		this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"));
+		this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"));
 		
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
