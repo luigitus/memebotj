@@ -18,7 +18,7 @@ public class AboutCommand extends CommandHandler {
 		channelHandler.sendMessage("memebot-j version " + BuildInfo.version + " build "+ BuildInfo.revisionNumber + ". Developed by " + BuildInfo.dev,
 				this.getChannelOrigin());
 		channelHandler.sendMessage(
-				"Licence: http://vps.krickl.me/license.html || Fork me RitzMitz : https://github.com/unlink2/memebotj",
+				"Licence: https://github.com/unlink2/memebotj/blob/master/license.md || Fork me RitzMitz : https://github.com/unlink2/memebotj",
 				this.getChannelOrigin());
 	}
 }
