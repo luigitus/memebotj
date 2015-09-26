@@ -1,6 +1,9 @@
 package me.krickl.memebotj;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -36,6 +39,8 @@ public class CommandHandler {
 	int neededBotAdminCommandPower = 75;
 	
 	int userCooldownLen = 0;
+	boolean appendGameToQuote = false;
+	boolean appendDateToQuote = false;
 
 	private MongoCollection<Document> commandCollection;
 
@@ -93,6 +98,10 @@ public class CommandHandler {
 
 		sender.setPoints(sender.getPoints() - this.pointCost);
 		
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");//dd/MM/yyyy
+		Calendar cal = Calendar.getInstance();
+	    String strDate = sdfDate.format(cal.getTime());
+		
 		String formattedOutput = this.unformattedOutput;
 		int counterStart = 1;
 
@@ -104,6 +113,13 @@ public class CommandHandler {
 					for (int i = 2; i < data.length; i++) {
 						newEntry = newEntry + " " + data[i];
 					}
+					if(this.appendDateToQuote) {
+						newEntry = newEntry + " <" + strDate + ">";
+					}
+					if(this.appendGameToQuote) {
+						newEntry = newEntry + " <" + channelHandler.getCurrentGame() + ">";
+					}
+					
 					this.listContent.add(newEntry);
 					formattedOutput = "Added.";
 				} else if (data[1].equals("remove")
@@ -174,7 +190,7 @@ public class CommandHandler {
 		this.cooldown.startCooldown();
 		sender.getUserCooldown().startCooldown();
 		sender.getUserCommandCooldowns().get(this.command).startCooldown();
-
+		
 		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername());
 		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter));
 		formattedOutput = formattedOutput.replace("{points}", Double.toString(sender.getPoints()));
@@ -184,6 +200,10 @@ public class CommandHandler {
 		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
 		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
 		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
+		formattedOutput = formattedOutput.replace("{date}", strDate);
+		formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
+		formattedOutput = formattedOutput.replace("{curremote}", channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"));
+		formattedOutput = formattedOutput.replace("{currname}", channelHandler.getBuiltInStrings().get("CURRENCY_NAME"));
 
 		try {
 			for (int i = counterStart; i <= this.param; i++) {
@@ -276,6 +296,12 @@ public class CommandHandler {
 		} else if (modType.equals("usercooldown")) {
 			this.userCooldownLen = Integer.parseInt(newValue);
 			success = true;
+		} else if (modType.equals("appenddate")) {
+			this.appendDateToQuote = Boolean.parseBoolean(newValue);
+			success = true;
+		} else if (modType.equals("appendgame")) {
+			this.appendGameToQuote = Boolean.parseBoolean(newValue);
+			success = true;
 		}
 
 		this.writeDBCommand();
@@ -307,7 +333,9 @@ public class CommandHandler {
 				.append("modpower", this.neededModCommandPower)
 				.append("broadcasterpower", this.neededBroadcasterCommandPower)
 				.append("botadminpower", this.neededBotAdminCommandPower)
-				.append("usercooldown", this.userCooldownLen);
+				.append("usercooldown", this.userCooldownLen)
+				.append("appendgame", this.appendGameToQuote)
+				.append("appenddate", this.appendDateToQuote);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -363,6 +391,8 @@ public class CommandHandler {
 			this.neededBroadcasterCommandPower = (int)channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower);
 			this.neededBotAdminCommandPower = (int)channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower);
 			this.userCooldownLen = (int)channelData.getOrDefault("usercooldown", this.userCooldownLen);
+			this.appendDateToQuote = (boolean)channelData.getOrDefault("appendgame", this.appendDateToQuote);
+			this.appendGameToQuote = (boolean)channelData.getOrDefault("appenddate", this.appendGameToQuote);
 		}
 	}
 

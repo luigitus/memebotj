@@ -95,6 +95,8 @@ public class ChannelHandler implements Runnable {
 	private int currentMessageCount = 0;
 	private Cooldown messageLimitCooldown = new Cooldown(30);
 	private Cooldown preventMessageCooldown = new Cooldown(30);
+	
+	private String currentGame = "Not Playing";
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);
@@ -174,8 +176,8 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"));
 		this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"));
 		this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"));
-		this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
-		this.internalCommands.add(new SpeedrunCommand(this.channel, "!pb", "#internal#"));
+		//this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
+		this.internalCommands.add(new SpeedrunCommand(this.channel, "!wr", "#internal#"));
 		this.internalCommands.add(new UserPowerCommand(this.channel, "!userpower", "#internal#"));
 		this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"));
 		this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"));
@@ -185,6 +187,10 @@ public class ChannelHandler implements Runnable {
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
 		fileNameList.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#", this.channel), userList);
 		this.internalCommands.add(fileNameList);
+		
+		CommandHandler issueCommand = new CommandHandler(this.channel, "!issue", "#internal#");
+		issueCommand.editCommand("output", "Having issues? Write a bugreport at https://github.com/unlink2/memebotj/issues", new UserHandler("#internal#", this.channel), userList);
+		this.internalCommands.add(issueCommand);
 		
 		this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version).replace("{build}", BuildInfo.revisionNumber).replace("{builddate}", BuildInfo.timeStamp), this.channel);
 	}
@@ -590,6 +596,7 @@ public class ChannelHandler implements Runnable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void update() {
 		if (this.messageLimitCooldown.canContinue()) {
 			this.messageLimitCooldown.startCooldown();
@@ -622,6 +629,32 @@ public class ChannelHandler implements Runnable {
 					log.info(String.format("Stream %s is live", this.channel));
 					this.isLive = true;
 				}
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//get channel info
+			try {
+				URL url = new URL(this.channelInfoURL);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				String dataBuffer = "";
+				String data = "";
+				while((dataBuffer = in.readLine()) != null) {
+					data = data + dataBuffer;
+				}
+				in.close();
+				
+				JSONParser parser = new JSONParser();
+				JSONObject obj = (JSONObject)parser.parse(data);
+				this.currentGame = (String)obj.getOrDefault("game", "Not Playing");
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1100,5 +1133,45 @@ public class ChannelHandler implements Runnable {
 
 	public void setAllowAutogreet(boolean allowAutogreetForNonMods) {
 		this.allowAutogreet = allowAutogreetForNonMods;
+	}
+
+	public boolean isLive() {
+		return isLive;
+	}
+
+	public void setLive(boolean isLive) {
+		this.isLive = isLive;
+	}
+
+	public int getCurrentMessageCount() {
+		return currentMessageCount;
+	}
+
+	public void setCurrentMessageCount(int currentMessageCount) {
+		this.currentMessageCount = currentMessageCount;
+	}
+
+	public Cooldown getMessageLimitCooldown() {
+		return messageLimitCooldown;
+	}
+
+	public void setMessageLimitCooldown(Cooldown messageLimitCooldown) {
+		this.messageLimitCooldown = messageLimitCooldown;
+	}
+
+	public Cooldown getPreventMessageCooldown() {
+		return preventMessageCooldown;
+	}
+
+	public void setPreventMessageCooldown(Cooldown preventMessageCooldown) {
+		this.preventMessageCooldown = preventMessageCooldown;
+	}
+
+	public String getCurrentGame() {
+		return currentGame;
+	}
+
+	public void setCurrentGame(String currentGame) {
+		this.currentGame = currentGame;
 	}
 }
