@@ -230,7 +230,7 @@ public class CommandHandler {
 	}
 
 	public void update(ChannelHandler ch) {
-		if (this.cmdtype.equals("timer")) {
+		if (this.cmdtype.equals("timer") && ch.isLive()) {
 			this.execCommand(new UserHandler("#internal#", this.channelOrigin), ch, new String[] {}, ch.getUserList());
 		}
 	}

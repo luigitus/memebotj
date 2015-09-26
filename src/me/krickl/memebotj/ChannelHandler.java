@@ -688,41 +688,45 @@ public class ChannelHandler implements Runnable {
 
 	public void handleMessage(String rawircmsg) {
 		String senderName = "";
-		String senderNameRev = "";
-		// parse sender name by looking for characters
-		// int firstColonIndex = rawircmsg.indexOf(":");
-		int firstExclaIndex = rawircmsg.indexOf("!");
-
-		// get sender name
-		for (int i = firstExclaIndex; i > 0; i--) {
-			if (rawircmsg.charAt(i) != ':') {
-				senderNameRev = senderNameRev + rawircmsg.charAt(i);
-			} else {
-				break;
+		String[] msgContent = null;
+		
+		String[] ircmsgBuffer = rawircmsg.split(" ");
+		
+		String messageType = "UNDEFINED";
+		int i = 0;
+		
+		for(i = 0; i < ircmsgBuffer.length; i++) {
+			String msg = ircmsgBuffer[i];
+			
+			//first off make sure what type it is
+			if((msg.equals("PRIVMSG") || msg.equals("MODE") || msg.equals("PART") || msg.equals("JOIN") || msg.equals("CLEARCHAT")) && messageType.equals("UNDEFINED")) {
+				messageType = msg;
+			}
+			
+			//irc tags
+			if (msg.charAt(0) == '@' && i == 0) {
+				
+			} else if (i == 0 || (i == 1 && senderName.isEmpty())) {
+				for (int j = 0; j < msg.length(); j++) {
+					if(msg.charAt(j) == '!') {
+						break;
+					}
+					if(msg.charAt(j) != ':') {
+						senderName = senderName + msg.charAt(j);
+					}
+				}
+			}
+			
+			if(messageType.equals("PRIVMSG") && i > 3) {
+				if(i == 4) {
+					msgContent = new String[ircmsgBuffer.length - 4];
+					msgContent[i - 4] = msg.substring(1);
+				} else {
+					msgContent[i - 4] = msg;
+				}
 			}
 		}
-		// reverse sender to get right sender name
-		for (int i = senderNameRev.length() - 1; i > 0; i--) {
-			senderName = senderName + senderNameRev.charAt(i);
-		}
-
-		String rawircmsgList = "";
-		// parse message by looking for a space and a colon
-		int lastColonIndex = rawircmsg.indexOf(" :");
-
-		for (int i = lastColonIndex + 2; i < rawircmsg.length(); i++) {
-			rawircmsgList = rawircmsgList + rawircmsg.charAt(i);
-		}
-
-		String[] ircmsgBuffer = null;
-		String[] ircmsgList = null;
-
-		// do not allow blacklisted users to exec commands
-		for (String key : this.userList.keySet()) {
-			if (!this.userList.get(key).isExecCommands() && key.equals(senderName)) {
-				return;
-			}
-		}
+		
 
 		// create user if it does not yet exist
 		if (!this.userList.containsKey(senderName) && !senderName.isEmpty()) {
@@ -733,13 +737,9 @@ public class ChannelHandler implements Runnable {
 		// get sender object
 		UserHandler sender = this.userList.get(senderName);
 
-		try {
-			// get irc message
-			ircmsgBuffer = rawircmsgList.split("PRIVMSG " + this.channel + " :");
-			ircmsgList = ircmsgBuffer[1].split(" ");
-		} catch (ArrayIndexOutOfBoundsException e) {
+		if(!messageType.equals("PRIVMSG")) {
 			// check other message
-			ircmsgList = rawircmsg.split(" ");
+			String[] ircmsgList = rawircmsg.split(" ");
 
 			if (ircmsgList[1] == null) {
 				return;
@@ -792,70 +792,65 @@ public class ChannelHandler implements Runnable {
 					}
 				}
 			}
-
-			return;
-		}
-		if (sender == null) {
-			return;
-		}
-
-		// check broadcaster status
-		if (sender.getUsername().equalsIgnoreCase(this.broadcaster)) {
-			sender.setMod(true);
-			sender.setBroadcaster(true);
-			sender.setCommandPower(50);
-		}
-		
-		//check botadmin status
-		for(String user : Memebot.botAdmins) {
-			if(user.equalsIgnoreCase(sender.getUsername())) {
-				sender.setCommandPower(75);
+		} else {
+			// check broadcaster status
+			if (sender.getUsername().equalsIgnoreCase(this.broadcaster)) {
+				sender.setMod(true);
+				sender.setBroadcaster(true);
+				sender.setCommandPower(50);
 			}
-		}
-
-		// changed feature
-		// for( int i = 0; i < 1; i++) {
-		String msg = ircmsgList[0];
-		String[] data = Arrays.copyOfRange(ircmsgList, 0, ircmsgList.length);
-
-		// check channel commands
-		int p = -1;
-		if ((p = this.findCommand(msg)) != -1) {
-			if(!this.channelCommands.get(p).isTexttrigger()) {
-				this.channelCommands.get(p).execCommand(sender, this, data, userList);
+			
+			//check botadmin status
+			for(String user : Memebot.botAdmins) {
+				if(user.equalsIgnoreCase(sender.getUsername())) {
+					sender.setCommandPower(75);
+				}
 			}
-		}
-		
-		// check text trigger
-		for(CommandHandler ch : this.channelCommands) {
-			if(ch.isTexttrigger()) {
-				for(String s : ircmsgList) {
-					if (s.equals(ch.getCommand())) {
-						ch.execCommand(sender, this, new String[]{""}, userList);
+	
+			// changed feature
+			// for( int i = 0; i < 1; i++) {
+			String msg = msgContent[0];
+			String[] data = Arrays.copyOfRange(msgContent, 0, msgContent.length);
+	
+			// check channel commands
+			int p = -1;
+			if ((p = this.findCommand(msg)) != -1) {
+				if(!this.channelCommands.get(p).isTexttrigger()) {
+					this.channelCommands.get(p).execCommand(sender, this, data, userList);
+				}
+			}
+			
+			// check text trigger
+			for(CommandHandler ch : this.channelCommands) {
+				if(ch.isTexttrigger()) {
+					for(String s : msgContent) {
+						if (s.equals(ch.getCommand())) {
+							ch.execCommand(sender, this, new String[]{""}, userList);
+						}
 					}
 				}
 			}
-		}
-
-		// exec other channel's command
-		for (ChannelHandler ch : Memebot.joinedChannels) {
-			for (String och : this.otherLoadedChannels) {
-				// System.out.println(msg.replace(och.replace("#", "") + ".",
-				// ""));
-				CharSequence channel = ch.getBroadcaster();
-				if (ch.getChannel().equals(och) || ch.getBroadcaster().equals(och)) {
-					if ((p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))) != -1 && msg.contains(channel)) {
-						ch.channelCommands.get(p).execCommand(new UserHandler("#readonly#", this.channel), this, data,
-								userList);
+	
+			// exec other channel's command
+			for (ChannelHandler ch : Memebot.joinedChannels) {
+				for (String och : this.otherLoadedChannels) {
+					// System.out.println(msg.replace(och.replace("#", "") + ".",
+					// ""));
+					CharSequence channel = ch.getBroadcaster();
+					if (ch.getChannel().equals(och) || ch.getBroadcaster().equals(och)) {
+						if ((p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))) != -1 && msg.contains(channel)) {
+							ch.channelCommands.get(p).execCommand(new UserHandler("#readonly#", this.channel), this, data,
+									userList);
+						}
 					}
 				}
 			}
-		}
-
-		// exec internal commands
-		for (CommandHandler ch : this.internalCommands) {
-			if (ch.getCommand().equals(msg)) {
-				ch.execCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList);
+	
+			// exec internal commands
+			for (CommandHandler ch : this.internalCommands) {
+				if (ch.getCommand().equals(msg)) {
+					ch.execCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList);
+				}
 			}
 		}
 	}
