@@ -60,7 +60,7 @@ import com.mongodb.client.MongoDatabase;
 
 public class Memebot {
 	private static final Logger log = Logger.getLogger(ChannelHandler.class.getName());
-	
+
 	public static String ircServer = "irc.twitch.tv";
 	public static int port = 6667;
 	public static String mongoHost = "localhost";
@@ -79,15 +79,16 @@ public class Memebot {
 	public static String mongoUser = "";
 	public static String mongoPassword = "";
 	public static boolean useMongoAuth = false;
-	//public static List<BlacklistModel> blackList = new ArrayList<BlacklistModel>();
+	// public static List<BlacklistModel> blackList = new
+	// ArrayList<BlacklistModel>();
 	public static int pid = 0;
 	public static ArrayList<String> channels = new ArrayList<String>();
-	
-	//public static ConnectionHandler connection = null;
+
+	// public static ConnectionHandler connection = null;
 	public static ArrayList<ChannelHandler> joinedChannels = new ArrayList<ChannelHandler>();
 	public static String youtubeAPIKey = "";
 	public static boolean useMongo = true;
-	//public static boolean updateToMongo = false;
+	// public static boolean updateToMongo = false;
 	public static MongoClient mongoClient;
 	public static MongoDatabase db;
 
@@ -96,7 +97,7 @@ public class Memebot {
 	public static final int messageLimit = 19; // message limit per 30 seconds
 
 	public static MongoCollection<Document> internalCollection;
-	
+
 	public static String webBaseURL = "";
 
 	// public static final ConsoleHandler ch = new ConsoleHandler();
@@ -109,16 +110,17 @@ public class Memebot {
 		// initial setup
 		new File(home + "/.memebot").mkdir();
 		new File(home + "/.memebot/channels");
-		
+
 		// calculate build hash from md-5 sum of jar file
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
-			byte[] jarBytes = Files.readAllBytes(Paths.get(Memebot.class.getProtectionDomain().getCodeSource().getLocation().getPath()));
+			byte[] jarBytes = Files.readAllBytes(
+					Paths.get(Memebot.class.getProtectionDomain().getCodeSource().getLocation().getPath()));
 			byte[] hashBytes = digest.digest(jarBytes);
-			
+
 			BuildInfo.revisionNumber = "";
-			//to hex string
-			for(byte b : hashBytes) {
+			// to hex string
+			for (byte b : hashBytes) {
 				BuildInfo.revisionNumber = BuildInfo.revisionNumber + String.format("%02x", b);
 			}
 		} catch (NoSuchAlgorithmException e1) {
@@ -128,8 +130,8 @@ public class Memebot {
 			// TODO Auto-generated catch block
 			e4.printStackTrace();
 		}
-		
-		//read config
+
+		// read config
 		Properties config = new Properties();
 		try {
 			config.load(new FileReader(Memebot.configFile));
@@ -145,8 +147,8 @@ public class Memebot {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
-		
-		//read botadmin file
+
+		// read botadmin file
 		Memebot.botAdmins.add("#internal#");
 		try {
 			Memebot.botAdmins = Files.readAllLines(Paths.get(Memebot.memebotDir + "/botadmins.cfg"));
@@ -155,7 +157,7 @@ public class Memebot {
 			// TODO Auto-generated catch block
 			e3.printStackTrace();
 		}
-		
+
 		Memebot.ircServer = config.getProperty("ircserver", Memebot.ircServer);
 		Memebot.port = Integer.parseInt(config.getProperty("ircport", Integer.toString(Memebot.port)));
 		Memebot.mongoHost = config.getProperty("mongohost", Memebot.mongoHost);
@@ -169,10 +171,11 @@ public class Memebot {
 		Memebot.youtubeAPIKey = config.getProperty("ytapikey", Memebot.youtubeAPIKey);
 		Memebot.mongoUser = config.getProperty("mongouser", Memebot.mongoUser);
 		Memebot.mongoPassword = config.getProperty("mongopassword", Memebot.mongoPassword);
-		Memebot.useMongoAuth = Boolean.parseBoolean(config.getProperty("mongoauth", Boolean.toString(Memebot.useMongoAuth)));
+		Memebot.useMongoAuth = Boolean
+				.parseBoolean(config.getProperty("mongoauth", Boolean.toString(Memebot.useMongoAuth)));
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL);
-		
-		//save properties
+
+		// save properties
 		OutputStream out;
 		try {
 			out = new FileOutputStream(new File(Memebot.configFile));
@@ -185,7 +188,7 @@ public class Memebot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// shutdown hook
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -197,7 +200,8 @@ public class Memebot {
 				}
 			}
 		});
-		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName, BuildInfo.version, BuildInfo.revisionNumber, BuildInfo.timeStamp));
+		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName, BuildInfo.version,
+				BuildInfo.revisionNumber, BuildInfo.timeStamp));
 
 		// get pid and write to file
 		File f = new File(memebotDir + "/pid");
@@ -215,16 +219,16 @@ public class Memebot {
 		// set up database
 		if (Memebot.useMongo) {
 			if (Memebot.useMongoAuth) {
-				MongoClientURI authuri = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s", Memebot.mongoUser, Memebot.mongoPassword, Memebot.mongoHost, Memebot.mongoDBName));
+				MongoClientURI authuri = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s",
+						Memebot.mongoUser, Memebot.mongoPassword, Memebot.mongoHost, Memebot.mongoDBName));
 				Memebot.mongoClient = new MongoClient(authuri);
-			}
-			else {
+			} else {
 				Memebot.mongoClient = new MongoClient(Memebot.mongoHost, Memebot.mongoPort);
 			}
 			Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
 			Memebot.internalCollection = Memebot.db.getCollection("#internal#");
 		}
-		
+
 		// read blacklist
 		// TODO read blacklist
 
@@ -243,18 +247,19 @@ public class Memebot {
 		for (String channel : Memebot.channels) {
 			try {
 				File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
-				if( login.exists() ) {
-					ArrayList<String> loginInfo = (ArrayList<String>)Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
-					
-					log.info("Found login file for channel " + channel);;
-					
+				if (login.exists()) {
+					ArrayList<String> loginInfo = (ArrayList<String>) Files
+							.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
+
+					log.info("Found login file for channel " + channel);
+					;
+
 					ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
 							new ConnectionHandler(Memebot.ircServer, Memebot.port, loginInfo.get(0), loginInfo.get(1)));
 					newChannel.strart();
-				}
-				else {
-					ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
-							new ConnectionHandler(Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
+				} else {
+					ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(
+							Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
 					newChannel.strart();
 				}
 			} catch (IOException e) {

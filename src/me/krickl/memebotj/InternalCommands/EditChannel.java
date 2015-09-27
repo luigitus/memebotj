@@ -37,10 +37,12 @@ public class EditChannel extends CommandHandler {
 						channelHandler.getOtherLoadedChannels().remove(index);
 					}
 				}
-			} else if(data[0].equals("allowautogreet")) {
+			} else if (data[0].equals("allowautogreet")) {
 				channelHandler.setAllowAutogreet(!channelHandler.isAllowAutogreet());
-				channelHandler.sendMessage(String.format("Autogreet set to %s", Boolean.toString(channelHandler.isAllowAutogreet())), this.getChannelOrigin());
-			} else if(data[0].equals("maxnamelen")) {
+				channelHandler.sendMessage(
+						String.format("Autogreet set to %s", Boolean.toString(channelHandler.isAllowAutogreet())),
+						this.getChannelOrigin());
+			} else if (data[0].equals("maxnamelen")) {
 				channelHandler.setMaxFileNameLen(Integer.parseInt(data[1]));
 				channelHandler.sendMessage("Changed max filename length to " + data[1], this.getChannelOrigin());
 			} else {
@@ -57,8 +59,8 @@ public class EditChannel extends CommandHandler {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("CHCHANNEL_SYNTAX"),
 					this.getChannelOrigin());
-		} catch(NumberFormatException e) {
-			
+		} catch (NumberFormatException e) {
+
 		}
 	}
 }

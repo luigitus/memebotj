@@ -14,7 +14,7 @@ import com.mongodb.client.MongoCollection;
 
 public class CommandHandler {
 	private static final Logger log = Logger.getLogger(CommandHandler.class.getName());
-	
+
 	String channelOrigin = null;
 	String command = "null";
 	int param = 0;
@@ -32,16 +32,16 @@ public class CommandHandler {
 	ArrayList<String> aliases = new ArrayList<String>();
 	boolean locked = false;
 	boolean texttrigger = false;
-	
+
 	int neededCommandPower = 10;
 	int neededModCommandPower = 25;
 	int neededBroadcasterCommandPower = 50;
 	int neededBotAdminCommandPower = 75;
-	
+
 	int userCooldownLen = 0;
 	boolean appendGameToQuote = false;
 	boolean appendDateToQuote = false;
-	
+
 	boolean excludeFromCommandList = false;
 
 	private MongoCollection<Document> commandCollection;
@@ -71,39 +71,43 @@ public class CommandHandler {
 
 	public String execCommand(UserHandler sender, ChannelHandler channelHandler, String[] data,
 			HashMap<String, UserHandler> userList) {
-		
-		//check global cooldown
+
+		// check global cooldown
 		if (!this.cooldown.canContinue() || (!sender.getUserCooldown().canContinue() && !sender.isMod())) {
 			return "cooldown";
 		}
-		
-		//check user cooldown
+
+		// check user cooldown
 		if (!sender.getUserCommandCooldowns().containsKey(this.command)) {
 			sender.getUserCommandCooldowns().put(this.command, new Cooldown(this.userCooldownLen));
 		} else {
-			if(sender.getUserCommandCooldowns().get(this.command).getCooldownLen() != this.userCooldownLen) {
+			if (sender.getUserCommandCooldowns().get(this.command).getCooldownLen() != this.userCooldownLen) {
 				sender.getUserCommandCooldowns().get(this.command).setCooldownLen(this.userCooldownLen);
 			}
 		}
-		
-		if (!sender.getUserCommandCooldowns().get(this.command).canContinue() && !CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
+
+		if (!sender.getUserCommandCooldowns().get(this.command).canContinue()
+				&& !CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
 			return "usercooldown";
 		}
 
 		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededCommandPower, userList)) {
 			return "denied";
 		}
-		if (sender.getPoints() < this.pointCost && !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, userList) && this.pointCost > 0) {
-			channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", (float)this.pointCost, channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")) , this.channelOrigin);
+		if (sender.getPoints() < this.pointCost
+				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, userList)
+				&& this.pointCost > 0) {
+			channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", (float) this.pointCost,
+					channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.channelOrigin);
 			return "cost";
 		}
 
 		sender.setPoints(sender.getPoints() - this.pointCost);
-		
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");//dd/MM/yyyy
+
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");// dd/MM/yyyy
 		Calendar cal = Calendar.getInstance();
-	    String strDate = sdfDate.format(cal.getTime());
-		
+		String strDate = sdfDate.format(cal.getTime());
+
 		String formattedOutput = this.unformattedOutput;
 		int counterStart = 1;
 
@@ -115,13 +119,13 @@ public class CommandHandler {
 					for (int i = 2; i < data.length; i++) {
 						newEntry = newEntry + " " + data[i];
 					}
-					if(this.appendDateToQuote) {
+					if (this.appendDateToQuote) {
 						newEntry = newEntry + " <" + strDate + ">";
 					}
-					if(this.appendGameToQuote) {
+					if (this.appendGameToQuote) {
 						newEntry = newEntry + " <" + channelHandler.getCurrentGame() + ">";
 					}
-					
+
 					this.listContent.add(newEntry);
 					formattedOutput = "Added.";
 				} else if (data[1].equals("remove")
@@ -141,12 +145,13 @@ public class CommandHandler {
 
 					this.listContent.set(Integer.parseInt(data[2]), newEntry);
 					formattedOutput = "Edited";
-				} else if(data[1].equals("list")) {
+				} else if (data[1].equals("list")) {
 					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + this.command;
 				} else {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data[1])
-								+ this.listContent.get(Integer.parseInt(data[1])) + this.quoteSuffix.replace("{number}", data[1]);
+								+ this.listContent.get(Integer.parseInt(data[1]))
+								+ this.quoteSuffix.replace("{number}", data[1]);
 					} catch (NumberFormatException e) {
 						formattedOutput = "That's not an integer";
 					} catch (IndexOutOfBoundsException e) {
@@ -157,8 +162,8 @@ public class CommandHandler {
 				try {
 					Random rand = new Random();
 					int i = rand.nextInt(this.listContent.size());
-					formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + this.listContent.get(i)
-							+ this.quoteSuffix.replace("{number}", Integer.toString(i));
+					formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i))
+							+ this.listContent.get(i) + this.quoteSuffix.replace("{number}", Integer.toString(i));
 				} catch (IllegalArgumentException e2) {
 					// just ignore it
 				}
@@ -192,7 +197,7 @@ public class CommandHandler {
 		this.cooldown.startCooldown();
 		sender.getUserCooldown().startCooldown();
 		sender.getUserCommandCooldowns().get(this.command).startCooldown();
-		
+
 		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername());
 		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter));
 		formattedOutput = formattedOutput.replace("{points}", Double.toString(sender.getPoints()));
@@ -204,8 +209,10 @@ public class CommandHandler {
 		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
 		formattedOutput = formattedOutput.replace("{date}", strDate);
 		formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
-		formattedOutput = formattedOutput.replace("{curremote}", channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"));
-		formattedOutput = formattedOutput.replace("{currname}", channelHandler.getBuiltInStrings().get("CURRENCY_NAME"));
+		formattedOutput = formattedOutput.replace("{curremote}",
+				channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"));
+		formattedOutput = formattedOutput.replace("{currname}",
+				channelHandler.getBuiltInStrings().get("CURRENCY_NAME"));
 
 		try {
 			for (int i = counterStart; i <= this.param; i++) {
@@ -223,11 +230,11 @@ public class CommandHandler {
 
 		this.commandScript(sender, channelHandler, data);
 
-		//write changes to db
-		if(!sender.getUsername().equals("#readonly#")) {
+		// write changes to db
+		if (!sender.getUsername().equals("#readonly#")) {
 			this.writeDBCommand();
 		}
-		
+
 		return "OK";
 	}
 
@@ -237,13 +244,14 @@ public class CommandHandler {
 		}
 	}
 
-	public boolean editCommand(String modType, String newValue, UserHandler sender, HashMap<String, UserHandler> userList) {
+	public boolean editCommand(String modType, String newValue, UserHandler sender,
+			HashMap<String, UserHandler> userList) {
 		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 			return false;
 		}
-		
+
 		boolean success = false;
-		
+
 		if (modType.equals("name")) {
 			this.command = newValue;
 			success = true;
@@ -277,7 +285,8 @@ public class CommandHandler {
 		} else if (modType.equals("cost")) {
 			this.pointCost = Double.parseDouble(newValue);
 			success = true;
-		} else if (modType.equals("lock") && CommandHandler.checkPermission(sender.getUsername(), this.neededBroadcasterCommandPower, userList) ) {
+		} else if (modType.equals("lock")
+				&& CommandHandler.checkPermission(sender.getUsername(), this.neededBroadcasterCommandPower, userList)) {
 			this.locked = Boolean.parseBoolean(newValue);
 			success = true;
 		} else if (modType.equals("texttrigger")) {
@@ -307,7 +316,7 @@ public class CommandHandler {
 		}
 
 		this.writeDBCommand();
-		
+
 		return success;
 	}
 
@@ -328,16 +337,12 @@ public class CommandHandler {
 				.append("cmdtype", this.cmdtype).append("output", this.unformattedOutput)
 				.append("qsuffix", this.quoteSuffix).append("qprefix", this.quotePrefix)
 				.append("qmodaccess", this.quoteModAccess).append("costf", this.pointCost)
-				.append("counter", this.counter).append("listcontent", this.listContent)
-				.append("locked", this.locked)
-				.append("texttrigger", this.texttrigger)
-				.append("viewerpower", this.neededCommandPower)
+				.append("counter", this.counter).append("listcontent", this.listContent).append("locked", this.locked)
+				.append("texttrigger", this.texttrigger).append("viewerpower", this.neededCommandPower)
 				.append("modpower", this.neededModCommandPower)
 				.append("broadcasterpower", this.neededBroadcasterCommandPower)
-				.append("botadminpower", this.neededBotAdminCommandPower)
-				.append("usercooldown", this.userCooldownLen)
-				.append("appendgame", this.appendGameToQuote)
-				.append("appenddate", this.appendDateToQuote);
+				.append("botadminpower", this.neededBotAdminCommandPower).append("usercooldown", this.userCooldownLen)
+				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -383,18 +388,20 @@ public class CommandHandler {
 			this.quoteSuffix = (String) channelData.getOrDefault("qsuffix", this.quoteSuffix);
 			this.quotePrefix = (String) channelData.getOrDefault("qprefix", this.quotePrefix);
 			this.quoteModAccess = (String) channelData.getOrDefault("qmodaccess", this.quoteModAccess);
-			this.pointCost = (double)channelData.getOrDefault("costf", this.pointCost);
+			this.pointCost = (double) channelData.getOrDefault("costf", this.pointCost);
 			this.counter = channelData.getInteger("counter", this.counter);
 			this.listContent = (ArrayList<String>) channelData.getOrDefault("listcontent", this.listContent);
-			this.locked = (boolean)channelData.getOrDefault("locked", this.locked);
-			this.texttrigger = (boolean)channelData.getOrDefault("texttrigger", this.texttrigger);
-			this.neededCommandPower = (int)channelData.getOrDefault("viewerpower", this.neededCommandPower);
-			this.neededModCommandPower = (int)channelData.getOrDefault("modpower", this.neededModCommandPower);
-			this.neededBroadcasterCommandPower = (int)channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower);
-			this.neededBotAdminCommandPower = (int)channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower);
-			this.userCooldownLen = (int)channelData.getOrDefault("usercooldown", this.userCooldownLen);
-			this.appendDateToQuote = (boolean)channelData.getOrDefault("appendgame", this.appendDateToQuote);
-			this.appendGameToQuote = (boolean)channelData.getOrDefault("appenddate", this.appendGameToQuote);
+			this.locked = (boolean) channelData.getOrDefault("locked", this.locked);
+			this.texttrigger = (boolean) channelData.getOrDefault("texttrigger", this.texttrigger);
+			this.neededCommandPower = (int) channelData.getOrDefault("viewerpower", this.neededCommandPower);
+			this.neededModCommandPower = (int) channelData.getOrDefault("modpower", this.neededModCommandPower);
+			this.neededBroadcasterCommandPower = (int) channelData.getOrDefault("broadcasterpower",
+					this.neededBroadcasterCommandPower);
+			this.neededBotAdminCommandPower = (int) channelData.getOrDefault("botadminpower",
+					this.neededBotAdminCommandPower);
+			this.userCooldownLen = (int) channelData.getOrDefault("usercooldown", this.userCooldownLen);
+			this.appendDateToQuote = (boolean) channelData.getOrDefault("appendgame", this.appendDateToQuote);
+			this.appendGameToQuote = (boolean) channelData.getOrDefault("appenddate", this.appendGameToQuote);
 		}
 	}
 
@@ -404,24 +411,24 @@ public class CommandHandler {
 				return true;
 			}
 		}
-		
+
 		if (!userList.containsKey(sender) && !sender.equals("#readonly#")) {
 			return false;
 		}
-		
-		if(userList.containsKey(sender)) {
-			if ( reqPermLevel <= userList.get(sender).getCommandPower()) {
+
+		if (userList.containsKey(sender)) {
+			if (reqPermLevel <= userList.get(sender).getCommandPower()) {
 				return true;
 			}
 		} else if (sender.equals("#readonly#")) {
-			if(reqPermLevel <= 10) {
+			if (reqPermLevel <= 10) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	@Deprecated
 	public static boolean checkPermission(String sender, String reqPermLevel, HashMap<String, UserHandler> userList) {
 		for (String user : Memebot.botAdmins) {
@@ -444,7 +451,7 @@ public class CommandHandler {
 
 		return false;
 	}
-	
+
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 
 	}

@@ -15,8 +15,8 @@ public class AboutCommand extends CommandHandler {
 
 	@Override
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
-		channelHandler.sendMessage("memebot-j version " + BuildInfo.version + " build "+ BuildInfo.revisionNumber + ". Developed by " + BuildInfo.dev,
-				this.getChannelOrigin());
+		channelHandler.sendMessage("memebot-j version " + BuildInfo.version + " build " + BuildInfo.revisionNumber
+				+ ". Developed by " + BuildInfo.dev, this.getChannelOrigin());
 		channelHandler.sendMessage(
 				"Licence: https://github.com/unlink2/memebotj/blob/master/license.md || Fork me RitzMitz : https://github.com/unlink2/memebotj",
 				this.getChannelOrigin());

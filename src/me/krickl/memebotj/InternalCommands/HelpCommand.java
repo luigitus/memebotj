@@ -18,21 +18,20 @@ public class HelpCommand extends CommandHandler {
 			if ((j = channelHandler.findCommand(data[0])) != -1) {
 				channelHandler.sendMessage(channelHandler.getChannelCommands().get(j).getHelptext(),
 						this.getChannelOrigin());
-				
+
 				return;
 			}
-			
+
 			for (CommandHandler ch : channelHandler.getInternalCommands()) {
 				if (ch.getCommand().equals(data[0])) {
-					channelHandler.sendMessage(ch.getHelptext(),
-							this.getChannelOrigin());
-					
+					channelHandler.sendMessage(ch.getHelptext(), this.getChannelOrigin());
+
 					return;
 				}
 			}
-			
+
 			channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("HELP_NOT_FOUND"),
-						this.getChannelOrigin());
+					this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
 			channelHandler.sendMessage(
 					channelHandler.getBuiltInStrings().get("HELP_SYNTAX").replace("{param1}", "!help <command>"),

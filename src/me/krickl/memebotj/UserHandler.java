@@ -17,7 +17,7 @@ public class UserHandler {
 	private String username = "";
 	private String channelOrigin = "";
 	private double points = 0;
-	//private boolean isJoined = false;
+	// private boolean isJoined = false;
 	private Cooldown userCooldown = new Cooldown(0);
 	private String autogreet = "";
 	private int timeouts = 0;
@@ -48,10 +48,8 @@ public class UserHandler {
 		Document channelQuery = new Document("_id", this.username);
 
 		Document channelData = new Document("_id", this.username).append("pointsf", this.points)
-				.append("mod", this.isMod).append("autogreet", this.autogreet)
-				.append("execcommands", this.execCommands)
-				.append("ccommandpower", this.customCommandPower)
-				.append("broadcaster", this.isBroadcaster)
+				.append("mod", this.isMod).append("autogreet", this.autogreet).append("execcommands", this.execCommands)
+				.append("ccommandpower", this.customCommandPower).append("broadcaster", this.isBroadcaster)
 				.append("timeouts", this.timeouts);
 
 		try {
@@ -76,12 +74,12 @@ public class UserHandler {
 		// read data
 		if (channelData != null) {
 			this.isMod = channelData.getBoolean("vip", this.isMod);
-			this.points = (double)channelData.getOrDefault("pointsf", this.points);
+			this.points = (double) channelData.getOrDefault("pointsf", this.points);
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString();
-			this.execCommands = (boolean)channelData.getOrDefault("execcommands", this.execCommands);
-			this.customCommandPower = (int)channelData.getOrDefault("ccommandpower", this.customCommandPower);
-			this.isBroadcaster = (boolean)channelData.getOrDefault("broadcaster", this.isBroadcaster);
-			this.timeouts = (int)channelData.getOrDefault("timeouts", this.timeouts);
+			this.execCommands = (boolean) channelData.getOrDefault("execcommands", this.execCommands);
+			this.customCommandPower = (int) channelData.getOrDefault("ccommandpower", this.customCommandPower);
+			this.isBroadcaster = (boolean) channelData.getOrDefault("broadcaster", this.isBroadcaster);
+			this.timeouts = (int) channelData.getOrDefault("timeouts", this.timeouts);
 		} else {
 			this.newUser = true;
 		}
@@ -202,7 +200,7 @@ public class UserHandler {
 	public void setAutoCommandPower(int autoCommandPower) {
 		this.autoCommandPower = autoCommandPower;
 	}
-	
+
 	public HashMap<String, Cooldown> getUserCommandCooldowns() {
 		return userCommandCooldowns;
 	}

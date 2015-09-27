@@ -21,13 +21,12 @@ public class WhoisCommand extends CommandHandler {
 			} else {
 				uh = new UserHandler(user, this.getChannelOrigin());
 			}
-			channelHandler.sendMessage(
-					uh.getUsername() + " || Broadcaster: " + Boolean.toString(uh.isBroadcaster()) + " || Mod: "
-							+ Boolean.toString(uh.isMod()) + " || Command Power: " + Integer.toString(uh.getCommandPower()) + " || Timeouts: " + Integer.toString(uh.getTimeouts()) 
-									+ " || Is known user: " + Boolean.toString(!uh.isNewUser()),
-					this.getChannelOrigin());
-		} catch(ArrayIndexOutOfBoundsException e) {
-			
+			channelHandler.sendMessage(uh.getUsername() + " || Broadcaster: " + Boolean.toString(uh.isBroadcaster())
+					+ " || Mod: " + Boolean.toString(uh.isMod()) + " || Command Power: "
+					+ Integer.toString(uh.getCommandPower()) + " || Timeouts: " + Integer.toString(uh.getTimeouts())
+					+ " || Is known user: " + Boolean.toString(!uh.isNewUser()), this.getChannelOrigin());
+		} catch (ArrayIndexOutOfBoundsException e) {
+
 		}
 	}
 

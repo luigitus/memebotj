@@ -12,15 +12,15 @@ public class SendMessageCommand extends CommandHandler {
 		this.setAccess("botadmin");
 		this.setNeededCommandPower(75);
 	}
-	
+
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		String msg = "";
-		for(String s : data) {
+		for (String s : data) {
 			msg = msg + " " + s;
 		}
-		
-		for(ChannelHandler ch : Memebot.joinedChannels) {
+
+		for (ChannelHandler ch : Memebot.joinedChannels) {
 			ch.sendMessage(msg, ch.getChannel());
 		}
 	}

@@ -18,16 +18,17 @@ public class DeletCommandHandler extends CommandHandler {
 		try {
 			int j = -1;
 			if ((j = channelHandler.findCommand(data[0])) != -1) {
-				
+
 				if (!channelHandler.getChannelCommands().get(j).isLocked()) {
 					channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("DELCOM_OK").replace("{param1}",
 							channelHandler.getChannelCommands().get(j).getCommand()), this.getChannelOrigin());
 					channelHandler.getChannelCommands().get(j).removeDBCommand();
 					channelHandler.getChannelCommands().remove(j);
 				} else {
-					channelHandler.sendMessage("This command has been locked by the broadcaster", this.getChannelOrigin());
+					channelHandler.sendMessage("This command has been locked by the broadcaster",
+							this.getChannelOrigin());
 				}
-				
+
 			} else {
 				channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("DELCOM_NOT_FOUND"),
 						this.getChannelOrigin());

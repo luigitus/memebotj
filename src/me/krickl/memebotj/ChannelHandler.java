@@ -60,7 +60,8 @@ public class ChannelHandler implements Runnable {
 	private Cooldown updateCooldown = new Cooldown(60);
 	private ArrayList<CommandHandler> channelCommands = new ArrayList<CommandHandler>();
 	private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
-	private String followerNotification = ""; // if notification is empty it'll not send
+	private String followerNotification = ""; // if notification is empty it'll
+												// not send
 	private String channelInfoURL = "";
 	private String channelFollowersURL = "";
 	private String raceBaseURL = "http://kadgar.net/live";
@@ -71,9 +72,10 @@ public class ChannelHandler implements Runnable {
 	private String currentFileName = "";
 
 	private HashMap<String, String> builtInStrings = new HashMap<String, String>();
-	//private ArrayList<String> songList = new ArrayList<String>();
-	//private int maxSongLen = 600; // song length in seconds
-	//private String emebdCodeYT = "<iframe width=\"420\" height=\"315\" src=\"{url}\" frameborder=\"0\" allowfullscreen></iframe>";
+	// private ArrayList<String> songList = new ArrayList<String>();
+	// private int maxSongLen = 600; // song length in seconds
+	// private String emebdCodeYT = "<iframe width=\"420\" height=\"315\"
+	// src=\"{url}\" frameborder=\"0\" allowfullscreen></iframe>";
 	private String channelPageURL;
 	private String channelPageBaseURL;
 	private String htmlDir;
@@ -84,18 +86,18 @@ public class ChannelHandler implements Runnable {
 	private HashMap<String, String> autogreetList = new HashMap<String, String>();
 
 	private MongoCollection<Document> channelCollection;
-	
+
 	private double pointsPerUpdate = 1f / (this.updateCooldown.getCooldownLen() * 10);
 
 	private Thread t;
 	private boolean isJoined = true;
 	private boolean allowAutogreet = true;
 	private boolean isLive = false;
-	
+
 	private int currentMessageCount = 0;
 	private Cooldown messageLimitCooldown = new Cooldown(30);
 	private Cooldown preventMessageCooldown = new Cooldown(30);
-	
+
 	private String currentGame = "Not Playing";
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
@@ -176,28 +178,37 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"));
 		this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"));
 		this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"));
-		//this.internalCommands.add(new FilenameCommand(this.channel, "~name", "#internal#")); // lubot comparability layer
+		// this.internalCommands.add(new FilenameCommand(this.channel, "~name",
+		// "#internal#")); // lubot comparability layer
 		this.internalCommands.add(new SpeedrunCommand(this.channel, "!wr", "#internal#"));
 		this.internalCommands.add(new UserPowerCommand(this.channel, "!userpower", "#internal#"));
 		this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"));
 		this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"));
 		this.internalCommands.add(new GiveAwayCommand(this.channel, "!giveaway", "#internal#"));
-		
+
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
-		fileNameList.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#", this.channel), userList);
+		fileNameList.editCommand("output", this.channelPageBaseURL + "/filenames.html",
+				new UserHandler("#internal#", this.channel), userList);
 		this.internalCommands.add(fileNameList);
-		
+
 		CommandHandler issueCommand = new CommandHandler(this.channel, "!issue", "#internal#");
-		issueCommand.editCommand("output", "Having issues? Write a bugreport at https://github.com/unlink2/memebotj/issues", new UserHandler("#internal#", this.channel), userList);
+		issueCommand.editCommand("output",
+				"Having issues? Write a bugreport at https://github.com/unlink2/memebotj/issues",
+				new UserHandler("#internal#", this.channel), userList);
 		this.internalCommands.add(issueCommand);
-		
-		CommandHandler mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#");
-		mrDestructoidCommand.editCommand("output", "MrDestructoid Midnight Raid MrDestructoid", new UserHandler("#internal#", this.channel), userList);
+
+		CommandHandler mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday",
+				"#internal#");
+		mrDestructoidCommand.editCommand("output", "MrDestructoid Midnight Raid MrDestructoid",
+				new UserHandler("#internal#", this.channel), userList);
 		mrDestructoidCommand.setExcludeFromCommandList(true);
 		this.internalCommands.add(mrDestructoidCommand);
-		
-		this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version).replace("{build}", BuildInfo.revisionNumber).replace("{builddate}", BuildInfo.timeStamp), this.channel);
+
+		this.sendMessage(
+				this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version)
+						.replace("{build}", BuildInfo.revisionNumber).replace("{builddate}", BuildInfo.timeStamp),
+				this.channel);
 	}
 
 	private void joinChannel(String channel) {
@@ -207,7 +218,7 @@ public class ChannelHandler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		boolean isInList = false;
 		for (ChannelHandler ch : Memebot.joinedChannels) {
 			if (ch.getChannel().equalsIgnoreCase(channel)) {
@@ -218,8 +229,8 @@ public class ChannelHandler implements Runnable {
 
 		if (!isInList) {
 			Memebot.joinedChannels.add(this);
-			
-			//save list
+
+			// save list
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig));
 				for (ChannelHandler ch : Memebot.joinedChannels) {
@@ -255,8 +266,8 @@ public class ChannelHandler implements Runnable {
 
 		if (!isInList && removeThisCH != null) {
 			Memebot.joinedChannels.remove(removeThisCH);
-			
-			//save list
+
+			// save list
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig));
 				for (ChannelHandler ch : Memebot.joinedChannels) {
@@ -300,10 +311,10 @@ public class ChannelHandler implements Runnable {
 			bw.write("Command Type");
 			bw.write("</td>");
 			bw.write("</tr>");
-			
-			//internal commands
+
+			// internal commands
 			for (CommandHandler ch : this.internalCommands) {
-				if(ch.isExcludeFromCommandList()) {
+				if (ch.isExcludeFromCommandList()) {
 					continue;
 				}
 				bw.write("<tr>");
@@ -370,10 +381,10 @@ public class ChannelHandler implements Runnable {
 				bw.write("</td>");
 				bw.write("</tr>");
 			}
-			
-			//channel commands
+
+			// channel commands
 			for (CommandHandler ch : this.channelCommands) {
-				if(ch.isExcludeFromCommandList()) {
+				if (ch.isExcludeFromCommandList()) {
 					continue;
 				}
 				bw.write("<tr>");
@@ -444,11 +455,10 @@ public class ChannelHandler implements Runnable {
 			bw.write("</table>");
 			bw.write("</html>");
 			bw.close();
-			
-			//write file name list
-			BufferedWriter bwf = new BufferedWriter(
-					new FileWriter(this.htmlDir + "/filenames.html"));
-			
+
+			// write file name list
+			BufferedWriter bwf = new BufferedWriter(new FileWriter(this.htmlDir + "/filenames.html"));
+
 			bwf.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>");
 			bwf.write("<html>");
 			bwf.write("<h1>");
@@ -482,8 +492,7 @@ public class ChannelHandler implements Runnable {
 
 			bwf.write("</table>");
 			bwf.write("</html>");
-			
-			
+
 			bwf.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -509,9 +518,9 @@ public class ChannelHandler implements Runnable {
 			this.fileNameList = (ArrayList<String>) channelData.getOrDefault("fileanmelist", this.fileNameList);
 			this.otherLoadedChannels = (ArrayList<String>) channelData.getOrDefault("otherchannels",
 					this.otherLoadedChannels);
-			this.pointsPerUpdate = (double)channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate);
-			this.allowAutogreet = (boolean)channelData.getOrDefault("allowautogreet", this.allowAutogreet);
-			
+			this.pointsPerUpdate = (double) channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate);
+			this.allowAutogreet = (boolean) channelData.getOrDefault("allowautogreet", this.allowAutogreet);
+
 			Document bultinStringsDoc = (Document) channelData.getOrDefault("builtinstrings", new Document());
 			Document autogreetDoc = (Document) channelData.getOrDefault("autogreet", new Document());
 
@@ -560,8 +569,7 @@ public class ChannelHandler implements Runnable {
 		Document channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
 				.append("raceurl", this.raceBaseURL).append("fileanmelist", this.fileNameList)
 				.append("otherchannels", this.otherLoadedChannels).append("builtinstrings", bultinStringsDoc)
-				.append("autogreet", autogreetDoc)
-				.append("pointsperupdate", this.pointsPerUpdate)
+				.append("autogreet", autogreetDoc).append("pointsperupdate", this.pointsPerUpdate)
 				.append("allowautogreet", this.allowAutogreet);
 
 		try {
@@ -576,24 +584,24 @@ public class ChannelHandler implements Runnable {
 			this.userList.get(key).writeDBUserData();
 		}
 
-		/*for (CommandHandler ch : this.channelCommands) {
-			ch.writeDBCommand();
-		}
-
-		for (CommandHandler ch : this.internalCommands) {
-			ch.writeDBCommand();
-		}*/
+		/*
+		 * for (CommandHandler ch : this.channelCommands) { ch.writeDBCommand();
+		 * }
+		 * 
+		 * for (CommandHandler ch : this.internalCommands) {
+		 * ch.writeDBCommand(); }
+		 */
 	}
 
 	public void sendMessage(String msg, String channel) {
-		if(!this.preventMessageCooldown.canContinue()) {
+		if (!this.preventMessageCooldown.canContinue()) {
 			return;
 		}
-		
+
 		if (this.currentMessageCount >= Memebot.messageLimit) {
 			log.warning("Reached global message limit for 30 seconds. try again later");
 			this.preventMessageCooldown.startCooldown();
-			
+
 		}
 		this.currentMessageCount++;
 
@@ -613,27 +621,27 @@ public class ChannelHandler implements Runnable {
 			this.messageLimitCooldown.startCooldown();
 			this.currentMessageCount = 0;
 		}
-		
+
 		if (this.updateCooldown.canContinue()) {
 			this.updateCooldown.startCooldown();
-			
-			//check if channel is live using twitch api
+
+			// check if channel is live using twitch api
 			try {
 				URL url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster);
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 				String dataBuffer = "";
 				String data = "";
-				while((dataBuffer = in.readLine()) != null) {
+				while ((dataBuffer = in.readLine()) != null) {
 					data = data + dataBuffer;
 				}
 				in.close();
-				
+
 				JSONParser parser = new JSONParser();
-				JSONObject obj = (JSONObject)parser.parse(data);
+				JSONObject obj = (JSONObject) parser.parse(data);
 				Object isOnline = obj.get("stream");
-				
-				if(isOnline == null) {
+
+				if (isOnline == null) {
 					log.info(String.format("Stream %s is offline", this.channel));
 					this.isLive = false;
 				} else {
@@ -650,22 +658,22 @@ public class ChannelHandler implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			//get channel info
+
+			// get channel info
 			try {
 				URL url = new URL(this.channelInfoURL);
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 				String dataBuffer = "";
 				String data = "";
-				while((dataBuffer = in.readLine()) != null) {
+				while ((dataBuffer = in.readLine()) != null) {
 					data = data + dataBuffer;
 				}
 				in.close();
-				
+
 				JSONParser parser = new JSONParser();
-				JSONObject obj = (JSONObject)parser.parse(data);
-				this.currentGame = (String)obj.getOrDefault("game", "Not Playing");
+				JSONObject obj = (JSONObject) parser.parse(data);
+				this.currentGame = (String) obj.getOrDefault("game", "Not Playing");
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -684,7 +692,7 @@ public class ChannelHandler implements Runnable {
 			for (String key : this.userList.keySet()) {
 				UserHandler uh = this.userList.get(key);
 				uh.update();
-				if(this.isLive) {
+				if (this.isLive) {
 					uh.setPoints(uh.getPoints() + this.pointsPerUpdate);
 				}
 				// uh.saveUserData();
@@ -701,50 +709,51 @@ public class ChannelHandler implements Runnable {
 		String senderName = "";
 		HashMap<String, String> ircTags = new HashMap<String, String>();
 		String[] msgContent = null;
-		
+
 		String[] ircmsgBuffer = rawircmsg.split(" ");
-		
+
 		String messageType = "UNDEFINED";
 		int i = 0;
-		
-		for(i = 0; i < ircmsgBuffer.length; i++) {
+
+		for (i = 0; i < ircmsgBuffer.length; i++) {
 			String msg = ircmsgBuffer[i];
-			
-			//first off make sure what type it is
-			if((msg.equals("PRIVMSG") || msg.equals("MODE") || msg.equals("PART") || msg.equals("JOIN") || msg.equals("CLEARCHAT")) && messageType.equals("UNDEFINED")) {
+
+			// first off make sure what type it is
+			if ((msg.equals("PRIVMSG") || msg.equals("MODE") || msg.equals("PART") || msg.equals("JOIN")
+					|| msg.equals("CLEARCHAT")) && messageType.equals("UNDEFINED")) {
 				messageType = msg;
 			}
-			
-			//irc tags
+
+			// irc tags
 			if (msg.charAt(0) == '@' && i == 0) {
 				String[] tagList = msg.split(";");
-					
-				for(String tag : tagList) {
+
+				for (String tag : tagList) {
 					try {
 						ircTags.put(tag.split("=")[0], tag.split("=")[1]);
-					} catch(ArrayIndexOutOfBoundsException e) {
-							
+					} catch (ArrayIndexOutOfBoundsException e) {
+
 					}
 				}
 			} else if (i == 0 || (i == 1 && senderName.isEmpty())) {
 				boolean exclaReached = false;
 				for (int j = 0; j < msg.length(); j++) {
-					if(msg.charAt(j) == '!') {
+					if (msg.charAt(j) == '!') {
 						exclaReached = true;
 						break;
 					}
-					if(msg.charAt(j) != ':') {
+					if (msg.charAt(j) != ':') {
 						senderName = senderName + msg.charAt(j);
 					}
 				}
-				
-				if(!exclaReached) {
+
+				if (!exclaReached) {
 					senderName = "#internal#";
 				}
 			}
-			
-			if(messageType.equals("PRIVMSG") && i > 3) {
-				if(i == 4) {
+
+			if (messageType.equals("PRIVMSG") && i > 3) {
+				if (i == 4) {
 					msgContent = new String[ircmsgBuffer.length - 4];
 					msgContent[i - 4] = msg.substring(1);
 				} else {
@@ -752,7 +761,6 @@ public class ChannelHandler implements Runnable {
 				}
 			}
 		}
-		
 
 		// create user if it does not yet exist
 		if (!this.userList.containsKey(senderName) && !senderName.isEmpty()) {
@@ -763,8 +771,8 @@ public class ChannelHandler implements Runnable {
 		// get sender object
 		UserHandler sender = this.userList.get(senderName);
 
-		//this is still old code and needs to be reworked
-		if(!messageType.equals("PRIVMSG")) {
+		// this is still old code and needs to be reworked
+		if (!messageType.equals("PRIVMSG")) {
 			// check other message
 			String[] ircmsgList = rawircmsg.split(" ");
 
@@ -783,7 +791,7 @@ public class ChannelHandler implements Runnable {
 				if (user != null) {
 					if (ircmsgList[3].equals("+o")) {
 						user.setMod(true);
-						if(!user.isBroadcaster()) {
+						if (!user.isBroadcaster()) {
 							user.setCommandPower(25);
 						}
 					} else {
@@ -800,88 +808,91 @@ public class ChannelHandler implements Runnable {
 					}
 				}
 			} else if (ircmsgList[1].equals("JOIN")) {
-				if (sender != null) {					
+				if (sender != null) {
 					if (this.autogreetList.containsKey(sender.getUsername())) {
-						if(this.allowAutogreet) {
+						if (this.allowAutogreet) {
 							this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
 						}
 					}
 				}
 			} else if (ircmsgList[1].equals("CLEARCHAT")) {
-				if(this.userList.containsKey(ircmsgList[3].replace(":", ""))) {
-					this.userList.get(ircmsgList[3].replace(":", "")).setTimeouts(this.userList.get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);
+				if (this.userList.containsKey(ircmsgList[3].replace(":", ""))) {
+					this.userList.get(ircmsgList[3].replace(":", ""))
+							.setTimeouts(this.userList.get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);
 					this.userList.get(ircmsgList[3].replace(":", "")).writeDBUserData();
 				} else {
 					UserHandler uh = new UserHandler(ircmsgList[3].replace(":", ""), this.channel);
-					if(!uh.isNewUser()) {
+					if (!uh.isNewUser()) {
 						uh.setTimeouts(uh.getTimeouts() + 1);
 						uh.writeDBUserData();
 					}
 				}
 			}
 		} else {
-			//check irc tags
-			if(ircTags.containsKey("user-type")) {
-				if(ircTags.get("user-type").equals("mod") && !sender.isBroadcaster()) {
+			// check irc tags
+			if (ircTags.containsKey("user-type")) {
+				if (ircTags.get("user-type").equals("mod") && !sender.isBroadcaster()) {
 					sender.setMod(true);
 					sender.setCommandPower(25);
-				} else if(!sender.isBroadcaster()) {
+				} else if (!sender.isBroadcaster()) {
 					sender.setMod(false);
 					sender.setCommandPower(10);
 				}
 			}
-			
+
 			// check broadcaster status
 			if (sender.getUsername().equalsIgnoreCase(this.broadcaster)) {
 				sender.setMod(true);
 				sender.setBroadcaster(true);
 				sender.setCommandPower(50);
 			}
-			
-			//check botadmin status
-			for(String user : Memebot.botAdmins) {
-				if(user.equalsIgnoreCase(sender.getUsername())) {
+
+			// check botadmin status
+			for (String user : Memebot.botAdmins) {
+				if (user.equalsIgnoreCase(sender.getUsername())) {
 					sender.setCommandPower(75);
 				}
 			}
-			
+
 			String msg = msgContent[0];
 			String[] data = Arrays.copyOfRange(msgContent, 0, msgContent.length);
-	
+
 			// check channel commands
 			int p = -1;
 			if ((p = this.findCommand(msg)) != -1) {
-				if(!this.channelCommands.get(p).isTexttrigger()) {
+				if (!this.channelCommands.get(p).isTexttrigger()) {
 					this.channelCommands.get(p).execCommand(sender, this, data, userList);
 				}
 			}
-			
+
 			// check text trigger
-			for(CommandHandler ch : this.channelCommands) {
-				if(ch.isTexttrigger()) {
-					for(String s : msgContent) {
+			for (CommandHandler ch : this.channelCommands) {
+				if (ch.isTexttrigger()) {
+					for (String s : msgContent) {
 						if (s.equals(ch.getCommand())) {
-							ch.execCommand(sender, this, new String[]{""}, userList);
+							ch.execCommand(sender, this, new String[] { "" }, userList);
 						}
 					}
 				}
 			}
-	
+
 			// exec other channel's command
 			for (ChannelHandler ch : Memebot.joinedChannels) {
 				for (String och : this.otherLoadedChannels) {
-					// System.out.println(msg.replace(och.replace("#", "") + ".",
+					// System.out.println(msg.replace(och.replace("#", "") +
+					// ".",
 					// ""));
 					CharSequence channel = ch.getBroadcaster();
 					if (ch.getChannel().equals(och) || ch.getBroadcaster().equals(och)) {
-						if ((p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))) != -1 && msg.contains(channel)) {
-							ch.channelCommands.get(p).execCommand(new UserHandler("#readonly#", this.channel), this, data,
-									userList);
+						if ((p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))) != -1
+								&& msg.contains(channel)) {
+							ch.channelCommands.get(p).execCommand(new UserHandler("#readonly#", this.channel), this,
+									data, userList);
 						}
 					}
 				}
 			}
-	
+
 			// exec internal commands
 			for (CommandHandler ch : this.internalCommands) {
 				if (ch.getCommand().equals(msg)) {
@@ -927,7 +938,7 @@ public class ChannelHandler implements Runnable {
 	public int findCommand(String command) {
 		return this.findCommand(command, this.channelCommands);
 	}
-	
+
 	public int findCommand(String command, ArrayList<CommandHandler> commandList) {
 		for (int i = 0; i < commandList.size(); i++) {
 			if (commandList.get(i).command.equals(command)) {

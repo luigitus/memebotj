@@ -21,7 +21,7 @@ public class Cooldown {
 	public void setCooldownLen(int cooldownLen) {
 		this.cooldownLen = cooldownLen;
 	}
-	
+
 	public void setCooldownEnd(int cooldownEnd) {
 		this.cooldownEnd = cooldownEnd;
 	}

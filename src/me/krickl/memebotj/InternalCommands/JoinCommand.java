@@ -21,14 +21,15 @@ public class JoinCommand extends CommandHandler {
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			try {
-				ChannelHandler newCH = new ChannelHandler(data[0], new ConnectionHandler(Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
+				ChannelHandler newCH = new ChannelHandler(data[0],
+						new ConnectionHandler(Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
 				newCH.strart();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			
+
 		}
 	}
 

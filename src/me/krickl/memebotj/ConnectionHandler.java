@@ -74,7 +74,7 @@ public class ConnectionHandler {
 		String[] returnArray = { channel, ircmsg };
 		return returnArray;
 	}
-	
+
 	public void close() {
 		try {
 			this.outToServer.close();

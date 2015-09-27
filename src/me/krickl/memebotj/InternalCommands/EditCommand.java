@@ -25,7 +25,9 @@ public class EditCommand extends CommandHandler {
 
 				if (channelHandler.getChannelCommands().get(j).editCommand(data[1], newValue, sender,
 						channelHandler.getUserList())) {
-					channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("EDITCOMMAND_OK").replace("{param1}", data[0]).replace("{param2}", data[1]).replace("{param3}", newValue),
+					channelHandler.sendMessage(
+							channelHandler.getBuiltInStrings().get("EDITCOMMAND_OK").replace("{param1}", data[0])
+									.replace("{param2}", data[1]).replace("{param3}", newValue),
 							this.getChannelOrigin());
 				} else {
 					channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("EDITCOMMAND_FAIL"),
