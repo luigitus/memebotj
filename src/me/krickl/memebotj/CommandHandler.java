@@ -41,6 +41,8 @@ public class CommandHandler {
 	int userCooldownLen = 0;
 	boolean appendGameToQuote = false;
 	boolean appendDateToQuote = false;
+	
+	boolean excludeFromCommandList = false;
 
 	private MongoCollection<Document> commandCollection;
 
@@ -621,6 +623,42 @@ public class CommandHandler {
 
 	public void setNeededBotAdminCommandPower(int neededBotAdminCommandPower) {
 		this.neededBotAdminCommandPower = neededBotAdminCommandPower;
+	}
+
+	public int getUserCooldownLen() {
+		return userCooldownLen;
+	}
+
+	public void setUserCooldownLen(int userCooldownLen) {
+		this.userCooldownLen = userCooldownLen;
+	}
+
+	public boolean isAppendGameToQuote() {
+		return appendGameToQuote;
+	}
+
+	public void setAppendGameToQuote(boolean appendGameToQuote) {
+		this.appendGameToQuote = appendGameToQuote;
+	}
+
+	public boolean isAppendDateToQuote() {
+		return appendDateToQuote;
+	}
+
+	public void setAppendDateToQuote(boolean appendDateToQuote) {
+		this.appendDateToQuote = appendDateToQuote;
+	}
+
+	public boolean isExcludeFromCommandList() {
+		return excludeFromCommandList;
+	}
+
+	public void setExcludeFromCommandList(boolean excludeFromCommandList) {
+		this.excludeFromCommandList = excludeFromCommandList;
+	}
+
+	public static Logger getLog() {
+		return log;
 	}
 
 }

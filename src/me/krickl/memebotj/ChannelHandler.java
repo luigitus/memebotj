@@ -192,6 +192,11 @@ public class ChannelHandler implements Runnable {
 		issueCommand.editCommand("output", "Having issues? Write a bugreport at https://github.com/unlink2/memebotj/issues", new UserHandler("#internal#", this.channel), userList);
 		this.internalCommands.add(issueCommand);
 		
+		CommandHandler mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#");
+		mrDestructoidCommand.editCommand("output", "MrDestructoid Midnight Raid MrDestructoid", new UserHandler("#internal#", this.channel), userList);
+		mrDestructoidCommand.setExcludeFromCommandList(true);
+		this.internalCommands.add(mrDestructoidCommand);
+		
 		this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version).replace("{build}", BuildInfo.revisionNumber).replace("{builddate}", BuildInfo.timeStamp), this.channel);
 	}
 
@@ -298,6 +303,9 @@ public class ChannelHandler implements Runnable {
 			
 			//internal commands
 			for (CommandHandler ch : this.internalCommands) {
+				if(ch.isExcludeFromCommandList()) {
+					continue;
+				}
 				bw.write("<tr>");
 				bw.write("<td>");
 				if (ch.getCmdtype().equals("list")) {
@@ -365,6 +373,9 @@ public class ChannelHandler implements Runnable {
 			
 			//channel commands
 			for (CommandHandler ch : this.channelCommands) {
+				if(ch.isExcludeFromCommandList()) {
+					continue;
+				}
 				bw.write("<tr>");
 				bw.write("<td>");
 				if (ch.getCmdtype().equals("list")) {
@@ -688,6 +699,7 @@ public class ChannelHandler implements Runnable {
 
 	public void handleMessage(String rawircmsg) {
 		String senderName = "";
+		HashMap<String, String> ircTags = new HashMap<String, String>();
 		String[] msgContent = null;
 		
 		String[] ircmsgBuffer = rawircmsg.split(" ");
@@ -705,15 +717,29 @@ public class ChannelHandler implements Runnable {
 			
 			//irc tags
 			if (msg.charAt(0) == '@' && i == 0) {
-				
+				String[] tagList = msg.split(";");
+					
+				for(String tag : tagList) {
+					try {
+						ircTags.put(tag.split("=")[0], tag.split("=")[1]);
+					} catch(ArrayIndexOutOfBoundsException e) {
+							
+					}
+				}
 			} else if (i == 0 || (i == 1 && senderName.isEmpty())) {
+				boolean exclaReached = false;
 				for (int j = 0; j < msg.length(); j++) {
 					if(msg.charAt(j) == '!') {
+						exclaReached = true;
 						break;
 					}
 					if(msg.charAt(j) != ':') {
 						senderName = senderName + msg.charAt(j);
 					}
+				}
+				
+				if(!exclaReached) {
+					senderName = "#internal#";
 				}
 			}
 			
@@ -737,6 +763,7 @@ public class ChannelHandler implements Runnable {
 		// get sender object
 		UserHandler sender = this.userList.get(senderName);
 
+		//this is still old code and needs to be reworked
 		if(!messageType.equals("PRIVMSG")) {
 			// check other message
 			String[] ircmsgList = rawircmsg.split(" ");
@@ -793,6 +820,17 @@ public class ChannelHandler implements Runnable {
 				}
 			}
 		} else {
+			//check irc tags
+			if(ircTags.containsKey("user-type")) {
+				if(ircTags.get("user-type").equals("mod") && !sender.isBroadcaster()) {
+					sender.setMod(true);
+					sender.setCommandPower(25);
+				} else if(!sender.isBroadcaster()) {
+					sender.setMod(false);
+					sender.setCommandPower(10);
+				}
+			}
+			
 			// check broadcaster status
 			if (sender.getUsername().equalsIgnoreCase(this.broadcaster)) {
 				sender.setMod(true);
@@ -806,9 +844,7 @@ public class ChannelHandler implements Runnable {
 					sender.setCommandPower(75);
 				}
 			}
-	
-			// changed feature
-			// for( int i = 0; i < 1; i++) {
+			
 			String msg = msgContent[0];
 			String[] data = Arrays.copyOfRange(msgContent, 0, msgContent.length);
 	
