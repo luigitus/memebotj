@@ -245,27 +245,50 @@ public class Memebot {
 
 		// join channels
 		for (String channel : Memebot.channels) {
-			try {
-				File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
-				if (login.exists()) {
-					ArrayList<String> loginInfo = (ArrayList<String>) Files
-							.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
-
-					log.info("Found login file for channel " + channel);
-					;
-
-					ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
-							new ConnectionHandler(Memebot.ircServer, Memebot.port, loginInfo.get(0), loginInfo.get(1)));
-					newChannel.strart();
-				} else {
-					ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(
-							Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
-					newChannel.strart();
+			Memebot.joinChannel(channel);
+		}
+		
+		//auto rejoin if a thread crashes
+		while(true) {
+			for(int i = 0; i < Memebot.joinedChannels.size(); i++) {
+				ChannelHandler ch = Memebot.joinedChannels.get(i);
+				if(!ch.getT().isAlive()) {
+					String channel = ch.getChannel();
+					Memebot.joinedChannels.remove(i);
+					Memebot.joinChannel(channel);
 				}
-			} catch (IOException e) {
+			}
+			
+			
+			try {
+				Thread.sleep(60000);
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public static void joinChannel(String channel) {
+		try {
+			File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
+			if (login.exists()) {
+				ArrayList<String> loginInfo = (ArrayList<String>) Files
+						.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
+
+				log.info("Found login file for channel " + channel);
+
+				ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
+						new ConnectionHandler(Memebot.ircServer, Memebot.port, loginInfo.get(0), loginInfo.get(1)));
+				newChannel.strart();
+			} else {
+				ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(
+						Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
+				newChannel.strart();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

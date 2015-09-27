@@ -9,7 +9,7 @@ import com.mongodb.client.MongoCollection;
 public class UserHandler {
 	private boolean isMod = false;
 	private boolean isBroadcaster = false;
-	private boolean execCommands = true;
+	//private boolean execCommands = true;
 	private boolean newUser = false;
 	private int commandPower = 10;
 	private int autoCommandPower = 10;
@@ -48,7 +48,7 @@ public class UserHandler {
 		Document channelQuery = new Document("_id", this.username);
 
 		Document channelData = new Document("_id", this.username).append("pointsf", this.points)
-				.append("mod", this.isMod).append("autogreet", this.autogreet).append("execcommands", this.execCommands)
+				.append("mod", this.isMod).append("autogreet", this.autogreet)
 				.append("ccommandpower", this.customCommandPower).append("broadcaster", this.isBroadcaster)
 				.append("timeouts", this.timeouts);
 
@@ -76,7 +76,6 @@ public class UserHandler {
 			this.isMod = channelData.getBoolean("vip", this.isMod);
 			this.points = (double) channelData.getOrDefault("pointsf", this.points);
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString();
-			this.execCommands = (boolean) channelData.getOrDefault("execcommands", this.execCommands);
 			this.customCommandPower = (int) channelData.getOrDefault("ccommandpower", this.customCommandPower);
 			this.isBroadcaster = (boolean) channelData.getOrDefault("broadcaster", this.isBroadcaster);
 			this.timeouts = (int) channelData.getOrDefault("timeouts", this.timeouts);
@@ -142,14 +141,6 @@ public class UserHandler {
 
 	public void setAutogreet(String autogreet) {
 		this.autogreet = autogreet;
-	}
-
-	public boolean isExecCommands() {
-		return execCommands;
-	}
-
-	public void setExecCommands(boolean execCommands) {
-		this.execCommands = execCommands;
 	}
 
 	public MongoCollection<Document> getUserCollection() {

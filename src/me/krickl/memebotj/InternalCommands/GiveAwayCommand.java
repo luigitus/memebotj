@@ -12,7 +12,6 @@ public class GiveAwayCommand extends CommandHandler {
 
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
-
 	}
 
 }
