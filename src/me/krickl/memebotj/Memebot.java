@@ -99,6 +99,8 @@ public class Memebot {
 	public static MongoCollection<Document> internalCollection;
 
 	public static String webBaseURL = "";
+	
+	public static boolean useWeb = true;
 
 	// public static final ConsoleHandler ch = new ConsoleHandler();
 

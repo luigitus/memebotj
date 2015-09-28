@@ -22,9 +22,9 @@ public class AddCommandHandler extends CommandHandler {
 						channelHandler.getUserList());
 				newCommand.editCommand("access", "viewers", new UserHandler("#internal#", "#internal#"),
 						channelHandler.getUserList());
-				String output = "";
+				String output = data[1];
 
-				for (int i = 1; i < data.length; i++) {
+				for (int i = 2; i < data.length; i++) {
 					output = output + " " + data[i];
 				}
 

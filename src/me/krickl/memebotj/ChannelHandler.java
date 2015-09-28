@@ -25,7 +25,7 @@ import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
-import me.krickl.memebotj.InternalCommands.UserPowerCommand;
+import me.krickl.memebotj.InternalCommands.EditUserCommand;
 import me.krickl.memebotj.InternalCommands.EditChannel;
 import me.krickl.memebotj.InternalCommands.EditCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
@@ -178,10 +178,8 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"));
 		this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"));
 		this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"));
-		// this.internalCommands.add(new FilenameCommand(this.channel, "~name",
-		// "#internal#")); // lubot comparability layer
 		this.internalCommands.add(new SpeedrunCommand(this.channel, "!wr", "#internal#"));
-		this.internalCommands.add(new UserPowerCommand(this.channel, "!userpower", "#internal#"));
+		this.internalCommands.add(new EditUserCommand(this.channel, "!edituser", "#internal#"));
 		this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"));
 		this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"));
 		this.internalCommands.add(new GiveAwayCommand(this.channel, "!giveaway", "#internal#"));
@@ -287,6 +285,10 @@ public class ChannelHandler implements Runnable {
 	}
 
 	public void writeHTML() {
+		if(!Memebot.useWeb) {
+			return;
+		}
+		
 		// index.html
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(this.htmlDir + "/index.html"));
@@ -584,13 +586,6 @@ public class ChannelHandler implements Runnable {
 			this.userList.get(key).writeDBUserData();
 		}
 
-		/*
-		 * for (CommandHandler ch : this.channelCommands) { ch.writeDBCommand();
-		 * }
-		 * 
-		 * for (CommandHandler ch : this.internalCommands) {
-		 * ch.writeDBCommand(); }
-		 */
 	}
 
 	public void sendMessage(String msg, String channel) {

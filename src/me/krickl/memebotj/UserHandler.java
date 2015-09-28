@@ -23,6 +23,7 @@ public class UserHandler {
 	private int timeouts = 0;
 	private MongoCollection<Document> userCollection;
 	private HashMap<String, Cooldown> userCommandCooldowns = new HashMap<String, Cooldown>();
+	private String modNote = "";
 
 	public UserHandler(String username, String channel) {
 		this.username = username;
@@ -198,6 +199,14 @@ public class UserHandler {
 
 	public void setUserCommandCooldowns(HashMap<String, Cooldown> userCooldowns) {
 		this.userCommandCooldowns = userCooldowns;
+	}
+
+	public String getModNote() {
+		return modNote;
+	}
+
+	public void setModNote(String modNote) {
+		this.modNote = modNote;
 	}
 
 }
