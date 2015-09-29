@@ -3,6 +3,7 @@ package me.krickl.memebotj;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Random;
@@ -12,6 +13,12 @@ import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
+/***
+ * This class is the base class for all commands.
+ * 
+ * @author unlink
+ *
+ */
 public class CommandHandler {
 	private static final Logger log = Logger.getLogger(CommandHandler.class.getName());
 
@@ -45,6 +52,7 @@ public class CommandHandler {
 	boolean excludeFromCommandList = false;
 
 	private MongoCollection<Document> commandCollection;
+	private String commandScript = "";
 
 	public CommandHandler(String channel) {
 		this(channel, "null");
@@ -198,21 +206,7 @@ public class CommandHandler {
 		sender.getUserCooldown().startCooldown();
 		sender.getUserCommandCooldowns().get(this.command).startCooldown();
 
-		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername());
-		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter));
-		formattedOutput = formattedOutput.replace("{points}", Double.toString(sender.getPoints()));
-		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
-		formattedOutput = formattedOutput.replace("{debugch}", this.toString());
-		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL());
-		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
-		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
-		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
-		formattedOutput = formattedOutput.replace("{date}", strDate);
-		formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
-		formattedOutput = formattedOutput.replace("{curremote}",
-				channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"));
-		formattedOutput = formattedOutput.replace("{currname}",
-				channelHandler.getBuiltInStrings().get("CURRENCY_NAME"));
+		this.formatText(formattedOutput, channelHandler, sender);
 
 		try {
 			for (int i = counterStart; i <= this.param; i++) {
@@ -244,6 +238,37 @@ public class CommandHandler {
 		}
 	}
 
+	
+	/**
+	 * This function is used to set new command variables from chat.
+	 * The following variables can be set:
+	 * name
+	 * param
+	 * helptext
+	 * access
+	 * output
+	 * cooldown
+	 * cmdtype
+	 * qsuffix
+	 * qprefix
+	 * qmodaccess
+	 * cost
+	 * lock
+	 * texttrigger
+	 * modpower
+	 * viewerpower
+	 * broadcasterpower
+	 * botadminpower
+	 * usercooldown
+	 * appenddate
+	 * appendgame
+	 * 
+	 * @param modType
+	 * @param newValue
+	 * @param sender
+	 * @param userList
+	 * @return
+	 */
 	public boolean editCommand(String modType, String newValue, UserHandler sender,
 			HashMap<String, UserHandler> userList) {
 		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
@@ -313,6 +338,9 @@ public class CommandHandler {
 		} else if (modType.equals("appendgame")) {
 			this.appendGameToQuote = Boolean.parseBoolean(newValue);
 			success = true;
+		} else if (modType.equals("script") && CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
+			this.commandScript = newValue;
+			success = true;
 		}
 
 		this.writeDBCommand();
@@ -342,7 +370,8 @@ public class CommandHandler {
 				.append("modpower", this.neededModCommandPower)
 				.append("broadcasterpower", this.neededBroadcasterCommandPower)
 				.append("botadminpower", this.neededBotAdminCommandPower).append("usercooldown", this.userCooldownLen)
-				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote);
+				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote)
+				.append("script", this.commandScript);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -402,6 +431,7 @@ public class CommandHandler {
 			this.userCooldownLen = (int) channelData.getOrDefault("usercooldown", this.userCooldownLen);
 			this.appendDateToQuote = (boolean) channelData.getOrDefault("appendgame", this.appendDateToQuote);
 			this.appendGameToQuote = (boolean) channelData.getOrDefault("appenddate", this.appendGameToQuote);
+			this.commandScript = (String) channelData.getOrDefault("script", this.commandScript);
 		}
 	}
 
@@ -429,6 +459,13 @@ public class CommandHandler {
 		return false;
 	}
 
+	/***
+	 * @deprecated This function is deprecated use {@link #checkPermission(String, int, HashMap)} instead.
+	 * @param sender
+	 * @param reqPermLevel
+	 * @param userList
+	 * @return
+	 */
 	@Deprecated
 	public static boolean checkPermission(String sender, String reqPermLevel, HashMap<String, UserHandler> userList) {
 		for (String user : Memebot.botAdmins) {
@@ -451,9 +488,53 @@ public class CommandHandler {
 
 		return false;
 	}
+	
+	/***
+	 * This method formats text for output.
+	 * The following parameters can be passed in:
+	 * {sender}
+	 * {counter}
+	 * {debugsender}
+	 * {debugch}
+	 * {channelweb}
+	 * {version}
+	 * {appname}
+	 * {date}
+	 * {game}
+	 * {curremote}
+	 * {currname}
+	 * @param formattedOutput
+	 * @param channelHandler
+	 * @param sender
+	 * @return
+	 */
+	public String formatText(String formattedOutput, ChannelHandler channelHandler, UserHandler sender) {
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");// dd/MM/yyyy
+		Calendar cal = Calendar.getInstance();
+		String strDate = sdfDate.format(cal.getTime());
+		
+		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername());
+		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter));
+		formattedOutput = formattedOutput.replace("{points}", Double.toString(sender.getPoints()));
+		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
+		formattedOutput = formattedOutput.replace("{debugch}", this.toString());
+		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL());
+		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
+		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
+		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
+		formattedOutput = formattedOutput.replace("{date}", strDate);
+		formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
+		formattedOutput = formattedOutput.replace("{curremote}",
+				channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"));
+		formattedOutput = formattedOutput.replace("{currname}",
+				channelHandler.getBuiltInStrings().get("CURRENCY_NAME"));
+		return formattedOutput;
+	}
 
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
-
+		byte [] deocdedScriptBytes = Base64.getDecoder().decode(this.commandScript);
+		
+		log.info("Command script is: " + new String(deocdedScriptBytes));
 	}
 
 	public String getChannelOrigin() {

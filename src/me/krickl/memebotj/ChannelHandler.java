@@ -30,6 +30,7 @@ import me.krickl.memebotj.InternalCommands.EditChannel;
 import me.krickl.memebotj.InternalCommands.EditCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
 import me.krickl.memebotj.InternalCommands.DampeCommand;
+import me.krickl.memebotj.InternalCommands.DebugCommand;
 import me.krickl.memebotj.InternalCommands.DeletCommandHandler;
 import me.krickl.memebotj.InternalCommands.HelpCommand;
 import me.krickl.memebotj.InternalCommands.HugCommand;
@@ -48,6 +49,11 @@ import me.krickl.memebotj.InternalCommands.FilenameCommand;
 import me.krickl.memebotj.InternalCommands.GiveAwayCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
+/**
+ * This class handles everything related to channels.
+ * @author unlink
+ *
+ */
 public class ChannelHandler implements Runnable {
 	private static final Logger log = Logger.getLogger(ChannelHandler.class.getName());
 
@@ -183,6 +189,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"));
 		this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"));
 		this.internalCommands.add(new GiveAwayCommand(this.channel, "!giveaway", "#internal#"));
+		this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"));
 
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");

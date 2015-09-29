@@ -6,6 +6,11 @@ import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
+/**
+ * This class handles users
+ * @author unlink
+ *
+ */
 public class UserHandler {
 	private boolean isMod = false;
 	private boolean isBroadcaster = false;

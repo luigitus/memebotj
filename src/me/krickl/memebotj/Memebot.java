@@ -58,6 +58,11 @@ import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+/***
+ * Memebot is a simpe irc bot for twitch.tv wirtten in Java
+ * @author unlink
+ *
+ */
 public class Memebot {
 	private static final Logger log = Logger.getLogger(ChannelHandler.class.getName());
 
@@ -140,10 +145,16 @@ public class Memebot {
 		} catch (FileNotFoundException e2) {
 			try {
 				new File(Memebot.configFile).createNewFile();
+				// save properties
+				OutputStream out;
+				out = new FileOutputStream(new File(Memebot.configFile));
+				config.store(out, String.format("%s version %s config file", BuildInfo.appName, BuildInfo.version));
+				out.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 			e2.printStackTrace();
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
@@ -176,20 +187,7 @@ public class Memebot {
 		Memebot.useMongoAuth = Boolean
 				.parseBoolean(config.getProperty("mongoauth", Boolean.toString(Memebot.useMongoAuth)));
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL);
-
-		// save properties
-		OutputStream out;
-		try {
-			out = new FileOutputStream(new File(Memebot.configFile));
-			config.store(out, String.format("%s version %s config file", BuildInfo.appName, BuildInfo.version));
-			out.close();
-		} catch (FileNotFoundException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Memebot.useWeb = Boolean.parseBoolean(config.getProperty("useweb", Boolean.toString(Memebot.useWeb)));
 
 		// shutdown hook
 		Runtime.getRuntime().addShutdownHook(new Thread() {
