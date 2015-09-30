@@ -206,7 +206,7 @@ public class CommandHandler {
 		sender.getUserCooldown().startCooldown();
 		sender.getUserCommandCooldowns().get(this.command).startCooldown();
 
-		this.formatText(formattedOutput, channelHandler, sender);
+		formattedOutput = this.formatText(formattedOutput, channelHandler, sender);
 
 		try {
 			for (int i = counterStart; i <= this.param; i++) {
