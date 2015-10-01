@@ -1,0 +1,2 @@
+examplelogin
+oauth:example

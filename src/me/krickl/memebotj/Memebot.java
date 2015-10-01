@@ -118,25 +118,7 @@ public class Memebot {
 		new File(home + "/.memebot").mkdir();
 		new File(home + "/.memebot/channels");
 
-		// calculate build hash from md-5 sum of jar file
-		try {
-			MessageDigest digest = MessageDigest.getInstance("MD5");
-			byte[] jarBytes = Files.readAllBytes(
-					Paths.get(Memebot.class.getProtectionDomain().getCodeSource().getLocation().getPath()));
-			byte[] hashBytes = digest.digest(jarBytes);
-
-			BuildInfo.revisionNumber = "";
-			// to hex string
-			for (byte b : hashBytes) {
-				BuildInfo.revisionNumber = BuildInfo.revisionNumber + String.format("%02x", b);
-			}
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e4) {
-			// TODO Auto-generated catch block
-			e4.printStackTrace();
-		}
+		BuildInfo.loadBuildInfo();
 
 		// read config
 		Properties config = new Properties();
@@ -146,10 +128,6 @@ public class Memebot {
 			try {
 				new File(Memebot.configFile).createNewFile();
 				// save properties
-				OutputStream out;
-				out = new FileOutputStream(new File(Memebot.configFile));
-				config.store(out, String.format("%s version %s config file", BuildInfo.appName, BuildInfo.version));
-				out.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -201,7 +179,7 @@ public class Memebot {
 			}
 		});
 		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName, BuildInfo.version,
-				BuildInfo.revisionNumber, BuildInfo.timeStamp));
+				BuildInfo.buildNumber, BuildInfo.timeStamp));
 
 		// get pid and write to file
 		File f = new File(memebotDir + "/pid");

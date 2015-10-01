@@ -46,7 +46,7 @@ import me.krickl.memebotj.InternalCommands.SaveCommand;
 import me.krickl.memebotj.InternalCommands.SendMessageCommand;
 import me.krickl.memebotj.InternalCommands.SpeedrunCommand;
 import me.krickl.memebotj.InternalCommands.FilenameCommand;
-import me.krickl.memebotj.InternalCommands.GiveAwayCommand;
+import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
 /**
@@ -188,7 +188,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new EditUserCommand(this.channel, "!edituser", "#internal#"));
 		this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"));
 		this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"));
-		this.internalCommands.add(new GiveAwayCommand(this.channel, "!giveaway", "#internal#"));
+		this.internalCommands.add(new GiveAwayPollCommand(this.channel, "!giveaway", "#internal#"));
 		this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"));
 
 		// internal commands without special classes
@@ -212,7 +212,7 @@ public class ChannelHandler implements Runnable {
 
 		this.sendMessage(
 				this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version)
-						.replace("{build}", BuildInfo.revisionNumber).replace("{builddate}", BuildInfo.timeStamp),
+						.replace("{build}", BuildInfo.buildNumber).replace("{builddate}", BuildInfo.timeStamp),
 				this.channel);
 	}
 

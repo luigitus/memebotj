@@ -20,14 +20,9 @@ public class JoinCommand extends CommandHandler {
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
-			try {
-				ChannelHandler newCH = new ChannelHandler(data[0],
-						new ConnectionHandler(Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
-				newCH.strart();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Memebot.joinChannel("#" + data[0]);
+			
+			channelHandler.sendMessage("Joined channel " + data[0], this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
 
 		}
