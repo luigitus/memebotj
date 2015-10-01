@@ -128,10 +128,6 @@ public class Memebot {
 			try {
 				new File(Memebot.configFile).createNewFile();
 				// save properties
-				OutputStream out;
-				out = new FileOutputStream(new File(Memebot.configFile));
-				config.store(out, String.format("%s version %s config file", BuildInfo.appName, BuildInfo.version));
-				out.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
