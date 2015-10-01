@@ -47,8 +47,7 @@ public class FilenameCommand extends CommandHandler {
 			}
 
 			if (data[0].length() <= channelHandler.getMaxFileNameLen()) {
-				if (sender.getPoints() < 100 && !CommandHandler.checkPermission(sender.getUsername(),
-						this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
+				if (this.checkCost(sender, 100.0d, channelHandler)) {
 					channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f,
 							channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
 				} else {

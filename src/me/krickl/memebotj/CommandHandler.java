@@ -102,9 +102,7 @@ public class CommandHandler {
 		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededCommandPower, userList)) {
 			return "denied";
 		}
-		if (sender.getPoints() < this.pointCost
-				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, userList)
-				&& this.pointCost > 0) {
+		if(this.checkCost(sender, this.pointCost, channelHandler)){
 			channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", (float) this.pointCost,
 					channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.channelOrigin);
 			return "cost";
@@ -529,6 +527,15 @@ public class CommandHandler {
 		formattedOutput = formattedOutput.replace("{currname}",
 				channelHandler.getBuiltInStrings().get("CURRENCY_NAME"));
 		return formattedOutput;
+	}
+	
+	protected boolean checkCost(UserHandler sender, double cost, ChannelHandler ch) {
+		if (sender.getPoints() < this.pointCost
+				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList())
+				&& this.pointCost > 0) {
+			return true;
+		}
+		return false;
 	}
 
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
