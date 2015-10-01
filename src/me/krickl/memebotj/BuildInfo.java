@@ -17,7 +17,7 @@ public class BuildInfo {
 	public static final String timeStamp = "no_timestamp_available";
 	
 	public static void loadBuildInfo() {
-		InputStream is = BuildInfo.class.getResourceAsStream("buildinfo.properties");
+		InputStream is = BuildInfo.class.getResourceAsStream("/buildinfo.properties");
 		Properties buildInfo = new Properties();
 		try {
 			if(is != null) {
