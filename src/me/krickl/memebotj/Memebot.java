@@ -106,13 +106,15 @@ public class Memebot {
 	public static String webBaseURL = "";
 	
 	public static boolean useWeb = true;
+	
+	public static boolean isBotMode = true;
 
 	// public static final ConsoleHandler ch = new ConsoleHandler();
 
 	public static void main(String[] args) {
-		// set up logging
-		// ch.setLevel(Level.ALL);
-		// ch.setFormatter(new SimpleFormatter());
+		//soon to be used
+		for(int i = 0; i < args.length; i++) {
+		}
 
 		// initial setup
 		new File(home + "/.memebot").mkdir();
@@ -167,17 +169,20 @@ public class Memebot {
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL);
 		Memebot.useWeb = Boolean.parseBoolean(config.getProperty("useweb", Boolean.toString(Memebot.useWeb)));
 
-		// shutdown hook
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				log.warning("Process received SIGTERM...");
-				for (ChannelHandler ch : Memebot.joinedChannels) {
-					ch.writeDBChannelData();
-					ch.setJoined(false);
+		if(Memebot.isBotMode) {
+			// shutdown hook
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					log.warning("Process received SIGTERM...");
+					for (ChannelHandler ch : Memebot.joinedChannels) {
+						ch.writeDBChannelData();
+						ch.setJoined(false);
+					}
 				}
-			}
-		});
+			});
+		}
+		
 		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName, BuildInfo.version,
 				BuildInfo.buildNumber, BuildInfo.timeStamp));
 
@@ -194,55 +199,57 @@ public class Memebot {
 			e1.printStackTrace();
 		}
 
-		// set up database
-		if (Memebot.useMongo) {
-			if (Memebot.useMongoAuth) {
-				MongoClientURI authuri = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s",
-						Memebot.mongoUser, Memebot.mongoPassword, Memebot.mongoHost, Memebot.mongoDBName));
-				Memebot.mongoClient = new MongoClient(authuri);
-			} else {
-				Memebot.mongoClient = new MongoClient(Memebot.mongoHost, Memebot.mongoPort);
-			}
-			Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
-			Memebot.internalCollection = Memebot.db.getCollection("#internal#");
-		}
-
-		// read blacklist
-		// TODO read blacklist
-
-		try {
-			channels = (ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),
-					Charset.defaultCharset());
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// setup connection
-
-		// join channels
-		for (String channel : Memebot.channels) {
-			Memebot.joinChannel(channel);
-		}
-		
-		//auto rejoin if a thread crashes
-		while(true) {
-			for(int i = 0; i < Memebot.joinedChannels.size(); i++) {
-				ChannelHandler ch = Memebot.joinedChannels.get(i);
-				if(!ch.getT().isAlive()) {
-					String channel = ch.getChannel();
-					Memebot.joinedChannels.remove(i);
-					Memebot.joinChannel(channel);
+		if(Memebot.isBotMode) {
+			// set up database
+			if (Memebot.useMongo) {
+				if (Memebot.useMongoAuth) {
+					MongoClientURI authuri = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s",
+							Memebot.mongoUser, Memebot.mongoPassword, Memebot.mongoHost, Memebot.mongoDBName));
+					Memebot.mongoClient = new MongoClient(authuri);
+				} else {
+					Memebot.mongoClient = new MongoClient(Memebot.mongoHost, Memebot.mongoPort);
 				}
+				Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
+				Memebot.internalCollection = Memebot.db.getCollection("#internal#");
 			}
-			
-			
+	
+			// read blacklist
+			// TODO read blacklist
+	
 			try {
-				Thread.sleep(60000);
-			} catch (InterruptedException e) {
+				channels = (ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),
+						Charset.defaultCharset());
+	
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+	
+			// setup connection
+	
+			// join channels
+			for (String channel : Memebot.channels) {
+				Memebot.joinChannel(channel);
+			}
+			
+			//auto rejoin if a thread crashes
+			while(true) {
+				for(int i = 0; i < Memebot.joinedChannels.size(); i++) {
+					ChannelHandler ch = Memebot.joinedChannels.get(i);
+					if(!ch.getT().isAlive()) {
+						String channel = ch.getChannel();
+						Memebot.joinedChannels.remove(i);
+						Memebot.joinChannel(channel);
+					}
+				}
+				
+				
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}

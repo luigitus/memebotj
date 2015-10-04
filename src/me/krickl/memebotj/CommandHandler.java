@@ -50,6 +50,7 @@ public class CommandHandler {
 	boolean appendDateToQuote = false;
 
 	boolean excludeFromCommandList = false;
+	boolean enable = true;
 
 	private MongoCollection<Document> commandCollection;
 	private String commandScript = "";
@@ -80,6 +81,10 @@ public class CommandHandler {
 	public String execCommand(UserHandler sender, ChannelHandler channelHandler, String[] data,
 			HashMap<String, UserHandler> userList) {
 
+		if(!enable) {
+			return "disabled";
+		}
+		
 		// check global cooldown
 		if (!this.cooldown.canContinue() || (!sender.getUserCooldown().canContinue() && !sender.isMod())) {
 			return "cooldown";
@@ -339,6 +344,9 @@ public class CommandHandler {
 		} else if (modType.equals("script") && CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
 			this.commandScript = newValue;
 			success = true;
+		} else if (modType.equals("enable")) {
+			this.enable = Boolean.parseBoolean(newValue);
+			success = true;
 		}
 
 		this.writeDBCommand();
@@ -369,7 +377,8 @@ public class CommandHandler {
 				.append("broadcasterpower", this.neededBroadcasterCommandPower)
 				.append("botadminpower", this.neededBotAdminCommandPower).append("usercooldown", this.userCooldownLen)
 				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote)
-				.append("script", this.commandScript);
+				.append("script", this.commandScript)
+				.append("enable", this.enable);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -430,6 +439,7 @@ public class CommandHandler {
 			this.appendDateToQuote = (boolean) channelData.getOrDefault("appendgame", this.appendDateToQuote);
 			this.appendGameToQuote = (boolean) channelData.getOrDefault("appenddate", this.appendGameToQuote);
 			this.commandScript = (String) channelData.getOrDefault("script", this.commandScript);
+			this.enable = (boolean)channelData.getOrDefault("enable", this.enable);
 		}
 	}
 
