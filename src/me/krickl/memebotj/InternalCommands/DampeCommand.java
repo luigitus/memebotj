@@ -39,7 +39,6 @@ public class DampeCommand extends CommandHandler {
 			}
 			else {
 				channelHandler.sendMessage("Dampé spent your " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + " on hookers, booze and crack!", this.getChannelOrigin());
-				sender.setPoints(0);
 			}
 		} catch(ArrayIndexOutOfBoundsException e) {
 		} catch (InterruptedException e) {
