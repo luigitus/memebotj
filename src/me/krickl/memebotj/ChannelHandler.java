@@ -24,16 +24,19 @@ import org.json.simple.parser.ParseException;
 import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
-import me.krickl.memebotj.InternalCommands.EditUserCommand;
-import me.krickl.memebotj.InternalCommands.EditChannel;
-import me.krickl.memebotj.InternalCommands.EditCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
 import me.krickl.memebotj.InternalCommands.DampeCommand;
 import me.krickl.memebotj.InternalCommands.DebugCommand;
 import me.krickl.memebotj.InternalCommands.DeletCommandHandler;
+import me.krickl.memebotj.InternalCommands.EditChannel;
+import me.krickl.memebotj.InternalCommands.EditCommand;
+import me.krickl.memebotj.InternalCommands.EditUserCommand;
+import me.krickl.memebotj.InternalCommands.FilenameCommand;
+import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand;
 import me.krickl.memebotj.InternalCommands.HelpCommand;
 import me.krickl.memebotj.InternalCommands.HugCommand;
 import me.krickl.memebotj.InternalCommands.HypeCommand;
@@ -47,8 +50,6 @@ import me.krickl.memebotj.InternalCommands.RaceCommand;
 import me.krickl.memebotj.InternalCommands.SaveCommand;
 import me.krickl.memebotj.InternalCommands.SendMessageCommand;
 import me.krickl.memebotj.InternalCommands.SpeedrunCommand;
-import me.krickl.memebotj.InternalCommands.FilenameCommand;
-import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
 /**
@@ -110,6 +111,7 @@ public class ChannelHandler implements Runnable {
 	
 	private String privateKey = "";
 	private SecureRandom random = new SecureRandom();
+	private String apiConnectionIP = "";
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);
@@ -1229,5 +1231,29 @@ public class ChannelHandler implements Runnable {
 
 	public void setCurrentGame(String currentGame) {
 		this.currentGame = currentGame;
+	}
+
+	public String getPrivateKey() {
+		return privateKey;
+	}
+
+	public void setPrivateKey(String privateKey) {
+		this.privateKey = privateKey;
+	}
+
+	public SecureRandom getRandom() {
+		return random;
+	}
+
+	public void setRandom(SecureRandom random) {
+		this.random = random;
+	}
+
+	public String getApiConnectionIP() {
+		return apiConnectionIP;
+	}
+
+	public void setApiConnectionIP(String apiConnectionIP) {
+		this.apiConnectionIP = apiConnectionIP;
 	}
 }
