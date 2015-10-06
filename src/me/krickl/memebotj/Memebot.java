@@ -34,29 +34,26 @@ package me.krickl.memebotj;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
+
 import org.bson.Document;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+
+import me.krickl.memebotj.api.APIConnectionHandler;
 
 /***
  * Memebot is a simpe irc bot for twitch.tv wirtten in Java
@@ -67,7 +64,8 @@ public class Memebot {
 	private static final Logger log = Logger.getLogger(ChannelHandler.class.getName());
 
 	public static String ircServer = "irc.twitch.tv";
-	public static int port = 6667;
+	public static int ircport = 6667;
+	public static int apiport = 9876;
 	public static String mongoHost = "localhost";
 	public static int mongoPort = 27017;
 	public static String mongoDBName = "memebot";
@@ -106,13 +104,17 @@ public class Memebot {
 	public static String webBaseURL = "";
 	
 	public static boolean useWeb = true;
+	
+	public static boolean isBotMode = true;
+	
+	public static APIConnectionHandler apiConnection = new APIConnectionHandler(Memebot.apiport);
 
 	// public static final ConsoleHandler ch = new ConsoleHandler();
 
 	public static void main(String[] args) {
-		// set up logging
-		// ch.setLevel(Level.ALL);
-		// ch.setFormatter(new SimpleFormatter());
+		//soon to be used
+		for(int i = 0; i < args.length; i++) {
+		}
 
 		// initial setup
 		new File(home + "/.memebot").mkdir();
@@ -150,7 +152,7 @@ public class Memebot {
 		}
 
 		Memebot.ircServer = config.getProperty("ircserver", Memebot.ircServer);
-		Memebot.port = Integer.parseInt(config.getProperty("ircport", Integer.toString(Memebot.port)));
+		Memebot.ircport = Integer.parseInt(config.getProperty("ircport", Integer.toString(Memebot.ircport)));
 		Memebot.mongoHost = config.getProperty("mongohost", Memebot.mongoHost);
 		Memebot.mongoPort = Integer.parseInt(config.getProperty("mongoport", Integer.toString(Memebot.mongoPort)));
 		Memebot.mongoDBName = config.getProperty("mongodbname", Memebot.mongoDBName);
@@ -167,17 +169,20 @@ public class Memebot {
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL);
 		Memebot.useWeb = Boolean.parseBoolean(config.getProperty("useweb", Boolean.toString(Memebot.useWeb)));
 
-		// shutdown hook
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				log.warning("Process received SIGTERM...");
-				for (ChannelHandler ch : Memebot.joinedChannels) {
-					ch.writeDBChannelData();
-					ch.setJoined(false);
+		if(Memebot.isBotMode) {
+			// shutdown hook
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					log.warning("Process received SIGTERM...");
+					for (ChannelHandler ch : Memebot.joinedChannels) {
+						ch.writeDBChannelData();
+						ch.setJoined(false);
+					}
 				}
-			}
-		});
+			});
+		}
+		
 		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName, BuildInfo.version,
 				BuildInfo.buildNumber, BuildInfo.timeStamp));
 
@@ -194,55 +199,60 @@ public class Memebot {
 			e1.printStackTrace();
 		}
 
-		// set up database
-		if (Memebot.useMongo) {
-			if (Memebot.useMongoAuth) {
-				MongoClientURI authuri = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s",
-						Memebot.mongoUser, Memebot.mongoPassword, Memebot.mongoHost, Memebot.mongoDBName));
-				Memebot.mongoClient = new MongoClient(authuri);
-			} else {
-				Memebot.mongoClient = new MongoClient(Memebot.mongoHost, Memebot.mongoPort);
-			}
-			Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
-			Memebot.internalCollection = Memebot.db.getCollection("#internal#");
-		}
-
-		// read blacklist
-		// TODO read blacklist
-
-		try {
-			channels = (ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),
-					Charset.defaultCharset());
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// setup connection
-
-		// join channels
-		for (String channel : Memebot.channels) {
-			Memebot.joinChannel(channel);
-		}
-		
-		//auto rejoin if a thread crashes
-		while(true) {
-			for(int i = 0; i < Memebot.joinedChannels.size(); i++) {
-				ChannelHandler ch = Memebot.joinedChannels.get(i);
-				if(!ch.getT().isAlive()) {
-					String channel = ch.getChannel();
-					Memebot.joinedChannels.remove(i);
-					Memebot.joinChannel(channel);
+		if(Memebot.isBotMode) {
+			// set up database
+			if (Memebot.useMongo) {
+				if (Memebot.useMongoAuth) {
+					MongoClientURI authuri = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s",
+							Memebot.mongoUser, Memebot.mongoPassword, Memebot.mongoHost, Memebot.mongoDBName));
+					Memebot.mongoClient = new MongoClient(authuri);
+				} else {
+					Memebot.mongoClient = new MongoClient(Memebot.mongoHost, Memebot.mongoPort);
 				}
+				Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
+				Memebot.internalCollection = Memebot.db.getCollection("#internal#");
 			}
-			
-			
+	
+			// read blacklist
+			// TODO read blacklist
+	
 			try {
-				Thread.sleep(60000);
-			} catch (InterruptedException e) {
+				channels = (ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),
+						Charset.defaultCharset());
+	
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+	
+			// setup connection
+	
+			// join channels
+			for (String channel : Memebot.channels) {
+				Memebot.joinChannel(channel);
+			}
+			
+			//start api thread
+			apiConnection.strart();
+			
+			//auto rejoin if a thread crashes
+			while(true) {
+				for(int i = 0; i < Memebot.joinedChannels.size(); i++) {
+					ChannelHandler ch = Memebot.joinedChannels.get(i);
+					if(!ch.getT().isAlive()) {
+						String channel = ch.getChannel();
+						Memebot.joinedChannels.remove(i);
+						Memebot.joinChannel(channel);
+					}
+				}
+				
+				
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -257,11 +267,11 @@ public class Memebot {
 				log.info("Found login file for channel " + channel);
 
 				ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
-						new ConnectionHandler(Memebot.ircServer, Memebot.port, loginInfo.get(0), loginInfo.get(1)));
+						new ConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0), loginInfo.get(1)));
 				newChannel.strart();
 			} else {
 				ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(
-						Memebot.ircServer, Memebot.port, Memebot.botNick, Memebot.botPassword));
+						Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword));
 				newChannel.strart();
 			}
 		} catch (IOException e) {

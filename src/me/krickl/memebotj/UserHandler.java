@@ -1,8 +1,12 @@
 package me.krickl.memebotj;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import org.bson.Document;
+
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
@@ -12,6 +16,8 @@ import com.mongodb.client.MongoCollection;
  *
  */
 public class UserHandler {
+	private static final Logger log = Logger.getLogger(UserHandler.class.getName());
+	
 	private boolean isMod = false;
 	private boolean isBroadcaster = false;
 	//private boolean execCommands = true;
@@ -29,6 +35,8 @@ public class UserHandler {
 	private MongoCollection<Document> userCollection;
 	private HashMap<String, Cooldown> userCommandCooldowns = new HashMap<String, Cooldown>();
 	private String modNote = "";
+	private String privateKey = "";
+	private SecureRandom random = new SecureRandom();
 
 	public UserHandler(String username, String channel) {
 		this.username = username;
@@ -38,9 +46,13 @@ public class UserHandler {
 		}
 		this.isMod = false;
 		this.isBroadcaster = false;
+		this.privateKey = new BigInteger(130, random).toString(32);
+		
 		// this.loadUserData();
 		this.readDBUserData();
 		this.setCommandPower(this.autoCommandPower);
+		
+		log.info(String.format("Private key for user %s is %s", this.username, this.privateKey));
 	}
 
 	public void writeDBUserData() {
@@ -56,7 +68,8 @@ public class UserHandler {
 		Document channelData = new Document("_id", this.username).append("pointsf", this.points)
 				.append("mod", this.isMod).append("autogreet", this.autogreet)
 				.append("ccommandpower", this.customCommandPower).append("broadcaster", this.isBroadcaster)
-				.append("timeouts", this.timeouts);
+				.append("timeouts", this.timeouts)
+				.append("privatekey", this.privateKey);
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -85,6 +98,7 @@ public class UserHandler {
 			this.customCommandPower = (int) channelData.getOrDefault("ccommandpower", this.customCommandPower);
 			this.isBroadcaster = (boolean) channelData.getOrDefault("broadcaster", this.isBroadcaster);
 			this.timeouts = (int) channelData.getOrDefault("timeouts", this.timeouts);
+			this.privateKey = (String) channelData.getOrDefault("privatekey", this.privateKey);
 		} else {
 			this.newUser = true;
 		}

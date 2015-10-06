@@ -10,29 +10,29 @@ import java.util.Properties;
  *
  */
 public class BuildInfo {
-	public static final String appName = "memebot";
-	public static final String version = "no_version_available";
-	public static final String dev = "Lukas Krickl";
+	public static String appName = "memebot";
+	public static String version = "no_version_available";
+	public static String dev = "Lukas Krickl";
 	public static String buildNumber = "no_build_available";
-	public static final String timeStamp = "no_timestamp_available";
+	public static String timeStamp = "no_timestamp_available";
 	
 	public static void loadBuildInfo() {
-		InputStream is = BuildInfo.class.getResourceAsStream("buildinfo.properties");
+		InputStream is = BuildInfo.class.getResourceAsStream("/buildinfo.properties");
 		Properties buildInfo = new Properties();
 		try {
 			if(is != null) {
 				buildInfo.load(is);
 				is.close();
-			}
+			} 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		buildInfo.getOrDefault("version", BuildInfo.version);
-		buildInfo.getOrDefault("appname", BuildInfo.appName);
-		buildInfo.getOrDefault("developer", BuildInfo.dev);
-		buildInfo.getOrDefault("build", BuildInfo.buildNumber);
-		buildInfo.getOrDefault("buildtime", BuildInfo.timeStamp);
+		BuildInfo.version = (String) buildInfo.getOrDefault("version", BuildInfo.version);
+		BuildInfo.appName = (String) buildInfo.getOrDefault("appname", BuildInfo.appName);
+		BuildInfo.dev = (String) buildInfo.getOrDefault("developer", BuildInfo.dev);
+		BuildInfo.buildNumber = (String) buildInfo.getOrDefault("build", BuildInfo.buildNumber);
+		BuildInfo.timeStamp = (String) buildInfo.getOrDefault("buildtime", BuildInfo.timeStamp);
 	}
 }

@@ -1,6 +1,5 @@
 package me.krickl.memebotj;
 
-import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -10,6 +9,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.bson.Document;
+
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
@@ -50,6 +50,7 @@ public class CommandHandler {
 	boolean appendDateToQuote = false;
 
 	boolean excludeFromCommandList = false;
+	boolean enable = true;
 
 	private MongoCollection<Document> commandCollection;
 	private String commandScript = "";
@@ -80,6 +81,10 @@ public class CommandHandler {
 	public String execCommand(UserHandler sender, ChannelHandler channelHandler, String[] data,
 			HashMap<String, UserHandler> userList) {
 
+		if(!enable) {
+			return "disabled";
+		}
+		
 		// check global cooldown
 		if (!this.cooldown.canContinue() || (!sender.getUserCooldown().canContinue() && !sender.isMod())) {
 			return "cooldown";
@@ -226,6 +231,11 @@ public class CommandHandler {
 		if (!sender.getUsername().equals("#readonly#")) {
 			this.writeDBCommand();
 		}
+		
+		// send information to api
+		if(!channelHandler.getApiConnectionIP().equals("")) {
+			Memebot.apiConnection.sendData("pkey=apisource;;sender=" + this.command + ";;request=command;;message=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler);
+		}
 
 		return "OK";
 	}
@@ -274,73 +284,78 @@ public class CommandHandler {
 		}
 
 		boolean success = false;
-
-		if (modType.equals("name")) {
-			this.command = newValue;
-			success = true;
-		} else if (modType.equals("param")) {
-			this.param = Integer.parseInt(newValue);
-			success = true;
-		} else if (modType.equals("helptext")) {
-			this.helptext = newValue;
-			success = true;
-		} else if (modType.equals("access")) {
-			this.access = newValue;
-			success = true;
-		} else if (modType.equals("output")) {
-			this.unformattedOutput = newValue;
-			success = true;
-		} else if (modType.equals("cooldown")) {
-			this.cooldown = new Cooldown(Integer.parseInt(newValue));
-			success = true;
-		} else if (modType.equals("cmdtype")) {
-			this.cmdtype = newValue;
-			success = true;
-		} else if (modType.equals("qsuffix")) {
-			this.quoteSuffix = newValue;
-			success = true;
-		} else if (modType.equals("qprefix")) {
-			this.quotePrefix = newValue;
-			success = true;
-		} else if (modType.equals("qmodaccess")) {
-			this.quoteModAccess = newValue;
-			success = true;
-		} else if (modType.equals("cost")) {
-			this.pointCost = Double.parseDouble(newValue);
-			success = true;
-		} else if (modType.equals("lock")
-				&& CommandHandler.checkPermission(sender.getUsername(), this.neededBroadcasterCommandPower, userList)) {
-			this.locked = Boolean.parseBoolean(newValue);
-			success = true;
-		} else if (modType.equals("texttrigger")) {
-			this.texttrigger = Boolean.parseBoolean(newValue);
-			success = true;
-		} else if (modType.equals("modpower")) {
-			this.neededModCommandPower = Integer.parseInt(newValue);
-			success = true;
-		} else if (modType.equals("viewerpower")) {
-			this.neededCommandPower = Integer.parseInt(newValue);
-			success = true;
-		} else if (modType.equals("broadcasterpower")) {
-			this.neededBroadcasterCommandPower = Integer.parseInt(newValue);
-			success = true;
-		} else if (modType.equals("botadminpower")) {
-			this.neededBotAdminCommandPower = Integer.parseInt(newValue);
-			success = true;
-		} else if (modType.equals("usercooldown")) {
-			this.userCooldownLen = Integer.parseInt(newValue);
-			success = true;
-		} else if (modType.equals("appenddate")) {
-			this.appendDateToQuote = Boolean.parseBoolean(newValue);
-			success = true;
-		} else if (modType.equals("appendgame")) {
-			this.appendGameToQuote = Boolean.parseBoolean(newValue);
-			success = true;
-		} else if (modType.equals("script") && CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
-			this.commandScript = newValue;
-			success = true;
+		try {
+			if (modType.equals("name")) {
+				this.command = newValue;
+				success = true;
+			} else if (modType.equals("param")) {
+				this.param = Integer.parseInt(newValue);
+				success = true;
+			} else if (modType.equals("helptext")) {
+				this.helptext = newValue;
+				success = true;
+			} else if (modType.equals("access")) {
+				this.access = newValue;
+				success = true;
+			} else if (modType.equals("output")) {
+				this.unformattedOutput = newValue;
+				success = true;
+			} else if (modType.equals("cooldown")) {
+				this.cooldown = new Cooldown(Integer.parseInt(newValue));
+				success = true;
+			} else if (modType.equals("cmdtype")) {
+				this.cmdtype = newValue;
+				success = true;
+			} else if (modType.equals("qsuffix")) {
+				this.quoteSuffix = newValue;
+				success = true;
+			} else if (modType.equals("qprefix")) {
+				this.quotePrefix = newValue;
+				success = true;
+			} else if (modType.equals("qmodaccess")) {
+				this.quoteModAccess = newValue;
+				success = true;
+			} else if (modType.equals("cost")) {
+				this.pointCost = Double.parseDouble(newValue);
+				success = true;
+			} else if (modType.equals("lock")
+					&& CommandHandler.checkPermission(sender.getUsername(), this.neededBroadcasterCommandPower, userList)) {
+				this.locked = Boolean.parseBoolean(newValue);
+				success = true;
+			} else if (modType.equals("texttrigger")) {
+				this.texttrigger = Boolean.parseBoolean(newValue);
+				success = true;
+			} else if (modType.equals("modpower")) {
+				this.neededModCommandPower = Integer.parseInt(newValue);
+				success = true;
+			} else if (modType.equals("viewerpower")) {
+				this.neededCommandPower = Integer.parseInt(newValue);
+				success = true;
+			} else if (modType.equals("broadcasterpower")) {
+				this.neededBroadcasterCommandPower = Integer.parseInt(newValue);
+				success = true;
+			} else if (modType.equals("botadminpower")) {
+				this.neededBotAdminCommandPower = Integer.parseInt(newValue);
+				success = true;
+			} else if (modType.equals("usercooldown")) {
+				this.userCooldownLen = Integer.parseInt(newValue);
+				success = true;
+			} else if (modType.equals("appenddate")) {
+				this.appendDateToQuote = Boolean.parseBoolean(newValue);
+				success = true;
+			} else if (modType.equals("appendgame")) {
+				this.appendGameToQuote = Boolean.parseBoolean(newValue);
+				success = true;
+			} else if (modType.equals("script") && CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
+				this.commandScript = newValue;
+				success = true;
+			} else if (modType.equals("enable")) {
+				this.enable = Boolean.parseBoolean(newValue);
+				success = true;
+			}
+		} catch(NumberFormatException e) {
+			log.warning(String.format("Screw you Luigitus: %s", e.toString()));
 		}
-
 		this.writeDBCommand();
 
 		return success;
@@ -369,7 +384,8 @@ public class CommandHandler {
 				.append("broadcasterpower", this.neededBroadcasterCommandPower)
 				.append("botadminpower", this.neededBotAdminCommandPower).append("usercooldown", this.userCooldownLen)
 				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote)
-				.append("script", this.commandScript);
+				.append("script", this.commandScript)
+				.append("enable", this.enable);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -430,6 +446,7 @@ public class CommandHandler {
 			this.appendDateToQuote = (boolean) channelData.getOrDefault("appendgame", this.appendDateToQuote);
 			this.appendGameToQuote = (boolean) channelData.getOrDefault("appenddate", this.appendGameToQuote);
 			this.commandScript = (String) channelData.getOrDefault("script", this.commandScript);
+			this.enable = (boolean)channelData.getOrDefault("enable", this.enable);
 		}
 	}
 

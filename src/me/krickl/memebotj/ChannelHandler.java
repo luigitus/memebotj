@@ -6,9 +6,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,16 +24,19 @@ import org.json.simple.parser.ParseException;
 import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
-import me.krickl.memebotj.InternalCommands.EditUserCommand;
-import me.krickl.memebotj.InternalCommands.EditChannel;
-import me.krickl.memebotj.InternalCommands.EditCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
 import me.krickl.memebotj.InternalCommands.DampeCommand;
 import me.krickl.memebotj.InternalCommands.DebugCommand;
 import me.krickl.memebotj.InternalCommands.DeletCommandHandler;
+import me.krickl.memebotj.InternalCommands.EditChannel;
+import me.krickl.memebotj.InternalCommands.EditCommand;
+import me.krickl.memebotj.InternalCommands.EditUserCommand;
+import me.krickl.memebotj.InternalCommands.FilenameCommand;
+import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand;
 import me.krickl.memebotj.InternalCommands.HelpCommand;
 import me.krickl.memebotj.InternalCommands.HugCommand;
 import me.krickl.memebotj.InternalCommands.HypeCommand;
@@ -45,8 +50,6 @@ import me.krickl.memebotj.InternalCommands.RaceCommand;
 import me.krickl.memebotj.InternalCommands.SaveCommand;
 import me.krickl.memebotj.InternalCommands.SendMessageCommand;
 import me.krickl.memebotj.InternalCommands.SpeedrunCommand;
-import me.krickl.memebotj.InternalCommands.FilenameCommand;
-import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
 /**
@@ -105,6 +108,10 @@ public class ChannelHandler implements Runnable {
 	private Cooldown preventMessageCooldown = new Cooldown(30);
 
 	private String currentGame = "Not Playing";
+	
+	private String privateKey = "";
+	private SecureRandom random = new SecureRandom();
+	private String apiConnectionIP = "";
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);
@@ -140,6 +147,9 @@ public class ChannelHandler implements Runnable {
 		builtInStrings.put("CURRENCY_NAME", "points");
 		builtInStrings.put("CURRENCY_EMOTE", "points");
 
+		//generate private key
+		this.privateKey = new BigInteger(130, random).toString(32);
+		
 		// create dirs
 		File htmlDirF = new File(this.htmlDir);
 		if (!htmlDirF.exists()) {
@@ -214,6 +224,8 @@ public class ChannelHandler implements Runnable {
 				this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version)
 						.replace("{build}", BuildInfo.buildNumber).replace("{builddate}", BuildInfo.timeStamp),
 				this.channel);
+		
+		log.info(String.format("Private key for channel %s is %s", this.channel, this.privateKey));
 	}
 
 	private void joinChannel(String channel) {
@@ -529,7 +541,8 @@ public class ChannelHandler implements Runnable {
 					this.otherLoadedChannels);
 			this.pointsPerUpdate = (double) channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate);
 			this.allowAutogreet = (boolean) channelData.getOrDefault("allowautogreet", this.allowAutogreet);
-
+			this.privateKey = (String) channelData.getOrDefault("privatekey", this.privateKey);
+			
 			Document bultinStringsDoc = (Document) channelData.getOrDefault("builtinstrings", new Document());
 			Document autogreetDoc = (Document) channelData.getOrDefault("autogreet", new Document());
 
@@ -579,7 +592,8 @@ public class ChannelHandler implements Runnable {
 				.append("raceurl", this.raceBaseURL).append("fileanmelist", this.fileNameList)
 				.append("otherchannels", this.otherLoadedChannels).append("builtinstrings", bultinStringsDoc)
 				.append("autogreet", autogreetDoc).append("pointsperupdate", this.pointsPerUpdate)
-				.append("allowautogreet", this.allowAutogreet);
+				.append("allowautogreet", this.allowAutogreet)
+				.append("privatekey", this.privateKey);
 
 		try {
 			if (this.channelCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -811,9 +825,14 @@ public class ChannelHandler implements Runnable {
 				}
 			} else if (ircmsgList[1].equals("JOIN")) {
 				if (sender != null) {
+					//legacy
 					if (this.autogreetList.containsKey(sender.getUsername())) {
 						if (this.allowAutogreet) {
 							this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
+						}
+					} else {
+						if(this.allowAutogreet && !sender.getAutogreet().equals("")) {
+							this.sendMessage(sender.getAutogreet(), this.channel);
 						}
 					}
 				}
@@ -1217,5 +1236,29 @@ public class ChannelHandler implements Runnable {
 
 	public void setCurrentGame(String currentGame) {
 		this.currentGame = currentGame;
+	}
+
+	public String getPrivateKey() {
+		return privateKey;
+	}
+
+	public void setPrivateKey(String privateKey) {
+		this.privateKey = privateKey;
+	}
+
+	public SecureRandom getRandom() {
+		return random;
+	}
+
+	public void setRandom(SecureRandom random) {
+		this.random = random;
+	}
+
+	public String getApiConnectionIP() {
+		return apiConnectionIP;
+	}
+
+	public void setApiConnectionIP(String apiConnectionIP) {
+		this.apiConnectionIP = apiConnectionIP;
 	}
 }
