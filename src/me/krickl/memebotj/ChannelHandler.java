@@ -45,6 +45,7 @@ import me.krickl.memebotj.InternalCommands.ModeratorsCommand;
 import me.krickl.memebotj.InternalCommands.MujuruGame;
 import me.krickl.memebotj.InternalCommands.PartCommand;
 import me.krickl.memebotj.InternalCommands.PointsCommand;
+import me.krickl.memebotj.InternalCommands.PyramidCommand;
 import me.krickl.memebotj.InternalCommands.QuitCommand;
 import me.krickl.memebotj.InternalCommands.RaceCommand;
 import me.krickl.memebotj.InternalCommands.SaveCommand;
@@ -200,6 +201,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"));
 		this.internalCommands.add(new GiveAwayPollCommand(this.channel, "!giveaway", "#internal#"));
 		this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"));
+		this.internalCommands.add(new PyramidCommand(this.channel, "!pyramid", "#internal#"));
 
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
