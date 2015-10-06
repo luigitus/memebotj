@@ -6,11 +6,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.logging.Logger;
 
 import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.CommandHandler;
 import me.krickl.memebotj.Memebot;
 
 public class APIConnectionHandler implements Runnable {
+	private static final Logger log = Logger.getLogger(APIConnectionHandler.class.getName());
+	
 	private DatagramSocket socket = null;
 	private Thread t;
 	private boolean runapi = true;
@@ -38,6 +42,8 @@ public class APIConnectionHandler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		log.info("<API> IP: " + ip + ":" + Integer.toString(port) + " Channel:  " + channel + ">>" + data);
 	}
 	
 	public String[] receiveData() {
@@ -53,6 +59,8 @@ public class APIConnectionHandler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		log.info("<API> IP: " + dataReturn[1] + ":" + dataReturn[2] + ">>" + dataReturn[0]);
 		
 		//0 is data | 1 is ip | 2 is port
 		return dataReturn;

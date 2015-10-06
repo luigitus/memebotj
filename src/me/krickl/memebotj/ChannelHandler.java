@@ -111,7 +111,7 @@ public class ChannelHandler implements Runnable {
 	
 	private String privateKey = "";
 	private SecureRandom random = new SecureRandom();
-	private String apiConnectionIP = "";
+	private String apiConnectionIP = "127.0.0.1";
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);

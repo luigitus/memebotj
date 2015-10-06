@@ -1,5 +1,6 @@
 package me.krickl.memebotj.InternalCommands;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,16 +25,21 @@ public class DampeCommand extends CommandHandler {
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
-			Random ran = new Random();
-			int outcome = ran.nextInt(100);
+			//happy now luigitus?
+			SecureRandom ran = new SecureRandom();
+			int outcome = ran.nextInt(1000);
 			Thread.sleep(100);
 			if(outcome <= 1) {
+				channelHandler.sendMessage("Dampé found " + Double.toString(10000) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
+				sender.setPoints(sender.getPoints() + 10000);
+			}
+			else if(outcome <= 10) {
 				channelHandler.sendMessage("Dampé found " + Double.toString(1000) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
 				sender.setPoints(sender.getPoints() + 1000);
-			} else if(outcome <= 10) {
+			} else if(outcome <= 100) {
 				channelHandler.sendMessage("Dampé found " + Double.toString(200) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! Pretty good!", this.getChannelOrigin());
 				sender.setPoints(sender.getPoints() + 200);
-			} else if(outcome <= 60) {
+			} else if(outcome <= 600) {
 				channelHandler.sendMessage("Dampé is being a dick and returned half of your " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "!", this.getChannelOrigin());
 				sender.setPoints(sender.getPoints() + 50);
 			}
