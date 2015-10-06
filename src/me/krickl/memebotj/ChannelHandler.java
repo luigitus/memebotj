@@ -111,7 +111,7 @@ public class ChannelHandler implements Runnable {
 	
 	private String privateKey = "";
 	private SecureRandom random = new SecureRandom();
-	private String apiConnectionIP = "127.0.0.1";
+	private String apiConnectionIP = "";
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);
@@ -825,9 +825,14 @@ public class ChannelHandler implements Runnable {
 				}
 			} else if (ircmsgList[1].equals("JOIN")) {
 				if (sender != null) {
+					//legacy
 					if (this.autogreetList.containsKey(sender.getUsername())) {
 						if (this.allowAutogreet) {
 							this.sendMessage(this.autogreetList.get(sender.getUsername()), this.channel);
+						}
+					} else {
+						if(this.allowAutogreet && !sender.getAutogreet().equals("")) {
+							this.sendMessage(sender.getAutogreet(), this.channel);
 						}
 					}
 				}
