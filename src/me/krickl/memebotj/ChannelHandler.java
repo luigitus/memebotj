@@ -29,6 +29,7 @@ import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
+import me.krickl.memebotj.InternalCommands.CommandManager;
 import me.krickl.memebotj.InternalCommands.DampeCommand;
 import me.krickl.memebotj.InternalCommands.DebugCommand;
 import me.krickl.memebotj.InternalCommands.DeletCommandHandler;
@@ -147,6 +148,7 @@ public class ChannelHandler implements Runnable {
 		builtInStrings.put("CHCHANNEL_SYNTAX", "Syntax: {param1}");
 		builtInStrings.put("CURRENCY_NAME", "points");
 		builtInStrings.put("CURRENCY_EMOTE", "points");
+		builtInStrings.put("COMMANDMANAGER_SYNTAX", "Usage: {param1}");
 
 		//generate private key
 		this.privateKey = new BigInteger(130, random).toString(32);
@@ -202,6 +204,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new GiveAwayPollCommand(this.channel, "!giveaway", "#internal#"));
 		this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"));
 		this.internalCommands.add(new PyramidCommand(this.channel, "!pyramid", "#internal#"));
+		this.internalCommands.add(new CommandManager(this.channel, "!command", "#internal#"));
 
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");

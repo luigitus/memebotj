@@ -4,6 +4,7 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.CommandHandler;
 import me.krickl.memebotj.UserHandler;
 
+@Deprecated
 public class DeletCommandHandler extends CommandHandler {
 
 	public DeletCommandHandler(String channel, String command, String dbprefix) {
@@ -33,6 +34,7 @@ public class DeletCommandHandler extends CommandHandler {
 				channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("DELCOM_NOT_FOUND"),
 						this.getChannelOrigin());
 			}
+			channelHandler.sendMessage("This command is deprecated! Use !command instead.", this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
 			channelHandler.sendMessage(
 					channelHandler.getBuiltInStrings().get("DELCOM_SYNTAX").replace("{param1}", "!medelcom <command>"),
