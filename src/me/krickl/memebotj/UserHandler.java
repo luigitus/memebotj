@@ -228,4 +228,24 @@ public class UserHandler {
 		this.modNote = modNote;
 	}
 
+	public String getPrivateKey() {
+		return privateKey;
+	}
+
+	public void setPrivateKey(String privateKey) {
+		this.privateKey = privateKey;
+	}
+
+	public SecureRandom getRandom() {
+		return random;
+	}
+
+	public void setRandom(SecureRandom random) {
+		this.random = random;
+	}
+
+	public static Logger getLog() {
+		return log;
+	}
+
 }

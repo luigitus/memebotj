@@ -25,6 +25,7 @@ import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
+import me.krickl.memebotj.InternalCommands.APIInformationCommand;
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
@@ -205,6 +206,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"));
 		this.internalCommands.add(new PyramidCommand(this.channel, "!pyramid", "#internal#"));
 		this.internalCommands.add(new CommandManager(this.channel, "!command", "#internal#"));
+		this.internalCommands.add(new APIInformationCommand(this.channel, "!apiinfo", "#internal#"));
 
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");

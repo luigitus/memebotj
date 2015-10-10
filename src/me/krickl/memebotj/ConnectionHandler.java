@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class ConnectionHandler {
@@ -16,6 +17,7 @@ public class ConnectionHandler {
 	private Socket ircSocket;
 	private BufferedReader inFromServer;
 	private DataOutputStream outToServer;
+	boolean debugMode = false;
 
 	public ConnectionHandler(String server, int port, String botNick, String password) throws IOException {
 		// log.addHandler(Memebot.ch);
@@ -32,16 +34,19 @@ public class ConnectionHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		this.inFromServer = new BufferedReader(new InputStreamReader(this.ircSocket.getInputStream(), "UTF-8"));
-
-		this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream());
-
-		log.info(String.format("Connectiong to server %s with username %s on port %d\n", this.server, this.botNick,
-				this.port));
-
-		this.outToServer.writeBytes("PASS " + this.password + "\n");
-		this.outToServer.writeBytes("NICK " + this.botNick + "\n");
+		if(ircSocket != null) {
+			this.inFromServer = new BufferedReader(new InputStreamReader(this.ircSocket.getInputStream(), "UTF-8"));
+	
+			this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream());
+	
+			log.info(String.format("Connectiong to server %s with username %s on port %d\n", this.server, this.botNick,
+					this.port));
+	
+			this.outToServer.writeBytes("PASS " + this.password + "\n");
+			this.outToServer.writeBytes("NICK " + this.botNick + "\n");
+		} else {
+			debugMode = true;
+		}
 	}
 
 	public void ping() throws IOException {
@@ -51,7 +56,13 @@ public class ConnectionHandler {
 	}
 
 	public String[] recvData() throws IOException {
-		String ircmsg = this.inFromServer.readLine().replace("\n", "").replace("\r", "");
+		String ircmsg = "";
+		if(this.debugMode) {
+			Scanner input = new Scanner(System.in);
+			ircmsg = input.nextLine();
+		} else {
+			ircmsg = this.inFromServer.readLine().replace("\n", "").replace("\r", "");
+		}
 		String channel = "";
 		int hashIndex = ircmsg.indexOf(" #");
 

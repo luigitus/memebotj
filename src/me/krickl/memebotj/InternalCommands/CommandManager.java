@@ -61,7 +61,7 @@ public class CommandManager extends CommandHandler {
 				int j = -1;
 				if ((j = channelHandler.findCommand(data[1])) != -1) {
 					String newValue = data[3];
-					for (int x = 3; x < data.length; x++) {
+					for (int x = 4; x < data.length; x++) {
 						newValue = newValue + " " + data[x];
 					}
 
