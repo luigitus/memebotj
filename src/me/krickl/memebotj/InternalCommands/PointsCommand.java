@@ -14,13 +14,7 @@ public class PointsCommand extends CommandHandler {
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		if (channelHandler.getUserList().containsKey(sender.getUsername())) {
 			if (data.length < 1) {
-				channelHandler
-						.sendMessage(
-								sender.getUsername() + ": "
-										+ Double.toString(
-												channelHandler.getUserList().get(sender.getUsername()).getPoints())
-								+ " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"),
-						this.getChannelOrigin());
+				channelHandler.sendMessage(String.format("%s: %.2f %s", sender.getUsername(), channelHandler.getUserList().get(sender.getUsername()).getPoints(), channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
 			} else {
 				try {
 					UserHandler target = null;

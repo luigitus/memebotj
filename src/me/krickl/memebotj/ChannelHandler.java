@@ -29,6 +29,7 @@ import me.krickl.memebotj.InternalCommands.APIInformationCommand;
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
+import me.krickl.memebotj.InternalCommands.ChannelInfoCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
 import me.krickl.memebotj.InternalCommands.CommandManager;
 import me.krickl.memebotj.InternalCommands.DampeCommand;
@@ -53,6 +54,7 @@ import me.krickl.memebotj.InternalCommands.RaceCommand;
 import me.krickl.memebotj.InternalCommands.SaveCommand;
 import me.krickl.memebotj.InternalCommands.SendMessageCommand;
 import me.krickl.memebotj.InternalCommands.SpeedrunCommand;
+import me.krickl.memebotj.InternalCommands.UptimeCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
 /**
@@ -82,6 +84,7 @@ public class ChannelHandler implements Runnable {
 	private ArrayList<String> fileNameList = new ArrayList<String>();
 	private int maxFileNameLen = 8;
 	private String currentFileName = "";
+	private int streamStartTime = 0;
 
 	private HashMap<String, String> builtInStrings = new HashMap<String, String>();
 	// private ArrayList<String> songList = new ArrayList<String>();
@@ -99,7 +102,7 @@ public class ChannelHandler implements Runnable {
 
 	private MongoCollection<Document> channelCollection;
 
-	private double pointsPerUpdate = 1f / (this.updateCooldown.getCooldownLen() * 10);
+	private double pointsPerUpdate = 1.0f;
 
 	private Thread t;
 	private boolean isJoined = true;
@@ -115,6 +118,11 @@ public class ChannelHandler implements Runnable {
 	private String privateKey = "";
 	private SecureRandom random = new SecureRandom();
 	private String apiConnectionIP = "";
+	
+	private String urlRegex = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	private boolean purgeURLS = false;
+	private boolean purgeURLSNewUsers = false;
+	private int linkTimeout = 1;
 
 	public ChannelHandler(String channel, ConnectionHandler connection) {
 		// log.addHandler(Memebot.ch);
@@ -207,6 +215,8 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new PyramidCommand(this.channel, "!pyramid", "#internal#"));
 		this.internalCommands.add(new CommandManager(this.channel, "!command", "#internal#"));
 		this.internalCommands.add(new APIInformationCommand(this.channel, "!apiinfo", "#internal#"));
+		this.internalCommands.add(new ChannelInfoCommand(this.channel, "!ci", "#internal#"));
+		this.internalCommands.add(new UptimeCommand(this.channel, "!uptime", "#internal#"));
 
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
@@ -549,6 +559,10 @@ public class ChannelHandler implements Runnable {
 			this.pointsPerUpdate = (double) channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate);
 			this.allowAutogreet = (boolean) channelData.getOrDefault("allowautogreet", this.allowAutogreet);
 			this.privateKey = (String) channelData.getOrDefault("privatekey", this.privateKey);
+			this.linkTimeout = (int) channelData.getOrDefault("linktimeout", this.linkTimeout);
+			this.purgeURLS = (boolean) channelData.getOrDefault("purgelinks", this.purgeURLS);
+			this.purgeURLSNewUsers = (boolean) channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers);
+			this.urlRegex = (String) channelData.getOrDefault("urlreges", this.urlRegex);
 			
 			Document bultinStringsDoc = (Document) channelData.getOrDefault("builtinstrings", new Document());
 			Document autogreetDoc = (Document) channelData.getOrDefault("autogreet", new Document());
@@ -600,7 +614,11 @@ public class ChannelHandler implements Runnable {
 				.append("otherchannels", this.otherLoadedChannels).append("builtinstrings", bultinStringsDoc)
 				.append("autogreet", autogreetDoc).append("pointsperupdate", this.pointsPerUpdate)
 				.append("allowautogreet", this.allowAutogreet)
-				.append("privatekey", this.privateKey);
+				.append("privatekey", this.privateKey)
+				.append("purgelinks", this.purgeURLS)
+				.append("purgelinknu", this.purgeURLSNewUsers)
+				.append("linktimeout", this.linkTimeout)
+				.append("urlreges", this.urlRegex);
 
 		try {
 			if (this.channelCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -667,9 +685,11 @@ public class ChannelHandler implements Runnable {
 				if (isOnline == null) {
 					log.info(String.format("Stream %s is offline", this.channel));
 					this.isLive = false;
+					this.streamStartTime = -1;
 				} else {
 					log.info(String.format("Stream %s is live", this.channel));
 					this.isLive = true;
+					this.streamStartTime = (int) (System.currentTimeMillis() / 1000L);
 				}
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
@@ -885,6 +905,25 @@ public class ChannelHandler implements Runnable {
 			String msg = msgContent[0];
 			String[] data = Arrays.copyOfRange(msgContent, 0, msgContent.length);
 
+			//purge links
+			try {
+				for(int x = 0; x < data.length; x++) {
+					if(data[x].matches(this.urlRegex)) {
+						log.info("Found url in message");
+						if(this.purgeURLSNewUsers && sender.isNewUser()) {
+							log.info("Puriging " + sender.getUsername());
+							this.sendMessage("/timeout " + sender.getUsername() + " " + Integer.toString(this.linkTimeout), this.channel);
+						} else if(this.purgeURLS) {
+							log.info("Puriging " + sender.getUsername());
+							this.sendMessage("/timeout " + sender.getUsername() + " " + Integer.toString(this.linkTimeout), this.channel);
+						}
+					}
+				}
+			} catch(java.util.regex.PatternSyntaxException e) {
+				e.printStackTrace();
+			}
+			
+			
 			// check channel commands
 			int p = -1;
 			if ((p = this.findCommand(msg)) != -1) {
@@ -1267,5 +1306,45 @@ public class ChannelHandler implements Runnable {
 
 	public void setApiConnectionIP(String apiConnectionIP) {
 		this.apiConnectionIP = apiConnectionIP;
+	}
+
+	public int getStreamStartTime() {
+		return streamStartTime;
+	}
+
+	public void setStreamStartTime(int streamStartTime) {
+		this.streamStartTime = streamStartTime;
+	}
+
+	public String getUrlRegex() {
+		return urlRegex;
+	}
+
+	public void setUrlRegex(String urlRegex) {
+		this.urlRegex = urlRegex;
+	}
+
+	public boolean isPurgeURLS() {
+		return purgeURLS;
+	}
+
+	public void setPurgeURLS(boolean purgeURLS) {
+		this.purgeURLS = purgeURLS;
+	}
+
+	public boolean isPurgeURLSNewUsers() {
+		return purgeURLSNewUsers;
+	}
+
+	public void setPurgeURLSNewUsers(boolean purgeURLSNewUsers) {
+		this.purgeURLSNewUsers = purgeURLSNewUsers;
+	}
+
+	public int getLinkTimeout() {
+		return linkTimeout;
+	}
+
+	public void setLinkTimeout(int linkTimeout) {
+		this.linkTimeout = linkTimeout;
 	}
 }

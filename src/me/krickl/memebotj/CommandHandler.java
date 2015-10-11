@@ -44,6 +44,8 @@ public class CommandHandler {
 	int neededModCommandPower = 25;
 	int neededBroadcasterCommandPower = 50;
 	int neededBotAdminCommandPower = 75;
+	int neededCooldownBypassPower = 25;
+	boolean allowPicksFromList = true;
 
 	int userCooldownLen = 0;
 	boolean appendGameToQuote = false;
@@ -86,7 +88,7 @@ public class CommandHandler {
 		}
 		
 		// check global cooldown
-		if (!this.cooldown.canContinue() || (!sender.getUserCooldown().canContinue() && !sender.isMod())) {
+		if ((!this.cooldown.canContinue() || !sender.getUserCooldown().canContinue()) && !CommandHandler.checkPermission(sender.getUsername(), this.neededCooldownBypassPower, userList) ) {
 			return "cooldown";
 		}
 
@@ -113,14 +115,13 @@ public class CommandHandler {
 			return "cost";
 		}
 
-		sender.setPoints(sender.getPoints() - this.pointCost);
-
 		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");// dd/MM/yyyy
 		Calendar cal = Calendar.getInstance();
 		String strDate = sdfDate.format(cal.getTime());
 
 		String formattedOutput = this.unformattedOutput;
 		int counterStart = 1;
+		boolean success = true;
 
 		if (this.cmdtype.equals("list")) {
 			try {
@@ -158,7 +159,7 @@ public class CommandHandler {
 					formattedOutput = "Edited";
 				} else if (data[1].equals("list")) {
 					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + this.command;
-				} else {
+				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data[1])
 								+ this.listContent.get(Integer.parseInt(data[1]))
@@ -168,6 +169,8 @@ public class CommandHandler {
 					} catch (IndexOutOfBoundsException e) {
 						formattedOutput = "Index out of bounds: Size " + Integer.toString(this.listContent.size());
 					}
+				} else {
+					success= false;
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {
 				try {
@@ -204,10 +207,13 @@ public class CommandHandler {
 
 			}
 		}
-
-		this.cooldown.startCooldown();
-		sender.getUserCooldown().startCooldown();
-		sender.getUserCommandCooldowns().get(this.command).startCooldown();
+		
+		if(success) {
+			this.cooldown.startCooldown();
+			sender.getUserCooldown().startCooldown();
+			sender.getUserCommandCooldowns().get(this.command).startCooldown();
+			sender.setPoints(sender.getPoints() - this.pointCost);
+		}
 
 		formattedOutput = this.formatText(formattedOutput, channelHandler, sender);
 
@@ -352,6 +358,12 @@ public class CommandHandler {
 			} else if (modType.equals("enable")) {
 				this.enable = Boolean.parseBoolean(newValue);
 				success = true;
+			} else if(modType.equals("allowpick")) {
+				allowPicksFromList = Boolean.parseBoolean(newValue);
+				success = true;
+			} else if(modType.equals("cooldownbypass")) {
+				this.neededCooldownBypassPower = Integer.parseInt(newValue);
+				success = true;
 			}
 		} catch(NumberFormatException e) {
 			log.warning(String.format("Screw you Luigitus: %s", e.toString()));
@@ -385,7 +397,9 @@ public class CommandHandler {
 				.append("botadminpower", this.neededBotAdminCommandPower).append("usercooldown", this.userCooldownLen)
 				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote)
 				.append("script", this.commandScript)
-				.append("enable", this.enable);
+				.append("enable", this.enable)
+				.append("cooldownbypass", this.neededCooldownBypassPower)
+				.append("allowpick", this.allowPicksFromList);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -447,6 +461,8 @@ public class CommandHandler {
 			this.appendGameToQuote = (boolean) channelData.getOrDefault("appenddate", this.appendGameToQuote);
 			this.commandScript = (String) channelData.getOrDefault("script", this.commandScript);
 			this.enable = (boolean)channelData.getOrDefault("enable", this.enable);
+			this.neededCooldownBypassPower = (int)channelData.getOrDefault("cooldownbypass", this.neededCooldownBypassPower);
+			this.allowPicksFromList = (boolean)channelData.getOrDefault("allowpick", this.allowPicksFromList);
 		}
 	}
 
@@ -538,7 +554,9 @@ public class CommandHandler {
 		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
 		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
 		formattedOutput = formattedOutput.replace("{date}", strDate);
-		formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
+		if(channelHandler.getCurrentGame() != null) {
+			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
+		}
 		formattedOutput = formattedOutput.replace("{curremote}",
 				channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"));
 		formattedOutput = formattedOutput.replace("{currname}",
