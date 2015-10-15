@@ -35,6 +35,7 @@ import me.krickl.memebotj.InternalCommands.CommandList;
 import me.krickl.memebotj.InternalCommands.CommandManager;
 import me.krickl.memebotj.InternalCommands.DampeCommand;
 import me.krickl.memebotj.InternalCommands.DebugCommand;
+import me.krickl.memebotj.InternalCommands.DebugCommandScala;
 import me.krickl.memebotj.InternalCommands.DeletCommandHandler;
 import me.krickl.memebotj.InternalCommands.EditChannel;
 import me.krickl.memebotj.InternalCommands.EditCommand;
@@ -220,6 +221,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new ChannelInfoCommand(this.channel, "!ci", "#internal#"));
 		this.internalCommands.add(new UptimeCommand(this.channel, "!uptime", "#internal#"));
 		this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"));
+		this.internalCommands.add(new DebugCommandScala(this.channel, "!scala", "#internal#"));
 
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
