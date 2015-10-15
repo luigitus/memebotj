@@ -16,7 +16,7 @@ object BuildInfo {
 	 var buildNumber: String = "no_build_available"
 	 var timeStamp: String = "no_timestamp_available"
 	
-	  def loadBuildInfo() = {
+	 def loadBuildInfo() = {
 		var is: InputStream = BuildInfo.getClass.getResourceAsStream("/buildinfo.properties")
 		var buildInfo: Properties = new Properties()
 		try {
