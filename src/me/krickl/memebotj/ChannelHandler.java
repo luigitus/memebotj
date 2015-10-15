@@ -28,6 +28,7 @@ import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.InternalCommands.APIInformationCommand;
 import me.krickl.memebotj.InternalCommands.AboutCommand;
 import me.krickl.memebotj.InternalCommands.AddCommandHandler;
+import me.krickl.memebotj.InternalCommands.AliasCommand;
 import me.krickl.memebotj.InternalCommands.AutogreetCommand;
 import me.krickl.memebotj.InternalCommands.ChannelInfoCommand;
 import me.krickl.memebotj.InternalCommands.CommandList;
@@ -82,6 +83,7 @@ public class ChannelHandler implements Runnable {
 	private String greetMessage = "Hello I'm {appname} {version} build {build} the dankest irc bot ever RitzMitz";
 	private String currentRaceURL = "";
 	private ArrayList<String> fileNameList = new ArrayList<String>();
+	private ArrayList<String> aliasList = new ArrayList<String>();
 	private int maxFileNameLen = 8;
 	private String currentFileName = "";
 	private int streamStartTime = 0;
@@ -217,6 +219,7 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(new APIInformationCommand(this.channel, "!apiinfo", "#internal#"));
 		this.internalCommands.add(new ChannelInfoCommand(this.channel, "!ci", "#internal#"));
 		this.internalCommands.add(new UptimeCommand(this.channel, "!uptime", "#internal#"));
+		this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"));
 
 		// internal commands without special classes
 		CommandHandler fileNameList = new CommandHandler(this.channel, "!namelist", "#internal#");
@@ -563,6 +566,7 @@ public class ChannelHandler implements Runnable {
 			this.purgeURLS = (boolean) channelData.getOrDefault("purgelinks", this.purgeURLS);
 			this.purgeURLSNewUsers = (boolean) channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers);
 			this.urlRegex = (String) channelData.getOrDefault("urlreges", this.urlRegex);
+			this.aliasList = (ArrayList<String>)channelData.getOrDefault("alias", this.aliasList);
 			
 			Document bultinStringsDoc = (Document) channelData.getOrDefault("builtinstrings", new Document());
 			Document autogreetDoc = (Document) channelData.getOrDefault("autogreet", new Document());
@@ -618,7 +622,8 @@ public class ChannelHandler implements Runnable {
 				.append("purgelinks", this.purgeURLS)
 				.append("purgelinknu", this.purgeURLSNewUsers)
 				.append("linktimeout", this.linkTimeout)
-				.append("urlreges", this.urlRegex);
+				.append("urlreges", this.urlRegex)
+				.append("alias", this.aliasList);
 
 		try {
 			if (this.channelCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -688,8 +693,10 @@ public class ChannelHandler implements Runnable {
 					this.streamStartTime = -1;
 				} else {
 					log.info(String.format("Stream %s is live", this.channel));
+					if(this.isLive) {
+						this.streamStartTime = (int) (System.currentTimeMillis() / 1000L);
+					}
 					this.isLive = true;
-					this.streamStartTime = (int) (System.currentTimeMillis() / 1000L);
 				}
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
@@ -911,10 +918,10 @@ public class ChannelHandler implements Runnable {
 					if(data[x].matches(this.urlRegex)) {
 						log.info("Found url in message");
 						if(this.purgeURLSNewUsers && sender.isNewUser()) {
-							log.info("Puriging " + sender.getUsername());
+							log.info("Puriging " + sender.getUsername() + " for posting a link that matches the regex " + this.urlRegex);
 							this.sendMessage("/timeout " + sender.getUsername() + " " + Integer.toString(this.linkTimeout), this.channel);
 						} else if(this.purgeURLS) {
-							log.info("Puriging " + sender.getUsername());
+							log.info("Puriging " + sender.getUsername() + " for posting a link that matches the regex " + this.urlRegex);
 							this.sendMessage("/timeout " + sender.getUsername() + " " + Integer.toString(this.linkTimeout), this.channel);
 						}
 					}
@@ -923,6 +930,29 @@ public class ChannelHandler implements Runnable {
 				e.printStackTrace();
 			}
 			
+			//check aliases
+			try {
+				for(String alias : this.aliasList) {
+					String[] aliasSplit = alias.split("#");
+					if(aliasSplit[0].equals(msg)) {
+						ArrayList<String> buffer = new ArrayList<String>();
+						for(String str : aliasSplit[1].split("_")) {
+							buffer.add(str);
+						}
+						try {
+							for(String str : Arrays.copyOfRange(data, buffer.size() - 1, data.length)) {
+								buffer.add(str);
+							}
+						} catch(java.lang.IllegalArgumentException e) {
+							e.printStackTrace();
+						}
+						data = (String[])buffer.toArray(new String[buffer.size()]);
+						msg = data[0];
+					}
+				}
+			} catch(ArrayIndexOutOfBoundsException e) {
+				e.printStackTrace();
+			}
 			
 			// check channel commands
 			int p = -1;
@@ -1346,5 +1376,13 @@ public class ChannelHandler implements Runnable {
 
 	public void setLinkTimeout(int linkTimeout) {
 		this.linkTimeout = linkTimeout;
+	}
+
+	public ArrayList<String> getAliasList() {
+		return aliasList;
+	}
+
+	public void setAliasList(ArrayList<String> aliasList) {
+		this.aliasList = aliasList;
 	}
 }

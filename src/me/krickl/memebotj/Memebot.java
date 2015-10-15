@@ -68,6 +68,7 @@ public class Memebot {
 	public static int apiport = 9876;
 	public static String mongoHost = "localhost";
 	public static int mongoPort = 27017;
+	public static String apiMasterKey = "debug::key";
 	public static String mongoDBName = "memebot";
 	public static String home = System.getProperty("user.home");
 	public static String memebotDir = System.getProperty("user.home") + "/.memebot";
@@ -168,6 +169,7 @@ public class Memebot {
 				.parseBoolean(config.getProperty("mongoauth", Boolean.toString(Memebot.useMongoAuth)));
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL);
 		Memebot.useWeb = Boolean.parseBoolean(config.getProperty("useweb", Boolean.toString(Memebot.useWeb)));
+		Memebot.apiMasterKey = (String) config.getOrDefault("apimasterkey", Memebot.apiMasterKey);
 
 		if(Memebot.isBotMode) {
 			// shutdown hook

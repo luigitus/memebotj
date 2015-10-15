@@ -45,7 +45,9 @@ public class CommandHandler {
 	int neededBroadcasterCommandPower = 50;
 	int neededBotAdminCommandPower = 75;
 	int neededCooldownBypassPower = 25;
+	int neededAddPower = 25;
 	boolean allowPicksFromList = true;
+	boolean removeFromListOnPickIfMod = false; 
 
 	int userCooldownLen = 0;
 	boolean appendGameToQuote = false;
@@ -126,7 +128,7 @@ public class CommandHandler {
 		if (this.cmdtype.equals("list")) {
 			try {
 				if (data[1].equals("add")
-						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
+						&& CommandHandler.checkPermission(sender.getUsername(), this.neededAddPower, userList)) {
 					String newEntry = "";
 					for (int i = 2; i < data.length; i++) {
 						newEntry = newEntry + " " + data[i];
@@ -158,12 +160,15 @@ public class CommandHandler {
 					this.listContent.set(Integer.parseInt(data[2]), newEntry);
 					formattedOutput = "Edited";
 				} else if (data[1].equals("list")) {
-					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + this.command;
+					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + this.command + ".html";
 				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data[1])
 								+ this.listContent.get(Integer.parseInt(data[1]))
 								+ this.quoteSuffix.replace("{number}", data[1]);
+						if(this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(), userList)) {
+							this.listContent.remove(Integer.parseInt(data[1]));
+						}
 					} catch (NumberFormatException e) {
 						formattedOutput = "That's not an integer";
 					} catch (IndexOutOfBoundsException e) {
@@ -178,6 +183,10 @@ public class CommandHandler {
 					int i = rand.nextInt(this.listContent.size());
 					formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i))
 							+ this.listContent.get(i) + this.quoteSuffix.replace("{number}", Integer.toString(i));
+					
+					if(this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(), userList)) {
+						this.listContent.remove(i);
+					}
 				} catch (IllegalArgumentException e2) {
 					// just ignore it
 				}
@@ -364,7 +373,13 @@ public class CommandHandler {
 			} else if(modType.equals("cooldownbypass")) {
 				this.neededCooldownBypassPower = Integer.parseInt(newValue);
 				success = true;
-			}
+			} else if(modType.equals("neededAddPower")) {
+				this.neededAddPower = Integer.parseInt(newValue);
+				success = true;
+			} else if(modType.equals("autoremove")) {
+				this.removeFromListOnPickIfMod = Boolean.parseBoolean(newValue);
+				success = true;
+			} 
 		} catch(NumberFormatException e) {
 			log.warning(String.format("Screw you Luigitus: %s", e.toString()));
 		}
@@ -399,7 +414,9 @@ public class CommandHandler {
 				.append("script", this.commandScript)
 				.append("enable", this.enable)
 				.append("cooldownbypass", this.neededCooldownBypassPower)
-				.append("allowpick", this.allowPicksFromList);
+				.append("allowpick", this.allowPicksFromList)
+				.append("addpower", this.neededAddPower)
+				.append("autoremove", this.removeFromListOnPickIfMod);
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -463,6 +480,8 @@ public class CommandHandler {
 			this.enable = (boolean)channelData.getOrDefault("enable", this.enable);
 			this.neededCooldownBypassPower = (int)channelData.getOrDefault("cooldownbypass", this.neededCooldownBypassPower);
 			this.allowPicksFromList = (boolean)channelData.getOrDefault("allowpick", this.allowPicksFromList);
+			this.neededAddPower = (int)channelData.getOrDefault("addpower", this.neededAddPower);
+			this.removeFromListOnPickIfMod = (boolean)channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod);
 		}
 	}
 
@@ -789,6 +808,54 @@ public class CommandHandler {
 
 	public static Logger getLog() {
 		return log;
+	}
+
+	public int getNeededCooldownBypassPower() {
+		return neededCooldownBypassPower;
+	}
+
+	public void setNeededCooldownBypassPower(int neededCooldownBypassPower) {
+		this.neededCooldownBypassPower = neededCooldownBypassPower;
+	}
+
+	public int getNeededAddPower() {
+		return neededAddPower;
+	}
+
+	public void setNeededAddPower(int neededAddPower) {
+		this.neededAddPower = neededAddPower;
+	}
+
+	public boolean isAllowPicksFromList() {
+		return allowPicksFromList;
+	}
+
+	public void setAllowPicksFromList(boolean allowPicksFromList) {
+		this.allowPicksFromList = allowPicksFromList;
+	}
+
+	public boolean isRemoveFromListOnPickIfMod() {
+		return removeFromListOnPickIfMod;
+	}
+
+	public void setRemoveFromListOnPickIfMod(boolean removeFromListOnPickIfMod) {
+		this.removeFromListOnPickIfMod = removeFromListOnPickIfMod;
+	}
+
+	public boolean isEnable() {
+		return enable;
+	}
+
+	public void setEnable(boolean enable) {
+		this.enable = enable;
+	}
+
+	public String getCommandScript() {
+		return commandScript;
+	}
+
+	public void setCommandScript(String commandScript) {
+		this.commandScript = commandScript;
 	}
 
 }

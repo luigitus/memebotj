@@ -18,8 +18,7 @@ public class PointsCommand extends CommandHandler {
 			} else {
 				try {
 					UserHandler target = null;
-					if (channelHandler.getUserList().containsKey(data[1]) && CommandHandler.checkPermission(
-							sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
+					if (channelHandler.getUserList().containsKey(data[1])) {
 						target = channelHandler.getUserList().get(data[1]);
 					} else {
 						target = new UserHandler(data[1], this.getChannelOrigin());
@@ -28,7 +27,8 @@ public class PointsCommand extends CommandHandler {
 						}
 					}
 
-					if (target != null) {
+					if (target != null && CommandHandler.checkPermission(
+							sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
 						double number = Double.parseDouble(data[2]);
 						if (data[0].equals("add")) {
 							target.setPoints(target.getPoints() + number);

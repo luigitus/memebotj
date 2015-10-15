@@ -101,6 +101,11 @@ public class APIConnectionHandler implements Runnable {
 			boolean success = false;
 			
 			if(request.equals("handshake")) {
+				if(pkey.equals(Memebot.apiMasterKey)) {
+					this.sendData("pkey=apisource;;sender=apisource;;request=hello;;message=Access Granted", ip, port, null);
+					success = true;
+				}
+				
 				for(ChannelHandler ch : Memebot.joinedChannels) {
 					if(ch.getPrivateKey().equals(pkey)) {
 						ch.setApiConnectionIP(ip);
