@@ -569,9 +569,9 @@ public class CommandHandler {
 		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
 		formattedOutput = formattedOutput.replace("{debugch}", this.toString());
 		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL());
-		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
-		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
-		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
+		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version());
+		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev());
+		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName());
 		formattedOutput = formattedOutput.replace("{date}", strDate);
 		if(channelHandler.getCurrentGame() != null) {
 			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());

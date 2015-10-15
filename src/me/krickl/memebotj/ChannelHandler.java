@@ -241,8 +241,8 @@ public class ChannelHandler implements Runnable {
 		this.internalCommands.add(mrDestructoidCommand);
 
 		this.sendMessage(
-				this.greetMessage.replace("{appname}", BuildInfo.appName).replace("{version}", BuildInfo.version)
-						.replace("{build}", BuildInfo.buildNumber).replace("{builddate}", BuildInfo.timeStamp),
+				this.greetMessage.replace("{appname}", BuildInfo.appName()).replace("{version}", BuildInfo.version())
+						.replace("{build}", BuildInfo.buildNumber()).replace("{builddate}", BuildInfo.timeStamp()),
 				this.channel);
 		
 		log.info(String.format("Private key for channel %s is %s", this.channel, this.privateKey));

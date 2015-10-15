@@ -52,6 +52,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import me.krickl.memebotj.BuildInfo;
 
 import me.krickl.memebotj.api.APIConnectionHandler;
 
@@ -185,8 +186,8 @@ public class Memebot {
 			});
 		}
 		
-		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName, BuildInfo.version,
-				BuildInfo.buildNumber, BuildInfo.timeStamp));
+		log.info(String.format("%s version %s build %s built on %s\n", BuildInfo.appName(), BuildInfo.version(),
+				BuildInfo.buildNumber(), BuildInfo.timeStamp()));
 
 		// get pid and write to file
 		File f = new File(memebotDir + "/pid");
