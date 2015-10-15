@@ -2,12 +2,12 @@ package me.krickl.memebotj;
 
 class Cooldown(val cdLen: Integer) {
 	private var cooldownLen: Integer = cdLen
-	private var cooldownStart: Integer = 0;
-	private var cooldownEnd: Integer = 0;
+	private var cooldownStart = 0;
+	private var cooldownEnd = 0;
 
 	def startCooldown() = {
-		this.cooldownStart = (System.currentTimeMillis() / 1000).intValue()
-		this.cooldownEnd = (System.currentTimeMillis() / 1000L).intValue() + this.cooldownLen;
+		this.cooldownStart = (System.currentTimeMillis() / 1000).toInt
+		this.cooldownEnd = (System.currentTimeMillis() / 1000L).toInt + this.cooldownLen;
 	}
 
 	def getCooldownLen(): Integer = {
@@ -23,7 +23,7 @@ class Cooldown(val cdLen: Integer) {
 	}
 
 	def canContinue(): Boolean = {
-		if (this.cooldownEnd > (System.currentTimeMillis() / 1000).intValue()) {
+		if (this.cooldownEnd > (System.currentTimeMillis() / 1000).toInt) {
 			return false;
 		}
 
