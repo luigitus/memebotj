@@ -97,7 +97,7 @@ public class ChannelHandler implements Runnable {
 	private String channelPageBaseURL;
 	private String htmlDir;
 	private String youtubeAPIURL = "https://www.googleapis.com/youtube/v3/videos?id={videoid}&part=contentDetails&key="
-			+ Memebot.youtubeAPIKey;
+			+ Memebot.youtubeAPIKey();
 
 	private ArrayList<String> otherLoadedChannels = new ArrayList<String>();
 	private HashMap<String, String> autogreetList = new HashMap<String, String>();
@@ -135,9 +135,9 @@ public class ChannelHandler implements Runnable {
 		this.broadcaster = this.channel.replace("#", "");
 		this.channelInfoURL = "https://api.twitch.tv/kraken/channels/" + this.broadcaster;
 		this.channelFollowersURL = channelInfoURL + "/follows/?limit=";
-		this.channelPageBaseURL = Memebot.webBaseURL + this.broadcaster;
-		this.channelPageURL = Memebot.webBaseURL + this.broadcaster + "/index.html";
-		this.htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
+		this.channelPageBaseURL = Memebot.webBaseURL() + this.broadcaster;
+		this.channelPageURL = Memebot.webBaseURL() + this.broadcaster + "/index.html";
+		this.htmlDir = Memebot.htmlDir() + "/" + this.broadcaster;
 
 		log.info("Joining channel " + this.channel);
 
@@ -172,8 +172,8 @@ public class ChannelHandler implements Runnable {
 
 		this.joinChannel(this.channel);
 
-		if (Memebot.useMongo) {
-			this.channelCollection = Memebot.db.getCollection(this.channel);
+		if (Memebot.useMongo()) {
+			this.channelCollection = Memebot.db().getCollection(this.channel);
 		}
 
 		// this.loadChannelData();
@@ -257,7 +257,7 @@ public class ChannelHandler implements Runnable {
 		}
 
 		boolean isInList = false;
-		for (ChannelHandler ch : Memebot.joinedChannels) {
+		for (ChannelHandler ch : Memebot.joinedChannels()) {
 			if (ch.getChannel().equalsIgnoreCase(channel)) {
 				isInList = true;
 				break;
@@ -265,12 +265,12 @@ public class ChannelHandler implements Runnable {
 		}
 
 		if (!isInList) {
-			Memebot.joinedChannels.add(this);
+			Memebot.joinedChannels().add(this);
 
 			// save list
 			try {
-				BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig));
-				for (ChannelHandler ch : Memebot.joinedChannels) {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig()));
+				for (ChannelHandler ch : Memebot.joinedChannels()) {
 					bw.write(ch.getChannel() + "\n");
 				}
 				bw.close();
@@ -293,7 +293,7 @@ public class ChannelHandler implements Runnable {
 
 		boolean isInList = false;
 		ChannelHandler removeThisCH = null;
-		for (ChannelHandler ch : Memebot.joinedChannels) {
+		for (ChannelHandler ch : Memebot.joinedChannels()) {
 			if (ch.getChannel().equalsIgnoreCase(channel)) {
 				isInList = true;
 				removeThisCH = ch;
@@ -302,12 +302,12 @@ public class ChannelHandler implements Runnable {
 		}
 
 		if (!isInList && removeThisCH != null) {
-			Memebot.joinedChannels.remove(removeThisCH);
+			Memebot.joinedChannels().remove(removeThisCH);
 
 			// save list
 			try {
-				BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig));
-				for (ChannelHandler ch : Memebot.joinedChannels) {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig()));
+				for (ChannelHandler ch : Memebot.joinedChannels()) {
 					bw.write(ch.getChannel() + "\n");
 				}
 				bw.close();
@@ -320,11 +320,11 @@ public class ChannelHandler implements Runnable {
 		this.isJoined = false;
 		this.t.interrupt();
 		this.connection.close();
-		Memebot.joinedChannels.remove(removeThisCH);
+		Memebot.joinedChannels().remove(removeThisCH);
 	}
 
 	public void writeHTML() {
-		if(!Memebot.useWeb) {
+		if(!Memebot.useWeb()) {
 			return;
 		}
 		
@@ -543,7 +543,7 @@ public class ChannelHandler implements Runnable {
 
 	@SuppressWarnings("unchecked")
 	private void readDBChannelData() {
-		if (!Memebot.useMongo) {
+		if (!Memebot.useMongo()) {
 			return;
 		}
 
@@ -581,7 +581,7 @@ public class ChannelHandler implements Runnable {
 		}
 
 		// read commands
-		MongoCollection<Document> commandCollection = Memebot.db.getCollection(this.channel + "_commands");
+		MongoCollection<Document> commandCollection = Memebot.db().getCollection(this.channel + "_commands");
 		FindIterable<Document> comms = commandCollection.find();
 		comms.forEach(new Block<Document>() {
 
@@ -593,7 +593,7 @@ public class ChannelHandler implements Runnable {
 	}
 
 	public void writeDBChannelData() {
-		if (!Memebot.useMongo) {
+		if (!Memebot.useMongo()) {
 			return;
 		}
 
@@ -644,7 +644,7 @@ public class ChannelHandler implements Runnable {
 			return;
 		}
 
-		if (this.currentMessageCount >= Memebot.messageLimit) {
+		if (this.currentMessageCount >= Memebot.messageLimit()) {
 			log.warning("Reached global message limit for 30 seconds. try again later");
 			this.preventMessageCooldown.startCooldown();
 
@@ -903,7 +903,7 @@ public class ChannelHandler implements Runnable {
 			}
 
 			// check botadmin status
-			for (String user : Memebot.botAdmins) {
+			for (String user : Memebot.botAdmins()) {
 				if (user.equalsIgnoreCase(sender.getUsername())) {
 					sender.setCommandPower(75);
 				}
@@ -974,7 +974,7 @@ public class ChannelHandler implements Runnable {
 			}
 
 			// exec other channel's command
-			for (ChannelHandler ch : Memebot.joinedChannels) {
+			for (ChannelHandler ch : Memebot.joinedChannels()) {
 				for (String och : this.otherLoadedChannels) {
 					// System.out.println(msg.replace(och.replace("#", "") +
 					// ".",

@@ -20,7 +20,7 @@ public class SendMessageCommand extends CommandHandler {
 			msg = msg + " " + s;
 		}
 
-		for (ChannelHandler ch : Memebot.joinedChannels) {
+		for (ChannelHandler ch : Memebot.joinedChannels()) {
 			ch.sendMessage(msg, ch.getChannel());
 		}
 	}

@@ -1,5 +1,6 @@
 package me.krickl.memebotj;
 
+import me.krickl.memebotj.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -71,11 +72,11 @@ public class CommandHandler {
 		this.channelOrigin = channel;
 		this.command = command;
 
-		if (Memebot.useMongo) {
+		if (Memebot.useMongo()) {
 			if (dbprefix == null) {
-				this.commandCollection = Memebot.db.getCollection(this.channelOrigin + "_commands");
+				this.commandCollection = Memebot.db().getCollection(this.channelOrigin + "_commands");
 			} else {
-				this.commandCollection = Memebot.db.getCollection(dbprefix + this.channelOrigin + "_commands");
+				this.commandCollection = Memebot.db().getCollection(dbprefix + this.channelOrigin + "_commands");
 			}
 		}
 
@@ -249,7 +250,7 @@ public class CommandHandler {
 		
 		// send information to api
 		if(!channelHandler.getApiConnectionIP().equals("")) {
-			Memebot.apiConnection.sendData("pkey=apisource;;sender=" + this.command + ";;request=command;;message=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler);
+			Memebot.apiConnection().sendData("pkey=apisource;;sender=" + this.command + ";;request=command;;message=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport(), channelHandler);
 		}
 
 		return "OK";
@@ -389,7 +390,7 @@ public class CommandHandler {
 	}
 
 	public void writeDBCommand() {
-		if (!Memebot.useMongo) {
+		if (!Memebot.useMongo()) {
 			return;
 		}
 
@@ -428,7 +429,7 @@ public class CommandHandler {
 	}
 
 	public void removeDBCommand() {
-		if (!Memebot.useMongo) {
+		if (!Memebot.useMongo()) {
 			return;
 		}
 
@@ -441,7 +442,7 @@ public class CommandHandler {
 
 	@SuppressWarnings("unchecked")
 	public void readDBCommand() {
-		if (!Memebot.useMongo) {
+		if (!Memebot.useMongo()) {
 			return;
 		}
 
@@ -486,7 +487,7 @@ public class CommandHandler {
 	}
 
 	public static boolean checkPermission(String sender, int reqPermLevel, HashMap<String, UserHandler> userList) {
-		for (String user : Memebot.botAdmins) {
+		for (String user : Memebot.botAdmins()) {
 			if (sender.equals(user)) {
 				return true;
 			}
@@ -518,7 +519,7 @@ public class CommandHandler {
 	 */
 	@Deprecated
 	public static boolean checkPermission(String sender, String reqPermLevel, HashMap<String, UserHandler> userList) {
-		for (String user : Memebot.botAdmins) {
+		for (String user : Memebot.botAdmins()) {
 			if (sender.equals(user)) {
 				return true;
 			}

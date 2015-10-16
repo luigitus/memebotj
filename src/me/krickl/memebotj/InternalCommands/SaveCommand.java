@@ -17,7 +17,7 @@ public class SaveCommand extends CommandHandler {
 	@Override
 	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		channelHandler.sendMessage("Saving...", this.getChannelOrigin());
-		for (ChannelHandler ch : Memebot.joinedChannels) {
+		for (ChannelHandler ch : Memebot.joinedChannels()) {
 			ch.writeDBChannelData();
 		}
 	}
