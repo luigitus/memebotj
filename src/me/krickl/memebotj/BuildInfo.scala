@@ -5,19 +5,20 @@ import java.io.InputStream
 import java.util.Properties
 
 /***
- * This calls contains Build Information
+ * This class contains Build Information
  * @author unlink
  *
  */
 object BuildInfo {
-	 var appName: String = "memebot"
-	 var version: String = "no_version_available"
-	 var dev: String = "Lukas Krickl"
-	 var buildNumber: String = "no_build_available"
-	 var timeStamp: String = "no_timestamp_available"
+  
+	var appName: String = "memebot"
+	var version: String = "no_version_available"
+	var dev: String = "Lukas Krickl"
+	var buildNumber: String = "no_build_available"
+  var timeStamp: String = "no_timestamp_available"
 	
-	 def loadBuildInfo() = {
-		var is: InputStream = BuildInfo.getClass.getResourceAsStream("/buildinfo.properties")
+	def loadBuildInfo() = {
+	  var is: InputStream = BuildInfo.getClass.getResourceAsStream("/buildinfo.properties")
 		var buildInfo: Properties = new Properties()
 		try {
 			if(is != null) {

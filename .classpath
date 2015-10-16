@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="lib/bson.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb-driver.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb.jar"/>
+	<classpathentry kind="lib" path="/Users/unlink/Dropbox/src/memebotj/lib/scala-library.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
