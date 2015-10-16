@@ -64,7 +64,7 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 		var hashIndex = ircmsg.indexOf(" #")
 
 		if (hashIndex > 0) {
-			breakable { for(i <- hashIndex + 1 to ircmsg.length()) {
+			breakable { for(i <- hashIndex + 1 to ircmsg.length() - 1) {
 				if (ircmsg.charAt(i) != ' ') {
 					channel = channel + ircmsg.charAt(i)
 				} else {
