@@ -15,7 +15,7 @@ public class DeletCommandHandler extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			int j = -1;
 			if ((j = channelHandler.findCommand(data[0])) != -1) {

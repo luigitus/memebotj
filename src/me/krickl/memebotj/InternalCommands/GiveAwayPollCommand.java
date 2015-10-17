@@ -11,7 +11,7 @@ public class GiveAwayPollCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			if(CommandHandler.checkPermission(sender.getUsername(), 50, channelHandler.getUserList())) {
 				if(data[0].equals("add")) {

@@ -11,7 +11,7 @@ public class PointsCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		if (channelHandler.getUserList().containsKey(sender.getUsername())) {
 			if (data.length < 1) {
 				channelHandler.sendMessage(String.format("%s: %.2f %s", sender.getUsername(), channelHandler.getUserList().get(sender.getUsername()).getPoints(), channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());

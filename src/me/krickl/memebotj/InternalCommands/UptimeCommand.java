@@ -12,7 +12,7 @@ public class UptimeCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		int currentUpTimeSeconds = channelHandler.getStreamStartTime() - (int) (System.currentTimeMillis() / 1000L);
 		channelHandler.sendMessage(String.format("Uptime: %d", currentUpTimeSeconds), this.getChannelOrigin());
 	}

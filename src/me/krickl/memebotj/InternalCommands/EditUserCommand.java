@@ -14,7 +14,7 @@ public class EditUserCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			if(data[0].equals("power")) {
 				boolean success = false;

@@ -13,7 +13,7 @@ public class HypeCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		for (int i = 0; i < 1; i++) {
 			channelHandler.sendMessage("/me <3 <3 HYPE HYPE HYPE HYPE HYPE HYPE <3 <3", this.getChannelOrigin());
 		}

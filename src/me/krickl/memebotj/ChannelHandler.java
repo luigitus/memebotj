@@ -587,7 +587,7 @@ public class ChannelHandler implements Runnable {
 
 			@Override
 			public void apply(Document doc) {
-				channelCommands.add(new CommandHandler(channel, doc.getString("command")));
+				channelCommands.add(new CommandHandler(channel, doc.getString("command"), null));
 			}
 		});
 	}
@@ -1038,7 +1038,7 @@ public class ChannelHandler implements Runnable {
 
 	public int findCommand(String command, ArrayList<CommandHandler> commandList) {
 		for (int i = 0; i < commandList.size(); i++) {
-			if (commandList.get(i).command.equals(command)) {
+			if (commandList.get(i).command().equals(command)) {
 				return i;
 			}
 		}

@@ -14,7 +14,7 @@ public class EditChannel extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			String newEntry = "";
 			for (int x = 1; x < data.length; x++) {

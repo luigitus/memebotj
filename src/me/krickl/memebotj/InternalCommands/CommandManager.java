@@ -16,10 +16,10 @@ public class CommandManager extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			if(data[0].equals("add")) {
-				CommandHandler newCommand = new CommandHandler(this.getChannelOrigin());
+				CommandHandler newCommand = new CommandHandler(this.getChannelOrigin(), "null", null);
 				if (channelHandler.findCommand(data[1]) == -1) {
 					newCommand.editCommand("name", data[1], new UserHandler("#internal#", "#internal#"),
 							channelHandler.getUserList());

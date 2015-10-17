@@ -12,7 +12,7 @@ public class ModeratorsCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		String outStr = "";
 		for (String key : channelHandler.getUserList().keySet()) {
 			if (channelHandler.getUserList().get(key).isMod())

@@ -14,7 +14,7 @@ public class AutogreetCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			String nameToModify = data[1].toLowerCase();
 			String message = "";

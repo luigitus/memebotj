@@ -16,7 +16,7 @@ public class FilenameCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			if (data[0].equals("get")) {
 				if (CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(),

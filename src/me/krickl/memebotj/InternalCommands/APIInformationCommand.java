@@ -12,7 +12,7 @@ public class APIInformationCommand extends CommandHandler {
 	}
 	
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		//this command will publicly print information about the api right now! use with caution.
 		
 		channelHandler.sendMessage("Current api connection: " + channelHandler.getApiConnectionIP() + " || Private Key for channel: " + channelHandler.getPrivateKey() + " || Private key for sender: " + sender.getPrivateKey(), this.getChannelOrigin());

@@ -12,7 +12,7 @@ public class PyramidCommand extends CommandHandler {
 	}
 	
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			String message = data[0];
 			int size = Integer.parseInt(data[1]);

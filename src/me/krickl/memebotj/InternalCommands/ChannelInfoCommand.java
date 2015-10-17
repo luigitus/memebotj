@@ -12,7 +12,7 @@ public class ChannelInfoCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		channelHandler.sendMessage(String.format("Is live: %b || Points per update %f || purge regex: %s", 
 				channelHandler.isLive(), channelHandler.getPointsPerUpdate(), channelHandler.getUrlRegex()), this.getChannelOrigin());
 	}
