@@ -22,7 +22,7 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 	private var ircSocket: Socket = _
 	private var inFromServer: BufferedReader = _
 	private var outToServer: DataOutputStream = _
-  var debugMode: Boolean = false 
+  var debugMode: Boolean = false
 
 	try {
 		this.ircSocket = new Socket(server, port)
@@ -33,17 +33,17 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 	}
 	if(ircSocket != null) {
 		this.inFromServer = new BufferedReader(new InputStreamReader(this.ircSocket.getInputStream(), "UTF-8"))
-	
+
 	  this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream())
-	
+
 		ConnectionHandler.log.info(f"Connectiong to server $server with username $botNick on $port\n")
-	
+
 		this.outToServer.writeBytes("PASS " + this.password + "\n")
 		this.outToServer.writeBytes("NICK " + this.botNick + "\n")
 	} else {
 		debugMode = true
 	}
-	  
+
 	@throws[IOException]()
 	def ping() {
 	  ConnectionHandler.log.info("Responding to ping request!")

@@ -48,11 +48,11 @@ public class EditChannel extends CommandHandler {
 			} else if(data[0].equals("ppi")) {
 				channelHandler.setPointsPerUpdate(Double.parseDouble(data[1]));
 				channelHandler.sendMessage("Changed max ppi to " + data[1], this.getChannelOrigin());
-			} else if(data[0].equals("purgelinks")) { 
+			} else if(data[0].equals("purgelinks")) {
 				channelHandler.setPurgeURLS(Boolean.parseBoolean(data[1]));
-			} else if(data[0].equals("purgelinksnu")) { 
+			} else if(data[0].equals("purgelinksnu")) {
 				channelHandler.setPurgeURLSNewUsers(Boolean.parseBoolean(data[1]));
-			} else if(data[0].equals("linkto")) { 
+			} else if(data[0].equals("linkto")) {
 				channelHandler.setLinkTimeout(Integer.parseInt(data[1]));
 			} else if(data[0].equals("urlregex")) {
 				if(data[1].equals("append")) {

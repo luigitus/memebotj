@@ -21,7 +21,7 @@ public class DampeCommand extends CommandHandler {
 		this.setPointCost(100);
 		this.setUserCooldownLen(200);
 	}
- 
+
 	@Override
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {

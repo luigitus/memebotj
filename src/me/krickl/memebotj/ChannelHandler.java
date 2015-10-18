@@ -117,11 +117,11 @@ public class ChannelHandler implements Runnable {
 	private Cooldown preventMessageCooldown = new Cooldown(30);
 
 	private String currentGame = "Not Playing";
-	
+
 	private String privateKey = "";
 	private SecureRandom random = new SecureRandom();
 	private String apiConnectionIP = "";
-	
+
 	private String urlRegex = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 	private boolean purgeURLS = false;
 	private boolean purgeURLSNewUsers = false;
@@ -164,7 +164,7 @@ public class ChannelHandler implements Runnable {
 
 		//generate private key
 		this.privateKey = new BigInteger(130, random).toString(32);
-		
+
 		// create dirs
 		File htmlDirF = new File(this.htmlDir);
 		if (!htmlDirF.exists()) {
@@ -245,7 +245,7 @@ public class ChannelHandler implements Runnable {
 				this.greetMessage.replace("{appname}", BuildInfo.appName()).replace("{version}", BuildInfo.version())
 						.replace("{build}", BuildInfo.buildNumber()).replace("{builddate}", BuildInfo.timeStamp()),
 				this.channel);
-		
+
 		log.info(String.format("Private key for channel %s is %s", this.channel, this.privateKey));
 	}
 
@@ -328,7 +328,7 @@ public class ChannelHandler implements Runnable {
 		if(!Memebot.useWeb()) {
 			return;
 		}
-		
+
 		// index.html
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(this.htmlDir + "/index.html"));
@@ -568,7 +568,7 @@ public class ChannelHandler implements Runnable {
 			this.purgeURLSNewUsers = (boolean) channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers);
 			this.urlRegex = (String) channelData.getOrDefault("urlreges", this.urlRegex);
 			this.aliasList = (ArrayList<String>)channelData.getOrDefault("alias", this.aliasList);
-			
+
 			Document bultinStringsDoc = (Document) channelData.getOrDefault("builtinstrings", new Document());
 			Document autogreetDoc = (Document) channelData.getOrDefault("autogreet", new Document());
 
@@ -930,7 +930,7 @@ public class ChannelHandler implements Runnable {
 			} catch(java.util.regex.PatternSyntaxException e) {
 				e.printStackTrace();
 			}
-			
+
 			//check aliases
 			try {
 				for(String alias : this.aliasList) {
@@ -954,7 +954,7 @@ public class ChannelHandler implements Runnable {
 			} catch(ArrayIndexOutOfBoundsException e) {
 				e.printStackTrace();
 			}
-			
+
 			// check channel commands
 			int p = -1;
 			if ((p = this.findCommand(msg)) != -1) {

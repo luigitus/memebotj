@@ -5,7 +5,7 @@ import me.krickl.memebotj.CommandHandler;
 import me.krickl.memebotj.UserHandler;
 
 public class UptimeCommand extends CommandHandler {
-	
+
 	public UptimeCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setNeededCommandPower(75);

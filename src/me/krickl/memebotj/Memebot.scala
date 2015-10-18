@@ -104,11 +104,11 @@ object Memebot {
 	var internalCollection: MongoCollection[Document] = null
 
 	var webBaseURL: String = ""
-	
+
 	var useWeb: Boolean = true
-	
+
 	var isBotMode: Boolean = true
-	
+
 	var apiConnection = new APIConnectionHandler(Memebot.apiport)
 
 	// final ConsoleHandler ch = new ConsoleHandler()
@@ -138,7 +138,7 @@ object Memebot {
 						e.printStackTrace()
 					}
 				}
-				
+
 				e.printStackTrace()
 			}
 			case e: IOException => {
@@ -180,7 +180,7 @@ object Memebot {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				override def run() {
 					Memebot.log.warning("Process received SIGTERM...")
-					
+
 					val it = Memebot.joinedChannels.iterator()
 					while(it.hasNext()) {
 						var ch = it.next()
@@ -190,7 +190,7 @@ object Memebot {
 				}
 			})
 		}
-		
+
 		Memebot.log.info(f"${BuildInfo.appName} version ${BuildInfo.version} build ${BuildInfo.buildNumber} build on ${BuildInfo.timeStamp}")
 
 		// get pid and write to file
@@ -220,32 +220,32 @@ object Memebot {
 				Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName)
 				Memebot.internalCollection = Memebot.db.getCollection("#internal#")
 			}
-	
+
 			// read blacklist
 			// TODO read blacklist
-	
+
 			try {
 				channels = Files.readAllLines(Paths.get(Memebot.channelConfig),
 						Charset.defaultCharset()).asInstanceOf[ArrayList[String]]
-	
+
 			} catch {
 				case  e: IOException => {
 					e.printStackTrace()
 				}
 			}
-	
+
 			// setup connection
-	
+
 			// join channels
 			var it = Memebot.channels.iterator()
 			while(it.hasNext()) {
 				var channel: String = it.next()
 				Memebot.joinChannel(channel)
 			}
-			
+
 			//start api thread
 			apiConnection.strart()
-			
+
 			//auto rejoin if a thread crashes
 			while(true) {
 				for(i <- 0 to Memebot.joinedChannels.size() - 1) {
@@ -256,8 +256,8 @@ object Memebot {
 						Memebot.joinChannel(channel)
 					}
 				}
-				
-				
+
+
 				try {
 					Thread.sleep(60000)
 				} catch {
@@ -268,7 +268,7 @@ object Memebot {
 			}
 		}
 	}
-	
+
 	def joinChannel(channel: String) {
 		try {
 			var login: File = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")

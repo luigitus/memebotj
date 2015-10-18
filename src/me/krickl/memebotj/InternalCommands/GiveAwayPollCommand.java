@@ -22,7 +22,7 @@ public class GiveAwayPollCommand extends CommandHandler {
 					this.getListContent().remove(Integer.parseInt(data[1]));
 				}
 			}
-			
+
 			if(data[0].equals("vote")) {
 				int voteFor = Integer.parseInt(data[1]);
 			}
@@ -30,7 +30,7 @@ public class GiveAwayPollCommand extends CommandHandler {
 			//TODO ca
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }

@@ -19,7 +19,7 @@ object UserHandler {
  * @author unlink
  *
  */
-class UserHandler(usernameNew: String, channelNew: String) {	
+class UserHandler(usernameNew: String, channelNew: String) {
 	private var isModerator: Boolean = false
 	private var isUserBroadcaster: Boolean = false
 	//private boolean execCommands = true
@@ -43,11 +43,11 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
 	}
-		
+
 	// this.loadUserData()
 	readDBUserData()
 	setCommandPower(this.autoCommandPower)
-		
+
 	UserHandler.log.info(String.format("Private key for user %s is %s", this.username, this.privateKey))
 
 	def writeDBUserData(): Unit = {

@@ -12,7 +12,7 @@ import me.krickl.memebotj.UserHandler
 		try {
 		  channelHandler.sendMessage(String.format("%s hugs %s. HOW CUTE!", sender.toString(), data(0)), this.getChannelOrigin)
 		} catch {
-		  case e: ArrayIndexOutOfBoundsException => { 
+		  case e: ArrayIndexOutOfBoundsException => {
 			  channelHandler.sendMessage(sender.toString() + " hugs nobody. How pathetic!", this.getChannelOrigin())
 		  }
 		}

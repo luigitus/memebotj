@@ -14,12 +14,12 @@ import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 
 object CommandHandler {
-	final val log = Logger.getLogger(CommandHandler.getClass.getName())
-	
+	final val log = Logger.getLogger(CommandHandler.getClass.getName)
+
 	def checkPermission(sender: String, reqPermLevel: Int, userList: HashMap[String, UserHandler]): Boolean = {
-		var it = Memebot.botAdmins.iterator()
-		while (it.hasNext()) {
-			var user = it.next()
+		val it = Memebot.botAdmins.iterator()
+		while (it.hasNext) {
+			val user = it.next()
 			if (sender.equals(user)) {
 				return true
 			}
@@ -45,7 +45,7 @@ object CommandHandler {
 
 /***
  * This class is the base class for all commands.
- * 
+ *
  * @author unlink
  *
  */
@@ -103,7 +103,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		if(!enable) {
 			return "disabled"
 		}
-		
+
 		// check global cooldown
 		if ((!this.cooldown.canContinue() || !sender.getUserCooldown().canContinue()) && !CommandHandler.checkPermission(sender.getUsername(), this.neededCooldownBypassPower, userList) ) {
 			return "cooldown"
@@ -131,12 +131,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			return "cost"
 		}
 
-		var sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
-		var cal = Calendar.getInstance()
-		var strDate = sdfDate.format(cal.getTime())
+    val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
+    val cal = Calendar.getInstance()
+    val strDate = sdfDate.format(cal.getTime())
 
 		var formattedOutput = this.unformattedOutput
-		var counterStart = 1
+    val counterStart = 1
 		var success = true
 
 		if (this.cmdtype.equals("list")) {
@@ -150,7 +150,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 						newEntry = newEntry + " <" + strDate + ">"
 					}
 					if (this.appendGameToQuote) {
-						newEntry = newEntry + " <" + channelHandler.getCurrentGame() + ">"
+						newEntry = newEntry + " <" + channelHandler.getCurrentGame + ">"
 					}
 
 					this.listContent.add(newEntry)
@@ -161,7 +161,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 						formattedOutput = "Removed."
 					} catch {
 						case e: IndexOutOfBoundsException => {
-							formattedOutput = e.toString()
+							formattedOutput = e.toString
 						}
 					}
 				} else if (data(1).equals("edit") && CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
@@ -173,7 +173,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 					this.listContent.set(Integer.parseInt(data(2)), newEntry)
 					formattedOutput = "Edited"
 				} else if (data(1).equals("list")) {
-					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
+					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
 				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
@@ -197,11 +197,15 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 						var rand = new Random()
 						var i = rand.nextInt(this.listContent.size())
 						formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + this.listContent.get(i) + this.quoteSuffix.replace("{number}", Integer.toString(i))
-						
+
 						if(this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(), userList)) {
 							this.listContent.remove(i)
 						}
-					} finally {
+					} catch {
+            case e: IllegalArgumentException => {
+              e.printStackTrace()
+            }
+          } finally {
 						// just ignore it
 					}
 				}
@@ -211,7 +215,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			try {
 				modifier = Integer.parseInt(data(2))
 			} finally {
-				
+
 			}
 
 			try {
@@ -226,10 +230,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 					counter = modifier
 				}
 			} finally {
-				
+
 			}
 		}
-		
+
 		if(success) {
 			this.cooldown.startCooldown()
 			sender.getUserCooldown().startCooldown()
@@ -261,7 +265,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		if (!sender.getUsername().equals("#readonly#")) {
 			this.writeDBCommand()
 		}
-		
+
 		// send information to api
 		if(!channelHandler.getApiConnectionIP().equals("")) {
 			Memebot.apiConnection.sendData("pkey=apisourcesender=" + this.command + "request=commandmessage=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler)
@@ -277,7 +281,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		}
 	}
 
-	
+
 	/**
 	 * This function is used to set new command variables from chat.
 	 * The following variables can be set:
@@ -301,7 +305,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	 * usercooldown
 	 * appenddate
 	 * appendgame
-	 * 
+	 *
 	 * @param modType
 	 * @param newValue
 	 * @param sender
@@ -393,7 +397,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType.equals("autoremove")) {
 				this.removeFromListOnPickIfMod = newValue.toBoolean
 				success = true
-			} 
+			}
 		} catch {
 			case e: NumberFormatException => {
 				CommandHandler.log.warning(String.format("Screw you Luigitus: %s", e.toString()))
@@ -413,9 +417,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		// this.command)
 		CommandHandler.log.info(String.format("Writing data for command %s to db", this.command))
 
-		var channelQuery = new Document("_id", this.command)
+    val channelQuery = new Document("_id", this.command)
 
-		var channelData = new Document("_id", this.command).append("command", this.command)
+    val channelData = new Document("_id", this.command).append("command", this.command)
 				.append("cooldown", new Integer(this.cooldown.getCooldownLen())).append("access", this.access)
 				.append("helptext", this.helptext).append("param", new Integer(this.param))
 				.append("cmdtype", this.cmdtype).append("output", this.unformattedOutput)
@@ -450,10 +454,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			return
 		}
 
-		var channelQuery = new Document("_id", this.command)
-		var cursor: FindIterable[Document] = this.commandCollection.find(channelQuery)
+    val channelQuery = new Document("_id", this.command)
+    val cursor: FindIterable[Document] = this.commandCollection.find(channelQuery)
 
-		var channelData = cursor.first()
+    val channelData = cursor.first()
 		this.commandCollection.deleteOne(channelData)
 	}
 
@@ -462,23 +466,23 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			return
 		}
 
-		var channelQuery = new Document("_id", this.command)
-		var cursor = this.commandCollection.find(channelQuery)
+    val channelQuery = new Document("_id", this.command)
+    val cursor = this.commandCollection.find(channelQuery)
 
-		var channelData = cursor.first()
+    val channelData = cursor.first()
 
 		// read data
 		if (channelData != null) {
-			this.command = channelData.getOrDefault("command", this.command).toString()
+			this.command = channelData.getOrDefault("command", this.command).toString
 			this.cooldown = new Cooldown(channelData.getInteger("cooldown", 2))
-			this.access = channelData.getOrDefault("access", this.access).toString()
-			this.helptext = channelData.getOrDefault("helptext", this.helptext).toString()
+			this.access = channelData.getOrDefault("access", this.access).toString
+			this.helptext = channelData.getOrDefault("helptext", this.helptext).toString
 			this.param = channelData.getInteger("param", this.param)
-			this.cmdtype = channelData.getOrDefault("cmdtype", this.cmdtype).toString()
-			this.unformattedOutput = channelData.getOrDefault("output", this.unformattedOutput).toString()
-			this.quoteSuffix = channelData.getOrDefault("qsuffix", this.quoteSuffix).toString()
-			this.quotePrefix = channelData.getOrDefault("qprefix", this.quotePrefix).toString()
-			this.quoteModAccess = channelData.getOrDefault("qmodaccess", this.quoteModAccess).toString()
+			this.cmdtype = channelData.getOrDefault("cmdtype", this.cmdtype).toString
+			this.unformattedOutput = channelData.getOrDefault("output", this.unformattedOutput).toString
+			this.quoteSuffix = channelData.getOrDefault("qsuffix", this.quoteSuffix).toString
+			this.quotePrefix = channelData.getOrDefault("qprefix", this.quotePrefix).toString
+			this.quoteModAccess = channelData.getOrDefault("qmodaccess", this.quoteModAccess).toString
 			this.pointCost = channelData.getOrDefault("costf", this.pointCost.toString()).toString().toDouble
 			this.counter = channelData.getInteger("counter", this.counter)
 			this.listContent = channelData.getOrDefault("listcontent", this.listContent).asInstanceOf[ArrayList[String]]
@@ -499,7 +503,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.removeFromListOnPickIfMod = channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod.toString()).toString().toBoolean
 		}
 	}
-	
+
 	/***
 	 * This method formats text for output.
 	 * The following parameters can be passed in:
@@ -523,9 +527,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		var sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
 		var cal = Calendar.getInstance()
 		var strDate = sdfDate.format(cal.getTime())
-		
+
 		var formattedOutput = fo
-		
+
 		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername())
 		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter))
 		formattedOutput = formattedOutput.replace("{points}", sender.getPoints().toString())
@@ -545,7 +549,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				channelHandler.getBuiltInStrings().get("CURRENCY_NAME"))
 		return formattedOutput
 	}
-	
+
 	protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
 		if (sender.getPoints() < this.pointCost
 				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList())

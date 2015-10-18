@@ -28,14 +28,14 @@ public class CommandList extends CommandHandler {
 			} catch(NumberFormatException e) {
 				e.printStackTrace();
 			}
-			
+
 			for(int i = index * 10; i < channelHandler.getChannelCommands().size(); i++) {
 				if(i > index * 10 + 10) {
 					break;
 				}
 				output = output + " || " + channelHandler.getChannelCommands().get(i).getCommand();
 			}
-			
+
 			channelHandler.sendMessage("Commands: " + output, this.getChannelOrigin());
 		}
 	}

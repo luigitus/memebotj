@@ -25,13 +25,13 @@ public class AutogreetCommand extends CommandHandler {
 			} else {
 				user = new UserHandler(nameToModify, this.getChannelOrigin());
 			}
-			
+
 			if (data[0].equals("add")) {
 				String newValue = data[2];
 				for (int x = 3; x < data.length; x++) {
 					newValue = newValue + " " + data[x];
 				}
-				
+
 				if(!user.isNewUser()) {
 					user.setAutogreet(newValue);
 					user.writeDBUserData();

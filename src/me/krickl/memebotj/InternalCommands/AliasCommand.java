@@ -20,7 +20,7 @@ public class AliasCommand extends CommandHandler {
 				channelHandler.sendMessage("Added alias " + data[1], this.getChannelOrigin());
 			}
 		} catch(ArrayIndexOutOfBoundsException e) {
-			
+
 		}
 	}
 }

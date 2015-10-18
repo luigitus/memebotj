@@ -21,7 +21,7 @@ public class JoinCommand extends CommandHandler {
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			Memebot.joinChannel("#" + data[0]);
-			
+
 			channelHandler.sendMessage("Joined channel " + data[0], this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
 
