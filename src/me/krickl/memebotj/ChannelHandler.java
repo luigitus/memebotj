@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -366,7 +367,7 @@ public class ChannelHandler implements Runnable {
 
 					// write quote html
 					BufferedWriter bwq = new BufferedWriter(
-							new FileWriter(this.htmlDir + "/" + ch.getCommand() + ".html"));
+							new FileWriter(this.htmlDir + "/" + URLEncoder.encode(ch.getCommand(), "UTF-8") + ".html"));
 					bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>");
 					bwq.write("<html>");
 					bwq.write("<h1>");

@@ -1,8 +1,8 @@
 package me.krickl.memebotj
 
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.ArrayList
-import java.util.Base64
 import java.util.Calendar
 import java.util.HashMap
 import java.util.Random
@@ -119,7 +119,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		}
 
 		if (!sender.getUserCommandCooldowns().get(this.command).canContinue()
-				&& !CommandHandler.checkPermission(sender.getUsername(), 75, userList)) {
+				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededCooldownBypassPower, userList)) {
 			return "usercooldown"
 		}
 
@@ -173,7 +173,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 					this.listContent.set(Integer.parseInt(data(2)), newEntry)
 					formattedOutput = "Edited"
 				} else if (data(1).equals("list")) {
-					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + this.command + ".html"
+					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
 				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
@@ -514,7 +514,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	 * {game}
 	 * {curremote}
 	 * {currname}
-	 * @param formattedOutput
+	 * @param fo
 	 * @param channelHandler
 	 * @param sender
 	 * @return
