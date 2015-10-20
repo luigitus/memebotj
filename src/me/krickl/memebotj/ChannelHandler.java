@@ -60,10 +60,12 @@ import me.krickl.memebotj.InternalCommands.UptimeCommand;
 import me.krickl.memebotj.InternalCommands.WhoisCommand;
 
 /**
+ * @Deprecated ChannelHandler will be replaced with ChannelHandlerScala in the near future
  * This class handles everything related to channels.
  * @author unlink
  *
  */
+@Deprecated
 public class ChannelHandler implements Runnable {
 	private static final Logger log = Logger.getLogger(ChannelHandler.class.getName());
 
@@ -362,7 +364,7 @@ public class ChannelHandler implements Runnable {
 				bw.write("<tr>");
 				bw.write("<td>");
 				if (ch.getCmdtype().equals("list")) {
-					bw.write("<a href=\"" + this.channelPageBaseURL + "/" + ch.getCommand() + ".html\">"
+					bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.getCommand(), "UTF-8") + ".html\">"
 							+ ch.getCommand() + "</a>");
 
 					// write quote html
@@ -432,7 +434,7 @@ public class ChannelHandler implements Runnable {
 				bw.write("<tr>");
 				bw.write("<td>");
 				if (ch.getCmdtype().equals("list")) {
-					bw.write("<a href=\"" + this.channelPageBaseURL + "/" + ch.getCommand() + ".html\">"
+					bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.getCommand(), "UTF-8") + ".html\">"
 							+ ch.getCommand() + "</a>");
 
 					// write quote html

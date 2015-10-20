@@ -81,6 +81,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	var userCooldownLen = 0
 	var appendGameToQuote = false
 	var appendDateToQuote = false
+	var appendSenderToQuote = false
+	var appendToQuoteString = ""
 
 	var excludeFromCommandList = false
 	var enable = true
@@ -146,15 +148,21 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 					for (i <- 2 to data.length - 1) {
 						newEntry = newEntry + " " + data(i)
 					}
-					if (this.appendDateToQuote) {
-						newEntry = newEntry + " <" + strDate + ">"
-					}
-					if (this.appendGameToQuote) {
-						newEntry = newEntry + " <" + channelHandler.getCurrentGame + ">"
-					}
+					if (!newEntry.isEmpty)
+					{
+						if (this.appendDateToQuote) {
+							newEntry = newEntry + " <" + strDate + ">"
+						}
+						if (this.appendGameToQuote) {
+							newEntry = newEntry + " <" + channelHandler.getCurrentGame + ">"
+						}
 
-					this.listContent.add(newEntry)
-					formattedOutput = "Added."
+						this.listContent.add(newEntry + this.formatText(this.appendToQuoteString, channelHandler, sender))
+						formattedOutput = "Added."
+					} else {
+						formattedOutput = "Not added"
+						success = false
+					}
 				} else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					try {
 						this.listContent.remove(Integer.parseInt(data(2)))
@@ -174,6 +182,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 					formattedOutput = "Edited"
 				} else if (data(1).equals("list")) {
 					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
+					success = false
 				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
@@ -194,8 +203,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} catch {
 				case e: ArrayIndexOutOfBoundsException => {
 					try {
-						var rand = new Random()
-						var i = rand.nextInt(this.listContent.size())
+						val rand = new Random()
+						val i = rand.nextInt(this.listContent.size())
 						formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + this.listContent.get(i) + this.quoteSuffix.replace("{number}", Integer.toString(i))
 
 						if(this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(), userList)) {
@@ -214,9 +223,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			var modifier = 1
 			try {
 				modifier = Integer.parseInt(data(2))
-			} finally {
-
-			}
+			} catch {
+        case e: ArrayIndexOutOfBoundsException => {
+          e.printStackTrace()
+        }
+      }
 
 			try {
 				if (data(1).equals("add")
@@ -229,9 +240,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 						&& CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					counter = modifier
 				}
-			} finally {
-
-			}
+			} catch {
+        case e: ArrayIndexOutOfBoundsException => {
+          e.printStackTrace()
+        }
+      }
 		}
 
 		if(success) {
@@ -397,6 +410,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType.equals("autoremove")) {
 				this.removeFromListOnPickIfMod = newValue.toBoolean
 				success = true
+			} else if(modType.equals("appendsender")) {
+				this.appendSenderToQuote = true
+				success = true
+			} else if(modType == "appendtoquote") {
+				this.appendToQuoteString = newValue
+				success = true
 			}
 		} catch {
 			case e: NumberFormatException => {
@@ -437,6 +456,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				.append("allowpick", this.allowPicksFromList)
 				.append("addpower", this.neededAddPower)
 				.append("autoremove", this.removeFromListOnPickIfMod)
+				.append("appendsender", this.appendSenderToQuote)
+				.append("appendtoquote", this.appendToQuoteString)
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -501,6 +522,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.allowPicksFromList = channelData.getOrDefault("allowpick", this.allowPicksFromList.toString()).toString().toBoolean
 			this.neededAddPower = channelData.getOrDefault("addpower", this.neededAddPower.toString()).toString().toInt
 			this.removeFromListOnPickIfMod = channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod.toString()).toString().toBoolean
+			this.appendSenderToQuote = channelData.getOrDefault("appendsender", this.appendSenderToQuote.toString).toString().toBoolean
+			this.appendToQuoteString = channelData.getOrDefault("appendtoquote", this.appendToQuoteString).toString
 		}
 	}
 
@@ -524,9 +547,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	 * @return
 	 */
 	def formatText(fo: String, channelHandler: ChannelHandler, sender: UserHandler): String = {
-		var sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
-		var cal = Calendar.getInstance()
-		var strDate = sdfDate.format(cal.getTime())
+		val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
+		val cal = Calendar.getInstance()
+		val strDate = sdfDate.format(cal.getTime)
 
 		var formattedOutput = fo
 
