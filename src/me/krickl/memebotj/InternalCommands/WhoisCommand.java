@@ -12,7 +12,7 @@ public class WhoisCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			String user = data[0].toLowerCase();
 			UserHandler uh = null;

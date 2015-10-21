@@ -3,3 +3,7 @@ dist/
 lib/
 .DS_Store
 .gitignore~
+.idea
+.settings
+.classpath
+.out

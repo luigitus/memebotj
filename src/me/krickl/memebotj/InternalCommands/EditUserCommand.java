@@ -14,7 +14,7 @@ public class EditUserCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			if(data[0].equals("power")) {
 				boolean success = false;
@@ -27,14 +27,14 @@ public class EditUserCommand extends CommandHandler {
 									this.getChannelOrigin());
 							return;
 						}
-	
+
 						uh.setCustomCommandPower(Integer.parseInt(data[2]));
 						uh.setCommandPower(uh.getAutoCommandPower());
 						uh.writeDBUserData();
 						success = true;
 					}
 				}
-	
+
 				if (!success) {
 					UserHandler uh = new UserHandler(data[1], channelHandler.getChannel());
 					if (!uh.isNewUser()) {
@@ -43,21 +43,21 @@ public class EditUserCommand extends CommandHandler {
 									this.getChannelOrigin());
 							return;
 						}
-	
+
 						uh.setCustomCommandPower(Integer.parseInt(data[2]));
 						uh.setCommandPower(uh.getAutoCommandPower());
 						uh.writeDBUserData();
 						success = true;
 					}
 				}
-	
+
 				if (success) {
 					channelHandler.sendMessage("Changed user power to " + data[2], this.getChannelOrigin());
 				} else {
 					channelHandler.sendMessage("This user never joined this channel: " + data[1], this.getChannelOrigin());
 				}
 			} else if(data[0].equals("note")) {
-				
+
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 

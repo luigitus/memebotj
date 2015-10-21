@@ -4,6 +4,7 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.CommandHandler;
 import me.krickl.memebotj.UserHandler;
 
+@Deprecated
 public class EditCommand extends CommandHandler {
 
 	public EditCommand(String channel, String command, String dbprefix) {
@@ -14,7 +15,7 @@ public class EditCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			int j = -1;
 			if ((j = channelHandler.findCommand(data[0])) != -1) {
@@ -34,6 +35,7 @@ public class EditCommand extends CommandHandler {
 							this.getChannelOrigin());
 				}
 			}
+			channelHandler.sendMessage("This command is deprecated! Use !command instead.", this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
 			channelHandler.sendMessage(
 					channelHandler.getBuiltInStrings().get("CHMOD_SYNTAX").replace("{param1}",

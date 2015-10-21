@@ -11,7 +11,7 @@ public class GiveAwayPollCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			if(CommandHandler.checkPermission(sender.getUsername(), 50, channelHandler.getUserList())) {
 				if(data[0].equals("add")) {
@@ -22,7 +22,7 @@ public class GiveAwayPollCommand extends CommandHandler {
 					this.getListContent().remove(Integer.parseInt(data[1]));
 				}
 			}
-			
+
 			if(data[0].equals("vote")) {
 				int voteFor = Integer.parseInt(data[1]);
 			}
@@ -30,7 +30,7 @@ public class GiveAwayPollCommand extends CommandHandler {
 			//TODO ca
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }

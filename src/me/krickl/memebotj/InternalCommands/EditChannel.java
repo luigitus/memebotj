@@ -14,7 +14,7 @@ public class EditChannel extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			String newEntry = "";
 			for (int x = 1; x < data.length; x++) {
@@ -45,6 +45,21 @@ public class EditChannel extends CommandHandler {
 			} else if (data[0].equals("maxnamelen")) {
 				channelHandler.setMaxFileNameLen(Integer.parseInt(data[1]));
 				channelHandler.sendMessage("Changed max filename length to " + data[1], this.getChannelOrigin());
+			} else if(data[0].equals("ppi")) {
+				channelHandler.setPointsPerUpdate(Double.parseDouble(data[1]));
+				channelHandler.sendMessage("Changed max ppi to " + data[1], this.getChannelOrigin());
+			} else if(data[0].equals("purgelinks")) {
+				channelHandler.setPurgeURLS(Boolean.parseBoolean(data[1]));
+			} else if(data[0].equals("purgelinksnu")) {
+				channelHandler.setPurgeURLSNewUsers(Boolean.parseBoolean(data[1]));
+			} else if(data[0].equals("linkto")) {
+				channelHandler.setLinkTimeout(Integer.parseInt(data[1]));
+			} else if(data[0].equals("urlregex")) {
+				if(data[1].equals("append")) {
+					channelHandler.setUrlRegex(channelHandler.getUrlRegex() + data[2]);
+				} else {
+					channelHandler.setUrlRegex(data[1]);
+				}
 			} else {
 				if (channelHandler.getBuiltInStrings().containsKey(data[0])) {
 					channelHandler.getBuiltInStrings().put(data[0], newEntry);

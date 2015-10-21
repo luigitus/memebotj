@@ -14,11 +14,11 @@ import me.krickl.memebotj.Memebot;
 
 public class APIConnectionHandler implements Runnable {
 	private static final Logger log = Logger.getLogger(APIConnectionHandler.class.getName());
-	
+
 	private DatagramSocket socket = null;
 	private Thread t;
 	private boolean runapi = true;
-	
+
 	public APIConnectionHandler(int port) {
 		try {
 			socket = new DatagramSocket(port);
@@ -27,13 +27,13 @@ public class APIConnectionHandler implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void sendData(String data, String ip, int port, ChannelHandler channel) {
 		byte[] dataBytes = new byte[1024];
 		try {
 			InetAddress IPAddress = InetAddress.getByName(ip);
 			dataBytes = data.getBytes();
-			
+
 			DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length, IPAddress, port);
 			socket.send(packet);
 		} catch (UnknownHostException e) {
@@ -42,10 +42,10 @@ public class APIConnectionHandler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		log.info("<API> IP: " + ip + ":" + Integer.toString(port) + " Channel:  " + channel + ">>" + data);
 	}
-	
+
 	public String[] receiveData() {
 		byte[] data = new byte[1024];
 		String[] dataReturn = new String[3];
@@ -59,9 +59,9 @@ public class APIConnectionHandler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		log.info("<API> IP: " + dataReturn[1] + ":" + dataReturn[2] + ">>" + dataReturn[0]);
-		
+
 		//0 is data | 1 is ip | 2 is port
 		return dataReturn;
 	}
@@ -73,19 +73,19 @@ public class APIConnectionHandler implements Runnable {
 			String message = data[0];
 			String ip = data[1];
 			int port = Integer.parseInt(data[2]);
-			
+
 			//messages will always have the following format:
 			/*
 			 * pkey=<private key>;;sender=<sender name, sender private key or application name>;;
 			 * request=<handshake (other request types will be added later)>;;message=<Content of message> 
 			 */
-			
+
 			String[] buffer = message.split(";;");
 			String pkey = "";
 			String sender = "";
 			String request = "";
 			String parsedMessage = "";
-			
+
 			for(int i = 0; i < buffer.length; i++) {
 				if(i==0) {
 					pkey = buffer[i].replace("pkey=", "");
@@ -97,11 +97,16 @@ public class APIConnectionHandler implements Runnable {
 					parsedMessage = buffer[i].replace("message=", "");
 				}
 			}
-			
+
 			boolean success = false;
-			
+
 			if(request.equals("handshake")) {
-				for(ChannelHandler ch : Memebot.joinedChannels) {
+				if(pkey.equals(Memebot.apiMasterKey())) {
+					this.sendData("pkey=apisource;;sender=apisource;;request=hello;;message=Access Granted", ip, port, null);
+					success = true;
+				}
+
+				for(ChannelHandler ch : Memebot.joinedChannels()) {
 					if(ch.getPrivateKey().equals(pkey)) {
 						ch.setApiConnectionIP(ip);
 						this.sendData("pkey=apisource;;sender=apisource;;request=hello;;message=Access Granted", ip, port, ch);
@@ -109,15 +114,15 @@ public class APIConnectionHandler implements Runnable {
 					}
 				}
 			}
-			
+
 			if(!success) {
 				this.sendData("pkey=apisource;;sender=apisource;;request=invalid;;message=Connection Failed", ip, port, null);
 			}
 		}
-		
+
 	}
-	
-	public void strart() {
+
+	public void start() {
 		if (t == null) {
 			t = new Thread(this, "api.thread");
 			t.start();

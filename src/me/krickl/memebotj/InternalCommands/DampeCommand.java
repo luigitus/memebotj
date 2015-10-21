@@ -21,9 +21,9 @@ public class DampeCommand extends CommandHandler {
 		this.setPointCost(100);
 		this.setUserCooldownLen(200);
 	}
- 
+
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			//happy now luigitus?
 			SecureRandom ran = new SecureRandom();

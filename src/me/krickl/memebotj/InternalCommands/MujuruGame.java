@@ -12,7 +12,7 @@ public class MujuruGame extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		channelHandler.sendMessage("Comming soon enough Kappa", this.getChannelOrigin());
 	}
 

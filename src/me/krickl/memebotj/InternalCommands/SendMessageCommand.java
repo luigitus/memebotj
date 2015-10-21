@@ -14,13 +14,13 @@ public class SendMessageCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		String msg = "";
 		for (String s : data) {
 			msg = msg + " " + s;
 		}
 
-		for (ChannelHandler ch : Memebot.joinedChannels) {
+		for (ChannelHandler ch : Memebot.joinedChannels()) {
 			ch.sendMessage(msg, ch.getChannel());
 		}
 	}

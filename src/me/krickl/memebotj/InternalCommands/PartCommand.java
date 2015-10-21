@@ -14,7 +14,7 @@ public class PartCommand extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		channelHandler.partChannel(this.getChannelOrigin());
 	}
 }

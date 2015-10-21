@@ -4,6 +4,7 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.CommandHandler;
 import me.krickl.memebotj.UserHandler;
 
+@Deprecated
 public class AddCommandHandler extends CommandHandler {
 
 	public AddCommandHandler(String channel, String command, String dbprefix) {
@@ -14,9 +15,9 @@ public class AddCommandHandler extends CommandHandler {
 	}
 
 	@Override
-	protected void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
+	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
-			CommandHandler newCommand = new CommandHandler(this.getChannelOrigin());
+			CommandHandler newCommand = new CommandHandler(this.getChannelOrigin(), "null", null);
 			if (channelHandler.findCommand(data[0]) == -1) {
 				newCommand.editCommand("name", data[0], new UserHandler("#internal#", "#internal#"),
 						channelHandler.getUserList());
@@ -36,6 +37,7 @@ public class AddCommandHandler extends CommandHandler {
 			} else {
 				channelHandler.sendMessage("This command already exists", this.getChannelOrigin());
 			}
+			channelHandler.sendMessage("This command is deprecated! Use !command instead.", this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
 			channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("ADDCOM_SYNTAX").replace("{param1}",
 					"!meaddcom <command> <text>"), this.getChannelOrigin());
