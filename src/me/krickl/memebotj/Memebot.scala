@@ -244,7 +244,7 @@ object Memebot {
 			}
 
 			//start api thread
-			apiConnection.strart()
+			apiConnection.start()
 
 			//auto rejoin if a thread crashes
 			while(true) {
@@ -278,10 +278,10 @@ object Memebot {
 				Memebot.log.info("Found login file for channel " + channel)
 
 				var newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0), loginInfo.get(1)))
-				newChannel.strart()
+				newChannel.start()
 			} else {
 				var newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword))
-				newChannel.strart()
+				newChannel.start()
 			}
 		} catch {
 			case e: IOException => {

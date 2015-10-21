@@ -122,7 +122,7 @@ public class APIConnectionHandler implements Runnable {
 
 	}
 
-	public void strart() {
+	public void start() {
 		if (t == null) {
 			t = new Thread(this, "api.thread");
 			t.start();
