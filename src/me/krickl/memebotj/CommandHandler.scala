@@ -129,13 +129,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			return "denied"
 		}
 		if(this.checkCost(sender, this.pointCost, channelHandler)){
-			channelHandler.sendMessage(f"Sorry, you don't have ${this.pointCost.toFloat} ${channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")}", this.channelOrigin)
+			channelHandler.sendMessage(f"Sorry, you don't have ${this.pointCost.toFloat} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.channelOrigin)
 			return "cost"
 		}
 
     val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
     val cal = Calendar.getInstance()
-    val strDate = sdfDate.format(cal.getTime())
+    val strDate = sdfDate.format(cal.getTime)
 
 		var formattedOutput = this.unformattedOutput
     val counterStart = 1
@@ -280,7 +280,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		}
 
 		// send information to api
-		if(!channelHandler.getApiConnectionIP().equals("")) {
+		if(!channelHandler.getApiConnectionIP.equals("")) {
 			Memebot.apiConnection.sendData("pkey=apisourcesender=" + this.command + "request=commandmessage=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler)
 		}
 
@@ -288,8 +288,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	def update(ch: ChannelHandler) {
-		if (this.cmdtype.equals("timer") && ch.isLive()) {
-			var newArray = new Array[String](0)
+		if (this.cmdtype.equals("timer") && ch.isLive) {
+			val newArray = new Array[String](0)
 			this.execCommand(new UserHandler("#internal#", this.channelOrigin), ch, newArray, ch.getUserList())
 		}
 	}
@@ -419,7 +419,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			}
 		} catch {
 			case e: NumberFormatException => {
-				CommandHandler.log.warning(String.format("Screw you Luigitus: %s", e.toString()))
+				CommandHandler.log.warning(String.format("Screw you Luigitus: %s", e.toString))
 			}
 		}
 		this.writeDBCommand()
@@ -558,24 +558,24 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		formattedOutput = formattedOutput.replace("{points}", sender.getPoints().toString())
 		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString())
 		formattedOutput = formattedOutput.replace("{debugch}", this.toString())
-		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL())
+		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
 		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version)
 		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev)
 		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName)
 		formattedOutput = formattedOutput.replace("{date}", strDate)
-		if(channelHandler.getCurrentGame() != null) {
-			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame())
+		if(channelHandler.getCurrentGame != null) {
+			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame)
 		}
 		formattedOutput = formattedOutput.replace("{curremote}",
-				channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"))
+				channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
 		formattedOutput = formattedOutput.replace("{currname}",
-				channelHandler.getBuiltInStrings().get("CURRENCY_NAME"))
+				channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
 		return formattedOutput
 	}
 
 	protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
 		if (sender.getPoints() < this.pointCost
-				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList())
+				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)
 				&& this.pointCost > 0) {
 			return true
 		}
