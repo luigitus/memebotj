@@ -4,12 +4,12 @@ import me.krickl.memebotj.ChannelHandler
 import me.krickl.memebotj.CommandHandler
 import me.krickl.memebotj.UserHandler
 
+@deprecated
 class AliasCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel, command, dbprefix) {
   this.setAccess("broadcaster")
   this.setNeededCommandPower(50)
   this.setHelptext("")
 
-  @deprecated
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
     try {
       if (data(0) == "add") {

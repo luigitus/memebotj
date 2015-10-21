@@ -65,7 +65,6 @@ import me.krickl.memebotj.InternalCommands.WhoisCommand;
  * @author unlink
  *
  */
-@Deprecated
 public class ChannelHandler implements Runnable {
 	private static final Logger log = Logger.getLogger(ChannelHandler.class.getName());
 
