@@ -21,7 +21,6 @@ import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import org.json.simple.parser.ParseException
 import com.mongodb.Block
-import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 import me.krickl.memebotj.InternalCommands.APIInformationCommand
 import me.krickl.memebotj.InternalCommands.AboutCommand
@@ -58,7 +57,6 @@ import me.krickl.memebotj.InternalCommands.WhoisCommand
 import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
 import util.control.Breaks._
-import me.krickl.memebotj._
 //remove if not needed
 import scala.collection.JavaConversions._
 
@@ -190,6 +188,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var linkTimeout: Int = 1
 
+  @BeanProperty
+  var silentMode = false
+
   ChannelHandler.getLog.info("Joining channel " + this.channel)
 
   val broadcasterHandler = new UserHandler(this.broadcaster, this.channel)
@@ -288,7 +289,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"))
 
-  this.internalCommands.add(new SpeedrunCommand(this.channel, "!wr", "#internal#"))
+  this.internalCommands.add(new SpeedrunCommand(this.channel, "!run", "#internal#"))
 
   this.internalCommands.add(new EditUserCommand(this.channel, "!edituser", "#internal#"))
 
@@ -605,6 +606,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.aliasList = channelData.getOrDefault("alias", this.aliasList).asInstanceOf[ArrayList[String]]
       val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
+      val silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }
@@ -650,6 +652,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("linktimeout", this.linkTimeout)
       .append("urlreges", this.urlRegex)
       .append("alias", this.aliasList)
+      .append("silent", this.silentMode)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -665,6 +668,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   def sendMessage(msg: String, channel: String) {
     if (!this.preventMessageCooldown.canContinue()) {
+      return
+    }
+    if (this.silentMode) {
       return
     }
     if (this.currentMessageCount >= Memebot.messageLimit) {

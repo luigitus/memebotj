@@ -86,6 +86,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
 	var excludeFromCommandList = false
 	var enable = true
+	var overrideHandleMessage = false
 
 	private var commandCollection: MongoCollection[Document] = null
 	private var commandScript: String = ""
@@ -101,6 +102,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	this.readDBCommand()
 
 	def execCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
+
+    if(this.overrideHandleMessage) {
+      return "override"
+    }
 
 		if(!enable) {
 			return "disabled"
@@ -416,6 +421,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType == "appendtoquote") {
 				this.appendToQuoteString = newValue
 				success = true
+			} else if(modType == "overridehandlemessage") {
+				this.overrideHandleMessage = newValue.toBoolean
+				success = true
 			}
 		} catch {
 			case e: NumberFormatException => {
@@ -458,6 +466,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				.append("autoremove", this.removeFromListOnPickIfMod)
 				.append("appendsender", this.appendSenderToQuote)
 				.append("appendtoquote", this.appendToQuoteString)
+				.append("overridehandlemessage", this.overrideHandleMessage)
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -524,6 +533,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.removeFromListOnPickIfMod = channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod.toString()).toString().toBoolean
 			this.appendSenderToQuote = channelData.getOrDefault("appendsender", this.appendSenderToQuote.toString).toString().toBoolean
 			this.appendToQuoteString = channelData.getOrDefault("appendtoquote", this.appendToQuoteString).toString
+			this.overrideHandleMessage = channelData.getOrDefault("overridehandlemessage", this.overrideHandleMessage.toString).toString.toBoolean
 		}
 	}
 

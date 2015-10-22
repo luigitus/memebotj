@@ -52,7 +52,6 @@ import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
-import me.krickl.memebotj.BuildInfo
 
 import me.krickl.memebotj.api.APIConnectionHandler
 
@@ -62,7 +61,7 @@ import me.krickl.memebotj.api.APIConnectionHandler
  *
  */
 object Memebot {
-	final var log = Logger.getLogger(Memebot.getClass.getName())
+	final var log = Logger.getLogger(Memebot.getClass.getName)
 
 	var ircServer: String = "irc.twitch.tv"
 	var ircport: Int = 6667
@@ -125,7 +124,7 @@ object Memebot {
 		BuildInfo.loadBuildInfo()
 
 		// read config
-		var config = new Properties()
+		val config = new Properties()
 		try {
 			config.load(new FileReader(Memebot.configFile))
 		} catch {
@@ -177,13 +176,13 @@ object Memebot {
 
 		if(Memebot.isBotMode) {
 			// shutdown hook
-			Runtime.getRuntime().addShutdownHook(new Thread() {
+			Runtime.getRuntime.addShutdownHook(new Thread() {
 				override def run() {
 					Memebot.log.warning("Process received SIGTERM...")
 
 					val it = Memebot.joinedChannels.iterator()
-					while(it.hasNext()) {
-						var ch = it.next()
+					while(it.hasNext) {
+						val ch = it.next()
 						ch.writeDBChannelData()
 						ch.setJoined(false)
 					}
@@ -194,12 +193,12 @@ object Memebot {
 		Memebot.log.info(f"${BuildInfo.appName} version ${BuildInfo.version} build ${BuildInfo.buildNumber} build on ${BuildInfo.timeStamp}")
 
 		// get pid and write to file
-		var f = new File(memebotDir + "/pid")
+		val f = new File(memebotDir + "/pid")
 		var bw: BufferedWriter = null
 		try {
-			Memebot.log.info("PID: " + ManagementFactory.getRuntimeMXBean().getName())
+			Memebot.log.info("PID: " + ManagementFactory.getRuntimeMXBean.getName)
 			bw = new BufferedWriter(new FileWriter(f))
-			bw.write(ManagementFactory.getRuntimeMXBean().getName().split("@")(0))
+			bw.write(ManagementFactory.getRuntimeMXBean.getName.split("@")(0))
 			bw.close()
 		} catch {
 			case e1: IOException => {
@@ -211,7 +210,7 @@ object Memebot {
 			// set up database
 			if (Memebot.useMongo) {
 				if (Memebot.useMongoAuth) {
-					var authuri: MongoClientURI = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s",
+					val authuri: MongoClientURI = new MongoClientURI(String.format("mongodb://%s:%s@%s/?authSource=%s",
 							Memebot.mongoUser, Memebot.mongoPassword, Memebot.mongoHost, Memebot.mongoDBName))
 					Memebot.mongoClient = new MongoClient(authuri)
 				} else {
@@ -237,9 +236,9 @@ object Memebot {
 			// setup connection
 
 			// join channels
-			var it = Memebot.channels.iterator()
-			while(it.hasNext()) {
-				var channel: String = it.next()
+			val it = Memebot.channels.iterator
+			while(it.hasNext) {
+				val channel: String = it.next
 				Memebot.joinChannel(channel)
 			}
 
@@ -249,9 +248,9 @@ object Memebot {
 			//auto rejoin if a thread crashes
 			while(true) {
 				for(i <- 0 to Memebot.joinedChannels.size() - 1) {
-					var ch: ChannelHandler = Memebot.joinedChannels.get(i)
-					if(!ch.getT().isAlive()) {
-						var channel: String = ch.getChannel()
+					val ch: ChannelHandler = Memebot.joinedChannels.get(i)
+					if(!ch.getT.isAlive) {
+						val channel: String = ch.getChannel
 						Memebot.joinedChannels.remove(i)
 						Memebot.joinChannel(channel)
 					}
@@ -271,16 +270,16 @@ object Memebot {
 
 	def joinChannel(channel: String) {
 		try {
-			var login: File = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")
+			val login: File = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")
 			if (login.exists()) {
-				var loginInfo: ArrayList[String] = Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")).asInstanceOf[ArrayList[String]]
+				val loginInfo: ArrayList[String] = Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")).asInstanceOf[ArrayList[String]]
 
 				Memebot.log.info("Found login file for channel " + channel)
 
-				var newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0), loginInfo.get(1)))
+				val newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0), loginInfo.get(1)))
 				newChannel.start()
 			} else {
-				var newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword))
+				val newChannel = new ChannelHandler(channel.replace("\n\r", ""), new ConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword))
 				newChannel.start()
 			}
 		} catch {
