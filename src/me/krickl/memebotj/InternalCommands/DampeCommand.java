@@ -15,6 +15,7 @@ public class DampeCommand extends CommandHandler {
 		this.setHelptext("Let dampe hate you for only all of your points");
 		this.setUserCooldownLen(200);
         this.setListContent(new ArrayList<String>());
+        this.setPointCost(0);
 	}
 
 	@Override
@@ -26,6 +27,8 @@ public class DampeCommand extends CommandHandler {
                 wage = 100;
             }
 		} catch(ArrayIndexOutOfBoundsException e) {
+
+		} catch(NumberFormatException e) {
 
 		}
 
@@ -41,25 +44,25 @@ public class DampeCommand extends CommandHandler {
 
         sender.setPoints(sender.getPoints() - wage);
 
-		//happy now luigitus?
+		//happy now Luigitus?
 		SecureRandom ran = new SecureRandom();
         int range = 1000;
 		int outcome = ran.nextInt(range - (int)wage);
         if (outcome <= 3) {
-            channelHandler.sendMessage("Dampé found " + Double.toString(10000) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
+            channelHandler.sendMessage(sender.getUsername() + ": Dampé found " + Double.toString(10000) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
 			sender.setPoints(sender.getPoints() + 10000 + wage);
 		}
 		else if(outcome <= 15) {
-			channelHandler.sendMessage("Dampé found " + Double.toString(1000) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
+			channelHandler.sendMessage(sender.getUsername() + ": Dampé found " + Double.toString(1000) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
 			sender.setPoints(sender.getPoints() + 1000 + wage);
 		} else if(outcome <= 100) {
-			channelHandler.sendMessage("Dampé found " + Double.toString(300) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! Pretty good!", this.getChannelOrigin());
+			channelHandler.sendMessage(sender.getUsername() + ": Dampé found " + Double.toString(300) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! Pretty good!", this.getChannelOrigin());
 			sender.setPoints(sender.getPoints() + 300 + wage);
 		} else if(outcome <= 600) {
-			channelHandler.sendMessage("Dampé is being a dick and returned half of your " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "!", this.getChannelOrigin());
+			channelHandler.sendMessage(sender.getUsername() + ": Dampé is being a dick and returned " + Double.toString(wage/2) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "!", this.getChannelOrigin());
 			sender.setPoints(sender.getPoints() + wage / 2);
 		} else {
-			channelHandler.sendMessage("Dampé spent your " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + " on hookers, booze and crack!", this.getChannelOrigin());
+			channelHandler.sendMessage(sender.getUsername() + ": Dampé spent your " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + " on hookers, booze and crack!", this.getChannelOrigin());
 		}
 	}
 }

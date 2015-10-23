@@ -933,11 +933,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       var p = this.findCommand(msg)
       if (p != -1) {
         if (!this.channelCommands.get(p).isTexttrigger) {
-          this.channelCommands.get(p).execCommand(sender, this, data, userList)
+          this.channelCommands.get(p).executeCommand(sender, this, data, userList)
         }
       }
       for (ch <- this.channelCommands if ch.isTexttrigger; s <- msgContent if s == ch.getCommand) {
-        ch.execCommand(sender, this, Array(""), userList)
+        ch.executeCommand(sender, this, Array(""), userList)
       }
       for (ch <- Memebot.joinedChannels; och <- this.otherLoadedChannels) {
         val channel = ch.getBroadcaster
@@ -945,13 +945,13 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))
           if (p != -1 &&
             msg.contains(channel)) {
-            ch.getChannelCommands.get(p).execCommand(new UserHandler("#readonly#", this.channel), this,
+            ch.getChannelCommands.get(p).executeCommand(new UserHandler("#readonly#", this.channel), this,
               data, userList)
           }
         }
       }
       for (ch <- this.internalCommands if ch.getCommand == msg) {
-        ch.execCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList)
+        ch.executeCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList)
       }
     }
   }

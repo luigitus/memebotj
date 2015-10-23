@@ -283,9 +283,8 @@ object Memebot {
 				newChannel.start()
 			}
 		} catch {
-			case e: IOException => {
+			case e: IOException =>
 				e.printStackTrace()
-			}
 		}
 	}
 

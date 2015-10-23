@@ -100,8 +100,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	this.readDBCommand()
-
-	def execCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
+	
+	def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
 
     if(this.overrideHandleMessage) {
       return "override"
@@ -295,7 +295,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	def update(ch: ChannelHandler) {
 		if (this.cmdtype.equals("timer") && ch.isLive) {
 			val newArray = new Array[String](0)
-			this.execCommand(new UserHandler("#internal#", this.channelOrigin), ch, newArray, ch.getUserList())
+			this.executeCommand(new UserHandler("#internal#", this.channelOrigin), ch, newArray, ch.getUserList())
 		}
 	}
 
@@ -513,13 +513,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.quoteSuffix = channelData.getOrDefault("qsuffix", this.quoteSuffix).toString
 			this.quotePrefix = channelData.getOrDefault("qprefix", this.quotePrefix).toString
 			this.quoteModAccess = channelData.getOrDefault("qmodaccess", this.quoteModAccess).toString
-			this.pointCost = channelData.getOrDefault("costf", this.pointCost.toString()).toString().toDouble
+			this.pointCost = channelData.getOrDefault("costf", this.pointCost.toString).toString.toDouble
 			this.counter = channelData.getInteger("counter", this.counter)
 			this.listContent = channelData.getOrDefault("listcontent", this.listContent).asInstanceOf[ArrayList[String]]
-			this.locked = channelData.getOrDefault("locked", this.locked.toString()).toString().toString().toBoolean
-			this.texttrigger = channelData.getOrDefault("texttrigger", this.texttrigger.toString()).toString().toBoolean
-			this.neededCommandPower = channelData.getOrDefault("viewerpower", this.neededCommandPower.toString()).toString().toInt
-			this.neededModCommandPower = channelData.getOrDefault("modpower", this.neededModCommandPower.toString()).toString().toInt
+			this.locked = channelData.getOrDefault("locked", this.locked.toString).toString.toBoolean
+			this.texttrigger = channelData.getOrDefault("texttrigger", this.texttrigger.toString).toString.toBoolean
+			this.neededCommandPower = channelData.getOrDefault("viewerpower", this.neededCommandPower.toString).toString.toInt
+			this.neededModCommandPower = channelData.getOrDefault("modpower", this.neededModCommandPower.toString).toString.toInt
 			this.neededBroadcasterCommandPower = channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower.toString()).toString().toInt
 			this.neededBotAdminCommandPower = channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower.toString()).toString().toInt
 			this.userCooldownLen = channelData.getOrDefault("usercooldown", this.userCooldownLen.toString()).toString().toInt
