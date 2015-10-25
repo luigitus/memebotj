@@ -107,6 +107,8 @@ class SpeedrunCommand(channel: String, command: String, dbprefix: String) extend
     this.runnerList.add("Fezehim")
     
     this.runnerList.add("Ur Mom")
+    
+    this.runnerList.add("{runner}")
 
     override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
         try {
