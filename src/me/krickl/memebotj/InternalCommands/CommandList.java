@@ -16,7 +16,7 @@ public class CommandList extends CommandHandler {
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		if(Memebot.useWeb()) {
 			channelHandler.sendMessage("Commands: " + channelHandler.getChannelPageBaseURL()
-						+ "/index.html || Use !help for further information || Documentation: https://github.com/unlink2/memebotj/blob/master/README.md",
+						+ "/index.html || Use !help for further information",
 						this.getChannelOrigin());
 		} else {
 			int index = 0;

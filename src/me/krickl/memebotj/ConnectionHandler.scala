@@ -11,14 +11,14 @@ import java.util.logging.Logger
 import scala.util.control.Breaks._
 
 object ConnectionHandler {
-  final var log: Logger = Logger.getLogger(ConnectionHandler.getClass.getName())
+  final var log: Logger = Logger.getLogger(ConnectionHandler.getClass.getName)
 }
 
 class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, passwordNew: String) {
-	private var server: String = serverNew
-	private var botNick: String = botNickNew
-	private var password: String = passwordNew
-	private var port: Int = portNew
+	private val server: String = serverNew
+	private val botNick: String = botNickNew
+	private val password: String = passwordNew
+	private val port: Int = portNew
 	private var ircSocket: Socket = _
 	private var inFromServer: BufferedReader = _
 	private var outToServer: DataOutputStream = _
@@ -27,14 +27,13 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 	try {
 		this.ircSocket = new Socket(server, port)
 	} catch {
-	  case e: UnknownHostException => {
+	  case e: UnknownHostException =>
 		  e.printStackTrace()
-	  }
 	}
 	if(ircSocket != null) {
-		this.inFromServer = new BufferedReader(new InputStreamReader(this.ircSocket.getInputStream(), "UTF-8"))
+		this.inFromServer = new BufferedReader(new InputStreamReader(this.ircSocket.getInputStream, "UTF-8"))
 
-	  this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream())
+	  this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream)
 
 		ConnectionHandler.log.info(f"Connectiong to server $server with username $botNick on $port\n")
 
@@ -55,20 +54,20 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
   def recvData(): Array[String] = {
 	  var ircmsg = ""
 		if(this.debugMode) {
-			var input = new Scanner(System.in)
+			val input = new Scanner(System.in)
 			ircmsg = input.nextLine()
 		} else {
 			ircmsg = this.inFromServer.readLine().replace("\n", "").replace("\r", "")
 		}
 		var channel = ""
-		var hashIndex = ircmsg.indexOf(" #")
+		val hashIndex = ircmsg.indexOf(" #")
 
 		if (hashIndex > 0) {
 			breakable { for(i <- hashIndex + 1 to ircmsg.length() - 1) {
 				if (ircmsg.charAt(i) != ' ') {
 					channel = channel + ircmsg.charAt(i)
 				} else {
-					break
+					break()
 				}
 			} }
 		}
@@ -79,7 +78,7 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 			this.ping()
 		}
 
-		var returnArray: Array[String] = Array(channel, ircmsg)
+		val returnArray: Array[String] = Array(channel, ircmsg)
 		return returnArray
 	}
 

@@ -86,6 +86,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
 	var excludeFromCommandList = false
 	var enable = true
+	var overrideHandleMessage = false
 
 	private var commandCollection: MongoCollection[Document] = null
 	private var commandScript: String = ""
@@ -99,8 +100,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	this.readDBCommand()
+	
+	def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
 
-	def execCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
+    if(this.overrideHandleMessage) {
+      return "override"
+    }
 
 		if(!enable) {
 			return "disabled"
@@ -128,7 +133,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededCommandPower, userList)) {
 			return "denied"
 		}
-		if(this.checkCost(sender, this.pointCost, channelHandler)){
+		if(!this.checkCost(sender, this.pointCost, channelHandler)){
 			channelHandler.sendMessage(f"Sorry, you don't have ${this.pointCost.toFloat} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.channelOrigin)
 			return "cost"
 		}
@@ -290,7 +295,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	def update(ch: ChannelHandler) {
 		if (this.cmdtype.equals("timer") && ch.isLive) {
 			val newArray = new Array[String](0)
-			this.execCommand(new UserHandler("#internal#", this.channelOrigin), ch, newArray, ch.getUserList())
+			this.executeCommand(new UserHandler("#internal#", this.channelOrigin), ch, newArray, ch.getUserList())
 		}
 	}
 
@@ -416,6 +421,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType == "appendtoquote") {
 				this.appendToQuoteString = newValue
 				success = true
+			} else if(modType == "overridehandlemessage") {
+				this.overrideHandleMessage = newValue.toBoolean
+				success = true
 			}
 		} catch {
 			case e: NumberFormatException => {
@@ -458,6 +466,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				.append("autoremove", this.removeFromListOnPickIfMod)
 				.append("appendsender", this.appendSenderToQuote)
 				.append("appendtoquote", this.appendToQuoteString)
+				.append("overridehandlemessage", this.overrideHandleMessage)
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -504,13 +513,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.quoteSuffix = channelData.getOrDefault("qsuffix", this.quoteSuffix).toString
 			this.quotePrefix = channelData.getOrDefault("qprefix", this.quotePrefix).toString
 			this.quoteModAccess = channelData.getOrDefault("qmodaccess", this.quoteModAccess).toString
-			this.pointCost = channelData.getOrDefault("costf", this.pointCost.toString()).toString().toDouble
+			this.pointCost = channelData.getOrDefault("costf", this.pointCost.toString).toString.toDouble
 			this.counter = channelData.getInteger("counter", this.counter)
 			this.listContent = channelData.getOrDefault("listcontent", this.listContent).asInstanceOf[ArrayList[String]]
-			this.locked = channelData.getOrDefault("locked", this.locked.toString()).toString().toString().toBoolean
-			this.texttrigger = channelData.getOrDefault("texttrigger", this.texttrigger.toString()).toString().toBoolean
-			this.neededCommandPower = channelData.getOrDefault("viewerpower", this.neededCommandPower.toString()).toString().toInt
-			this.neededModCommandPower = channelData.getOrDefault("modpower", this.neededModCommandPower.toString()).toString().toInt
+			this.locked = channelData.getOrDefault("locked", this.locked.toString).toString.toBoolean
+			this.texttrigger = channelData.getOrDefault("texttrigger", this.texttrigger.toString).toString.toBoolean
+			this.neededCommandPower = channelData.getOrDefault("viewerpower", this.neededCommandPower.toString).toString.toInt
+			this.neededModCommandPower = channelData.getOrDefault("modpower", this.neededModCommandPower.toString).toString.toInt
 			this.neededBroadcasterCommandPower = channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower.toString()).toString().toInt
 			this.neededBotAdminCommandPower = channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower.toString()).toString().toInt
 			this.userCooldownLen = channelData.getOrDefault("usercooldown", this.userCooldownLen.toString()).toString().toInt
@@ -524,6 +533,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.removeFromListOnPickIfMod = channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod.toString()).toString().toBoolean
 			this.appendSenderToQuote = channelData.getOrDefault("appendsender", this.appendSenderToQuote.toString).toString().toBoolean
 			this.appendToQuoteString = channelData.getOrDefault("appendtoquote", this.appendToQuoteString).toString
+			this.overrideHandleMessage = channelData.getOrDefault("overridehandlemessage", this.overrideHandleMessage.toString).toString.toBoolean
 		}
 	}
 
@@ -574,11 +584,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
-		if (sender.getPoints() < this.pointCost
-				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)
-				&& this.pointCost > 0) {
+		if (sender.getPoints() > cost || CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)) {
 			return true
 		}
+
+    if(cost <= 0) {
+      return true
+    }
 		return false
 	}
 

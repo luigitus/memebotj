@@ -4,6 +4,7 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.CommandHandler;
 import me.krickl.memebotj.UserHandler;
 
+@Deprecated
 public class MujuruGame extends CommandHandler {
 
 	public MujuruGame(String channel, String command, String dbprefix) {

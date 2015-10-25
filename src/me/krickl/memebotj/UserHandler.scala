@@ -141,6 +141,9 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
 	def setPoints(f: Double) {
 		this.points = f
+    if(this.points < 0) {
+      this.points = 0
+    }
 	}
 
 	def getUserCooldown(): Cooldown = {
