@@ -32,7 +32,7 @@ public class DampeCommand extends CommandHandler {
 
 		}
 
-        if(this.checkCost(sender, wage, channelHandler)) {
+        if(!this.checkCost(sender, wage, channelHandler)) {
             channelHandler.sendMessage(String.format("Sorry you don't have %f %s.", wage, channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
             return;
         }

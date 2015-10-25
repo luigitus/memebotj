@@ -133,7 +133,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		if (!CommandHandler.checkPermission(sender.getUsername(), this.neededCommandPower, userList)) {
 			return "denied"
 		}
-		if(this.checkCost(sender, this.pointCost, channelHandler)){
+		if(!this.checkCost(sender, this.pointCost, channelHandler)){
 			channelHandler.sendMessage(f"Sorry, you don't have ${this.pointCost.toFloat} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.channelOrigin)
 			return "cost"
 		}
@@ -584,11 +584,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
-		if (sender.getPoints() < this.pointCost
-				&& !CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)
-				&& this.pointCost > 0) {
+		if (sender.getPoints() > cost || CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)) {
 			return true
 		}
+
+    if(cost <= 0) {
+      return true
+    }
 		return false
 	}
 
