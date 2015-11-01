@@ -26,7 +26,7 @@ public class AutogreetCommand extends CommandHandler {
 				user = new UserHandler(nameToModify, this.getChannelOrigin());
 			}
 
-			if (data[0].equals("add")) {
+			if (data[0].equals("add") || data[0].equals("edit")) {
 				String newValue = data[2];
 				for (int x = 3; x < data.length; x++) {
 					newValue = newValue + " " + data[x];
@@ -48,13 +48,16 @@ public class AutogreetCommand extends CommandHandler {
 					message = "Autogreet removed";
 				}
 			} else if (data[0].equals("get")) {
-				if (channelHandler.getAutogreetList().containsKey(nameToModify)) {
-					channelHandler.sendMessage(channelHandler.getAutogreetList().get(nameToModify),
-							this.getChannelOrigin());
-				} else if(!user.isNewUser()) {
-					channelHandler.sendMessage(user.getAutogreet(),
+                if(!user.isNewUser()) {
+                    if (channelHandler.getAutogreetList().containsKey(nameToModify)) {
+                        user.setAutogreet(channelHandler.getAutogreetList().get(nameToModify));
+                    }
+					channelHandler.sendMessage("Autogreet for " + user.getUsername() + ": " + user.getAutogreet(),
 							this.getChannelOrigin());
 				}
+			} else if(data[0].equals("toggle")) {
+				sender.setEnableAutogreets(!sender.getEnableAutogreets());
+                channelHandler.sendMessage(sender.getUsername() + " autogreet enabled: " + Boolean.toString(sender.enableAutogreets()), this.getChannelOrigin());
 			}
 			channelHandler.sendMessage(message, this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {

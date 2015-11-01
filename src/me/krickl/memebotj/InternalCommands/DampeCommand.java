@@ -29,7 +29,8 @@ public class DampeCommand extends CommandHandler {
 		} catch(ArrayIndexOutOfBoundsException e) {
 
 		} catch(NumberFormatException e) {
-
+            channelHandler.sendMessage(data[0] + " is not a number", this.getChannelOrigin());
+			return;
 		}
 
         if(!this.checkCost(sender, wage, channelHandler)) {

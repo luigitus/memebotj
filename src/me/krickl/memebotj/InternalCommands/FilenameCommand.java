@@ -11,8 +11,8 @@ public class FilenameCommand extends CommandHandler {
 	public FilenameCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setHelptext("Syntax: !name <filename> (100 points/name) || !name get || !name current");
-		if (!command.equals("~name"))
-			this.setPointCost(0);
+        this.setListregex("/^[一-龠ぁ-ゔァ-ヴーa-zA-Z0-9_,.-々〆〤]{1,8}$/u"); //todo not matching - make sure default value is only set once when the default works
+        this.setPointCost(0);
 	}
 
 	@Override
@@ -31,11 +31,8 @@ public class FilenameCommand extends CommandHandler {
 					// return a name that is longer than max len
 
 					channelHandler.getFileNameList().remove(index);
-					channelHandler
-							.sendMessage(
-									"Filename: " + channelHandler.getCurrentFileName().split("#")[0] + " suggested by "
-											+ channelHandler.getCurrentFileName().split("#")[1],
-									this.getChannelOrigin());
+					channelHandler.sendMessage("Filename: " + channelHandler.getCurrentFileName().split("#")[0] + " suggested by " + channelHandler.getCurrentFileName().split("#")[1],
+                            this.getChannelOrigin());
 
 					return;
 				}
@@ -46,26 +43,26 @@ public class FilenameCommand extends CommandHandler {
 				return;
 			}
 
-			if (data[0].length() <= channelHandler.getMaxFileNameLen()) {
+            //todo make regex match
+			if (data[0].matches(this.listregex()) || data[0].length() <= channelHandler.getMaxFileNameLen()) {
 				if (!this.checkCost(sender, 100.0d, channelHandler)) {
 					channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f,
 							channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
 				} else {
 					channelHandler.getFileNameList().add(data[0] + "#" + sender.getUsername());
-					if (!this.getCommand().equals("~name")) {
-						channelHandler.sendMessage(String.format("%s added name %s", sender.getUsername(), data[0]),
-								this.getChannelOrigin());
-					}
+                    channelHandler.sendMessage(String.format("%s added name %s", sender.getUsername(), data[0]), this.getChannelOrigin());
 
 					sender.setPoints(sender.getPoints() - 100);
 				}
-			}
+			} else {
+                channelHandler.sendMessage("The filename does not match: " + this.getListregex(), this.getChannelOrigin());
+            }
 
 			channelHandler.writeDBChannelData();
 		} catch (ArrayIndexOutOfBoundsException e) {
-
+            e.printStackTrace();
 		} catch (java.lang.IllegalArgumentException e) {
-
+            e.printStackTrace();
 		}
 	}
 

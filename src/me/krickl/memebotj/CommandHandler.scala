@@ -13,6 +13,8 @@ import org.bson.Document
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 
+import scala.beans.BeanProperty
+
 object CommandHandler {
 	final val log = Logger.getLogger(CommandHandler.getClass.getName)
 
@@ -87,6 +89,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	var excludeFromCommandList = false
 	var enable = true
 	var overrideHandleMessage = false
+
+	@BeanProperty
+	var execCounter = 0
+
+	@BeanProperty
+	var listregex: String = ""
 
 	private var commandCollection: MongoCollection[Document] = null
 	private var commandScript: String = ""
@@ -289,6 +297,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			Memebot.apiConnection.sendData("pkey=apisourcesender=" + this.command + "request=commandmessage=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler)
 		}
 
+    this.execCounter = this.execCounter + 1
+
 		return "OK"
 	}
 
@@ -350,7 +360,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				this.access = newValue
 				success = true
 			} else if (modType.equals("output")) {
-				this.unformattedOutput = newValue
+        if(newValue == "{none}") {
+          this.unformattedOutput = ""
+        } else {
+          this.unformattedOutput = newValue
+        }
 				success = true
 			} else if (modType.equals("cooldown")) {
 				this.cooldown = new Cooldown(Integer.parseInt(newValue))
@@ -424,7 +438,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType == "overridehandlemessage") {
 				this.overrideHandleMessage = newValue.toBoolean
 				success = true
-			}
+			} else if(modType == "listregex") {
+        this.listregex = newValue
+        success = true
+      }
 		} catch {
 			case e: NumberFormatException => {
 				CommandHandler.log.warning(String.format("Screw you Luigitus: %s", e.toString))
@@ -467,6 +484,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				.append("appendsender", this.appendSenderToQuote)
 				.append("appendtoquote", this.appendToQuoteString)
 				.append("overridehandlemessage", this.overrideHandleMessage)
+        .append("execcounter", this.execCounter)
+        .append("listregex", this.listregex)
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -534,57 +553,18 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.appendSenderToQuote = channelData.getOrDefault("appendsender", this.appendSenderToQuote.toString).toString().toBoolean
 			this.appendToQuoteString = channelData.getOrDefault("appendtoquote", this.appendToQuoteString).toString
 			this.overrideHandleMessage = channelData.getOrDefault("overridehandlemessage", this.overrideHandleMessage.toString).toString.toBoolean
+      this.execCounter = channelData.getOrDefault("execcounter", this.execCounter.toString).toString.toInt
+      this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
 		}
 	}
 
-	/***
-	 * This method formats text for output.
-	 * The following parameters can be passed in:
-	 * {sender}
-	 * {counter}
-	 * {debugsender}
-	 * {debugch}
-	 * {channelweb}
-	 * {version}
-	 * {appname}
-	 * {date}
-	 * {game}
-	 * {curremote}
-	 * {currname}
-	 * @param fo
-	 * @param channelHandler
-	 * @param sender
-	 * @return
-	 */
+  @Deprecated
 	def formatText(fo: String, channelHandler: ChannelHandler, sender: UserHandler): String = {
-		val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
-		val cal = Calendar.getInstance()
-		val strDate = sdfDate.format(cal.getTime)
-
-		var formattedOutput = fo
-
-		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername())
-		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter))
-		formattedOutput = formattedOutput.replace("{points}", sender.getPoints().toString())
-		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString())
-		formattedOutput = formattedOutput.replace("{debugch}", this.toString())
-		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
-		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version)
-		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev)
-		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName)
-		formattedOutput = formattedOutput.replace("{date}", strDate)
-		if(channelHandler.getCurrentGame != null) {
-			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame)
-		}
-		formattedOutput = formattedOutput.replace("{curremote}",
-				channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
-		formattedOutput = formattedOutput.replace("{currname}",
-				channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
-		return formattedOutput
+    return Memebot.formatText(fo, channelHandler, sender, this)
 	}
 
 	protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
-		if (sender.getPoints() > cost || CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)) {
+		if (sender.getPoints() >= cost || CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)) {
 			return true
 		}
 

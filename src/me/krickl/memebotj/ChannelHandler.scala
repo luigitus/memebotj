@@ -108,8 +108,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var aliasList: ArrayList[String] = new ArrayList[String]()
 
+  @Deprecated
   @BeanProperty
-  var maxFileNameLen: Int = 8
+  var maxFileNameLen = -1
 
   @BeanProperty
   var currentFileName: String = ""
@@ -336,6 +337,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(mrDestructoidCommand)
 
+  //import old autogreets
+  for(key <- this.autogreetList.keySet()) {
+    val autogreet = this.autogreetList.get(key)
+    val newUser = new UserHandler(key, this.channel)
+    if(newUser.getAutogreet() == "") {
+      newUser.setAutogreet(autogreet)
+    }
+  }
+
   this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName)
     .replace("{version}", BuildInfo.version)
     .replace("{build}", BuildInfo.buildNumber)
@@ -401,6 +411,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     Memebot.joinedChannels.remove(removeThisCH)
   }
 
+  @Deprecated
   def writeHTML() {
     if (!Memebot.useWeb) {
       return
@@ -606,7 +617,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.aliasList = channelData.getOrDefault("alias", this.aliasList).asInstanceOf[ArrayList[String]]
       val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
-      val silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
+      this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }
@@ -844,14 +855,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         }
       } else if (ircmsgList(1) == "JOIN") {
         if (sender != null) {
-          if (this.autogreetList.containsKey(sender.getUsername)) {
-            if (this.allowAutogreet) {
-              this.sendMessage(this.autogreetList.get(sender.getUsername), this.channel)
-            }
-          } else {
-            if (this.allowAutogreet && sender.getAutogreet != "") {
-              this.sendMessage(sender.getAutogreet, this.channel)
-            }
+          if (this.allowAutogreet && sender.getAutogreet != "") {
+            this.sendMessage(sender.getAutogreet, this.channel)
           }
         }
       } else if (ircmsgList(1) == "CLEARCHAT") {

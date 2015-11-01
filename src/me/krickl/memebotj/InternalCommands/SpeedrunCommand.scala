@@ -114,7 +114,7 @@ class SpeedrunCommand(channel: String, command: String, dbprefix: String) extend
 
     override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
         try {
-          var urlGame = new URL("http://www.speedrun.com/api/v1/games?name=" + URLEncoder.encode(channelHandler.currentGame, "UTF-8") + "&max=1")
+          val urlGame = new URL("http://www.speedrun.com/api/v1/games?name=" + URLEncoder.encode(channelHandler.currentGame, "UTF-8") + "&max=1")
           var connection = urlGame.openConnection().asInstanceOf[HttpURLConnection]
           connection.setRequestMethod("GET")
           var in = new BufferedReader(new InputStreamReader(connection.getInputStream))

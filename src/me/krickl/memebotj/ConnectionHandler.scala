@@ -99,11 +99,23 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 		return botNick
 	}
 
+  @Deprecated
 	def getInFromServer(): BufferedReader = {
 		return inFromServer
 	}
 
+  @Deprecated
 	def getOutToServer(): DataOutputStream = {
 		return outToServer
 	}
+
+	def sendMessage(msg: String): Unit = {
+    outToServer.flush()
+    outToServer.write(msg.getBytes("UTF-8"))
+  }
+
+  def sendMessageBytes(msg: String): Unit = {
+    outToServer.flush()
+    outToServer.writeBytes(msg)
+  }
 }
