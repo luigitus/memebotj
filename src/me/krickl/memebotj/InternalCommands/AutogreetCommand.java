@@ -61,7 +61,7 @@ public class AutogreetCommand extends CommandHandler {
 			}
 			channelHandler.sendMessage(message, this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
-
+			e.printStackTrace();
 		}
 	}
 }

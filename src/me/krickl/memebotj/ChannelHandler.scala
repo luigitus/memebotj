@@ -24,7 +24,7 @@ import com.mongodb.Block
 import com.mongodb.client.MongoCollection
 import me.krickl.memebotj.InternalCommands.APIInformationCommand
 import me.krickl.memebotj.InternalCommands.AboutCommand
-import me.krickl.memebotj.InternalCommands.AddCommandHandler
+//import me.krickl.memebotj.InternalCommands.AddCommandHandler
 import me.krickl.memebotj.InternalCommands.AliasCommand
 import me.krickl.memebotj.InternalCommands.AutogreetCommand
 import me.krickl.memebotj.InternalCommands.ChannelInfoCommand
@@ -32,9 +32,9 @@ import me.krickl.memebotj.InternalCommands.CommandList
 import me.krickl.memebotj.InternalCommands.CommandManager
 import me.krickl.memebotj.InternalCommands.DampeCommand
 import me.krickl.memebotj.InternalCommands.DebugCommand
-import me.krickl.memebotj.InternalCommands.DeletCommandHandler
+//import me.krickl.memebotj.InternalCommands.DeletCommandHandler
 import me.krickl.memebotj.InternalCommands.EditChannel
-import me.krickl.memebotj.InternalCommands.EditCommand
+//import me.krickl.memebotj.InternalCommands.EditCommand
 import me.krickl.memebotj.InternalCommands.EditUserCommand
 import me.krickl.memebotj.InternalCommands.FilenameCommand
 import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand
@@ -252,17 +252,17 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new AboutCommand(this.channel, "!about", "#internal#"))
 
-  this.internalCommands.add(new AddCommandHandler(this.channel, "!addcommand", "#internal#"))
+  //this.internalCommands.add(new AddCommandHandler(this.channel, "!addcommand", "#internal#"))
 
   this.internalCommands.add(new AutogreetCommand(this.channel, "!autogreet", "#internal#"))
 
   this.internalCommands.add(new EditChannel(this.channel, "!editchannel", "#internal#"))
 
-  this.internalCommands.add(new EditCommand(this.channel, "!editcommand", "#internal#"))
+  //this.internalCommands.add(new EditCommand(this.channel, "!editcommand", "#internal#"))
 
   this.internalCommands.add(new CommandList(this.channel, "!commands", "#internal#"))
 
-  this.internalCommands.add(new DeletCommandHandler(this.channel, "!deletecommand", "#internal#"))
+  //this.internalCommands.add(new DeletCommandHandler(this.channel, "!deletecommand", "#internal#"))
 
   this.internalCommands.add(new HelpCommand(this.channel, "!help", "#internal#"))
 
