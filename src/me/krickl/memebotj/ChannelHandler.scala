@@ -913,6 +913,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       } catch {
         case e: java.util.regex.PatternSyntaxException => e.printStackTrace()
       }
+
+      //alias
       try {
         for (alias <- this.aliasList) {
           val aliasSplit = alias.split("#")
@@ -935,27 +937,42 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       } catch {
         case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
       }
+
+      //channel commands
       var p = this.findCommand(msg)
       if (p != -1) {
         if (!this.channelCommands.get(p).isTexttrigger) {
           this.channelCommands.get(p).executeCommand(sender, this, data, userList)
         }
       }
-      for (ch <- this.channelCommands if ch.isTexttrigger; s <- msgContent if s == ch.getCommand) {
-        ch.executeCommand(sender, this, Array(""), userList)
+
+      //text triggers
+      for (s <- msgContent) {
+        p = this.findCommand(s)
+
+        if(p != -1) {
+          val ch = this.channelCommands.get(p)
+          if(ch.isTexttrigger()) {
+            ch.executeCommand(sender, this, Array(""), userList)
+          }
+        }
       }
+
+      //other channel's commands
       for (ch <- Memebot.joinedChannels; och <- this.otherLoadedChannels) {
         val channel = ch.getBroadcaster
         if (ch.getChannel == och || ch.getBroadcaster == och) {
           p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))
-          if (p != -1 &&
-            msg.contains(channel)) {
-            ch.getChannelCommands.get(p).executeCommand(new UserHandler("#readonly#", this.channel), this,
-              data, userList)
+          if (p != -1 && msg.contains(channel)) {
+            ch.getChannelCommands.get(p).executeCommand(new UserHandler("#readonly#", this.channel), this, data, userList)
           }
         }
       }
-      for (ch <- this.internalCommands if ch.getCommand == msg) {
+
+      //internal commands
+      p = this.findCommand(msg, this.internalCommands)
+      if(p != -1) {
+        val ch = this.internalCommands.get(p)
         ch.executeCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList)
       }
     }
