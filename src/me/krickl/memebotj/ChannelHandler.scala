@@ -993,8 +993,18 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   def findCommand(command: String, commandList: ArrayList[CommandHandler]): Int = {
-    (0 until commandList.size).find(commandList.get(_).command == command)
-      .getOrElse(-1)
+    for(index <- 0 to commandList.size() - 1) {
+      val cmd = commandList.get(index)
+      if(cmd.getCommand() == command) {
+        return index
+      }
+
+      if(!cmd.getCaseSensitive && cmd.getCommand().toLowerCase() == command.toLowerCase()) {
+        return index
+      }
+    }
+    //(0 until commandList.size).find(commandList.get(_).command == command).getOrElse(-1)
+    return -1
   }
 
   def setJoined(isJoined: Boolean) {

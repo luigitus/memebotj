@@ -90,6 +90,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	var enable = true
 	var overrideHandleMessage = false
 
+  @BeanProperty
+  var caseSensitive = true
+
 	@BeanProperty
 	var execCounter = 0
 
@@ -441,6 +444,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType == "listregex") {
         this.listregex = newValue
         success = true
+      } else if(modType == "case") {
+        this.caseSensitive = newValue.toBoolean
+        success = true
       }
 		} catch {
 			case e: NumberFormatException => {
@@ -486,6 +492,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				.append("overridehandlemessage", this.overrideHandleMessage)
         .append("execcounter", this.execCounter)
         .append("listregex", this.listregex)
+        .append("case", this.caseSensitive)
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -555,6 +562,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.overrideHandleMessage = channelData.getOrDefault("overridehandlemessage", this.overrideHandleMessage.toString).toString.toBoolean
       this.execCounter = channelData.getOrDefault("execcounter", this.execCounter.toString).toString.toInt
       this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
+      this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
 		}
 	}
 
