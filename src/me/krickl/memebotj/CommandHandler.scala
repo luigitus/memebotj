@@ -2,6 +2,7 @@ package me.krickl.memebotj
 
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
+import java.util
 import java.util.ArrayList
 import java.util.Calendar
 import java.util.HashMap
@@ -12,6 +13,8 @@ import org.bson.Document
 
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
+
+import scala.beans.BeanProperty
 
 object CommandHandler {
 	final val log = Logger.getLogger(CommandHandler.getClass.getName)
@@ -73,7 +76,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	var neededModCommandPower = 25
 	var neededBroadcasterCommandPower = 50
 	var neededBotAdminCommandPower = 75
-	var neededCooldownBypassPower = 25
+	var neededCooldownBypassPower = 50
 	var neededAddPower = 25
 	var allowPicksFromList = true
 	var removeFromListOnPickIfMod = false
@@ -87,6 +90,21 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	var excludeFromCommandList = false
 	var enable = true
 	var overrideHandleMessage = false
+
+  @BeanProperty
+  var caseSensitive = true
+
+	@BeanProperty
+	var execCounter = 0
+
+	@BeanProperty
+	var listregex: String = ""
+
+  @BeanProperty
+  var success = false
+
+	@BeanProperty
+  var otherData = new util.HashMap[String, String]() //todo write this to database
 
 	private var commandCollection: MongoCollection[Document] = null
 	private var commandScript: String = ""
@@ -102,6 +120,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	this.readDBCommand()
 	
 	def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
+    this.success = true
+
 
     if(this.overrideHandleMessage) {
       return "override"
@@ -144,7 +164,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
 		var formattedOutput = this.unformattedOutput
     val counterStart = 1
-		var success = true
+		//var success = true
 
 		if (this.cmdtype.equals("list")) {
 			try {
@@ -162,11 +182,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 							newEntry = newEntry + " <" + channelHandler.getCurrentGame + ">"
 						}
 
-						this.listContent.add(newEntry + this.formatText(this.appendToQuoteString, channelHandler, sender))
-						formattedOutput = "Added."
+						this.listContent.add(newEntry + " " + this.formatText(this.appendToQuoteString, channelHandler, sender))
+						formattedOutput = "Added "
 					} else {
 						formattedOutput = "Not added"
-						success = false
+						this.success = false
 					}
 				} else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					try {
@@ -187,7 +207,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 					formattedOutput = "Edited"
 				} else if (data(1).equals("list")) {
 					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
-					success = false
+					this.success = false
 				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
@@ -203,7 +223,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 						}
 					}
 				} else {
-					success= false
+					this.success= false
 				}
 			} catch {
 				case e: ArrayIndexOutOfBoundsException => {
@@ -252,13 +272,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       }
 		}
 
-		if(success) {
-			this.cooldown.startCooldown()
-			sender.getUserCooldown().startCooldown()
-			sender.getUserCommandCooldowns().get(this.command).startCooldown()
-			sender.setPoints(sender.getPoints() - this.pointCost)
-		}
-
 		formattedOutput = this.formatText(formattedOutput, channelHandler, sender)
 
 		try {
@@ -266,7 +279,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				formattedOutput = formattedOutput.replace("{param" + Integer.toString(i) + "}", data(i))
 			}
 			if (!formattedOutput.equals("null")) {
-				channelHandler.sendMessage(formattedOutput, this.channelOrigin)
+				channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
 			}
 		} catch {
 			case e: ArrayIndexOutOfBoundsException => {
@@ -288,6 +301,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		if(!channelHandler.getApiConnectionIP.equals("")) {
 			Memebot.apiConnection.sendData("pkey=apisourcesender=" + this.command + "request=commandmessage=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler)
 		}
+
+    this.execCounter = this.execCounter + 1
 
 		return "OK"
 	}
@@ -335,7 +350,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			return false
 		}
 
-		var success = false
+    success = false
 		try {
 			if (modType.equals("name")) {
 				this.command = newValue
@@ -350,7 +365,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				this.access = newValue
 				success = true
 			} else if (modType.equals("output")) {
-				this.unformattedOutput = newValue
+        if(newValue == "{none}") {
+          this.unformattedOutput = ""
+        } else {
+          this.unformattedOutput = newValue
+        }
 				success = true
 			} else if (modType.equals("cooldown")) {
 				this.cooldown = new Cooldown(Integer.parseInt(newValue))
@@ -406,7 +425,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType.equals("allowpick")) {
 				allowPicksFromList = newValue.toBoolean
 				success = true
-			} else if(modType.equals("cooldownbypass")) {
+			} else if(modType.equals("cooldownbypasspower")) {
 				this.neededCooldownBypassPower = Integer.parseInt(newValue)
 				success = true
 			} else if(modType.equals("neededAddPower")) {
@@ -424,7 +443,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType == "overridehandlemessage") {
 				this.overrideHandleMessage = newValue.toBoolean
 				success = true
-			}
+			} else if(modType == "listregex") {
+        this.listregex = newValue
+        success = true
+      } else if(modType == "case") {
+        this.caseSensitive = newValue.toBoolean
+        success = true
+      }
 		} catch {
 			case e: NumberFormatException => {
 				CommandHandler.log.warning(String.format("Screw you Luigitus: %s", e.toString))
@@ -460,13 +485,16 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote)
 				.append("script", this.commandScript)
 				.append("enable", this.enable)
-				.append("cooldownbypass", this.neededCooldownBypassPower)
+				.append("cooldownbypasspower", this.neededCooldownBypassPower)
 				.append("allowpick", this.allowPicksFromList)
 				.append("addpower", this.neededAddPower)
 				.append("autoremove", this.removeFromListOnPickIfMod)
 				.append("appendsender", this.appendSenderToQuote)
 				.append("appendtoquote", this.appendToQuoteString)
 				.append("overridehandlemessage", this.overrideHandleMessage)
+        .append("execcounter", this.execCounter)
+        .append("listregex", this.listregex)
+        .append("case", this.caseSensitive)
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -534,57 +562,19 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			this.appendSenderToQuote = channelData.getOrDefault("appendsender", this.appendSenderToQuote.toString).toString().toBoolean
 			this.appendToQuoteString = channelData.getOrDefault("appendtoquote", this.appendToQuoteString).toString
 			this.overrideHandleMessage = channelData.getOrDefault("overridehandlemessage", this.overrideHandleMessage.toString).toString.toBoolean
+      this.execCounter = channelData.getOrDefault("execcounter", this.execCounter.toString).toString.toInt
+      this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
+      this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
 		}
 	}
 
-	/***
-	 * This method formats text for output.
-	 * The following parameters can be passed in:
-	 * {sender}
-	 * {counter}
-	 * {debugsender}
-	 * {debugch}
-	 * {channelweb}
-	 * {version}
-	 * {appname}
-	 * {date}
-	 * {game}
-	 * {curremote}
-	 * {currname}
-	 * @param fo
-	 * @param channelHandler
-	 * @param sender
-	 * @return
-	 */
+  @Deprecated
 	def formatText(fo: String, channelHandler: ChannelHandler, sender: UserHandler): String = {
-		val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
-		val cal = Calendar.getInstance()
-		val strDate = sdfDate.format(cal.getTime)
-
-		var formattedOutput = fo
-
-		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername())
-		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(this.counter))
-		formattedOutput = formattedOutput.replace("{points}", sender.getPoints().toString())
-		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString())
-		formattedOutput = formattedOutput.replace("{debugch}", this.toString())
-		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
-		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version)
-		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev)
-		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName)
-		formattedOutput = formattedOutput.replace("{date}", strDate)
-		if(channelHandler.getCurrentGame != null) {
-			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame)
-		}
-		formattedOutput = formattedOutput.replace("{curremote}",
-				channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
-		formattedOutput = formattedOutput.replace("{currname}",
-				channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
-		return formattedOutput
+    return Memebot.formatText(fo, channelHandler, sender, this)
 	}
 
 	protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
-		if (sender.getPoints() > cost || CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)) {
+		if (sender.getPoints() >= cost || CommandHandler.checkPermission(sender.getUsername(), this.neededBotAdminCommandPower, ch.getUserList)) {
 			return true
 		}
 
@@ -595,6 +585,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
+    if(this.success) {
+      this.cooldown.startCooldown()
+      sender.getUserCooldown().startCooldown()
+      sender.getUserCommandCooldowns().get(this.command).startCooldown()
+      sender.setPoints(sender.getPoints() - this.pointCost)
+    }
 	}
 
 	def getChannelOrigin(): String = {

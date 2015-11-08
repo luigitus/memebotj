@@ -11,8 +11,8 @@ public class FilenameCommand extends CommandHandler {
 	public FilenameCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setHelptext("Syntax: !name <filename> (100 points/name) || !name get || !name current");
-		if (!command.equals("~name"))
-			this.setPointCost(0);
+        this.setListregex("/^[一-龠ぁ-ゔァ-ヴーa-zA-Z0-9_,.-々〆〤]{1,8}$/u"); //todo not matching - make sure default value is only set once when the default works
+        this.setPointCost(0);
 	}
 
 	@Override
@@ -31,11 +31,8 @@ public class FilenameCommand extends CommandHandler {
 					// return a name that is longer than max len
 
 					channelHandler.getFileNameList().remove(index);
-					channelHandler
-							.sendMessage(
-									"Filename: " + channelHandler.getCurrentFileName().split("#")[0] + " suggested by "
-											+ channelHandler.getCurrentFileName().split("#")[1],
-									this.getChannelOrigin());
+					channelHandler.sendMessage("Filename: " + channelHandler.getCurrentFileName().split("#")[0] + " suggested by " + channelHandler.getCurrentFileName().split("#")[1],
+                            this.getChannelOrigin());
 
 					return;
 				}
@@ -44,28 +41,45 @@ public class FilenameCommand extends CommandHandler {
 						+ " suggested by " + channelHandler.getCurrentFileName().split("#")[1],
 						this.getChannelOrigin());
 				return;
-			}
+			} else if(data[0].equals("list")) {
+                channelHandler.sendMessage(channelHandler.getChannelPageBaseURL() + "/filenames.html", this.channelOrigin());
+                return;
+            }
+            int i = 0;
+            try {
+                i = Integer.parseInt(data[1]);
+            } catch(ArrayIndexOutOfBoundsException e) {
+                i = 0;
+            } catch (NumberFormatException e) {
+                i = 0;
+            }
+            boolean success = false;
+            //todo make regex match
+            if (data[0].matches(this.listregex()) || data[0].length() <= channelHandler.getMaxFileNameLen()) {
+                if (!this.checkCost(sender, 100.0d * (i + 1), channelHandler)) {
+                    channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f * (i + 1),
+                            channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
+                } else {
+                    channelHandler.sendMessage(String.format("%s added name %s %s times", sender.getUsername(), data[0], Integer.toString(i)), this.getChannelOrigin());
 
-			if (data[0].length() <= channelHandler.getMaxFileNameLen()) {
-				if (!this.checkCost(sender, 100.0d, channelHandler)) {
-					channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f,
-							channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
-				} else {
-					channelHandler.getFileNameList().add(data[0] + "#" + sender.getUsername());
-					if (!this.getCommand().equals("~name")) {
-						channelHandler.sendMessage(String.format("%s added name %s", sender.getUsername(), data[0]),
-								this.getChannelOrigin());
-					}
+                    sender.setPoints(sender.getPoints() - (100 * (i + 1)));
+                    success = true;
+                }
+            } else {
+                channelHandler.sendMessage("The filename does not match: " + this.getListregex(), this.getChannelOrigin());
+            }
 
-					sender.setPoints(sender.getPoints() - 100);
-				}
-			}
+            for(int c = 0; c < i; c++) {
+                if (success) {
+                    channelHandler.getFileNameList().add(data[0] + "#" + sender.getUsername());
+                }
+            }
 
 			channelHandler.writeDBChannelData();
 		} catch (ArrayIndexOutOfBoundsException e) {
-
+            e.printStackTrace();
 		} catch (java.lang.IllegalArgumentException e) {
-
+            e.printStackTrace();
 		}
 	}
 

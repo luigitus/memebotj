@@ -24,7 +24,7 @@ import com.mongodb.Block
 import com.mongodb.client.MongoCollection
 import me.krickl.memebotj.InternalCommands.APIInformationCommand
 import me.krickl.memebotj.InternalCommands.AboutCommand
-import me.krickl.memebotj.InternalCommands.AddCommandHandler
+//import me.krickl.memebotj.InternalCommands.AddCommandHandler
 import me.krickl.memebotj.InternalCommands.AliasCommand
 import me.krickl.memebotj.InternalCommands.AutogreetCommand
 import me.krickl.memebotj.InternalCommands.ChannelInfoCommand
@@ -32,9 +32,9 @@ import me.krickl.memebotj.InternalCommands.CommandList
 import me.krickl.memebotj.InternalCommands.CommandManager
 import me.krickl.memebotj.InternalCommands.DampeCommand
 import me.krickl.memebotj.InternalCommands.DebugCommand
-import me.krickl.memebotj.InternalCommands.DeletCommandHandler
+//import me.krickl.memebotj.InternalCommands.DeletCommandHandler
 import me.krickl.memebotj.InternalCommands.EditChannel
-import me.krickl.memebotj.InternalCommands.EditCommand
+//import me.krickl.memebotj.InternalCommands.EditCommand
 import me.krickl.memebotj.InternalCommands.EditUserCommand
 import me.krickl.memebotj.InternalCommands.FilenameCommand
 import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand
@@ -108,8 +108,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var aliasList: ArrayList[String] = new ArrayList[String]()
 
+  @Deprecated
   @BeanProperty
-  var maxFileNameLen: Int = 8
+  var maxFileNameLen = -1
 
   @BeanProperty
   var currentFileName: String = ""
@@ -251,17 +252,17 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new AboutCommand(this.channel, "!about", "#internal#"))
 
-  this.internalCommands.add(new AddCommandHandler(this.channel, "!addcommand", "#internal#"))
+  //this.internalCommands.add(new AddCommandHandler(this.channel, "!addcommand", "#internal#"))
 
   this.internalCommands.add(new AutogreetCommand(this.channel, "!autogreet", "#internal#"))
 
   this.internalCommands.add(new EditChannel(this.channel, "!editchannel", "#internal#"))
 
-  this.internalCommands.add(new EditCommand(this.channel, "!editcommand", "#internal#"))
+  //this.internalCommands.add(new EditCommand(this.channel, "!editcommand", "#internal#"))
 
   this.internalCommands.add(new CommandList(this.channel, "!commands", "#internal#"))
 
-  this.internalCommands.add(new DeletCommandHandler(this.channel, "!deletecommand", "#internal#"))
+  //this.internalCommands.add(new DeletCommandHandler(this.channel, "!deletecommand", "#internal#"))
 
   this.internalCommands.add(new HelpCommand(this.channel, "!help", "#internal#"))
 
@@ -313,12 +314,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
 
-  val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
+  /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 
   fileNameListCommand.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#",
     this.channel), userList)
 
-  this.internalCommands.add(fileNameListCommand)
+  this.internalCommands.add(fileNameListCommand)*/
 
   val issueCommand = new CommandHandler(this.channel, "!issue", "#internal#")
 
@@ -335,6 +336,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   mrDestructoidCommand.setExcludeFromCommandList(true)
 
   this.internalCommands.add(mrDestructoidCommand)
+
+  //import old autogreets
+  for(key <- this.autogreetList.keySet()) {
+    val autogreet = this.autogreetList.get(key)
+    val newUser = new UserHandler(key, this.channel)
+    if(newUser.getAutogreet() == "") {
+      newUser.setAutogreet(autogreet)
+    }
+  }
 
   this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName)
     .replace("{version}", BuildInfo.version)
@@ -380,7 +390,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     breakable { for (ch <- Memebot.joinedChannels if ch.getChannel.equalsIgnoreCase(channel)) {
       isInList = true
       removeThisCH = ch
-      break
+      break()
     } }
     if (!isInList && removeThisCH != null) {
       Memebot.joinedChannels.remove(removeThisCH)
@@ -401,6 +411,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     Memebot.joinedChannels.remove(removeThisCH)
   }
 
+  @Deprecated
   def writeHTML() {
     if (!Memebot.useWeb) {
       return
@@ -606,7 +617,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.aliasList = channelData.getOrDefault("alias", this.aliasList).asInstanceOf[ArrayList[String]]
       val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
-      val silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
+      this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }
@@ -666,7 +677,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  def sendMessage(msg: String, channel: String) {
+  def sendMessage(msg: String, channel: String): Unit = {
+    this.sendMessage(msg, channel, new UserHandler("#internal#", this.channel))
+  }
+
+  def sendMessage(msg: String, channel: String, sender: UserHandler) {
     if (!this.preventMessageCooldown.canContinue()) {
       return
     }
@@ -679,9 +694,13 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
     this.currentMessageCount += 1
     try {
-      this.connection.getOutToServer.flush()
-      this.connection.getOutToServer.write(new String("PRIVMSG " + this.channel + " :" + msg + "\n")
-        .getBytes("UTF-8"))
+      if (sender.getUsername() != "#readonly#") {
+        this.connection.getOutToServer.flush()
+        this.connection.getOutToServer.write(new String("PRIVMSG " + this.channel + " :" + msg + "\n")
+          .getBytes("UTF-8"))
+      } else {
+        this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"))
+      }
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -844,14 +863,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         }
       } else if (ircmsgList(1) == "JOIN") {
         if (sender != null) {
-          if (this.autogreetList.containsKey(sender.getUsername)) {
-            if (this.allowAutogreet) {
-              this.sendMessage(this.autogreetList.get(sender.getUsername), this.channel)
-            }
-          } else {
-            if (this.allowAutogreet && sender.getAutogreet != "") {
-              this.sendMessage(sender.getAutogreet, this.channel)
-            }
+          if (this.allowAutogreet && sender.getAutogreet != "") {
+            this.sendMessage(sender.getAutogreet, this.channel)
           }
         }
       } else if (ircmsgList(1) == "CLEARCHAT") {
@@ -908,6 +921,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       } catch {
         case e: java.util.regex.PatternSyntaxException => e.printStackTrace()
       }
+
+      //alias
       try {
         for (alias <- this.aliasList) {
           val aliasSplit = alias.split("#")
@@ -930,27 +945,42 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       } catch {
         case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
       }
+
+      //channel commands
       var p = this.findCommand(msg)
       if (p != -1) {
         if (!this.channelCommands.get(p).isTexttrigger) {
           this.channelCommands.get(p).executeCommand(sender, this, data, userList)
         }
       }
-      for (ch <- this.channelCommands if ch.isTexttrigger; s <- msgContent if s == ch.getCommand) {
-        ch.executeCommand(sender, this, Array(""), userList)
+
+      //text triggers
+      for (s <- msgContent) {
+        p = this.findCommand(s)
+
+        if(p != -1) {
+          val ch = this.channelCommands.get(p)
+          if(ch.isTexttrigger()) {
+            ch.executeCommand(sender, this, Array(""), userList)
+          }
+        }
       }
+
+      //other channel's commands
       for (ch <- Memebot.joinedChannels; och <- this.otherLoadedChannels) {
         val channel = ch.getBroadcaster
         if (ch.getChannel == och || ch.getBroadcaster == och) {
           p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))
-          if (p != -1 &&
-            msg.contains(channel)) {
-            ch.getChannelCommands.get(p).executeCommand(new UserHandler("#readonly#", this.channel), this,
-              data, userList)
+          if (p != -1 && msg.contains(channel)) {
+            ch.getChannelCommands.get(p).executeCommand(new UserHandler("#readonly#", this.channel), this, data, userList)
           }
         }
       }
-      for (ch <- this.internalCommands if ch.getCommand == msg) {
+
+      //internal commands
+      p = this.findCommand(msg, this.internalCommands)
+      if(p != -1) {
+        val ch = this.internalCommands.get(p)
         ch.executeCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList)
       }
     }
@@ -988,8 +1018,18 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   def findCommand(command: String, commandList: ArrayList[CommandHandler]): Int = {
-    (0 until commandList.size).find(commandList.get(_).command == command)
-      .getOrElse(-1)
+    for(index <- 0 to commandList.size() - 1) {
+      val cmd = commandList.get(index)
+      if(cmd.getCommand() == command) {
+        return index
+      }
+
+      if(!cmd.getCaseSensitive && cmd.getCommand().toLowerCase() == command.toLowerCase()) {
+        return index
+      }
+    }
+    //(0 until commandList.size).find(commandList.get(_).command == command).getOrElse(-1)
+    return -1
   }
 
   def setJoined(isJoined: Boolean) {

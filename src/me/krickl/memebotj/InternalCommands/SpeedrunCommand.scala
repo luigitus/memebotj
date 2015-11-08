@@ -107,10 +107,15 @@ class SpeedrunCommand(channel: String, command: String, dbprefix: String) extend
     this.runnerList.add("Fezehim")
     
     this.runnerList.add("Ur Mom")
+    
+    this.runnerList.add("{runner}")
+    
+    this.runnerList.add("Sadiecat122")
 
     override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
+        super.commandScript(sender, channelHandler, data)
         try {
-          var urlGame = new URL("http://www.speedrun.com/api/v1/games?name=" + URLEncoder.encode(channelHandler.currentGame, "UTF-8") + "&max=1")
+          val urlGame = new URL("http://www.speedrun.com/api/v1/games?name=" + URLEncoder.encode(channelHandler.currentGame, "UTF-8") + "&max=1")
           var connection = urlGame.openConnection().asInstanceOf[HttpURLConnection]
           connection.setRequestMethod("GET")
           var in = new BufferedReader(new InputStreamReader(connection.getInputStream))

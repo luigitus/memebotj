@@ -10,6 +10,8 @@ import org.bson.Document
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 
+import scala.beans.BeanProperty
+
 object UserHandler {
 	final var log = Logger.getLogger(UserHandler.getClass.getName())
 }
@@ -40,6 +42,9 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	private var random = new SecureRandom()
 	private var privateKey = new BigInteger(130, random).toString(32)
 
+  @BeanProperty
+  var enableAutogreets = true
+
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
 	}
@@ -58,13 +63,14 @@ class UserHandler(usernameNew: String, channelNew: String) {
 		// System.out.printf("Saving data in db for channel %s\n",
 		// this.command)
 
-		var channelQuery = new Document("_id", this.username)
+		val channelQuery = new Document("_id", this.username)
 
-		var channelData = new Document("_id", this.username).append("pointsf", this.points)
+		val channelData = new Document("_id", this.username).append("pointsf", this.points)
 				.append("mod", this.isModerator).append("autogreet", this.autogreet)
 				.append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
 				.append("timeouts", this.timeouts)
 				.append("privatekey", this.privateKey)
+        .append("enableautogreet", this.enableAutogreets)
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -81,10 +87,10 @@ class UserHandler(usernameNew: String, channelNew: String) {
 			return
 		}
 
-		var channelQuery = new Document("_id", this.username)
-		var cursor: FindIterable[Document] = this.userCollection.find(channelQuery)
+		val channelQuery = new Document("_id", this.username)
+		val cursor: FindIterable[Document] = this.userCollection.find(channelQuery)
 
-		var channelData = cursor.first()
+		val channelData = cursor.first()
 
 		// read data
 		if (channelData != null) {
@@ -95,6 +101,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
 			this.isUserBroadcaster = channelData.getOrDefault("broadcaster", this.isBroadcaster.asInstanceOf[Object]).asInstanceOf[Boolean]
 			this.timeouts = channelData.getOrDefault("timeouts", this.timeouts.asInstanceOf[Object]).asInstanceOf[Int]
 			this.privateKey = channelData.getOrDefault("privatekey", this.privateKey.asInstanceOf[Object]).asInstanceOf[String]
+      this.enableAutogreets = channelData.getOrDefault("enableautogreet", this.enableAutogreets.toString).toString.toBoolean
 		} else {
 			this.newUser = true
 		}

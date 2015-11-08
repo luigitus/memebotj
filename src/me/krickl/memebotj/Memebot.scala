@@ -41,9 +41,8 @@ import java.lang.management.ManagementFactory
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.ArrayList
-import java.util.List
-import java.util.Properties
+import java.text.SimpleDateFormat
+import java.util.{Calendar, ArrayList, List, Properties}
 import java.util.logging.Logger
 
 import org.bson.Document
@@ -65,7 +64,7 @@ object Memebot {
 
 	var ircServer: String = "irc.twitch.tv"
 	var ircport: Int = 6667
-	var apiport: Int = 9876
+	var apiport: Int = 9877
 	var mongoHost: String = "localhost"
 	var mongoPort: Int = 27017
 	var apiMasterKey: String = "debug::key"
@@ -241,7 +240,6 @@ object Memebot {
 				val channel: String = it.next
 				Memebot.joinChannel(channel)
 			}
-
 			//start api thread
 			apiConnection.start()
 
@@ -286,6 +284,52 @@ object Memebot {
 			case e: IOException =>
 				e.printStackTrace()
 		}
+	}
+
+	/***
+		* This method formats text for output.
+		* The following parameters can be passed in:
+		* {sender}
+		* {counter}
+		* {debugsender}
+		* {debugch}
+		* {channelweb}
+		* {version}
+		* {appname}
+		* {date}
+		* {game}
+		* {curremote}
+		* {currname}
+		* @param fo
+		* @param channelHandler
+		* @param sender
+		* @return
+		*/
+	def formatText(fo: String, channelHandler: ChannelHandler, sender: UserHandler, commandHandler: CommandHandler): String = {
+		val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
+		val cal = Calendar.getInstance()
+		val strDate = sdfDate.format(cal.getTime)
+
+		var formattedOutput = fo
+
+		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername())
+		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(commandHandler.counter))
+		formattedOutput = formattedOutput.replace("{points}", sender.getPoints().toString())
+		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString())
+		formattedOutput = formattedOutput.replace("{debugch}", commandHandler.toString())
+		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
+		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version)
+		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev)
+		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName)
+		formattedOutput = formattedOutput.replace("{date}", strDate)
+		if(channelHandler.getCurrentGame != null) {
+			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame)
+		}
+		formattedOutput = formattedOutput.replace("{curremote}",
+			channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
+		formattedOutput = formattedOutput.replace("{currname}",
+			channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
+		return formattedOutput
 	}
 
 }

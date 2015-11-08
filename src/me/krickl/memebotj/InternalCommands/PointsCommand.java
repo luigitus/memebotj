@@ -18,8 +18,8 @@ public class PointsCommand extends CommandHandler {
 			} else {
 				try {
 					UserHandler target = null;
-					if (channelHandler.getUserList().containsKey(data[1])) {
-						target = channelHandler.getUserList().get(data[1]);
+					if (channelHandler.getUserList().containsKey(data[1].toLowerCase())) {
+						target = channelHandler.getUserList().get(data[1].toLowerCase());
 					} else {
 						target = new UserHandler(data[1], this.getChannelOrigin());
 						if (target.isNewUser()) {
@@ -37,12 +37,12 @@ public class PointsCommand extends CommandHandler {
 						}
 
 						channelHandler.sendMessage(
-								String.format("%s your new total is: %f %s", target.getUsername(), target.getPoints(),
+								String.format("%s your new total is: %.2f %s", target.getUsername(), target.getPoints(),
 										channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")),
 								this.getChannelOrigin());
 					}
 				} catch (ArrayIndexOutOfBoundsException e) {
-
+					e.printStackTrace();
 				}
 			}
 
