@@ -314,12 +314,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
 
-  val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
+  /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 
   fileNameListCommand.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#",
     this.channel), userList)
 
-  this.internalCommands.add(fileNameListCommand)
+  this.internalCommands.add(fileNameListCommand)*/
 
   val issueCommand = new CommandHandler(this.channel, "!issue", "#internal#")
 
@@ -390,7 +390,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     breakable { for (ch <- Memebot.joinedChannels if ch.getChannel.equalsIgnoreCase(channel)) {
       isInList = true
       removeThisCH = ch
-      break
+      break()
     } }
     if (!isInList && removeThisCH != null) {
       Memebot.joinedChannels.remove(removeThisCH)
@@ -677,7 +677,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  def sendMessage(msg: String, channel: String) {
+  def sendMessage(msg: String, channel: String): Unit = {
+    this.sendMessage(msg, channel, new UserHandler("#internal#", this.channel))
+  }
+
+  def sendMessage(msg: String, channel: String, sender: UserHandler) {
     if (!this.preventMessageCooldown.canContinue()) {
       return
     }
@@ -690,9 +694,13 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
     this.currentMessageCount += 1
     try {
-      this.connection.getOutToServer.flush()
-      this.connection.getOutToServer.write(new String("PRIVMSG " + this.channel + " :" + msg + "\n")
-        .getBytes("UTF-8"))
+      if (sender.getUsername() != "#readonly#") {
+        this.connection.getOutToServer.flush()
+        this.connection.getOutToServer.write(new String("PRIVMSG " + this.channel + " :" + msg + "\n")
+          .getBytes("UTF-8"))
+      } else {
+        this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"))
+      }
     } catch {
       case e: IOException => e.printStackTrace()
     }

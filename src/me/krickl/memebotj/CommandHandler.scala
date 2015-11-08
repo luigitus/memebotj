@@ -2,6 +2,7 @@ package me.krickl.memebotj
 
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
+import java.util
 import java.util.ArrayList
 import java.util.Calendar
 import java.util.HashMap
@@ -75,7 +76,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	var neededModCommandPower = 25
 	var neededBroadcasterCommandPower = 50
 	var neededBotAdminCommandPower = 75
-	var neededCooldownBypassPower = 25
+	var neededCooldownBypassPower = 50
 	var neededAddPower = 25
 	var allowPicksFromList = true
 	var removeFromListOnPickIfMod = false
@@ -99,6 +100,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	@BeanProperty
 	var listregex: String = ""
 
+  @BeanProperty
+  var success = false
+
+	@BeanProperty
+  var otherData = new util.HashMap[String, String]() //todo write this to database
+
 	private var commandCollection: MongoCollection[Document] = null
 	private var commandScript: String = ""
 
@@ -113,6 +120,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	this.readDBCommand()
 	
 	def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
+    this.success = true
+
 
     if(this.overrideHandleMessage) {
       return "override"
@@ -155,7 +164,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
 		var formattedOutput = this.unformattedOutput
     val counterStart = 1
-		var success = true
+		//var success = true
 
 		if (this.cmdtype.equals("list")) {
 			try {
@@ -173,11 +182,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 							newEntry = newEntry + " <" + channelHandler.getCurrentGame + ">"
 						}
 
-						this.listContent.add(newEntry + this.formatText(this.appendToQuoteString, channelHandler, sender))
-						formattedOutput = "Added."
+						this.listContent.add(newEntry + " " + this.formatText(this.appendToQuoteString, channelHandler, sender))
+						formattedOutput = "Added "
 					} else {
 						formattedOutput = "Not added"
-						success = false
+						this.success = false
 					}
 				} else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					try {
@@ -198,7 +207,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 					formattedOutput = "Edited"
 				} else if (data(1).equals("list")) {
 					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
-					success = false
+					this.success = false
 				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
@@ -214,7 +223,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 						}
 					}
 				} else {
-					success= false
+					this.success= false
 				}
 			} catch {
 				case e: ArrayIndexOutOfBoundsException => {
@@ -263,13 +272,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       }
 		}
 
-		if(success) {
-			this.cooldown.startCooldown()
-			sender.getUserCooldown().startCooldown()
-			sender.getUserCommandCooldowns().get(this.command).startCooldown()
-			sender.setPoints(sender.getPoints() - this.pointCost)
-		}
-
 		formattedOutput = this.formatText(formattedOutput, channelHandler, sender)
 
 		try {
@@ -277,7 +279,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				formattedOutput = formattedOutput.replace("{param" + Integer.toString(i) + "}", data(i))
 			}
 			if (!formattedOutput.equals("null")) {
-				channelHandler.sendMessage(formattedOutput, this.channelOrigin)
+				channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
 			}
 		} catch {
 			case e: ArrayIndexOutOfBoundsException => {
@@ -348,7 +350,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			return false
 		}
 
-		var success = false
+    success = false
 		try {
 			if (modType.equals("name")) {
 				this.command = newValue
@@ -423,7 +425,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 			} else if(modType.equals("allowpick")) {
 				allowPicksFromList = newValue.toBoolean
 				success = true
-			} else if(modType.equals("cooldownbypass")) {
+			} else if(modType.equals("cooldownbypasspower")) {
 				this.neededCooldownBypassPower = Integer.parseInt(newValue)
 				success = true
 			} else if(modType.equals("neededAddPower")) {
@@ -483,7 +485,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				.append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote)
 				.append("script", this.commandScript)
 				.append("enable", this.enable)
-				.append("cooldownbypass", this.neededCooldownBypassPower)
+				.append("cooldownbypasspower", this.neededCooldownBypassPower)
 				.append("allowpick", this.allowPicksFromList)
 				.append("addpower", this.neededAddPower)
 				.append("autoremove", this.removeFromListOnPickIfMod)
@@ -583,6 +585,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
+    if(this.success) {
+      this.cooldown.startCooldown()
+      sender.getUserCooldown().startCooldown()
+      sender.getUserCommandCooldowns().get(this.command).startCooldown()
+      sender.setPoints(sender.getPoints() - this.pointCost)
+    }
 	}
 
 	def getChannelOrigin(): String = {

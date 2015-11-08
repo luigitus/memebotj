@@ -73,7 +73,7 @@ public class CommandManager extends CommandHandler {
 								this.getChannelOrigin());
 					}
 				}
-			} else if(data[0].equals("editinternal") && CommandHandler.checkPermission(sender.getUsername(), 50, channelHandler.getUserList())) {
+			} else if(data[0].equals("editinternal") && CommandHandler.checkPermission(sender.getUsername(), 75, channelHandler.getUserList())) {
                 int j = -1;
                 if ((j = channelHandler.findCommand(data[1], channelHandler.getInternalCommands())) != -1) {
                     String newValue = data[3];
