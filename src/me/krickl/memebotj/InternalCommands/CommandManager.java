@@ -11,14 +11,14 @@ public class CommandManager extends CommandHandler {
 
 	public CommandManager(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
-		this.setNeededCommandPower(25);
+		this.setNeededCommandPower(0);
 		this.setHelptext("Syntax: !command add/remove/edit <command> <param1> ...");
 	}
 
 	@Override
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
-			if(data[0].equals("add")) {
+			if(data[0].equals("add") && CommandHandler.checkPermission(sender.getUsername(), 25, channelHandler.getUserList())) {
 				CommandHandler newCommand = new CommandHandler(this.getChannelOrigin(), "null", null);
 				if (channelHandler.findCommand(data[1]) == -1) {
 					newCommand.editCommand("name", data[1], new UserHandler("#internal#", "#internal#"),
@@ -39,7 +39,7 @@ public class CommandManager extends CommandHandler {
 				} else {
 					channelHandler.sendMessage("This command already exists", this.getChannelOrigin());
 				}
-			} else if(data[0].equals("remove")) {
+			} else if(data[0].equals("remove") && CommandHandler.checkPermission(sender.getUsername(), 25, channelHandler.getUserList())) {
 				int j = -1;
 				if ((j = channelHandler.findCommand(data[1])) != -1) {
 
@@ -57,7 +57,7 @@ public class CommandManager extends CommandHandler {
 					channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("DELCOM_NOT_FOUND"),
 							this.getChannelOrigin());
 				}
-			} else if(data[0].equals("edit")) {
+			} else if(data[0].equals("edit") && CommandHandler.checkPermission(sender.getUsername(), 25, channelHandler.getUserList())) {
 				int j = -1;
 				if ((j = channelHandler.findCommand(data[1])) != -1) {
 					String newValue = data[3];

@@ -8,7 +8,6 @@ import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.logging.Logger
 import me.krickl.memebotj.ChannelHandler
-import me.krickl.memebotj.CommandHandler
 import me.krickl.memebotj.Memebot
 import APIConnectionHandler._
 
@@ -28,7 +27,7 @@ class APIConnectionHandler(port: Int) extends Runnable {
 
 	private var t: Thread = _
 
-	private var runapi: Boolean = true
+	private val runapi: Boolean = true
 
 	try {
 		socket = new DatagramSocket(port)
@@ -80,40 +79,48 @@ class APIConnectionHandler(port: Int) extends Runnable {
 			val buffer = message.split("::")
       val listedMessage = new HashMap[String, String]()
 			for (i <- 0 until buffer.length) {
-        val msg: String = buffer(i).split("=")(0)
-        val data: String = buffer(i).split("=")(1)
-        listedMessage.put(msg, data)
+        try {
+          val msg: String = buffer(i).split("=")(0)
+          val data: String = buffer(i).split("=")(1)
+          listedMessage.put(msg, data)
+        } catch {
+          case e: java.lang.ArrayIndexOutOfBoundsException => e.printStackTrace()
+        }
 			}
 			var success = false
-			if (listedMessage.get("request").get == "handshake") {
-				if (listedMessage.get("pkey").get == Memebot.apiMasterKey) {
-					this.sendData("pkey=apisource::sender=apisource::request=hello::message=Access Granted", ip, port, null)
-					success = true
-				}
-				for (ch <- Memebot.joinedChannels if ch.getPrivateKey == listedMessage.get("pkey").toString) {
-					ch.setApiConnectionIP(ip)
-					this.sendData("pkey=apisource::sender=apisource::request=hello::message=Access Granted", ip, port, ch)
-					success = true
-				}
-			} else if (listedMessage.get("request").get == "ping") {
-        this.sendData("pkey=apisource::sender=apisource::request=ping::message=Pong", ip, port, null)
-        success = true
-      } else if (listedMessage.get("request").get == "commands") {
-        var channelCommands = ""
-        var internalCommands = ""
-        for(ch <- Memebot.joinedChannels) {
-          if(ch.getChannel == listedMessage.get("channel").get) {
-            for(cmd <- ch.getChannelCommands) {
-              channelCommands = channelCommands + cmd.getCommand() + ";"
-            }
+      try {
+        if (listedMessage.get("request").get == "handshake") {
+          if (listedMessage.get("pkey").get == Memebot.apiMasterKey) {
+            this.sendData("pkey=apisource::sender=apisource::request=hello::message=Access Granted", ip, port, null)
+            success = true
+          }
+          for (ch <- Memebot.joinedChannels if ch.getPrivateKey == listedMessage.get("pkey").toString) {
+            ch.setApiConnectionIP(ip)
+            this.sendData("pkey=apisource::sender=apisource::request=hello::message=Access Granted", ip, port, ch)
+            success = true
+          }
+        } else if (listedMessage.get("request").get == "ping") {
+          this.sendData("pkey=apisource::sender=apisource::request=ping::message=Pong", ip, port, null)
+          success = true
+        } else if (listedMessage.get("request").get == "commands") {
+          var channelCommands = ""
+          var internalCommands = ""
+          for (ch <- Memebot.joinedChannels) {
+            if (ch.getChannel == listedMessage.get("channel").get) {
+              for (cmd <- ch.getChannelCommands) {
+                channelCommands = channelCommands + cmd.getCommand() + ";"
+              }
 
-            for(cmd <- ch.getInternalCommands) {
-              internalCommands = internalCommands + cmd.getCommand() + ";"
+              for (cmd <- ch.getInternalCommands) {
+                internalCommands = internalCommands + cmd.getCommand() + ";"
+              }
             }
           }
+          this.sendData("pkey=apisource::sender=apisource::request=commands::message=Commands::channelcmds=" + channelCommands + "::internalcmds=" + internalCommands, ip, port, null)
+          success = true
         }
-        this.sendData("pkey=apisource::sender=apisource::request=commands::message=Commands::channelcmds=" + channelCommands + "::internalcmds=" + internalCommands, ip, port, null)
-        success = true
+      } catch {
+        case e: java.util.NoSuchElementException => this.sendData("pkey=apisource::sender=apisource::request=invalid", ip, port, null)
       }
 			if (!success) {
 				this.sendData("pkey=apisource::sender=apisource::request=invalid::message=Connection Failed", ip, port, null)

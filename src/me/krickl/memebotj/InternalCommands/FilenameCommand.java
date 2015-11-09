@@ -45,13 +45,13 @@ public class FilenameCommand extends CommandHandler {
                 channelHandler.sendMessage(channelHandler.getChannelPageBaseURL() + "/filenames.html", this.channelOrigin());
                 return;
             }
-            int i = 0;
+            int i = 1;
             try {
                 i = Integer.parseInt(data[1]);
             } catch(ArrayIndexOutOfBoundsException e) {
-                i = 0;
+                i = 1;
             } catch (NumberFormatException e) {
-                i = 0;
+                i = 1;
             }
             boolean success = false;
             //todo make regex match

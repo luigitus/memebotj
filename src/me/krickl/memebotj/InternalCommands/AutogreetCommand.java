@@ -9,7 +9,7 @@ public class AutogreetCommand extends CommandHandler {
 	public AutogreetCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setAccess("moderators");
-		this.setNeededCommandPower(25);
+		this.setNeededCommandPower(0);
 		this.setHelptext("Syntax: !autogreet <add/remove/get> <name>");
 	}
 
@@ -26,7 +26,7 @@ public class AutogreetCommand extends CommandHandler {
 				user = new UserHandler(nameToModify, this.getChannelOrigin());
 			}
 
-			if (data[0].equals("add") || data[0].equals("edit")) {
+			if ((data[0].equals("add") || data[0].equals("edit")) && CommandHandler.checkPermission(sender.getUsername(), 25, channelHandler.getUserList())) {
 				String newValue = data[2];
 				for (int x = 3; x < data.length; x++) {
 					newValue = newValue + " " + data[x];
@@ -39,7 +39,7 @@ public class AutogreetCommand extends CommandHandler {
 				} else {
 					message = "Autogreet was not added because this user never entered this chatroom";
 				}
-			} else if (data[0].equals("remove")) {
+			} else if (data[0].equals("remove") && CommandHandler.checkPermission(sender.getUsername(), 25, channelHandler.getUserList())) {
 				if (channelHandler.getAutogreetList().containsKey(nameToModify)) {
 					channelHandler.getAutogreetList().remove(nameToModify);
 				} else if(!user.isNewUser()) {

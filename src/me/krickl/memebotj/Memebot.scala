@@ -172,6 +172,7 @@ object Memebot {
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL)
 		Memebot.useWeb = config.getProperty("useweb", Memebot.useWeb.toString()).toString().toBoolean
 		Memebot.apiMasterKey = config.getOrDefault("apimasterkey", Memebot.apiMasterKey).toString()
+		Memebot.apiport = config.getOrDefault("apiport", Memebot.apiport).toString.toInt
 
 		if(Memebot.isBotMode) {
 			// shutdown hook
