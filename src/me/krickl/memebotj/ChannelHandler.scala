@@ -314,6 +314,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
 
+  this.internalCommands.add(new BobRossCommand(this.channel, "!bobross", "#internal#"))
+
   /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 
   fileNameListCommand.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#",
