@@ -16,6 +16,9 @@ import com.mongodb.client.MongoCollection
 
 import scala.beans.BeanProperty
 
+//remove if not needed
+import scala.collection.JavaConversions._
+
 object CommandHandler {
 	final val log = Logger.getLogger(CommandHandler.getClass.getName)
 
@@ -104,7 +107,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   var success = false
 
 	@BeanProperty
-  var otherData = new util.HashMap[String, String]() //todo write this to database
+  var otherData = new util.HashMap[String, String]()
 
 	private var commandCollection: MongoCollection[Document] = null
 	private var commandScript: String = ""
@@ -191,7 +194,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				} else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername(), this.neededModCommandPower, userList)) {
 					try {
 						this.listContent.remove(Integer.parseInt(data(2)))
-						formattedOutput = "Removed."
+						formattedOutput = "Removed"
 					} catch {
 						case e: IndexOutOfBoundsException => {
 							formattedOutput = e.toString
@@ -471,6 +474,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
     val channelQuery = new Document("_id", this.command)
 
+    val otherDataDocument = new Document()
+    for (key <- this.otherData.keySet()) {
+      otherDataDocument.append(key, this.otherData.get(key))
+    }
+
     val channelData = new Document("_id", this.command).append("command", this.command)
 				.append("cooldown", new Integer(this.cooldown.getCooldownLen())).append("access", this.access)
 				.append("helptext", this.helptext).append("param", new Integer(this.param))
@@ -495,6 +503,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         .append("execcounter", this.execCounter)
         .append("listregex", this.listregex)
         .append("case", this.caseSensitive)
+        .append("otherdata", otherDataDocument)
 
 		try {
 			if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -565,6 +574,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.execCounter = channelData.getOrDefault("execcounter", this.execCounter.toString).toString.toInt
       this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
       this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
+      //otherdata are used to store data that are used for internal commands
+      val otherDataDocument = channelData.getOrDefault("otherdata", new Document()).asInstanceOf[Document]
+
+      for (key <- otherDataDocument.keySet()) {
+        this.otherData.put(key, otherDataDocument.getString(key))
+      }
 		}
 	}
 

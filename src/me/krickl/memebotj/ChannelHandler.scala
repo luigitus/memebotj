@@ -256,7 +256,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new AutogreetCommand(this.channel, "!autogreet", "#internal#"))
 
-  this.internalCommands.add(new EditChannel(this.channel, "!editchannel", "#internal#"))
+  this.internalCommands.add(new EditChannel(this.channel, "!channel", "#internal#"))
 
   //this.internalCommands.add(new EditCommand(this.channel, "!editcommand", "#internal#"))
 
@@ -292,7 +292,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new SpeedrunCommand(this.channel, "!run", "#internal#"))
 
-  this.internalCommands.add(new EditUserCommand(this.channel, "!edituser", "#internal#"))
+  this.internalCommands.add(new EditUserCommand(this.channel, "!user", "#internal#"))
 
   this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"))
 
@@ -313,6 +313,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   this.internalCommands.add(new UptimeCommand(this.channel, "!uptime", "#internal#"))
 
   this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
+
+  this.internalCommands.add(new BobRossCommand(this.channel, "!bobross", "#internal#"))
 
   /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 
@@ -440,23 +442,21 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       bw.write("</td>")
       bw.write("</tr>")
       for (ch <- this.internalCommands) {
-        if (ch.isExcludeFromCommandList) {
+        if (ch.isExcludeFromCommandList()) {
           //continue
         }
         bw.write("<tr>")
         bw.write("<td>")
         if (ch.getCmdtype == "list") {
-          bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.getCommand, "UTF-8") +
+          bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.getCommand(), "UTF-8") +
             ".html\">" +
             ch.getCommand +
             "</a>")
-          val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + URLEncoder.encode(ch.getCommand,
-            "UTF-8") +
-            ".html"))
+          val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + URLEncoder.encode(ch.getCommand(), "UTF-8") + ".html"))
           bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>")
           bwq.write("<html>")
           bwq.write("<h1>")
-          bwq.write(ch.getCommand)
+          bwq.write(ch.getCommand())
           bwq.write("</h1>")
           bwq.write("<table style=\"width:100%\">")
           bwq.write("<tr>")

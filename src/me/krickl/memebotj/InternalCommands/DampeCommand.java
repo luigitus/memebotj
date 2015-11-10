@@ -48,8 +48,9 @@ public class DampeCommand extends CommandHandler {
 
         sender.setPoints(sender.getPoints() - wage);
 
-		//happy now Luigitus?
-		SecureRandom ran = new SecureRandom();
+		//happy now Luigitus? - removed secure random to make dampe less random
+		//SecureRandom ran = new SecureRandom();
+        Random ran = new Random();
         int range = 1000;
 		int outcome = ran.nextInt(range - (int)wage/4);
         if (outcome <= 3) {
