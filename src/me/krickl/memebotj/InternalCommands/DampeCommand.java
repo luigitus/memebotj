@@ -17,6 +17,7 @@ public class DampeCommand extends CommandHandler {
         this.setListContent(new ArrayList<String>());
         this.setPointCost(0);
 		this.setNeededCommandPower(0);
+        this.setCmdtype("default");
 	}
 
 	@Override

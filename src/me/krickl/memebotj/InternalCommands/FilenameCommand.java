@@ -56,13 +56,13 @@ public class FilenameCommand extends CommandHandler {
             boolean success = false;
             //todo make regex match
             if (data[0].matches(this.listregex()) || data[0].length() <= channelHandler.getMaxFileNameLen()) {
-                if (!this.checkCost(sender, 100.0d * (i + 1), channelHandler)) {
-                    channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f * (i + 1),
+                if (!this.checkCost(sender, 100.0d * (i), channelHandler)) {
+                    channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f * (i),
                             channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
                 } else {
                     channelHandler.sendMessage(String.format("%s added name %s %s times", sender.getUsername(), data[0], Integer.toString(i)), this.getChannelOrigin());
 
-                    sender.setPoints(sender.getPoints() - (100 * (i + 1)));
+                    sender.setPoints(sender.getPoints() - (100 * (i)));
                     success = true;
                 }
             } else {

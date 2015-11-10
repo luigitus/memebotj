@@ -356,7 +356,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     success = false
 		try {
 			if (modType.equals("name")) {
+        this.removeDBCommand()
 				this.command = newValue
+        this.writeDBCommand()
 				success = true
 			} else if (modType.equals("param")) {
 				this.param = Integer.parseInt(newValue)

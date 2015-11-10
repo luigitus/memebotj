@@ -11,8 +11,10 @@ class BobRossCommand(channel: String, command: String, dbprefix: String) extends
   this.setListContent(new ArrayList[String]())
   this.setCmdtype("list")
   this.setQuotePrefix("")
+  this.setQuoteSuffix(" KappaRoss")
   this.setUserCooldownLen(60)
   this.setNeededCooldownBypassPower(75)
+  this.setAllowPicksFromList(true)
 
   this.listContent.add("There's nothing wrong with having a tree as a friend.")
   this.listContent.add("The secret to doing anything is believing that you can do it. Anything that you believe you can do strong enough, you can do. Anything. As long as you believe.")

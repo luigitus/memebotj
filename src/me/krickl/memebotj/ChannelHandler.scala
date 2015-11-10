@@ -54,6 +54,7 @@ import me.krickl.memebotj.InternalCommands.SendMessageCommand
 import me.krickl.memebotj.InternalCommands.SpeedrunCommand
 import me.krickl.memebotj.InternalCommands.UptimeCommand
 import me.krickl.memebotj.InternalCommands.WhoisCommand
+import me.krickl.memebotj.InternalCommands.BobRossCommand
 import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
 import util.control.Breaks._
