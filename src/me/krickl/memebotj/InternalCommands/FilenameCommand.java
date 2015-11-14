@@ -44,6 +44,19 @@ public class FilenameCommand extends CommandHandler {
 			} else if(data[0].equals("list")) {
                 channelHandler.sendMessage(channelHandler.getChannelPageBaseURL() + "/filenames.html", this.channelOrigin());
                 return;
+            } else if(data[0].equals("remove") && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(),
+                    channelHandler.getUserList())) {
+                int counter = 0;
+                for(int i = channelHandler.getFileNameList().size() - 1; i >= 0 ; i--) {
+                    String name = channelHandler.getFileNameList().get(i).split("#")[0];
+                    if(data[1].equals(name)) {
+                        channelHandler.getFileNameList().remove(i);
+                        counter++;
+                    }
+                }
+
+                channelHandler.sendMessage(String.format("Removed %d names", counter), this.getChannelOrigin());
+                return;
             }
             int i = 1;
             try {
