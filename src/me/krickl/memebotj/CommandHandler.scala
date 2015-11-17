@@ -522,12 +522,17 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		if (!Memebot.useMongo) {
 			return
 		}
+		try {
+      val channelQuery = new Document("_id", this.command)
+      val cursor: FindIterable[Document] = this.commandCollection.find(channelQuery)
 
-    val channelQuery = new Document("_id", this.command)
-    val cursor: FindIterable[Document] = this.commandCollection.find(channelQuery)
-
-    val channelData = cursor.first()
-		this.commandCollection.deleteOne(channelData)
+      val channelData = cursor.first()
+      this.commandCollection.deleteOne(channelData)
+    } catch {
+      case e: java.lang.IllegalArgumentException => {
+        e.printStackTrace()
+      }
+    }
 	}
 
 	def readDBCommand() {

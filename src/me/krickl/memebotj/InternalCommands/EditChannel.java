@@ -68,7 +68,7 @@ public class EditChannel extends CommandHandler {
 					channelHandler.getBuiltInStrings().put(data[0], newEntry);
 				} else {
 					channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("CHCHANNEL_SYNTAX")
-							.replace("{param1}", "coming soon"), this.getChannelOrigin());
+							.replace("{param1}", "!channel <option> <new value>"), this.getChannelOrigin());
 				}
 			}
 

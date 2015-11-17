@@ -64,7 +64,7 @@ object Memebot {
 
 	var ircServer: String = "irc.twitch.tv"
 	var ircport: Int = 6667
-	var apiport: Int = 9877
+	var apiport: Int = 6532
 	var mongoHost: String = "localhost"
 	var mongoPort: Int = 27017
 	var apiMasterKey: String = "debug::key"
@@ -107,7 +107,7 @@ object Memebot {
 
 	var isBotMode: Boolean = true
 
-	var apiConnection = new APIConnectionHandler(Memebot.apiport)
+	var apiConnection: APIConnectionHandler = null
 
 	// final ConsoleHandler ch = new ConsoleHandler()
 
@@ -241,6 +241,8 @@ object Memebot {
 				val channel: String = it.next
 				Memebot.joinChannel(channel)
 			}
+
+      this.apiConnection = new APIConnectionHandler(Memebot.apiport)
 			//start api thread
 			apiConnection.start()
 

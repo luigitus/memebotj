@@ -22,39 +22,10 @@ import org.json.simple.parser.JSONParser
 import org.json.simple.parser.ParseException
 import com.mongodb.Block
 import com.mongodb.client.MongoCollection
-import me.krickl.memebotj.InternalCommands.APIInformationCommand
-import me.krickl.memebotj.InternalCommands.AboutCommand
+import me.krickl.memebotj.InternalCommands._
 //import me.krickl.memebotj.InternalCommands.AddCommandHandler
-import me.krickl.memebotj.InternalCommands.AliasCommand
-import me.krickl.memebotj.InternalCommands.AutogreetCommand
-import me.krickl.memebotj.InternalCommands.ChannelInfoCommand
-import me.krickl.memebotj.InternalCommands.CommandList
-import me.krickl.memebotj.InternalCommands.CommandManager
-import me.krickl.memebotj.InternalCommands.DampeCommand
-import me.krickl.memebotj.InternalCommands.DebugCommand
 //import me.krickl.memebotj.InternalCommands.DeletCommandHandler
-import me.krickl.memebotj.InternalCommands.EditChannel
 //import me.krickl.memebotj.InternalCommands.EditCommand
-import me.krickl.memebotj.InternalCommands.EditUserCommand
-import me.krickl.memebotj.InternalCommands.FilenameCommand
-import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand
-import me.krickl.memebotj.InternalCommands.HelpCommand
-import me.krickl.memebotj.InternalCommands.HugCommand
-import me.krickl.memebotj.InternalCommands.HypeCommand
-import me.krickl.memebotj.InternalCommands.JoinCommand
-import me.krickl.memebotj.InternalCommands.ModeratorsCommand
-import me.krickl.memebotj.InternalCommands.MujuruGame
-import me.krickl.memebotj.InternalCommands.PartCommand
-import me.krickl.memebotj.InternalCommands.PointsCommand
-import me.krickl.memebotj.InternalCommands.PyramidCommand
-import me.krickl.memebotj.InternalCommands.QuitCommand
-import me.krickl.memebotj.InternalCommands.RaceCommand
-import me.krickl.memebotj.InternalCommands.SaveCommand
-import me.krickl.memebotj.InternalCommands.SendMessageCommand
-import me.krickl.memebotj.InternalCommands.SpeedrunCommand
-import me.krickl.memebotj.InternalCommands.UptimeCommand
-import me.krickl.memebotj.InternalCommands.WhoisCommand
-import me.krickl.memebotj.InternalCommands.BobRossCommand
 import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
 import util.control.Breaks._
@@ -316,6 +287,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
 
   this.internalCommands.add(new BobRossCommand(this.channel, "!bobross", "#internal#"))
+
+  this.internalCommands.add(new BKTWVEAAAVBMOFSRCCommand(this.channel, "!BKTWVEAAAVBMOFSRC", "#internal#"))
 
   /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 

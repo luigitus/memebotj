@@ -90,6 +90,7 @@ public class FilenameCommand extends CommandHandler {
 
 			channelHandler.writeDBChannelData();
 		} catch (ArrayIndexOutOfBoundsException e) {
+            channelHandler.sendMessage(this.helptext(), this.getChannelOrigin());
             e.printStackTrace();
 		} catch (java.lang.IllegalArgumentException e) {
             e.printStackTrace();
