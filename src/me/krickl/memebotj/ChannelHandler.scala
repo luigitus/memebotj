@@ -290,6 +290,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new BKTWVEAAAVBMOFSRCCommand(this.channel, "!BKTWVEAAAVBMOFSRC", "#internal#"))
 
+  this.internalCommands.add(new SimonsQuestCommand(this.channel, "!simonsquest", "#internal#"))
+
   /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 
   fileNameListCommand.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#",
@@ -842,18 +844,22 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           }
         }
       } else if (ircmsgList(1) == "CLEARCHAT") {
-        if (this.userList.containsKey(ircmsgList(3).replace(":", ""))) {
-          this.userList.get(ircmsgList(3).replace(":", "")).setTimeouts(this.userList.get(ircmsgList(3).replace(":",
-            "")).getTimeouts +
-            1)
-          this.userList.get(ircmsgList(3).replace(":", "")).writeDBUserData()
-        } else {
-          val uh = new UserHandler(ircmsgList(3).replace(":", ""), this.channel)
-          if (!uh.isNewUser) {
-            uh.setTimeouts(uh.getTimeouts + 1)
-            uh.writeDBUserData()
+        try {
+          if (this.userList.containsKey(ircmsgList(3).replace(":", ""))) {
+            this.userList.get(ircmsgList(3).replace(":", "")).setTimeouts(this.userList.get(ircmsgList(3).replace(":",
+              "")).getTimeouts +
+              1)
+            this.userList.get(ircmsgList(3).replace(":", "")).writeDBUserData()
+          } else {
+            val uh = new UserHandler(ircmsgList(3).replace(":", ""), this.channel)
+            if (!uh.isNewUser) {
+              uh.setTimeouts(uh.getTimeouts + 1)
+              uh.writeDBUserData()
+            }
           }
         }
+      } catch {
+        case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
       }
     } else {
       if (ircTags.containsKey("user-type")) {
@@ -864,6 +870,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           sender.setMod(false)
           sender.setCommandPower(10)
         }
+      } else {
+        sender.setMod(false)
+        sender.setCommandPower(10)
       }
       if (sender.getUsername.equalsIgnoreCase(this.broadcaster)) {
         sender.setMod(true)

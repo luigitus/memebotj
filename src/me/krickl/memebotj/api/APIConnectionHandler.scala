@@ -64,7 +64,7 @@ class APIConnectionHandler(port: Int) extends Runnable {
 		val packet = new DatagramPacket(data, data.length)
 		try {
 			socket.receive(packet)
-			dataReturn(0) = new String(packet.getData).replace("\0", "").replace("\n", "")
+			dataReturn(0) = new String(packet.getData).replace("\u0000", "").replace("\n", "")
 			dataReturn(1) = packet.getAddress.toString
 			dataReturn(2) = java.lang.Integer.toString(packet.getPort)
 		} catch {

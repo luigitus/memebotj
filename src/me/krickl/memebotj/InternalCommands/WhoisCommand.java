@@ -30,7 +30,7 @@ public class WhoisCommand extends CommandHandler {
 			channelHandler.sendMessage(uh.getUsername() + " || Broadcaster: " + Boolean.toString(uh.isBroadcaster())
 					+ " || Mod: " + Boolean.toString(uh.isMod()) + " || Command Power: "
 					+ Integer.toString(uh.getCommandPower()) + " || Timeouts: " + Integer.toString(uh.getTimeouts())
-					+ " || Is known user: " + Boolean.toString(!uh.isNewUser()) + " || " + uh.getModNote() + " || Is user a cat: " + Boolean.toString(isCat), this.getChannelOrigin());
+					+ " || Is known user: " + Boolean.toString(!uh.isNewUser()) + " || Date joined: " + uh.getDateJoined() + " || Is user a cat: " + Boolean.toString(isCat), this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
 
 		}

@@ -2,7 +2,8 @@ package me.krickl.memebotj
 
 import java.math.BigInteger
 import java.security.SecureRandom
-import java.util.HashMap
+import java.text.SimpleDateFormat
+import java.util.{Calendar, HashMap}
 import java.util.logging.Logger
 
 import org.bson.Document
@@ -43,6 +44,10 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	private var privateKey = new BigInteger(130, random).toString(32)
 
   @BeanProperty
+  var dateJoined = "null"
+  var timeStampJoined = System.currentTimeMillis()
+
+  @BeanProperty
   var enableAutogreets = true
 
 	if (Memebot.useMongo) {
@@ -51,6 +56,13 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
 	// this.loadUserData()
 	readDBUserData()
+
+  if(dateJoined == "null") {
+    val sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a")// dd/MM/yyyy
+    val cal = Calendar.getInstance()
+    this.dateJoined = sdfDate.format(cal.getTime)
+  }
+
 	setCommandPower(this.autoCommandPower)
 
 	UserHandler.log.info(String.format("Private key for user %s is %s", this.username, this.privateKey))
@@ -71,6 +83,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 				.append("timeouts", this.timeouts)
 				.append("privatekey", this.privateKey)
         .append("enableautogreet", this.enableAutogreets)
+        .append("datejoined", this.dateJoined)
+        .append("timeStampJoined", this.timeStampJoined)
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -102,6 +116,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 			this.timeouts = channelData.getOrDefault("timeouts", this.timeouts.asInstanceOf[Object]).asInstanceOf[Int]
 			this.privateKey = channelData.getOrDefault("privatekey", this.privateKey.asInstanceOf[Object]).asInstanceOf[String]
       this.enableAutogreets = channelData.getOrDefault("enableautogreet", this.enableAutogreets.toString).toString.toBoolean
+      this.dateJoined = channelData.getOrDefault("datejoined", this.dateJoined).toString
+      this.timeStampJoined = channelData.getOrDefault("timeStampJoined", this.timeStampJoined.asInstanceOf[Object]).asInstanceOf[Long]
 		} else {
 			this.newUser = true
 		}
