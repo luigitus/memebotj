@@ -857,9 +857,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
               uh.writeDBUserData()
             }
           }
+        } catch {
+          case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
         }
-      } catch {
-        case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
       }
     } else {
       if (ircTags.containsKey("user-type")) {
