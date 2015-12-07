@@ -22,38 +22,7 @@ import org.json.simple.parser.JSONParser
 import org.json.simple.parser.ParseException
 import com.mongodb.Block
 import com.mongodb.client.MongoCollection
-import me.krickl.memebotj.InternalCommands.APIInformationCommand
-import me.krickl.memebotj.InternalCommands.AboutCommand
-//import me.krickl.memebotj.InternalCommands.AddCommandHandler
-import me.krickl.memebotj.InternalCommands.AliasCommand
-import me.krickl.memebotj.InternalCommands.AutogreetCommand
-import me.krickl.memebotj.InternalCommands.ChannelInfoCommand
-import me.krickl.memebotj.InternalCommands.CommandList
-import me.krickl.memebotj.InternalCommands.CommandManager
-import me.krickl.memebotj.InternalCommands.DampeCommand
-import me.krickl.memebotj.InternalCommands.DebugCommand
-//import me.krickl.memebotj.InternalCommands.DeletCommandHandler
-import me.krickl.memebotj.InternalCommands.EditChannel
-//import me.krickl.memebotj.InternalCommands.EditCommand
-import me.krickl.memebotj.InternalCommands.EditUserCommand
-import me.krickl.memebotj.InternalCommands.FilenameCommand
-import me.krickl.memebotj.InternalCommands.GiveAwayPollCommand
-import me.krickl.memebotj.InternalCommands.HelpCommand
-import me.krickl.memebotj.InternalCommands.HugCommand
-import me.krickl.memebotj.InternalCommands.HypeCommand
-import me.krickl.memebotj.InternalCommands.JoinCommand
-import me.krickl.memebotj.InternalCommands.ModeratorsCommand
-import me.krickl.memebotj.InternalCommands.MujuruGame
-import me.krickl.memebotj.InternalCommands.PartCommand
-import me.krickl.memebotj.InternalCommands.PointsCommand
-import me.krickl.memebotj.InternalCommands.PyramidCommand
-import me.krickl.memebotj.InternalCommands.QuitCommand
-import me.krickl.memebotj.InternalCommands.RaceCommand
-import me.krickl.memebotj.InternalCommands.SaveCommand
-import me.krickl.memebotj.InternalCommands.SendMessageCommand
-import me.krickl.memebotj.InternalCommands.SpeedrunCommand
-import me.krickl.memebotj.InternalCommands.UptimeCommand
-import me.krickl.memebotj.InternalCommands.WhoisCommand
+import me.krickl.memebotj.InternalCommands._
 import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
 import util.control.Breaks._
@@ -118,6 +87,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var streamStartTime: Int = 0
 
+  @Deprecated
   @BeanProperty
   var builtInStrings: HashMap[String, String] = new HashMap[String, String]()
 
@@ -191,6 +161,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   @BeanProperty
   var silentMode = false
+
+  @BeanProperty
+  var spamPrevention = false
+
+  @BeanProperty
+  var spamTimeout = -1
 
   ChannelHandler.getLog.info("Joining channel " + this.channel)
 
@@ -315,6 +291,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
 
   this.internalCommands.add(new BobRossCommand(this.channel, "!bobross", "#internal#"))
+
+  this.internalCommands.add(new BKTWVEAAAVBMOFSRCCommand(this.channel, "!BKTWVEAAAVBMOFSRC", "#internal#"))
+
+  this.internalCommands.add(new SimonsQuestCommand(this.channel, "!simonsquest", "#internal#"))
+
+  this.internalCommands.add(new RestartThreadCommand(this.channel, "!restartt", "#internal#"))
 
   /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 
@@ -618,6 +600,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
       this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
+      this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
+      this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }
@@ -664,6 +648,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("urlreges", this.urlRegex)
       .append("alias", this.aliasList)
       .append("silent", this.silentMode)
+      .append("preventspam", this.spamPrevention)
+      .append("spamtimeout", this.spamTimeout)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -868,17 +854,21 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           }
         }
       } else if (ircmsgList(1) == "CLEARCHAT") {
-        if (this.userList.containsKey(ircmsgList(3).replace(":", ""))) {
-          this.userList.get(ircmsgList(3).replace(":", "")).setTimeouts(this.userList.get(ircmsgList(3).replace(":",
-            "")).getTimeouts +
-            1)
-          this.userList.get(ircmsgList(3).replace(":", "")).writeDBUserData()
-        } else {
-          val uh = new UserHandler(ircmsgList(3).replace(":", ""), this.channel)
-          if (!uh.isNewUser) {
-            uh.setTimeouts(uh.getTimeouts + 1)
-            uh.writeDBUserData()
+        try {
+          if (this.userList.containsKey(ircmsgList(3).replace(":", ""))) {
+            this.userList.get(ircmsgList(3).replace(":", "")).setTimeouts(this.userList.get(ircmsgList(3).replace(":",
+              "")).getTimeouts +
+              1)
+            this.userList.get(ircmsgList(3).replace(":", "")).writeDBUserData()
+          } else {
+            val uh = new UserHandler(ircmsgList(3).replace(":", ""), this.channel)
+            if (!uh.isNewUser) {
+              uh.setTimeouts(uh.getTimeouts + 1)
+              uh.writeDBUserData()
+            }
           }
+        } catch {
+          case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
         }
       }
     } else {
@@ -890,6 +880,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           sender.setMod(false)
           sender.setCommandPower(10)
         }
+      } else {
+        sender.setMod(false)
+        sender.setCommandPower(10)
       }
       if (sender.getUsername.equalsIgnoreCase(this.broadcaster)) {
         sender.setMod(true)
@@ -987,7 +980,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   override def run() {
-    while (this.isJoined) {
+    while(this.isJoined) {
       var ircmsg = Array("", "")
       try {
         ircmsg = this.connection.recvData()

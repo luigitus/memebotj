@@ -20,43 +20,43 @@ class SpeedrunCommand(channel: String, command: String, dbprefix: String) extend
 
     var runnerList: ArrayList[String] = new ArrayList[String]()
     this.setListContent(new ArrayList[String]())
-    this.setQuotePrefix("")
+    this.setQuotePrefix("WR")
     this.setUserCooldownLen(60)
     this.setNeededCooldownBypassPower(75)
 
-    this.listContent.add("WR is 4:20:69 by {runner}")
+    this.listContent.add(" is 4:20:69 by {runner}")
 
-    this.listContent.add("WR is 69 rupees by {runner}")
+    this.listContent.add(" is 69 rupees by {runner}")
 
-    this.listContent.add("WR is not getting Dampé Heart Piece at all by {runner}")
+    this.listContent.add(" is not getting Dampé Heart Piece at all by {runner}")
 
-    this.listContent.add("WR is 400 resets by {runner}")
+    this.listContent.add(" is 400 resets by {runner}")
 
-    this.listContent.add("WR is sub Bob by {runner}")
+    this.listContent.add(" is sub Bob by {runner}")
 
-    this.listContent.add("WR is sub MrDestructoid by {runner}")
+    this.listContent.add(" is sub MrDestructoid by {runner}")
 
-    this.listContent.add("WR is 69 HMS resets by {runner}")
+    this.listContent.add(" is 69 HMS resets by {runner}")
 
-    this.listContent.add("WR is having WR in ben% by {runner}")
+    this.listContent.add(" is having WR in ben% by {runner}")
 
-    this.listContent.add("WR is 20 hours at lullaby skip by {runner}")
+    this.listContent.add(" is 20 hours at lullaby skip by {runner}")
 
-    this.listContent.add("WR is 200% more leg shakes by {runner}")
+    this.listContent.add(" is 200% more leg shakes by {runner}")
 
-    this.listContent.add("WR is -20 seonds by {runner}")
+    this.listContent.add(" is -20 seonds by {runner}")
 
-    this.listContent.add("WR is done on emulator by {runner}")
+    this.listContent.add(" is done on emulator by {runner}")
 
-    this.listContent.add("WR is free by {runner}")
+    this.listContent.add(" is free by {runner}")
 
-    this.listContent.add("WR is sub 5 by {runner}")
+    this.listContent.add(" is sub 5 by {runner}")
 
-    this.listContent.add("WR is 5 antlers by {runner}")
+    this.listContent.add(" is 5 antlers by {runner}")
 
-    this.listContent.add("WR is 2 Gigabytes of porn by {runner}")
+    this.listContent.add(" is 2 Gigabytes of porn by {runner}")
 
-    this.listContent.add("WR is 90% downtime of Teamspeak by {runner}")
+    this.listContent.add(" is 90% downtime of Teamspeak by {runner}")
 
     this.runnerList.add("zfg1")
 
@@ -146,7 +146,7 @@ class SpeedrunCommand(channel: String, command: String, dbprefix: String) extend
                 val ran = new Random()
                 val wrPick = ran.nextInt(this.listContent.size)
                 val runnerPick = ran.nextInt(this.runnerList.size)
-                channelHandler.sendMessage(this.listContent.get(wrPick).replace("{runner}", this.runnerList.get(runnerPick)),
+                channelHandler.sendMessage(this.quotePrefix + this.listContent.get(wrPick).replace("{runner}", this.runnerList.get(runnerPick)),
                     this.getChannelOrigin)
             }
             case e: MalformedURLException => e.printStackTrace()

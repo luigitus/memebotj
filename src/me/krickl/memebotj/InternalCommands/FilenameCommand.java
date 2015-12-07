@@ -44,6 +44,19 @@ public class FilenameCommand extends CommandHandler {
 			} else if(data[0].equals("list")) {
                 channelHandler.sendMessage(channelHandler.getChannelPageBaseURL() + "/filenames.html", this.channelOrigin());
                 return;
+            } else if(data[0].equals("remove") && CommandHandler.checkPermission(sender.getUsername(), this.getNeededBroadcasterCommandPower(),
+                    channelHandler.getUserList())) {
+                int counter = 0;
+                for(int i = channelHandler.getFileNameList().size() - 1; i >= 0 ; i--) {
+                    String name = channelHandler.getFileNameList().get(i).split("#")[0];
+                    if(data[1].equals(name)) {
+                        channelHandler.getFileNameList().remove(i);
+                        counter++;
+                    }
+                }
+
+                channelHandler.sendMessage(String.format("Removed %d names", counter), this.getChannelOrigin());
+                return;
             }
             int i = 1;
             try {
@@ -56,13 +69,13 @@ public class FilenameCommand extends CommandHandler {
             boolean success = false;
             //todo make regex match
             if (data[0].matches(this.listregex()) || data[0].length() <= channelHandler.getMaxFileNameLen()) {
-                if (!this.checkCost(sender, 100.0d * (i + 1), channelHandler)) {
-                    channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f * (i + 1),
+                if (!this.checkCost(sender, 100.0d * (i), channelHandler)) {
+                    channelHandler.sendMessage(String.format("Sorry, you don't have %.2f %s", 100f * (i),
                             channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
                 } else {
                     channelHandler.sendMessage(String.format("%s added name %s %s times", sender.getUsername(), data[0], Integer.toString(i)), this.getChannelOrigin());
 
-                    sender.setPoints(sender.getPoints() - (100 * (i + 1)));
+                    sender.setPoints(sender.getPoints() - (100 * (i)));
                     success = true;
                 }
             } else {
@@ -77,6 +90,7 @@ public class FilenameCommand extends CommandHandler {
 
 			channelHandler.writeDBChannelData();
 		} catch (ArrayIndexOutOfBoundsException e) {
+            channelHandler.sendMessage(this.helptext(), this.getChannelOrigin());
             e.printStackTrace();
 		} catch (java.lang.IllegalArgumentException e) {
             e.printStackTrace();

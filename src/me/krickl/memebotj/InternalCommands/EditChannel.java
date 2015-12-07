@@ -63,12 +63,16 @@ public class EditChannel extends CommandHandler {
 				}
 			} else if(data[0].equals("silent")) {
 				channelHandler.setSilentMode(Boolean.parseBoolean(data[1]));
-			} else {
+			} else if(data[0].equals("preventspam")) {
+                channelHandler.setSpamPrevention(Boolean.parseBoolean(data[1]));
+			}else if(data[0].equals("spamtimeout")) {
+                channelHandler.setSpamTimeout(Integer.parseInt(data[1]));
+            } else {
 				if (channelHandler.getBuiltInStrings().containsKey(data[0])) {
 					channelHandler.getBuiltInStrings().put(data[0], newEntry);
 				} else {
 					channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("CHCHANNEL_SYNTAX")
-							.replace("{param1}", "coming soon"), this.getChannelOrigin());
+							.replace("{param1}", "!channel <option> <new value>"), this.getChannelOrigin());
 				}
 			}
 

@@ -16,11 +16,17 @@ import scala.collection.mutable._
 //remove if not needed
 import scala.collection.JavaConversions._
 
+
 object APIConnectionHandler {
 
 	private val log = Logger.getLogger(classOf[APIConnectionHandler].getName)
 }
 
+/** *
+  * This is version 1 of the API. Major changes will happen in the future.
+  * As of now the API is very experimental.
+  * @param port
+  */
 class APIConnectionHandler(port: Int) extends Runnable {
 
 	private var socket: DatagramSocket = null
@@ -36,7 +42,7 @@ class APIConnectionHandler(port: Int) extends Runnable {
 	}
 
 	def sendData(data: String, ip: String, port: Int, channel: ChannelHandler) {
-		var dataBytes = Array.ofDim[Byte](1024)
+		var dataBytes = Array.ofDim[Byte](64000)
     var IPAddress: InetAddress = null
     try {
       IPAddress = InetAddress.getByName(ip)
@@ -54,12 +60,12 @@ class APIConnectionHandler(port: Int) extends Runnable {
 	}
 
 	def receiveData(): Array[String] = {
-		val data = Array.ofDim[Byte](1024)
+		val data = Array.ofDim[Byte](64000)
 		val dataReturn = Array.ofDim[String](3)
 		val packet = new DatagramPacket(data, data.length)
 		try {
 			socket.receive(packet)
-			dataReturn(0) = new String(packet.getData)
+			dataReturn(0) = new String(packet.getData).replace("\u0000", "").replace("\n", "")
 			dataReturn(1) = packet.getAddress.toString
 			dataReturn(2) = java.lang.Integer.toString(packet.getPort)
 		} catch {
@@ -70,7 +76,7 @@ class APIConnectionHandler(port: Int) extends Runnable {
 	}
 
 	override def run() {
-		log.info("API running")
+		log.info("API running on port " + this.port.toString)
 		while (this.runapi) {
 			val data = this.receiveData()
 			val message = data(0)
@@ -105,6 +111,7 @@ class APIConnectionHandler(port: Int) extends Runnable {
         } else if (listedMessage.get("request").get == "commands") {
           var channelCommands = ""
           var internalCommands = ""
+					var channel = "null"
           for (ch <- Memebot.joinedChannels) {
             if (ch.getChannel == listedMessage.get("channel").get) {
               for (cmd <- ch.getChannelCommands) {
@@ -114,9 +121,11 @@ class APIConnectionHandler(port: Int) extends Runnable {
               for (cmd <- ch.getInternalCommands) {
                 internalCommands = internalCommands + cmd.getCommand() + ";"
               }
+
+              channel = ch.getChannel
             }
           }
-          this.sendData("pkey=apisource::sender=apisource::request=commands::message=Commands::channelcmds=" + channelCommands + "::internalcmds=" + internalCommands, ip, port, null)
+          this.sendData("pkey=apisource::sender=apisource::request=commands::message=Commands::channelcmds=" + channelCommands + "::internalcmds=" + internalCommands + "::channel=" + channel, ip, port, null)
           success = true
         }
       } catch {

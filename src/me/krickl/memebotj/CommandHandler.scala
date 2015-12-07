@@ -1,6 +1,7 @@
 package me.krickl.memebotj
 
-import java.net.URLEncoder
+import java.io.{InputStreamReader, BufferedReader}
+import java.net.{HttpURLConnection, URL, URLEncoder}
 import java.text.SimpleDateFormat
 import java.util
 import java.util.ArrayList
@@ -13,6 +14,8 @@ import org.bson.Document
 
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
+import org.json.simple.JSONObject
+import org.json.simple.parser.JSONParser
 
 import scala.beans.BeanProperty
 
@@ -211,6 +214,29 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 				} else if (data(1).equals("list")) {
 					formattedOutput = "List: " + channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
 					this.success = false
+
+				} else if(data(1).equals("clear") && CommandHandler.checkPermission(sender.getUsername(), 75, channelHandler.getUserList)) {
+          formattedOutput = "Cleared list. This cannot be undone."
+          this.listContent.clear()
+          this.success = true
+
+        } else if(data(1).equals("import_json")) {
+          formattedOutput = "Could not import json"
+          // todo fix later
+          try {
+            val url = new URL(data(2))
+            val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+            val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
+            var dataBuffer = ""
+            dataBuffer = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+            in.close()
+            this.success = true
+            val parser = new JSONParser()
+            val obj = parser.parse(dataBuffer).asInstanceOf[JSONObject]
+          } catch {
+            case e: IndexOutOfBoundsException => e.printStackTrace()
+          }
+
 				} else if(allowPicksFromList) {
 					try {
 						formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
@@ -356,7 +382,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     success = false
 		try {
 			if (modType.equals("name")) {
+        this.removeDBCommand()
 				this.command = newValue
+        this.writeDBCommand()
 				success = true
 			} else if (modType.equals("param")) {
 				this.param = Integer.parseInt(newValue)
@@ -520,12 +548,17 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 		if (!Memebot.useMongo) {
 			return
 		}
+		try {
+      val channelQuery = new Document("_id", this.command)
+      val cursor: FindIterable[Document] = this.commandCollection.find(channelQuery)
 
-    val channelQuery = new Document("_id", this.command)
-    val cursor: FindIterable[Document] = this.commandCollection.find(channelQuery)
-
-    val channelData = cursor.first()
-		this.commandCollection.deleteOne(channelData)
+      val channelData = cursor.first()
+      this.commandCollection.deleteOne(channelData)
+    } catch {
+      case e: java.lang.IllegalArgumentException => {
+        e.printStackTrace()
+      }
+    }
 	}
 
 	def readDBCommand() {

@@ -29,18 +29,20 @@ public class PointsCommand extends CommandHandler {
 
 					if (target != null && CommandHandler.checkPermission(
 							sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
-						double number = Double.parseDouble(data[2]);
-						if (data[0].equals("add")) {
-							target.setPoints(target.getPoints() + number);
-						} else if (data[0].equals("sub")) {
-							target.setPoints(target.getPoints() - number);
-						}
+                        double number = Double.parseDouble(data[2]);
+                        if (data[0].equals("add")) {
+                            target.setPoints(target.getPoints() + number);
+                        } else if (data[0].equals("sub")) {
+                            target.setPoints(target.getPoints() - number);
+                        } else if (data[0].equals("reset")) {
+                            target.setPoints(0.0);
+                        }
 
-						channelHandler.sendMessage(
-								String.format("%s your new total is: %.2f %s", target.getUsername(), target.getPoints(),
-										channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")),
-								this.getChannelOrigin());
-					}
+                        channelHandler.sendMessage(
+                                String.format("%s your new total is: %.2f %s", target.getUsername(), target.getPoints(),
+                                        channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")),
+                                this.getChannelOrigin());
+                    }
 				} catch (ArrayIndexOutOfBoundsException e) {
 					e.printStackTrace();
 				}
