@@ -9,6 +9,7 @@ public class WhoisCommand extends CommandHandler {
 	public WhoisCommand(String channel, String command, String dbprefix) {
 		super(channel, command, dbprefix);
 		this.setHelptext("Syntax: !whois <name>");
+		this.setNeededCommandPower(25);
 	}
 
 	@Override

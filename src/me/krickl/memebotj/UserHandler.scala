@@ -50,6 +50,9 @@ class UserHandler(usernameNew: String, channelNew: String) {
   @BeanProperty
   var enableAutogreets = true
 
+  //this will be used for spam prevention
+	var lastMessages = Array.ofDim[String](10)
+
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
 	}

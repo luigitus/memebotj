@@ -16,6 +16,7 @@ import scala.collection.mutable._
 //remove if not needed
 import scala.collection.JavaConversions._
 
+
 object APIConnectionHandler {
 
 	private val log = Logger.getLogger(classOf[APIConnectionHandler].getName)

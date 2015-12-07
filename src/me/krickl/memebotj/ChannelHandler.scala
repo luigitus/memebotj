@@ -23,9 +23,6 @@ import org.json.simple.parser.ParseException
 import com.mongodb.Block
 import com.mongodb.client.MongoCollection
 import me.krickl.memebotj.InternalCommands._
-//import me.krickl.memebotj.InternalCommands.AddCommandHandler
-//import me.krickl.memebotj.InternalCommands.DeletCommandHandler
-//import me.krickl.memebotj.InternalCommands.EditCommand
 import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
 import util.control.Breaks._
@@ -90,6 +87,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var streamStartTime: Int = 0
 
+  @Deprecated
   @BeanProperty
   var builtInStrings: HashMap[String, String] = new HashMap[String, String]()
 
@@ -163,6 +161,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   @BeanProperty
   var silentMode = false
+
+  @BeanProperty
+  var spamPrevention = false
+
+  @BeanProperty
+  var spamTimeout = -1
 
   ChannelHandler.getLog.info("Joining channel " + this.channel)
 
@@ -291,6 +295,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   this.internalCommands.add(new BKTWVEAAAVBMOFSRCCommand(this.channel, "!BKTWVEAAAVBMOFSRC", "#internal#"))
 
   this.internalCommands.add(new SimonsQuestCommand(this.channel, "!simonsquest", "#internal#"))
+
+  this.internalCommands.add(new RestartThreadCommand(this.channel, "!restartt", "#internal#"))
 
   /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
 
@@ -594,6 +600,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
       this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
+      this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
+      this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }
@@ -640,6 +648,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("urlreges", this.urlRegex)
       .append("alias", this.aliasList)
       .append("silent", this.silentMode)
+      .append("preventspam", this.spamPrevention)
+      .append("spamtimeout", this.spamTimeout)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -970,7 +980,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   override def run() {
-    while (this.isJoined) {
+    while(this.isJoined) {
       var ircmsg = Array("", "")
       try {
         ircmsg = this.connection.recvData()

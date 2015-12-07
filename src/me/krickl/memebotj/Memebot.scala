@@ -257,7 +257,6 @@ object Memebot {
 					}
 				}
 
-
 				try {
 					Thread.sleep(60000)
 				} catch {

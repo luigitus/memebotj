@@ -28,7 +28,8 @@ public class DampeCommand extends CommandHandler {
 		try {
             wage = Double.parseDouble(data[0]);
             if (wage < 100) {
-                wage = 100;
+				channelHandler.sendMessage("Sorry the wage can't be less than 100 " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"), this.getChannelOrigin());
+                return;
             }
 		} catch(ArrayIndexOutOfBoundsException e) {
 
