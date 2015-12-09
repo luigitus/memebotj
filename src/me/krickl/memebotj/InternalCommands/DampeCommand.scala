@@ -20,7 +20,9 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setCmdtype("default")
 
-  this.otherData.put("jackpot", "0")
+  if(!this.otherData.containsKey("jackpot")) {
+    this.otherData.put("jackpot", "0")
+  }
 
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
     var wage: Double = 20.0f

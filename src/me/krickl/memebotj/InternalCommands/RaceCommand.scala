@@ -11,6 +11,8 @@ class RaceCommand(channel: String, command: String, dbprefix: String) extends Co
 
 	this.setHelptext("Syntax: !race <channel1> <channel2> <channel3> ... || !race")
 
+	this.enable = false
+
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		if (data.length >= 1 &&
 				CommandHandler.checkPermission(sender.getUsername, this.getNeededModCommandPower, channelHandler.getUserList)) {
