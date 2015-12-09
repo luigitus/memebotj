@@ -57,7 +57,7 @@ public class PointsCommand extends CommandHandler {
                             if(this.checkCost(sender, number + tax, channelHandler)) {
                                 sender.setPoints(sender.getPoints() - (number + tax));
                                 target.setPoints(target.getPoints() + number);
-                                channelHandler.sendMessage(String.format("%s: You sent %.2f %s to %s", target.getUsername(), number,
+                                channelHandler.sendMessage(String.format("%s: You sent %.2f %s to %s", sender.getUsername(), number,
                                         channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"), target.getUsername()), this.getChannelOrigin());
                             }
                         } else {
