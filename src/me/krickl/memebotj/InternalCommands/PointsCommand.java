@@ -34,15 +34,32 @@ public class PointsCommand extends CommandHandler {
                             target.setPoints(target.getPoints() + number);
                         } else if (data[0].equals("sub")) {
                             target.setPoints(target.getPoints() - number);
-                        } else if (data[0].equals("reset")) {
-                            target.setPoints(0.0);
+                        } else if (data[0].equals("set")) {
+                            target.setPoints(number);
                         }
 
                         channelHandler.sendMessage(
                                 String.format("%s your new total is: %.2f %s", target.getUsername(), target.getPoints(),
                                         channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")),
                                 this.getChannelOrigin());
+                        this.setSuccess(true);
                     }
+
+                    if (target != null && !success()) {
+                        double number = Double.parseDouble(data[2]);
+                        double tax = number / 100 * 10;
+						if(data[0].equals("send")) {
+                            if(this.checkCost(sender, number + tax, channelHandler)) {
+                                sender.setPoints(sender.getPoints() - (number + tax));
+                                target.setPoints(target.getPoints() + number + tax);
+                                channelHandler.sendMessage(String.format("%s: You sent %.2f %s to %s", target.getUsername(), number + tax,
+                                        channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"), target.getUsername()), this.getChannelOrigin());
+                            }
+                        } else {
+                            channelHandler.sendMessage(String.format("%s: Sorry you don't have %.2f %s", target.getUsername(), number + tax,
+                                    channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
+                        }
+					}
 				} catch (ArrayIndexOutOfBoundsException e) {
 					e.printStackTrace();
 				}
