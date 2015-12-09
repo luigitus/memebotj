@@ -356,9 +356,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
 
     // send information to api
-    if (!channelHandler.getApiConnectionIP.equals("")) {
+    /*if (!channelHandler.getApiConnectionIP.equals("")) {
       //Memebot.apiConnection.sendData("pkey=apisourcesender=" + this.command + "request=commandmessage=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler)
-    }
+    }*/
 
     this.execCounter = this.execCounter + 1
 

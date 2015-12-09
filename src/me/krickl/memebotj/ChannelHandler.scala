@@ -233,7 +233,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new CommandManager(this.channel, "!command", "#internal#"))
 
-  this.internalCommands.add(new APIInformationCommand(this.channel, "!apiinfo", "#internal#"))
+  //this.internalCommands.add(new APIInformationCommand(this.channel, "!apiinfo", "#internal#"))
 
   this.internalCommands.add(new ChannelInfoCommand(this.channel, "!ci", "#internal#"))
 
