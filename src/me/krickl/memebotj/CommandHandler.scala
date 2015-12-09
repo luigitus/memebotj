@@ -651,7 +651,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.execCounter = channelData.getOrDefault("execcounter", this.execCounter.toString).toString.toInt
       this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
       this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
-      //otherdata are used to store data that are used for internal commands
+      //other data are used to store data that are used for internal commands
       val otherDataDocument = channelData.getOrDefault("otherdata", new Document()).asInstanceOf[Document]
 
       for (key <- otherDataDocument.keySet()) {

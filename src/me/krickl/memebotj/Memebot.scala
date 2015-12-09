@@ -42,7 +42,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.{Calendar, ArrayList, List, Properties}
+import java.util.{Calendar, Properties}
 import java.util.logging.Logger
 
 import org.bson.Document
@@ -71,7 +71,7 @@ object Memebot {
 	var mongoDBName: String = "memebot"
 	var home: String = System.getProperty("user.home")
 	var memebotDir: String = System.getProperty("user.home") + "/.memebot"
-	var htmlDir: String = "" // hard coded for now
+	var htmlDir: String = ""
 	var configFile: String = memebotDir + "/memebot.cfg"
 	var channelConfig: String = memebotDir + "/channels.cfg"
 	var botNick: String = null
