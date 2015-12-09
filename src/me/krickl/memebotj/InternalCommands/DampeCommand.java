@@ -31,6 +31,10 @@ public class DampeCommand extends CommandHandler {
             if(data[0].equals("jackpot")) {
                 channelHandler.sendMessage(String.format("Current jackpot: %.2f %s", this.getJackpot(), channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
                 return;
+            } else if(data[0].equals("reset") && CommandHandler.checkPermission(sender.getUsername(), 75, channelHandler.getUserList())) {
+                this.setJackpot(0);
+                channelHandler.sendMessage("Reset jackpot", this.getChannelOrigin());
+                return;
             }
             wage = Double.parseDouble(data[0]);
             if (wage < 20) {
@@ -68,12 +72,16 @@ public class DampeCommand extends CommandHandler {
             sender.getUserCommandCooldowns().get(this.getCommand()).startCooldown();
 		}
 		else if(outcome <= 50) {
-			channelHandler.sendMessage(sender.getUsername() + ": Dampé found " + Double.toString(1000) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
-			sender.setPoints(sender.getPoints() + 1000 + wage);
+            double price = 10 * (Math.sqrt(wage) * 5);
+
+			channelHandler.sendMessage(sender.getUsername() + ": Dampé found " + Double.toString(price) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin());
+			sender.setPoints(sender.getPoints() + price + wage);
             sender.getUserCommandCooldowns().get(this.getCommand()).startCooldown();
 		} else if(outcome <= 200) {
-			channelHandler.sendMessage(sender.getUsername() + ": Dampé found " + Double.toString(300) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + " and returned your bet! Pretty good!", this.getChannelOrigin());
-			sender.setPoints(sender.getPoints() + 300 + wage);
+            double price = 3 * (Math.sqrt(wage) * 5);
+
+			channelHandler.sendMessage(sender.getUsername() + ": Dampé found " + Double.toString(price) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + " and returned your bet! Pretty good!", this.getChannelOrigin());
+			sender.setPoints(sender.getPoints() + price + wage);
             sender.getUserCommandCooldowns().get(this.getCommand()).startCooldown();
 		} else if(outcome <= 450) {
 			channelHandler.sendMessage(sender.getUsername() + ": Dampé is being a dick and returned " + Double.toString(wage/2) + " " + channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE") + "!", this.getChannelOrigin());

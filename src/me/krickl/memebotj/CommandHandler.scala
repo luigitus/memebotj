@@ -60,41 +60,74 @@ object CommandHandler {
  */
 class CommandHandler(channel: String, commandName: String = "null", dbprefix: String = null) {
 
+  @BeanProperty
 	var channelOrigin: String = channel
+  @BeanProperty
 	var command: String = commandName
+  @BeanProperty
 	var param: Int = 0
+  @BeanProperty
 	var pointCost: Double = 0
+  @BeanProperty
 	var cooldown = new Cooldown(2)
+  @BeanProperty
 	var access: String = "viewers"
+  @BeanProperty
 	var helptext: String = "null"
+  @BeanProperty
 	var cmdtype = "default"
+  @BeanProperty
 	var listContent = new ArrayList[String]()
+  @BeanProperty
 	var unformattedOutput = "null"
+  @BeanProperty
 	var quotePrefix = "#{number}: "
+  @BeanProperty
 	var quoteSuffix = ""
+  @BeanProperty
 	var quoteModAccess = "moderators"
+  @BeanProperty
 	var counter: Int = 0
+  @BeanProperty
 	var aliases = new ArrayList[String]()
+  @BeanProperty
 	var locked = false
+  @BeanProperty
 	var texttrigger = false
 
+  @BeanProperty
 	var neededCommandPower = 10
+  @BeanProperty
 	var neededModCommandPower = 25
+  @BeanProperty
 	var neededBroadcasterCommandPower = 50
+  @BeanProperty
 	var neededBotAdminCommandPower = 75
+  @BeanProperty
 	var neededCooldownBypassPower = 50
+  @BeanProperty
 	var neededAddPower = 25
+  @BeanProperty
 	var allowPicksFromList = true
+  @BeanProperty
 	var removeFromListOnPickIfMod = false
 
+  @BeanProperty
 	var userCooldownLen = 0
+  @BeanProperty
 	var appendGameToQuote = false
+  @BeanProperty
 	var appendDateToQuote = false
+  @BeanProperty
 	var appendSenderToQuote = false
+  @BeanProperty
 	var appendToQuoteString = ""
 
+  @BeanProperty
 	var excludeFromCommandList = false
+  @BeanProperty
 	var enable = true
+  @BeanProperty
 	var overrideHandleMessage = false
 
   @BeanProperty
@@ -112,8 +145,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	@BeanProperty
   var otherData = new util.HashMap[String, String]()
 
-	private var commandCollection: MongoCollection[Document] = null
-	private var commandScript: String = ""
+  @BeanProperty
+  var commandCollection: MongoCollection[Document] = null
+  @BeanProperty
+  var commandScript: String = ""
 
 	if (Memebot.useMongo) {
 		if (dbprefix == null) {
@@ -124,7 +159,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 	}
 
 	this.readDBCommand()
-	
+
 	def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: HashMap[String, UserHandler]): String = {
     this.success = true
 
@@ -639,262 +674,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       sender.getUserCommandCooldowns().get(this.command).startCooldown()
       sender.setPoints(sender.getPoints() - this.pointCost)
     }
-	}
-
-	def getChannelOrigin(): String = {
-		return channelOrigin
-	}
-
-	def setChannelOrigin(channelOrigin: String) {
-		this.channelOrigin = channelOrigin
-	}
-
-	def getCommand(): String = {
-		return command
-	}
-
-	def setCommand(command: String) = {
-		this.command = command
-	}
-
-	def getParam(): Int = {
-		return param
-	}
-
-	def setParam(param: Int) = {
-		this.param = param
-	}
-
-	def getCooldown(): Cooldown = {
-		return cooldown
-	}
-
-	def setCooldown(cooldown: Cooldown) = {
-		this.cooldown = cooldown
-	}
-
-	def getAccess(): String = {
-		return access
-	}
-
-	def setAccess(access: String) = {
-		this.access = access
-	}
-
-	def getHelptext(): String = {
-		return helptext
-	}
-
-	def setHelptext(helptext: String) = {
-		this.helptext = helptext
-	}
-
-	def getCmdtype(): String = {
-		return cmdtype
-	}
-
-	def setCmdtype(cmdtype: String) = {
-		this.cmdtype = cmdtype
-	}
-
-	def getListContent(): ArrayList[String] = {
-		return listContent
-	}
-
-	def setListContent(listContent: ArrayList[String]) = {
-		this.listContent = listContent
-	}
-
-	def getUnformattedOutput(): String = {
-		return unformattedOutput
-	}
-
-	def setUnformattedOutput(unformattedOutput: String) = {
-		this.unformattedOutput = unformattedOutput
-	}
-
-	def getPointCost(): Double = {
-		return pointCost
-	}
-
-	def setPointCost(pointCost: Double) = {
-		this.pointCost = pointCost
-	}
-
-	def getQuotePrefix(): String = {
-		return quotePrefix
-	}
-
-	def setQuotePrefix(quotePrefix: String) = {
-		this.quotePrefix = quotePrefix
-	}
-
-	def getQuoteSuffix(): String = {
-		return quoteSuffix
-	}
-
-	def setQuoteSuffix(quoteSuffix: String) = {
-		this.quoteSuffix = quoteSuffix
-	}
-
-	def getQuoteModAccess(): String = {
-		return quoteModAccess
-	}
-
-	def setQuoteModAccess(quoteModAccess: String) = {
-		this.quoteModAccess = quoteModAccess
-	}
-
-	def isLocked(): Boolean = {
-		return locked
-	}
-
-	def setLocked(locked: Boolean) = {
-		this.locked = locked
-	}
-
-	def getCounter(): Int = {
-		return counter
-	}
-
-	def setCounter(counter: Int) = {
-		this.counter = counter
-	}
-
-	def getAliases(): ArrayList[String] = {
-		return aliases
-	}
-
-	def setAliases(aliases: ArrayList[String]) = {
-		this.aliases = aliases
-	}
-
-	def isTexttrigger(): Boolean = {
-		return texttrigger
-	}
-
-	def setTexttrigger(texttrigger: Boolean) = {
-		this.texttrigger = texttrigger
-	}
-
-	def getCommandCollection(): MongoCollection[Document] = {
-		return commandCollection
-	}
-
-	def setCommandCollection(commandCollection: MongoCollection[Document]) = {
-		this.commandCollection = commandCollection
-	}
-
-	def getNeededCommandPower(): Int = {
-		return neededCommandPower
-	}
-
-	def setNeededCommandPower(neededCommandPower: Int) = {
-		this.neededCommandPower = neededCommandPower
-	}
-
-	def getNeededModCommandPower(): Int = {
-		return neededModCommandPower
-	}
-
-	def setNeededModCommandPower(neededModCommandPower: Int) = {
-		this.neededModCommandPower = neededModCommandPower
-	}
-
-	def getNeededBroadcasterCommandPower(): Int = {
-		return neededBroadcasterCommandPower
-	}
-
-	def setNeededBroadcasterCommandPower(neededBroadcasterCommandPower: Int) = {
-		this.neededBroadcasterCommandPower = neededBroadcasterCommandPower
-	}
-
-	def getNeededBotAdminCommandPower(): Int = {
-		return neededBotAdminCommandPower
-	}
-
-	def setNeededBotAdminCommandPower(neededBotAdminCommandPower: Int) = {
-		this.neededBotAdminCommandPower = neededBotAdminCommandPower
-	}
-
-	def getUserCooldownLen(): Int = {
-		return userCooldownLen
-	}
-
-	def setUserCooldownLen(userCooldownLen: Int) = {
-		this.userCooldownLen = userCooldownLen
-	}
-
-	def isAppendGameToQuote(): Boolean = {
-		return appendGameToQuote
-	}
-
-	def setAppendGameToQuote(appendGameToQuote: Boolean) = {
-		this.appendGameToQuote = appendGameToQuote
-	}
-
-	def isAppendDateToQuote(): Boolean = {
-		return appendDateToQuote
-	}
-
-	def setAppendDateToQuote(appendDateToQuote: Boolean) {
-		this.appendDateToQuote = appendDateToQuote
-	}
-
-	def isExcludeFromCommandList(): Boolean = {
-		return excludeFromCommandList
-	}
-
-	def setExcludeFromCommandList(excludeFromCommandList: Boolean) = {
-		this.excludeFromCommandList = excludeFromCommandList
-	}
-
-	def getNeededCooldownBypassPower(): Int = {
-		return neededCooldownBypassPower
-	}
-
-	def setNeededCooldownBypassPower(neededCooldownBypassPower: Int) = {
-		this.neededCooldownBypassPower = neededCooldownBypassPower
-	}
-
-	def getNeededAddPower(): Int = {
-		return neededAddPower
-	}
-
-	def setNeededAddPower(neededAddPower: Int) = {
-		this.neededAddPower = neededAddPower
-	}
-
-	def isAllowPicksFromList(): Boolean = {
-		return allowPicksFromList
-	}
-
-	def setAllowPicksFromList(allowPicksFromList: Boolean) = {
-		this.allowPicksFromList = allowPicksFromList
-	}
-
-	def isRemoveFromListOnPickIfMod(): Boolean = {
-		return removeFromListOnPickIfMod
-	}
-
-	def setRemoveFromListOnPickIfMod(removeFromListOnPickIfMod: Boolean) = {
-		this.removeFromListOnPickIfMod = removeFromListOnPickIfMod
-	}
-
-	def isEnable(): Boolean = {
-		return enable
-	}
-
-	def setEnable(enable: Boolean) = {
-		this.enable = enable
-	}
-
-	def getCommandScript(): String = {
-		return commandScript
-	}
-
-	def setCommandScript(commandScript: String) = {
-		this.commandScript = commandScript
 	}
 
 }

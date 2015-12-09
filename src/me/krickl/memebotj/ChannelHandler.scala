@@ -1,31 +1,22 @@
 package me.krickl.memebotj
 
-import java.io.BufferedReader
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
-import java.io.InputStreamReader
+import java.io.{BufferedReader, BufferedWriter, File, FileWriter, IOException, InputStreamReader}
 import java.math.BigInteger
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
-import java.net.URL
-import java.net.URLEncoder
+import java.net.{HttpURLConnection, MalformedURLException, URL, URLEncoder}
 import java.security.SecureRandom
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.HashMap
 import java.util.logging.Logger
-import org.bson.Document
-import org.json.simple.JSONObject
-import org.json.simple.parser.JSONParser
-import org.json.simple.parser.ParseException
+import java.util.{ArrayList, Arrays, HashMap}
+
 import com.mongodb.Block
 import com.mongodb.client.MongoCollection
 import me.krickl.memebotj.InternalCommands._
-import scala.beans.BeanProperty
-import scala.beans.BooleanBeanProperty
-import util.control.Breaks._
+import org.bson.Document
+import org.json.simple.JSONObject
+import org.json.simple.parser.{JSONParser, ParseException}
+
+import scala.beans.{BeanProperty, BooleanBeanProperty}
+import scala.util.control.Breaks._
+
 //remove if not needed
 import scala.collection.JavaConversions._
 
@@ -40,137 +31,91 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   @BeanProperty
   var broadcaster: String = this.channel.replace("#", "")
-
   @BeanProperty
   var userList: HashMap[String, UserHandler] = new HashMap[String, UserHandler]()
-
   @BeanProperty
   var updateCooldown: Cooldown = new Cooldown(60)
-
   @BeanProperty
   var channelCommands: ArrayList[CommandHandler] = new ArrayList[CommandHandler]()
-
   @BeanProperty
   var internalCommands: ArrayList[CommandHandler] = new ArrayList[CommandHandler]()
-
   @BeanProperty
   var followerNotification: String = ""
-
   @BeanProperty
   var channelInfoURL: String = "https://api.twitch.tv/kraken/channels/" + this.broadcaster
-
   @BeanProperty
   var channelFollowersURL: String = channelInfoURL + "/follows/?limit="
-
   @BeanProperty
   var raceBaseURL: String = "http://kadgar.net/live"
-
   @BeanProperty
-  var greetMessage: String = "Hello I'm {appname} {version} build {build} the dankest irc bot ever RitzMitz"
-
+  var greetMessage: String = "" //"Hello I'm {appname} {version} build {build} the dankest irc bot ever RitzMitz"
   @BeanProperty
   var currentRaceURL: String = ""
-
   @BeanProperty
   var fileNameList: ArrayList[String] = new ArrayList[String]()
+  //@BeanProperty
+  //var aliasList: ArrayList[String] = new ArrayList[String]()
 
-  @BeanProperty
-  var aliasList: ArrayList[String] = new ArrayList[String]()
-
-  @Deprecated
   @BeanProperty
   var maxFileNameLen = -1
-
   @BeanProperty
   var currentFileName: String = ""
-
   @BeanProperty
   var streamStartTime: Int = 0
-
-  @Deprecated
   @BeanProperty
   var builtInStrings: HashMap[String, String] = new HashMap[String, String]()
-
   @BeanProperty
   var channelPageURL: String = Memebot.webBaseURL + this.broadcaster + "/index.html"
-
   @BeanProperty
   var channelPageBaseURL: String = Memebot.webBaseURL + this.broadcaster
-
   @BeanProperty
   var htmlDir: String = Memebot.htmlDir + "/" + this.broadcaster
-
   @BeanProperty
   var youtubeAPIURL: String = "https://www.googleapis.com/youtube/v3/videos?id={videoid}&part=contentDetails&key=" +
     Memebot.youtubeAPIKey
-
   @BeanProperty
   var otherLoadedChannels: ArrayList[String] = new ArrayList[String]()
-
   @BeanProperty
   var autogreetList: HashMap[String, String] = new HashMap[String, String]()
-
   @BeanProperty
   var channelCollection: MongoCollection[Document] = _
-
   @BeanProperty
   var pointsPerUpdate: Double = 1.0f
-
   @BeanProperty
   var t: Thread = _
-
   var isJoined: Boolean = true
-
   @BooleanBeanProperty
   var allowAutogreet: Boolean = true
-
   var isLive: Boolean = false
-
   @BeanProperty
   var currentMessageCount: Int = 0
-
   @BeanProperty
   var messageLimitCooldown: Cooldown = new Cooldown(30)
-
   @BeanProperty
   var preventMessageCooldown: Cooldown = new Cooldown(30)
-
   @BeanProperty
   var currentGame: String = "Not Playing"
-
   @BeanProperty
   var random: SecureRandom = new SecureRandom()
-
   @BeanProperty
   var privateKey: String = new BigInteger(130, random).toString(32)
-
   @BeanProperty
   var apiConnectionIP: String = ""
-
   @BeanProperty
   var urlRegex: String = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
-
   @BooleanBeanProperty
   var purgeURLS: Boolean = false
-
   @BooleanBeanProperty
   var purgeURLSNewUsers: Boolean = false
 
+  ChannelHandler.getLog.info("Joining channel " + this.channel)
   @BeanProperty
   var linkTimeout: Int = 1
 
-  @BeanProperty
-  var silentMode = false
-
-  @BeanProperty
-  var spamPrevention = false
-
-  @BeanProperty
-  var spamTimeout = -1
-
-  ChannelHandler.getLog.info("Joining channel " + this.channel)
-
   val broadcasterHandler = new UserHandler(this.broadcaster, this.channel)
+  val htmlDirF = new File(this.htmlDir)
+  val issueCommand = new CommandHandler(this.channel, "!issue", "#internal#")
+  val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
   broadcasterHandler.setBroadcaster(true)
 
@@ -203,8 +148,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   builtInStrings.put("CURRENCY_EMOTE", "points")
 
   builtInStrings.put("COMMANDMANAGER_SYNTAX", "Usage: {param1}")
-
-  val htmlDirF = new File(this.htmlDir)
+  @BeanProperty
+  var silentMode = false
 
   if (!htmlDirF.exists()) {
     htmlDirF.mkdirs()
@@ -260,7 +205,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new WhoisCommand(this.channel, "!whois", "#internal#"))
 
-  this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"))
+  //this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"))
 
   this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"))
 
@@ -288,7 +233,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new UptimeCommand(this.channel, "!uptime", "#internal#"))
 
-  this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
+  //this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
 
   this.internalCommands.add(new BobRossCommand(this.channel, "!bobross", "#internal#"))
 
@@ -304,15 +249,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     this.channel), userList)
 
   this.internalCommands.add(fileNameListCommand)*/
-
-  val issueCommand = new CommandHandler(this.channel, "!issue", "#internal#")
+  @BeanProperty
+  var spamPrevention = false
 
   issueCommand.editCommand("output", "Having issues? Write a bugreport at https://github.com/unlink2/memebotj/issues",
     new UserHandler("#internal#", this.channel), userList)
 
   this.internalCommands.add(issueCommand)
-
-  val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
+  @BeanProperty
+  var spamTimeout = -1
 
   mrDestructoidCommand.editCommand("output", "MrDestructoid Midnight Raid MrDestructoid", new UserHandler("#internal#",
     this.channel), userList)
@@ -322,10 +267,10 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   this.internalCommands.add(mrDestructoidCommand)
 
   //import old autogreets
-  for(key <- this.autogreetList.keySet()) {
+  for (key <- this.autogreetList.keySet()) {
     val autogreet = this.autogreetList.get(key)
     val newUser = new UserHandler(key, this.channel)
-    if(newUser.getAutogreet() == "") {
+    if (newUser.getAutogreet() == "") {
       newUser.setAutogreet(autogreet)
     }
   }
@@ -337,32 +282,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   ChannelHandler.getLog.info(String.format("Private key for channel %s is %s", this.channel, this.privateKey))
 
-  private def joinChannel(channel: String) {
-    try {
-      this.connection.getOutToServer.writeBytes("JOIN " + channel + "\n")
-    } catch {
-      case e: IOException => e.printStackTrace()
-    }
-    var isInList = false
-    breakable { for (ch <- Memebot.joinedChannels if ch.getChannel.equalsIgnoreCase(channel)) {
-      isInList = true
-      break
-    } }
-    if (!isInList) {
-      Memebot.joinedChannels.add(this)
-      try {
-        val bw = new BufferedWriter(new FileWriter(Memebot.channelConfig))
-        for (ch <- Memebot.joinedChannels) {
-          bw.write(ch.getChannel + "\n")
-        }
-        bw.close()
-      } catch {
-        case e: IOException => e.printStackTrace()
-      }
-    }
-    this.isJoined = true
-  }
-
   def partChannel(channel: String) {
     try {
       this.connection.getOutToServer.writeBytes("PART " + channel + "\n")
@@ -371,11 +290,13 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
     var isInList = false
     var removeThisCH: ChannelHandler = null
-    breakable { for (ch <- Memebot.joinedChannels if ch.getChannel.equalsIgnoreCase(channel)) {
-      isInList = true
-      removeThisCH = ch
-      break()
-    } }
+    breakable {
+      for (ch <- Memebot.joinedChannels if ch.getChannel.equalsIgnoreCase(channel)) {
+        isInList = true
+        removeThisCH = ch
+        break()
+      }
+    }
     if (!isInList && removeThisCH != null) {
       Memebot.joinedChannels.remove(removeThisCH)
       try {
@@ -393,6 +314,96 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     this.t.interrupt()
     this.connection.close()
     Memebot.joinedChannels.remove(removeThisCH)
+  }
+
+  override def run() {
+    while (this.isJoined) {
+      var ircmsg = Array("", "")
+      try {
+        ircmsg = this.connection.recvData()
+      } catch {
+        case e: IOException => e.printStackTrace()
+      }
+      this.update()
+      if (this.getChannel.equalsIgnoreCase(ircmsg(0))) {
+        this.handleMessage(ircmsg(1))
+      }
+      try {
+        Thread.sleep(50)
+      } catch {
+        case e: InterruptedException => e.printStackTrace()
+      }
+    }
+  }
+
+  def update() {
+    if (this.messageLimitCooldown.canContinue()) {
+      this.messageLimitCooldown.startCooldown()
+      this.currentMessageCount = 0
+    }
+    if (this.updateCooldown.canContinue()) {
+      this.updateCooldown.startCooldown()
+      try {
+        val url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
+        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+        val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
+        var dataBuffer = ""
+        var data = ""
+        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+        in.close()
+        val parser = new JSONParser()
+        val obj = parser.parse(data).asInstanceOf[JSONObject]
+        val isOnline = obj.get("stream")
+        if (isOnline == null) {
+          ChannelHandler.getLog.info(String.format("Stream %s is offline", this.channel))
+          this.isLive = false
+          this.streamStartTime = -1
+        } else {
+          ChannelHandler.getLog.info(String.format("Stream %s is live", this.channel))
+          if (this.isLive) {
+            this.streamStartTime = (System.currentTimeMillis() / 1000L).toInt
+          }
+          this.isLive = true
+        }
+      } catch {
+        case e: MalformedURLException => e.printStackTrace()
+        case e: IOException => e.printStackTrace()
+        case e: ParseException => e.printStackTrace()
+      }
+      try {
+        val url = new URL(this.channelInfoURL)
+        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+        val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
+        var dataBuffer = ""
+        var data = ""
+        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+
+        in.close()
+        val parser = new JSONParser()
+        val obj = parser.parse(data).asInstanceOf[JSONObject]
+        this.currentGame = obj.get("game").asInstanceOf[String]
+        if (this.currentGame == null) {
+          this.currentGame = "Not Playing"
+        }
+      } catch {
+        case e: MalformedURLException => e.printStackTrace()
+        case e: IOException => e.printStackTrace()
+        case e: ParseException => e.printStackTrace()
+      }
+      this.writeDBChannelData()
+      this.writeHTML()
+      for (key <- this.userList.keySet) {
+        val uh = this.userList.get(key)
+        uh.update()
+        if (this.isLive) {
+          uh.setPoints(uh.getPoints + this.pointsPerUpdate)
+        }
+        uh.writeDBUserData()
+      }
+      for (ch <- this.channelCommands) {
+        ch.update(this)
+      }
+    }
   }
 
   @Deprecated
@@ -424,7 +435,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       bw.write("</td>")
       bw.write("</tr>")
       for (ch <- this.internalCommands) {
-        if (ch.isExcludeFromCommandList()) {
+        if (ch.getExcludeFromCommandList()) {
           //continue
         }
         bw.write("<tr>")
@@ -483,7 +494,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         bw.write("</tr>")
       }
       for (ch <- this.channelCommands) {
-        if (ch.isExcludeFromCommandList) {
+        if (ch.getExcludeFromCommandList) {
           //continue
         }
         bw.write("<tr>")
@@ -577,48 +588,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  private def readDBChannelData() {
-    if (!Memebot.useMongo) {
-      return
-    }
-    val channelQuery = new Document("_id", this.channel)
-    val cursor = this.channelCollection.find(channelQuery)
-    val channelData = cursor.first()
-    if (channelData != null) {
-      this.maxFileNameLen = channelData.getInteger("maxfilenamelen", this.maxFileNameLen)
-      this.raceBaseURL = channelData.getOrDefault("raceurl", this.raceBaseURL).asInstanceOf[String]
-      this.fileNameList = channelData.getOrDefault("fileanmelist", this.fileNameList).asInstanceOf[ArrayList[String]]
-      this.otherLoadedChannels = channelData.getOrDefault("otherchannels", this.otherLoadedChannels).asInstanceOf[ArrayList[String]]
-      this.pointsPerUpdate = channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate.toString).toString.toDouble
-      this.allowAutogreet = channelData.getOrDefault("allowautogreet", this.allowAutogreet.toString).toString.toBoolean
-      this.privateKey = channelData.getOrDefault("privatekey", this.privateKey).asInstanceOf[String]
-      this.linkTimeout = channelData.getOrDefault("linktimeout", this.linkTimeout.toString).toString.toInt
-      this.purgeURLS = channelData.getOrDefault("purgelinks", this.purgeURLS.toString).toString.toBoolean
-      this.purgeURLSNewUsers = channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers.toString).toString.toBoolean
-      this.urlRegex = channelData.getOrDefault("urlreges", this.urlRegex).asInstanceOf[String]
-      this.aliasList = channelData.getOrDefault("alias", this.aliasList).asInstanceOf[ArrayList[String]]
-      val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
-      val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
-      this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
-      this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
-      this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
-      for (key <- bultinStringsDoc.keySet) {
-        this.builtInStrings.put(key, bultinStringsDoc.getString(key))
-      }
-      for (key <- autogreetDoc.keySet) {
-        this.autogreetList.put(key, autogreetDoc.getString(key))
-      }
-    }
-    val commandCollection = Memebot.db.getCollection(this.channel + "_commands")
-    val comms = commandCollection.find()
-    comms.forEach(new Block[Document]() {
-
-      override def apply(doc: Document) {
-        channelCommands.add(new CommandHandler(channel, doc.getString("command"), null))
-      }
-    })
-  }
-
   def writeDBChannelData() {
     if (!Memebot.useMongo) {
       return
@@ -646,7 +615,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("purgelinknu", this.purgeURLSNewUsers)
       .append("linktimeout", this.linkTimeout)
       .append("urlreges", this.urlRegex)
-      .append("alias", this.aliasList)
       .append("silent", this.silentMode)
       .append("preventspam", this.spamPrevention)
       .append("spamtimeout", this.spamTimeout)
@@ -660,105 +628,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
     for (key <- this.userList.keySet) {
       this.userList.get(key).writeDBUserData()
-    }
-  }
-
-  def sendMessage(msg: String, channel: String): Unit = {
-    this.sendMessage(msg, channel, new UserHandler("#internal#", this.channel))
-  }
-
-  def sendMessage(msg: String, channel: String, sender: UserHandler) {
-    if (!this.preventMessageCooldown.canContinue()) {
-      return
-    }
-    if (this.silentMode) {
-      return
-    }
-    if (this.currentMessageCount >= Memebot.messageLimit) {
-      ChannelHandler.getLog.warning("Reached global message limit for 30 seconds. try again later")
-      this.preventMessageCooldown.startCooldown()
-    }
-    this.currentMessageCount += 1
-    try {
-      if (sender.getUsername() != "#readonly#") {
-        this.connection.getOutToServer.flush()
-        this.connection.getOutToServer.write(new String("PRIVMSG " + this.channel + " :" + msg + "\n")
-          .getBytes("UTF-8"))
-      } else {
-        this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"))
-      }
-    } catch {
-      case e: IOException => e.printStackTrace()
-    }
-  }
-
-  def update() {
-    if (this.messageLimitCooldown.canContinue()) {
-      this.messageLimitCooldown.startCooldown()
-      this.currentMessageCount = 0
-    }
-    if (this.updateCooldown.canContinue()) {
-      this.updateCooldown.startCooldown()
-      try {
-        val url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
-        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-        val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
-        var dataBuffer = ""
-        var data = ""
-        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
-        in.close()
-        val parser = new JSONParser()
-        val obj = parser.parse(data).asInstanceOf[JSONObject]
-        val isOnline = obj.get("stream")
-        if (isOnline == null) {
-          ChannelHandler.getLog.info(String.format("Stream %s is offline", this.channel))
-          this.isLive = false
-          this.streamStartTime = -1
-        } else {
-          ChannelHandler.getLog.info(String.format("Stream %s is live", this.channel))
-          if (this.isLive) {
-            this.streamStartTime = (System.currentTimeMillis() / 1000L).toInt
-          }
-          this.isLive = true
-        }
-      } catch {
-        case e: MalformedURLException => e.printStackTrace()
-        case e: IOException => e.printStackTrace()
-        case e: ParseException => e.printStackTrace()
-      }
-      try {
-        val url = new URL(this.channelInfoURL)
-        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-        val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
-        var dataBuffer = ""
-        var data = ""
-        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
-
-        in.close()
-        val parser = new JSONParser()
-        val obj = parser.parse(data).asInstanceOf[JSONObject]
-        this.currentGame = obj.get("game").asInstanceOf[String]
-        if (this.currentGame == null) {
-          this.currentGame = "Not Playing"
-        }
-      } catch {
-        case e: MalformedURLException => e.printStackTrace()
-        case e: IOException => e.printStackTrace()
-        case e: ParseException => e.printStackTrace()
-      }
-      this.writeDBChannelData()
-      this.writeHTML()
-      for (key <- this.userList.keySet) {
-        val uh = this.userList.get(key)
-        uh.update()
-        if (this.isLive) {
-          uh.setPoints(uh.getPoints + this.pointsPerUpdate)
-        }
-        uh.writeDBUserData()
-      }
-      for (ch <- this.channelCommands) {
-        ch.update(this)
-      }
     }
   }
 
@@ -788,15 +657,17 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         }
       } else if (i == 0 || (i == 1 && senderName.isEmpty)) {
         var exclaReached = false
-        breakable { for (j <- 0 until msg.length) {
-          if (msg.charAt(j) == '!') {
-            exclaReached = true
-            break
+        breakable {
+          for (j <- 0 until msg.length) {
+            if (msg.charAt(j) == '!') {
+              exclaReached = true
+              break
+            }
+            if (msg.charAt(j) != ':') {
+              senderName = senderName + msg.charAt(j)
+            }
           }
-          if (msg.charAt(j) != ':') {
-            senderName = senderName + msg.charAt(j)
-          }
-        } }
+        }
         if (!exclaReached) {
           senderName = "#internal#"
         }
@@ -890,12 +761,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         sender.setCommandPower(50)
       }
       for (user <- Memebot.botAdmins) {
-        if (user.equalsIgnoreCase(sender.getUsername)) {
+        if (user.equalsIgnoreCase(sender.getUsername())) {
           sender.setCommandPower(75)
         }
       }
-      var msg = msgContent(0)
-      var data = Arrays.copyOfRange(msgContent, 0, msgContent.length)
+      val msg = msgContent(0)
+      val data = Arrays.copyOfRange(msgContent, 0, msgContent.length)
       try {
         for (x <- 0 until data.length if data(x).matches(this.urlRegex)) {
           ChannelHandler.getLog.info("Found url in message")
@@ -916,7 +787,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       }
 
       //alias
-      try {
+      /*try {
         for (alias <- this.aliasList) {
           val aliasSplit = alias.split("#")
           if (aliasSplit(0) == msg) {
@@ -937,12 +808,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         }
       } catch {
         case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
-      }
+      }*/
 
       //channel commands
       var p = this.findCommand(msg)
       if (p != -1) {
-        if (!this.channelCommands.get(p).isTexttrigger) {
+        if (!this.channelCommands.get(p).getTexttrigger) {
           this.channelCommands.get(p).executeCommand(sender, this, data, userList)
         }
       }
@@ -951,9 +822,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       for (s <- msgContent) {
         p = this.findCommand(s)
 
-        if(p != -1) {
+        if (p != -1) {
           val ch = this.channelCommands.get(p)
-          if(ch.isTexttrigger()) {
+          if (ch.getTexttrigger()) {
             ch.executeCommand(sender, this, Array(""), userList)
           }
         }
@@ -972,31 +843,59 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
       //internal commands
       p = this.findCommand(msg, this.internalCommands)
-      if(p != -1) {
+      if (p != -1) {
         val ch = this.internalCommands.get(p)
         ch.executeCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList)
       }
     }
   }
 
-  override def run() {
-    while(this.isJoined) {
-      var ircmsg = Array("", "")
-      try {
-        ircmsg = this.connection.recvData()
-      } catch {
-        case e: IOException => e.printStackTrace()
+  def sendMessage(msg: String, channel: String): Unit = {
+    this.sendMessage(msg, channel, new UserHandler("#internal#", this.channel))
+  }
+
+  def sendMessage(msg: String, channel: String, sender: UserHandler) {
+    if (!this.preventMessageCooldown.canContinue()) {
+      return
+    }
+    if (this.silentMode) {
+      return
+    }
+    if (this.currentMessageCount >= Memebot.messageLimit) {
+      ChannelHandler.getLog.warning("Reached global message limit for 30 seconds. try again later")
+      this.preventMessageCooldown.startCooldown()
+    }
+    this.currentMessageCount += 1
+    try {
+      if (sender.getUsername() != "#readonly#") {
+        this.connection.getOutToServer.flush()
+        this.connection.getOutToServer.write(new String("PRIVMSG " + this.channel + " :" + msg + "\n")
+          .getBytes("UTF-8"))
+      } else {
+        this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"))
       }
-      this.update()
-      if (this.getChannel.equalsIgnoreCase(ircmsg(0))) {
-        this.handleMessage(ircmsg(1))
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+  }
+
+  def findCommand(command: String): Int = {
+    this.findCommand(command, this.channelCommands)
+  }
+
+  def findCommand(command: String, commandList: ArrayList[CommandHandler]): Int = {
+    for (index <- 0 to commandList.size() - 1) {
+      val cmd = commandList.get(index)
+      if (cmd.getCommand() == command) {
+        return index
       }
-      try {
-        Thread.sleep(50)
-      } catch {
-        case e: InterruptedException => e.printStackTrace()
+
+      if (!cmd.getCaseSensitive && cmd.getCommand().toLowerCase() == command.toLowerCase()) {
+        return index
       }
     }
+    //(0 until commandList.size).find(commandList.get(_).command == command).getOrElse(-1)
+    return -1
   }
 
   def start() {
@@ -1006,31 +905,82 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  def findCommand(command: String): Int = {
-    this.findCommand(command, this.channelCommands)
-  }
-
-  def findCommand(command: String, commandList: ArrayList[CommandHandler]): Int = {
-    for(index <- 0 to commandList.size() - 1) {
-      val cmd = commandList.get(index)
-      if(cmd.getCommand() == command) {
-        return index
-      }
-
-      if(!cmd.getCaseSensitive && cmd.getCommand().toLowerCase() == command.toLowerCase()) {
-        return index
-      }
-    }
-    //(0 until commandList.size).find(commandList.get(_).command == command).getOrElse(-1)
-    return -1
-  }
-
   def setJoined(isJoined: Boolean) {
     this.isJoined = isJoined
   }
 
   def setLive(isLive: Boolean) {
     this.isLive = isLive
+  }
+
+  private def joinChannel(channel: String) {
+    try {
+      this.connection.getOutToServer.writeBytes("JOIN " + channel + "\n")
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+    var isInList = false
+    breakable {
+      for (ch <- Memebot.joinedChannels if ch.getChannel.equalsIgnoreCase(channel)) {
+        isInList = true
+        break
+      }
+    }
+    if (!isInList) {
+      Memebot.joinedChannels.add(this)
+      try {
+        val bw = new BufferedWriter(new FileWriter(Memebot.channelConfig))
+        for (ch <- Memebot.joinedChannels) {
+          bw.write(ch.getChannel + "\n")
+        }
+        bw.close()
+      } catch {
+        case e: IOException => e.printStackTrace()
+      }
+    }
+    this.isJoined = true
+  }
+
+  private def readDBChannelData() {
+    if (!Memebot.useMongo) {
+      return
+    }
+    val channelQuery = new Document("_id", this.channel)
+    val cursor = this.channelCollection.find(channelQuery)
+    val channelData = cursor.first()
+    if (channelData != null) {
+      this.maxFileNameLen = channelData.getInteger("maxfilenamelen", this.maxFileNameLen)
+      this.raceBaseURL = channelData.getOrDefault("raceurl", this.raceBaseURL).asInstanceOf[String]
+      this.fileNameList = channelData.getOrDefault("fileanmelist", this.fileNameList).asInstanceOf[ArrayList[String]]
+      this.otherLoadedChannels = channelData.getOrDefault("otherchannels", this.otherLoadedChannels).asInstanceOf[ArrayList[String]]
+      this.pointsPerUpdate = channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate.toString).toString.toDouble
+      this.allowAutogreet = channelData.getOrDefault("allowautogreet", this.allowAutogreet.toString).toString.toBoolean
+      this.privateKey = channelData.getOrDefault("privatekey", this.privateKey).asInstanceOf[String]
+      this.linkTimeout = channelData.getOrDefault("linktimeout", this.linkTimeout.toString).toString.toInt
+      this.purgeURLS = channelData.getOrDefault("purgelinks", this.purgeURLS.toString).toString.toBoolean
+      this.purgeURLSNewUsers = channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers.toString).toString.toBoolean
+      this.urlRegex = channelData.getOrDefault("urlreges", this.urlRegex).asInstanceOf[String]
+      //this.aliasList = channelData.getOrDefault("alias", this.aliasList).asInstanceOf[ArrayList[String]]
+      val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
+      val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
+      this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
+      this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
+      this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
+      for (key <- bultinStringsDoc.keySet) {
+        this.builtInStrings.put(key, bultinStringsDoc.getString(key))
+      }
+      for (key <- autogreetDoc.keySet) {
+        this.autogreetList.put(key, autogreetDoc.getString(key))
+      }
+    }
+    val commandCollection = Memebot.db.getCollection(this.channel + "_commands")
+    val comms = commandCollection.find()
+    comms.forEach(new Block[Document]() {
+
+      override def apply(doc: Document) {
+        channelCommands.add(new CommandHandler(channel, doc.getString("command"), null))
+      }
+    })
   }
 }
 
