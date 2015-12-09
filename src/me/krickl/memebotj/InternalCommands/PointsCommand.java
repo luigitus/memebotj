@@ -12,17 +12,18 @@ public class PointsCommand extends CommandHandler {
 
 	@Override
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
-		if (channelHandler.getUserList().containsKey(sender.getUsername())) {
+		this.setSuccess(false);
+		if (channelHandler.getUserList().containsKey(sender.getUsername().toLowerCase())) {
 			if (data.length < 1) {
-				channelHandler.sendMessage(String.format("%s: %.2f %s", sender.getUsername(), channelHandler.getUserList().get(sender.getUsername()).getPoints(), channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
+				channelHandler.sendMessage(String.format("%s: %.2f %s", sender.getUsername(), channelHandler.getUserList().get(sender.getUsername()).points(), channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
 			} else {
 				try {
-					UserHandler target = null;
+					UserHandler target;
 					if (channelHandler.getUserList().containsKey(data[1].toLowerCase())) {
 						target = channelHandler.getUserList().get(data[1].toLowerCase());
 					} else {
 						target = new UserHandler(data[1], this.getChannelOrigin());
-						if (target.isNewUser()) {
+						if (target.newUser()) {
 							target = null;
 						}
 					}
@@ -31,18 +32,41 @@ public class PointsCommand extends CommandHandler {
 							sender.getUsername(), this.getNeededBotAdminCommandPower(), channelHandler.getUserList())) {
                         double number = Double.parseDouble(data[2]);
                         if (data[0].equals("add")) {
-                            target.setPoints(target.getPoints() + number);
+                            target.setPoints(target.points() + number);
+                            this.setSuccess(true);
                         } else if (data[0].equals("sub")) {
-                            target.setPoints(target.getPoints() - number);
-                        } else if (data[0].equals("reset")) {
-                            target.setPoints(0.0);
+                            target.setPoints(target.points() - number);
+                            this.setSuccess(true);
+                        } else if (data[0].equals("set")) {
+                            target.setPoints(number);
+                            this.setSuccess(true);
                         }
 
-                        channelHandler.sendMessage(
-                                String.format("%s your new total is: %.2f %s", target.getUsername(), target.getPoints(),
-                                        channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")),
-                                this.getChannelOrigin());
+                        if(this.getSuccess()) {
+                            channelHandler.sendMessage(
+                                    String.format("%s your new total is: %.2f %s", target.getUsername(), target.points(),
+                                            channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")),
+                                    this.getChannelOrigin());
+                        }
                     }
+
+                    if (target != null && !this.getSuccess()) {
+                        double number = Double.parseDouble(data[2]);
+                        double tax = number / 100 * 10;
+						if(data[0].equals("send")) {
+                            if(this.checkCost(sender, number + tax, channelHandler)) {
+                                sender.setPoints(sender.points() - (number + tax));
+                                target.setPoints(target.points() + number);
+                                channelHandler.sendMessage(String.format("%s: You sent %.2f %s to %s", sender.getUsername(), number,
+                                        channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"), target.getUsername()), this.getChannelOrigin());
+
+								//channelHandler.getInternalCommands().get(channelHandler.findCommand("!dampe", channelHandler.getInternalCommands()));
+                            }
+                        } else {
+                            channelHandler.sendMessage(String.format("%s: Sorry you don't have %.2f %s", target.getUsername(), number + tax,
+                                    channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE")), this.getChannelOrigin());
+                        }
+					}
 				} catch (ArrayIndexOutOfBoundsException e) {
 					e.printStackTrace();
 				}

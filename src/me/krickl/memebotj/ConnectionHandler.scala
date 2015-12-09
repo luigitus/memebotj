@@ -15,13 +15,13 @@ object ConnectionHandler {
 }
 
 class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, passwordNew: String) {
-	private val server: String = serverNew
-	private val botNick: String = botNickNew
-	private val password: String = passwordNew
-	private val port: Int = portNew
-	private var ircSocket: Socket = _
-	private var inFromServer: BufferedReader = _
-	private var outToServer: DataOutputStream = _
+	val server: String = serverNew
+	val botNick: String = botNickNew
+	val password: String = passwordNew
+	val port: Int = portNew
+	var ircSocket: Socket = _
+	var inFromServer: BufferedReader = _
+	var outToServer: DataOutputStream = _
   var debugMode: Boolean = false
 
 	try {
@@ -79,7 +79,7 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 		}
 
 		val returnArray: Array[String] = Array(channel, ircmsg)
-		return returnArray
+		returnArray
 	}
 
 	def close() = {
@@ -88,25 +88,9 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 			this.inFromServer.close()
 			this.ircSocket.close()
 		} catch {
-			// TODO Auto-generated catch block
-			case  e: IOException => {
+			case  e: IOException =>
 				e.printStackTrace()
-			}
 		}
-	}
-
-  def getBotNick(): String = {
-		return botNick
-	}
-
-  @Deprecated
-	def getInFromServer(): BufferedReader = {
-		return inFromServer
-	}
-
-  @Deprecated
-	def getOutToServer(): DataOutputStream = {
-		return outToServer
 	}
 
 	def sendMessage(msg: String): Unit = {

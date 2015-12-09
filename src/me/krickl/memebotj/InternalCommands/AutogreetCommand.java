@@ -19,7 +19,7 @@ public class AutogreetCommand extends CommandHandler {
 			String nameToModify = data[1].toLowerCase();
 			String message = "";
 
-			UserHandler user = null;
+			UserHandler user;
 			if(channelHandler.getUserList().containsKey(nameToModify)) {
 				user = channelHandler.getUserList().get(nameToModify);
 			} else {
@@ -32,7 +32,7 @@ public class AutogreetCommand extends CommandHandler {
 					newValue = newValue + " " + data[x];
 				}
 
-				if(!user.isNewUser()) {
+				if(!user.newUser()) {
 					user.setAutogreet(newValue);
 					user.writeDBUserData();
 					message = "Autogreet added";
@@ -42,13 +42,13 @@ public class AutogreetCommand extends CommandHandler {
 			} else if (data[0].equals("remove") && CommandHandler.checkPermission(sender.getUsername(), 25, channelHandler.getUserList())) {
 				if (channelHandler.getAutogreetList().containsKey(nameToModify)) {
 					channelHandler.getAutogreetList().remove(nameToModify);
-				} else if(!user.isNewUser()) {
+				} else if(!user.newUser()) {
 					user.setAutogreet("");
 					user.writeDBUserData();
 					message = "Autogreet removed";
 				}
 			} else if (data[0].equals("get")) {
-                if(!user.isNewUser()) {
+                if(!user.newUser()) {
                     if (channelHandler.getAutogreetList().containsKey(nameToModify)) {
                         user.setAutogreet(channelHandler.getAutogreetList().get(nameToModify));
                     }

@@ -58,7 +58,7 @@ public class FilenameCommand extends CommandHandler {
                 channelHandler.sendMessage(String.format("Removed %d names", counter), this.getChannelOrigin());
                 return;
             }
-            int i = 1;
+            int i;
             try {
                 i = Integer.parseInt(data[1]);
             } catch(ArrayIndexOutOfBoundsException e) {
@@ -75,7 +75,7 @@ public class FilenameCommand extends CommandHandler {
                 } else {
                     channelHandler.sendMessage(String.format("%s added name %s %s times", sender.getUsername(), data[0], Integer.toString(i)), this.getChannelOrigin());
 
-                    sender.setPoints(sender.getPoints() - (100 * (i)));
+                    sender.setPoints(sender.points() - (100 * (i)));
                     success = true;
                 }
             } else {

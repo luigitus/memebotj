@@ -43,7 +43,7 @@ public class CommandManager extends CommandHandler {
 				int j = -1;
 				if ((j = channelHandler.findCommand(data[1])) != -1) {
 
-					if (!channelHandler.getChannelCommands().get(j).isLocked()) {
+					if (!channelHandler.getChannelCommands().get(j).getLocked()) {
 						channelHandler.sendMessage(channelHandler.getBuiltInStrings().get("DELCOM_OK").replace("{param1}",
 								channelHandler.getChannelCommands().get(j).getCommand()), this.getChannelOrigin());
 						channelHandler.getChannelCommands().get(j).removeDBCommand();

@@ -22,14 +22,14 @@ public class EditUserCommand extends CommandHandler {
 				for (String key : channelHandler.getUserList().keySet()) {
 					UserHandler uh = channelHandler.getUserList().get(key);
 					if (uh.getUsername().equals(data[1])) {
-						if ((newCP + uh.getAutoCommandPower()) > sender.getCommandPower()) {
+						if ((newCP + uh.autoCommandPower()) > sender.commandPower()) {
 							channelHandler.sendMessage("You cannot set the command power of a user higher than yours",
 									this.getChannelOrigin());
 							return;
 						}
 
 						uh.setCustomCommandPower(Integer.parseInt(data[2]));
-						uh.setCommandPower(uh.getAutoCommandPower());
+						uh.setCommandPower(uh.autoCommandPower());
 						uh.writeDBUserData();
 						success = true;
 					}
@@ -37,15 +37,15 @@ public class EditUserCommand extends CommandHandler {
 
 				if (!success) {
 					UserHandler uh = new UserHandler(data[1], channelHandler.getChannel());
-					if (!uh.isNewUser()) {
-						if ((newCP + uh.getAutoCommandPower()) > sender.getCommandPower()) {
+					if (!uh.newUser()) {
+						if ((newCP + uh.autoCommandPower()) > sender.commandPower()) {
 							channelHandler.sendMessage("You cannot set the command power of a user higher than yours",
 									this.getChannelOrigin());
 							return;
 						}
 
 						uh.setCustomCommandPower(Integer.parseInt(data[2]));
-						uh.setCommandPower(uh.getAutoCommandPower());
+						uh.setCommandPower(uh.autoCommandPower());
 						uh.writeDBUserData();
 						success = true;
 					}
@@ -60,9 +60,9 @@ public class EditUserCommand extends CommandHandler {
 
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-
+			e.printStackTrace();
 		} catch (NumberFormatException e) {
-
+			e.printStackTrace();
 		}
 	}
 
