@@ -60,7 +60,7 @@ public class PointsCommand extends CommandHandler {
                                 channelHandler.sendMessage(String.format("%s: You sent %.2f %s to %s", sender.getUsername(), number,
                                         channelHandler.getBuiltInStrings().get("CURRENCY_EMOTE"), target.getUsername()), this.getChannelOrigin());
 
-                                //channelHandler.getInternalCommands().get(channelHandler.findCommand("!dampe", channelHandler.getInternalCommands()));
+								//channelHandler.getInternalCommands().get(channelHandler.findCommand("!dampe", channelHandler.getInternalCommands()));
                             }
                         } else {
                             channelHandler.sendMessage(String.format("%s: Sorry you don't have %.2f %s", target.getUsername(), number + tax,

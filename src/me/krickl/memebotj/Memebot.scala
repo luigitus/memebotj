@@ -52,7 +52,7 @@ import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 
-import me.krickl.memebotj.api.APIConnectionHandler
+//import me.krickl.memebotj.api.APIConnectionHandler
 
 /***
  * Memebot is a simpe irc bot for twitch.tv wirtten in Java
@@ -107,7 +107,7 @@ object Memebot {
 
 	var isBotMode: Boolean = true
 
-	var apiConnection: APIConnectionHandler = null
+	//var apiConnection: APIConnectionHandler = null
 
 	// final ConsoleHandler ch = new ConsoleHandler()
 
@@ -184,7 +184,7 @@ object Memebot {
 					while(it.hasNext) {
 						val ch = it.next()
 						ch.writeDBChannelData()
-						ch.setJoined(false)
+						ch.setIsJoined(false)
 					}
 				}
 			})
@@ -242,9 +242,9 @@ object Memebot {
 				Memebot.joinChannel(channel)
 			}
 
-      this.apiConnection = new APIConnectionHandler(Memebot.apiport)
+      //this.apiConnection = new APIConnectionHandler(Memebot.apiport)
 			//start api thread
-			apiConnection.start()
+			//apiConnection.start()
 
 			//auto rejoin if a thread crashes
 			while(true) {

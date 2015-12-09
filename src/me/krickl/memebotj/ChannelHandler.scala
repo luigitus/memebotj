@@ -83,9 +83,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var pointsPerUpdate: Double = 1.0f
   @BeanProperty
   var t: Thread = _
+  @BeanProperty
   var isJoined: Boolean = true
   @BooleanBeanProperty
   var allowAutogreet: Boolean = true
+  @BeanProperty
   var isLive: Boolean = false
   @BeanProperty
   var currentMessageCount: Int = 0
@@ -112,9 +114,13 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var linkTimeout: Int = 1
 
+  @BeanProperty
   val broadcasterHandler = new UserHandler(this.broadcaster, this.channel)
+  @BeanProperty
   val htmlDirF = new File(this.htmlDir)
+  @BeanProperty
   val issueCommand = new CommandHandler(this.channel, "!issue", "#internal#")
+
   val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
   broadcasterHandler.setBroadcaster(true)
@@ -652,7 +658,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           try {
             ircTags.put(tag.split("=")(0), tag.split("=")(1))
           } catch {
-            case e: ArrayIndexOutOfBoundsException =>
+            case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
           }
         }
       } else if (i == 0 || (i == 1 && senderName.isEmpty)) {
@@ -903,14 +909,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       t = new Thread(this, this.channel)
       t.start()
     }
-  }
-
-  def setJoined(isJoined: Boolean) {
-    this.isJoined = isJoined
-  }
-
-  def setLive(isLive: Boolean) {
-    this.isLive = isLive
   }
 
   private def joinChannel(channel: String) {
