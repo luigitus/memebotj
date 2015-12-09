@@ -1,7 +1,6 @@
 package me.krickl.memebotj
 
 import scala.beans.BeanProperty
-;
 
 class Cooldown(val cdLen: Integer) {
 	@BeanProperty
