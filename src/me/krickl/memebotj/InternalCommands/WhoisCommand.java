@@ -16,7 +16,7 @@ public class WhoisCommand extends CommandHandler {
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		try {
 			String user = data[0].toLowerCase();
-			UserHandler uh = null;
+			UserHandler uh;
 			if (channelHandler.getUserList().containsKey(user)) {
 				uh = channelHandler.getUserList().get(user);
 			} else {
@@ -28,12 +28,12 @@ public class WhoisCommand extends CommandHandler {
                 isCat = true;
             }
 
-			channelHandler.sendMessage(uh.getUsername() + " || Broadcaster: " + Boolean.toString(uh.isBroadcaster())
-					+ " || Mod: " + Boolean.toString(uh.isMod()) + " || Command Power: "
-					+ Integer.toString(uh.getCommandPower()) + " || Timeouts: " + Integer.toString(uh.getTimeouts())
-					+ " || Is known user: " + Boolean.toString(!uh.isNewUser()) + " || Date joined: " + uh.getDateJoined() + " || Is user a cat: " + Boolean.toString(isCat), this.getChannelOrigin());
+			channelHandler.sendMessage(uh.getUsername() + " || Broadcaster: " + Boolean.toString(uh.isUserBroadcaster())
+					+ " || Mod: " + Boolean.toString(uh.isModerator()) + " || Command Power: "
+					+ Integer.toString(uh.commandPower()) + " || Timeouts: " + Integer.toString(uh.getTimeouts())
+					+ " || Is known user: " + Boolean.toString(!uh.newUser()) + " || Date joined: " + uh.getDateJoined() + " || Is user a cat: " + Boolean.toString(isCat), this.getChannelOrigin());
 		} catch (ArrayIndexOutOfBoundsException e) {
-
+			e.printStackTrace();
 		}
 	}
 

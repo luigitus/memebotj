@@ -32,13 +32,13 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var broadcaster: String = this.channel.replace("#", "")
   @BeanProperty
-  var userList: HashMap[String, UserHandler] = new HashMap[String, UserHandler]()
+  var userList: java.util.HashMap[String, UserHandler] = new java.util.HashMap[String, UserHandler]()
   @BeanProperty
   var updateCooldown: Cooldown = new Cooldown(60)
   @BeanProperty
-  var channelCommands: ArrayList[CommandHandler] = new ArrayList[CommandHandler]()
+  var channelCommands: java.util.ArrayList[CommandHandler] = new java.util.ArrayList[CommandHandler]()
   @BeanProperty
-  var internalCommands: ArrayList[CommandHandler] = new ArrayList[CommandHandler]()
+  var internalCommands: java.util.ArrayList[CommandHandler] = new java.util.ArrayList[CommandHandler]()
   @BeanProperty
   var followerNotification: String = ""
   @BeanProperty
@@ -52,7 +52,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var currentRaceURL: String = ""
   @BeanProperty
-  var fileNameList: ArrayList[String] = new ArrayList[String]()
+  var fileNameList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
   //@BeanProperty
   //var aliasList: ArrayList[String] = new ArrayList[String]()
 
@@ -63,7 +63,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var streamStartTime: Int = 0
   @BeanProperty
-  var builtInStrings: HashMap[String, String] = new HashMap[String, String]()
+  var builtInStrings: java.util.HashMap[String, String] = new java.util.HashMap[String, String]()
   @BeanProperty
   var channelPageURL: String = Memebot.webBaseURL + this.broadcaster + "/index.html"
   @BeanProperty
@@ -74,9 +74,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var youtubeAPIURL: String = "https://www.googleapis.com/youtube/v3/videos?id={videoid}&part=contentDetails&key=" +
     Memebot.youtubeAPIKey
   @BeanProperty
-  var otherLoadedChannels: ArrayList[String] = new ArrayList[String]()
+  var otherLoadedChannels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
   @BeanProperty
-  var autogreetList: HashMap[String, String] = new HashMap[String, String]()
+  var autogreetList: java.util.HashMap[String, String] = new java.util.HashMap[String, String]()
   @BeanProperty
   var channelCollection: MongoCollection[Document] = _
   @BeanProperty
@@ -123,9 +123,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
-  broadcasterHandler.setBroadcaster(true)
+  broadcasterHandler.isUserBroadcaster = true
 
-  broadcasterHandler.setMod(true)
+  broadcasterHandler.setIsModerator(true)
 
   this.userList.put(this.broadcaster, broadcasterHandler)
 
@@ -170,9 +170,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   this.readDBChannelData()
 
   try {
-    this.connection.getOutToServer.writeBytes("CAP REQ :twitch.tv/membership\n")
-    this.connection.getOutToServer.writeBytes("CAP REQ :twitch.tv/commands\n")
-    this.connection.getOutToServer.writeBytes("CAP REQ :twitch.tv/tags\n")
+    this.connection.sendMessageBytes("CAP REQ :twitch.tv/membership\n")
+    this.connection.sendMessageBytes("CAP REQ :twitch.tv/commands\n")
+    this.connection.sendMessageBytes("CAP REQ :twitch.tv/tags\n")
   } catch {
     case e: IOException => e.printStackTrace()
   }
@@ -276,7 +276,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   for (key <- this.autogreetList.keySet()) {
     val autogreet = this.autogreetList.get(key)
     val newUser = new UserHandler(key, this.channel)
-    if (newUser.getAutogreet() == "") {
+    if (newUser.getAutogreet == "") {
       newUser.setAutogreet(autogreet)
     }
   }
@@ -290,7 +290,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   def partChannel(channel: String) {
     try {
-      this.connection.getOutToServer.writeBytes("PART " + channel + "\n")
+      this.connection.sendMessageBytes("PART " + channel + "\n")
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -343,11 +343,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   def update() {
-    if (this.messageLimitCooldown.canContinue()) {
+    if (this.messageLimitCooldown.canContinue) {
       this.messageLimitCooldown.startCooldown()
       this.currentMessageCount = 0
     }
-    if (this.updateCooldown.canContinue()) {
+    if (this.updateCooldown.canContinue) {
       this.updateCooldown.startCooldown()
       try {
         val url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
@@ -402,7 +402,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         val uh = this.userList.get(key)
         uh.update()
         if (this.isLive) {
-          uh.setPoints(uh.getPoints + this.pointsPerUpdate)
+          uh.setPoints(uh.points + this.pointsPerUpdate)
         }
         uh.writeDBUserData()
       }
@@ -441,21 +441,21 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       bw.write("</td>")
       bw.write("</tr>")
       for (ch <- this.internalCommands) {
-        if (ch.getExcludeFromCommandList()) {
+        if (ch.excludeFromCommandList) {
           //continue
         }
         bw.write("<tr>")
         bw.write("<td>")
         if (ch.getCmdtype == "list") {
-          bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.getCommand(), "UTF-8") +
+          bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.command, "UTF-8") +
             ".html\">" +
             ch.getCommand +
             "</a>")
-          val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + URLEncoder.encode(ch.getCommand(), "UTF-8") + ".html"))
+          val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + URLEncoder.encode(ch.command, "UTF-8") + ".html"))
           bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>")
           bwq.write("<html>")
           bwq.write("<h1>")
-          bwq.write(ch.getCommand())
+          bwq.write(ch.command)
           bwq.write("</h1>")
           bwq.write("<table style=\"width:100%\">")
           bwq.write("<tr>")
@@ -639,7 +639,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   def handleMessage(rawircmsg: String) {
     var senderName = ""
-    val ircTags = new HashMap[String, String]()
+    val ircTags = new java.util.HashMap[String, String]()
     var msgContent: Array[String] = null
     val ircmsgBuffer = rawircmsg.split(" ")
     var messageType = "UNDEFINED"
@@ -708,12 +708,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         }
         if (user != null) {
           if (ircmsgList(3) == "+o") {
-            user.setMod(true)
-            if (!user.isBroadcaster) {
+            user.isModerator = true
+            if (!user.isUserBroadcaster) {
               user.setCommandPower(25)
             }
           } else {
-            user.setMod(false)
+            user.isModerator = false
             user.setCommandPower(10)
           }
         }
@@ -739,7 +739,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
             this.userList.get(ircmsgList(3).replace(":", "")).writeDBUserData()
           } else {
             val uh = new UserHandler(ircmsgList(3).replace(":", ""), this.channel)
-            if (!uh.isNewUser) {
+            if (!uh.newUser) {
               uh.setTimeouts(uh.getTimeouts + 1)
               uh.writeDBUserData()
             }
@@ -750,33 +750,33 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       }
     } else {
       if (ircTags.containsKey("user-type")) {
-        if (ircTags.get("user-type") == "mod" && !sender.isBroadcaster) {
-          sender.setMod(true)
+        if (ircTags.get("user-type") == "mod" && !sender.isUserBroadcaster) {
+          sender.setIsModerator(true)
           sender.setCommandPower(25)
-        } else if (!sender.isBroadcaster) {
-          sender.setMod(false)
+        } else if (!sender.isUserBroadcaster) {
+          sender.setIsModerator(false)
           sender.setCommandPower(10)
         }
       } else {
-        sender.setMod(false)
+        sender.setIsModerator(false)
         sender.setCommandPower(10)
       }
       if (sender.getUsername.equalsIgnoreCase(this.broadcaster)) {
-        sender.setMod(true)
-        sender.setBroadcaster(true)
+        sender.setIsModerator(true)
+        sender.isUserBroadcaster = true
         sender.setCommandPower(50)
       }
       for (user <- Memebot.botAdmins) {
-        if (user.equalsIgnoreCase(sender.getUsername())) {
+        if (user.equalsIgnoreCase(sender.getUsername)) {
           sender.setCommandPower(75)
         }
       }
       val msg = msgContent(0)
-      val data = Arrays.copyOfRange(msgContent, 0, msgContent.length)
+      val data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length)
       try {
         for (x <- 0 until data.length if data(x).matches(this.urlRegex)) {
           ChannelHandler.getLog.info("Found url in message")
-          if (this.purgeURLSNewUsers && sender.isNewUser) {
+          if (this.purgeURLSNewUsers && sender.newUser) {
             ChannelHandler.getLog.info("Puriging " + sender.getUsername + " for posting a link that matches the regex " +
               this.urlRegex)
             this.sendMessage("/timeout " + sender.getUsername + " " + java.lang.Integer.toString(this.linkTimeout),
@@ -830,7 +830,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
         if (p != -1) {
           val ch = this.channelCommands.get(p)
-          if (ch.getTexttrigger()) {
+          if (ch.texttrigger) {
             ch.executeCommand(sender, this, Array(""), userList)
           }
         }
@@ -851,7 +851,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       p = this.findCommand(msg, this.internalCommands)
       if (p != -1) {
         val ch = this.internalCommands.get(p)
-        ch.executeCommand(sender, this, Arrays.copyOfRange(data, 1, data.length), userList)
+        ch.executeCommand(sender, this, java.util.Arrays.copyOfRange(data, 1, data.length), userList)
       }
     }
   }
@@ -861,7 +861,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   def sendMessage(msg: String, channel: String, sender: UserHandler) {
-    if (!this.preventMessageCooldown.canContinue()) {
+    if (!this.preventMessageCooldown.canContinue) {
       return
     }
     if (this.silentMode) {
@@ -873,10 +873,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
     this.currentMessageCount += 1
     try {
-      if (sender.getUsername() != "#readonly#") {
-        this.connection.getOutToServer.flush()
-        this.connection.getOutToServer.write(new String("PRIVMSG " + this.channel + " :" + msg + "\n")
-          .getBytes("UTF-8"))
+      if (sender.getUsername != "#readonly#") {
+        this.connection.sendMessage(new String("PRIVMSG " + this.channel + " :" + msg + "\n"))
       } else {
         this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"))
       }
@@ -889,19 +887,19 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     this.findCommand(command, this.channelCommands)
   }
 
-  def findCommand(command: String, commandList: ArrayList[CommandHandler]): Int = {
+  def findCommand(command: String, commandList: java.util.ArrayList[CommandHandler]): Int = {
     for (index <- 0 to commandList.size() - 1) {
       val cmd = commandList.get(index)
-      if (cmd.getCommand() == command) {
+      if (cmd.getCommand == command) {
         return index
       }
 
-      if (!cmd.getCaseSensitive && cmd.getCommand().toLowerCase() == command.toLowerCase()) {
+      if (!cmd.getCaseSensitive && cmd.command.toLowerCase() == command.toLowerCase()) {
         return index
       }
     }
     //(0 until commandList.size).find(commandList.get(_).command == command).getOrElse(-1)
-    return -1
+    -1
   }
 
   def start() {
@@ -913,7 +911,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   private def joinChannel(channel: String) {
     try {
-      this.connection.getOutToServer.writeBytes("JOIN " + channel + "\n")
+      this.connection.sendMessageBytes("JOIN " + channel + "\n")
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -949,8 +947,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     if (channelData != null) {
       this.maxFileNameLen = channelData.getInteger("maxfilenamelen", this.maxFileNameLen)
       this.raceBaseURL = channelData.getOrDefault("raceurl", this.raceBaseURL).asInstanceOf[String]
-      this.fileNameList = channelData.getOrDefault("fileanmelist", this.fileNameList).asInstanceOf[ArrayList[String]]
-      this.otherLoadedChannels = channelData.getOrDefault("otherchannels", this.otherLoadedChannels).asInstanceOf[ArrayList[String]]
+      this.fileNameList = channelData.getOrDefault("fileanmelist", this.fileNameList).asInstanceOf[java.util.ArrayList[String]]
+      this.otherLoadedChannels = channelData.getOrDefault("otherchannels", this.otherLoadedChannels).asInstanceOf[java.util.ArrayList[String]]
       this.pointsPerUpdate = channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate.toString).toString.toDouble
       this.allowAutogreet = channelData.getOrDefault("allowautogreet", this.allowAutogreet.toString).toString.toBoolean
       this.privateKey = channelData.getOrDefault("privatekey", this.privateKey).asInstanceOf[String]

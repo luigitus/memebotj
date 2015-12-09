@@ -78,17 +78,17 @@ object Memebot {
 	var botPassword: String = null
 	var clientID: String = null
 	var clientSecret: String = null
-	var botAdmins: List[String] = new ArrayList[String]()
+	var botAdmins: java.util.List[String] = new java.util.ArrayList[String]()
 	var mongoUser: String = ""
 	var mongoPassword: String = ""
 	var useMongoAuth: Boolean = false
 	// List<BlacklistModel> blackList = new
 	// ArrayList<BlacklistModel>()
 	var pid: Int = 0
-	var channels: ArrayList[String] = new ArrayList[String]()
+	var channels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
 
 	// ConnectionHandler connection = null
-	var joinedChannels: ArrayList[ChannelHandler] = new ArrayList[ChannelHandler]()
+	var joinedChannels: java.util.ArrayList[ChannelHandler] = new java.util.ArrayList[ChannelHandler]()
 	var youtubeAPIKey: String = ""
 	var useMongo: Boolean = true
 	// boolean updateToMongo = false
@@ -127,21 +127,18 @@ object Memebot {
 		try {
 			config.load(new FileReader(Memebot.configFile))
 		} catch {
-			case e: FileNotFoundException => {
+			case e: FileNotFoundException =>
 				try {
 					new File(Memebot.configFile).createNewFile()
 					// save properties
 				} catch {
-					case e: IOException => {
+					case e: IOException =>
 						e.printStackTrace()
-					}
 				}
 
 				e.printStackTrace()
-			}
-			case e: IOException => {
+			case e: IOException =>
 					e.printStackTrace()
-				}
 		}
 
 		// read botadmin file
@@ -150,9 +147,8 @@ object Memebot {
 			Memebot.botAdmins = Files.readAllLines(Paths.get(Memebot.memebotDir + "/botadmins.cfg"))
 			Memebot.botAdmins.add("#internal#")
 		} catch {
-			case e3: IOException => {
+			case e3: IOException =>
 				e3.printStackTrace()
-			}
 		}
 
 		Memebot.ircServer = config.getProperty("ircserver", Memebot.ircServer)
@@ -168,10 +164,10 @@ object Memebot {
 		Memebot.youtubeAPIKey = config.getProperty("ytapikey", Memebot.youtubeAPIKey)
 		Memebot.mongoUser = config.getProperty("mongouser", Memebot.mongoUser)
 		Memebot.mongoPassword = config.getProperty("mongopassword", Memebot.mongoPassword)
-		Memebot.useMongoAuth = config.getProperty("mongoauth", Memebot.useMongoAuth.toString()).toString().toBoolean
+		Memebot.useMongoAuth = config.getProperty("mongoauth", Memebot.useMongoAuth.toString).toBoolean
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL)
-		Memebot.useWeb = config.getProperty("useweb", Memebot.useWeb.toString()).toString().toBoolean
-		Memebot.apiMasterKey = config.getOrDefault("apimasterkey", Memebot.apiMasterKey).toString()
+		Memebot.useWeb = config.getProperty("useweb", Memebot.useWeb.toString).toBoolean
+		Memebot.apiMasterKey = config.getOrDefault("apimasterkey", Memebot.apiMasterKey).toString
 		Memebot.apiport = config.getOrDefault("apiport", Memebot.apiport.toString).toString.toInt
 
 		if(Memebot.isBotMode) {
@@ -201,9 +197,8 @@ object Memebot {
 			bw.write(ManagementFactory.getRuntimeMXBean.getName.split("@")(0))
 			bw.close()
 		} catch {
-			case e1: IOException => {
+			case e1: IOException =>
 				e1.printStackTrace()
-			}
 		}
 
 		if(Memebot.isBotMode) {
@@ -220,17 +215,13 @@ object Memebot {
 				Memebot.internalCollection = Memebot.db.getCollection("#internal#")
 			}
 
-			// read blacklist
-			// TODO read blacklist
-
 			try {
 				channels = Files.readAllLines(Paths.get(Memebot.channelConfig),
-						Charset.defaultCharset()).asInstanceOf[ArrayList[String]]
+						Charset.defaultCharset()).asInstanceOf[java.util.ArrayList[String]]
 
 			} catch {
-				case  e: IOException => {
+				case  e: IOException =>
 					e.printStackTrace()
-				}
 			}
 
 			// setup connection
@@ -260,9 +251,8 @@ object Memebot {
 				try {
 					Thread.sleep(60000)
 				} catch {
-					case e: InterruptedException => {
+					case e: InterruptedException =>
 						e.printStackTrace()
-					}
 				}
 			}
 		}
@@ -272,7 +262,7 @@ object Memebot {
 		try {
 			val login: File = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")
 			if (login.exists()) {
-				val loginInfo: ArrayList[String] = Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")).asInstanceOf[ArrayList[String]]
+				val loginInfo: java.util.ArrayList[String] = Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login")).asInstanceOf[java.util.ArrayList[String]]
 
 				Memebot.log.info("Found login file for channel " + channel)
 
@@ -302,9 +292,9 @@ object Memebot {
 		* {game}
 		* {curremote}
 		* {currname}
-		* @param fo
-		* @param channelHandler
-		* @param sender
+		* @param fo format object
+		* @param channelHandler channelhandler
+		* @param sender sender
 		* @return
 		*/
 	def formatText(fo: String, channelHandler: ChannelHandler, sender: UserHandler, commandHandler: CommandHandler): String = {
@@ -314,11 +304,11 @@ object Memebot {
 
 		var formattedOutput = fo
 
-		formattedOutput = formattedOutput.replace("{sender}", sender.getUsername())
+		formattedOutput = formattedOutput.replace("{sender}", sender.username)
 		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(commandHandler.counter))
-		formattedOutput = formattedOutput.replace("{points}", sender.getPoints().toString())
-		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString())
-		formattedOutput = formattedOutput.replace("{debugch}", commandHandler.toString())
+		formattedOutput = formattedOutput.replace("{points}", sender.points.toString)
+		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString)
+		formattedOutput = formattedOutput.replace("{debugch}", commandHandler.toString)
 		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
 		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version)
 		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev)
@@ -331,7 +321,7 @@ object Memebot {
 			channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
 		formattedOutput = formattedOutput.replace("{currname}",
 			channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
-		return formattedOutput
+		formattedOutput
 	}
 
 }

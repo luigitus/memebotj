@@ -1,32 +1,26 @@
-package me.krickl.memebotj;
+package me.krickl.memebotj
+
+import scala.beans.BeanProperty
+;
 
 class Cooldown(val cdLen: Integer) {
-	private var cooldownLen: Integer = cdLen
-	private var cooldownStart = 0;
-	private var cooldownEnd = 0;
+	@BeanProperty
+	var cooldownLen: Integer = cdLen
+	@BeanProperty
+	var cooldownStart = 0
+	@BeanProperty
+	var cooldownEnd = 0
 
 	def startCooldown() = {
 		this.cooldownStart = (System.currentTimeMillis() / 1000).toInt
-		this.cooldownEnd = (System.currentTimeMillis() / 1000L).toInt + this.cooldownLen;
+		this.cooldownEnd = (System.currentTimeMillis() / 1000L).toInt + this.cooldownLen
 	}
 
-	def getCooldownLen(): Integer = {
-		return cooldownLen;
-	}
-
-	def setCooldownLen(cdLen: Integer) = {
-		this.cooldownLen = cdLen;
-	}
-
-	def setCooldownEnd(cooldownEnd: Integer) = {
-		this.cooldownEnd = cooldownEnd;
-	}
-
-	def canContinue(): Boolean = {
+	def canContinue: Boolean = {
 		if (this.cooldownEnd > (System.currentTimeMillis() / 1000).toInt) {
-			return false;
+			return false
 		}
 
-		return true;
+    true
 	}
 }

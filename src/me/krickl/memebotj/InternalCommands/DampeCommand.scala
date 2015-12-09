@@ -16,7 +16,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setUserCooldownLen(20)
 
-  this.setListContent(new ArrayList[String]())
+  this.setListContent(new java.util.ArrayList[String]())
 
   this.setPointCost(0)
 
@@ -46,13 +46,12 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       }
     } catch {
       case e: ArrayIndexOutOfBoundsException =>
-      case e: NumberFormatException => {
+      case e: NumberFormatException =>
         channelHandler.sendMessage(data(0) + " is not a number", this.getChannelOrigin)
         return
-      }
     }
     if (!this.checkCost(sender, wage, channelHandler)) {
-      channelHandler.sendMessage(f"Sorry you don't have ${wage} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}.", this.getChannelOrigin)
+      channelHandler.sendMessage(f"Sorry you don't have $wage ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}.", this.getChannelOrigin)
       return
     }
     if (wage > 500) {
@@ -60,7 +59,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"), this.getChannelOrigin)
       return
     }
-    sender.setPoints(sender.getPoints - wage)
+    sender.setPoints(sender.points - wage)
     val ran = new Random()
     val range = 1000
     val outcome = ran.nextInt(range - wage.toInt / 4)
@@ -69,7 +68,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         " " +
         channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
         "! You lucky bastard!", this.getChannelOrigin)
-      sender.setPoints(sender.getPoints + 1000 + this.getJackpot + wage)
+      sender.setPoints(sender.points + 1000 + this.getJackpot + wage)
       this.setJackpot(0)
       sender.getUserCommandCooldowns.get(this.getCommand)
         .startCooldown()
@@ -79,7 +78,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         " " +
         channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
         "! You lucky bastard!", this.getChannelOrigin)
-      sender.setPoints(sender.getPoints + price + wage)
+      sender.setPoints(sender.points + price + wage)
       sender.getUserCommandCooldowns.get(this.getCommand)
         .startCooldown()
     } else if (outcome <= 200) {
@@ -88,7 +87,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         " " +
         channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
         " and returned your bet! Pretty good!", this.getChannelOrigin)
-      sender.setPoints(sender.getPoints + price + wage)
+      sender.setPoints(sender.points + price + wage)
       sender.getUserCommandCooldowns.get(this.getCommand)
         .startCooldown()
     } else if (outcome <= 450) {
@@ -97,7 +96,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         " " +
         channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
         "!", this.getChannelOrigin)
-      sender.setPoints(sender.getPoints + wage / 2)
+      sender.setPoints(sender.points + wage / 2)
       sender.getUserCommandCooldowns.get(this.getCommand)
         .startCooldown()
       this.setJackpot(this.getJackpot + wage / 2)
@@ -111,7 +110,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     }
   }
 
-  def getJackpot(): Double = {
+  def getJackpot: Double = {
     this.otherData.get("jackpot").toDouble
   }
 

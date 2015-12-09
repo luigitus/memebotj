@@ -15,7 +15,7 @@ public class ModeratorsCommand extends CommandHandler {
 	public void commandScript(UserHandler sender, ChannelHandler channelHandler, String[] data) {
 		String outStr = "";
 		for (String key : channelHandler.getUserList().keySet()) {
-			if (channelHandler.getUserList().get(key).isMod())
+			if (channelHandler.getUserList().get(key).isModerator())
 				outStr = outStr + ", " + channelHandler.getUserList().get(key).getUsername();
 		}
 
