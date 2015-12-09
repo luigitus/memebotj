@@ -1,13 +1,9 @@
 package me.krickl.memebotj.InternalCommands
 
-import java.security.SecureRandom
-import java.util.ArrayList
 import java.util.Random
 import me.krickl.memebotj.ChannelHandler
 import me.krickl.memebotj.CommandHandler
 import me.krickl.memebotj.UserHandler
-//remove if not needed
-import scala.collection.JavaConversions._
 
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
@@ -30,7 +26,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     var wage: Double = 20.0f
     try {
       if (data(0) == "jackpot") {
-        channelHandler.sendMessage(f"Current jackpot: ${this.getJackpot%.2f} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.getChannelOrigin)
+        channelHandler.sendMessage(f"Current jackpot: ${this.getJackpot} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.getChannelOrigin)
         return
       } else if (data(0) == "reset" &&
         CommandHandler.checkPermission(sender.getUsername, 75, channelHandler.getUserList)) {
@@ -65,47 +61,35 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     val outcome = ran.nextInt(range - wage.toInt / 4)
     if (outcome <= 3) {
       channelHandler.sendMessage(sender.getUsername + ": Dampé found " + java.lang.Double.toString(1000 + this.getJackpot) +
-        " " +
-        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
-        "! You lucky bastard!", this.getChannelOrigin)
+        " " + channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin)
+
       sender.setPoints(sender.points + 1000 + this.getJackpot + wage)
       this.setJackpot(0)
-      sender.getUserCommandCooldowns.get(this.getCommand)
-        .startCooldown()
+      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+
     } else if (outcome <= 50) {
       val price = 10 * (Math.sqrt(wage) * 5)
       channelHandler.sendMessage(sender.getUsername + ": Dampé found " + java.lang.Double.toString(price) +
-        " " +
-        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
-        "! You lucky bastard!", this.getChannelOrigin)
+        " " + channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") + "! You lucky bastard!", this.getChannelOrigin)
       sender.setPoints(sender.points + price + wage)
-      sender.getUserCommandCooldowns.get(this.getCommand)
-        .startCooldown()
+      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 200) {
       val price = 3 * (Math.sqrt(wage) * 5)
       channelHandler.sendMessage(sender.getUsername + ": Dampé found " + java.lang.Double.toString(price) +
-        " " +
-        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
-        " and returned your bet! Pretty good!", this.getChannelOrigin)
+        " " + channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") + " and returned your bet! Pretty good!", this.getChannelOrigin)
       sender.setPoints(sender.points + price + wage)
-      sender.getUserCommandCooldowns.get(this.getCommand)
-        .startCooldown()
+      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 450) {
       channelHandler.sendMessage(sender.getUsername + ": Dampé is being a dick and returned " +
         java.lang.Double.toString(wage / 2) +
-        " " +
-        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
-        "!", this.getChannelOrigin)
+        " " + channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") + "!", this.getChannelOrigin)
       sender.setPoints(sender.points + wage / 2)
-      sender.getUserCommandCooldowns.get(this.getCommand)
-        .startCooldown()
+      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage / 2)
     } else {
       channelHandler.sendMessage(sender.getUsername + ": Dampé spent your " +
-        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") +
-        " on hookers, booze and crack!", this.getChannelOrigin)
-      sender.getUserCommandCooldowns.get(this.getCommand)
-        .startCooldown()
+        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") + " on hookers, booze and crack!", this.getChannelOrigin)
+      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage)
     }
   }

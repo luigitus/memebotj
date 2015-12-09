@@ -195,7 +195,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new HugCommand(this.channel, "!mehug", "#internal#"))
 
-  this.internalCommands.add(new ModeratorsCommand(this.channel, "!moderators", "#internal#"))
+  //this.internalCommands.add(new ModeratorsCommand(this.channel, "!moderators", "#internal#"))
 
   this.internalCommands.add(new JoinCommand(this.channel, "!mejoin", "#internal#"))
 
@@ -213,7 +213,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   //this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"))
 
-  this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"))
+  //this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"))
 
   this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"))
 
@@ -225,7 +225,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"))
 
-  this.internalCommands.add(new GiveAwayPollCommand(this.channel, "!giveaway", "#internal#"))
+  //this.internalCommands.add(new GiveAwayPollCommand(this.channel, "!giveaway", "#internal#"))
 
   this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"))
 
@@ -412,7 +412,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  @Deprecated
   def writeHTML() {
     if (!Memebot.useWeb) {
       return
@@ -658,7 +657,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           try {
             ircTags.put(tag.split("=")(0), tag.split("=")(1))
           } catch {
-            case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
+            case e: ArrayIndexOutOfBoundsException =>
           }
         }
       } else if (i == 0 || (i == 1 && senderName.isEmpty)) {
