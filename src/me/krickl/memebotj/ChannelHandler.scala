@@ -289,8 +289,10 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     //let update loop run independently
     val updateThread = new Thread {
       override def run(): Unit = {
-        updateLoop()
-        Thread.sleep(100)
+        while(isJoined) {
+          update()
+          Thread.sleep(100)
+        }
       }
     }
     updateThread.start()
@@ -311,12 +313,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       } catch {
         case e: InterruptedException => e.printStackTrace()
       }
-    }
-  }
-
-  def updateLoop(): Unit = {
-    while(this.isJoined) {
-      this.update()
     }
   }
 
