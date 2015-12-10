@@ -52,7 +52,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var raceBaseURL: String = "http://kadgar.net/live"
   @BeanProperty
-  var greetMessage: String = "" //"Hello I'm {appname} {version} build {build} the dankest irc bot ever RitzMitz"
+  var greetMessage: String = "Hello I'm {appname} {version} the dankest irc bot ever RitzMitz"
   @BeanProperty
   var currentRaceURL: String = ""
   @BeanProperty

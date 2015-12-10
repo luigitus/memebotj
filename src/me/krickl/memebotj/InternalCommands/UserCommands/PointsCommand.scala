@@ -42,6 +42,9 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 					}
 					if (target != null && !this.getSuccess) {
 						val number = java.lang.Double.parseDouble(data(2))
+						if(number < 0) {
+							return
+						}
 						val tax = number / 100 * 10
 						if (data(0) == "send") {
 							if (this.checkCost(sender, number + tax, channelHandler)) {

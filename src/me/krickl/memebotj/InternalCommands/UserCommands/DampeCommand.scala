@@ -51,15 +51,15 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       channelHandler.sendMessage(f"Sorry you don't have ${"%.2f".format(wage)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}.", this.getChannelOrigin)
       return
     }
-    if (wage > 500) {
-      channelHandler.sendMessage("Sorry the wage can't be more than 500 " +
+    if (wage > 10000) {
+      channelHandler.sendMessage("Sorry the wage can't be more than 10000 " +
         channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"), this.getChannelOrigin)
       return
     }
     sender.setPoints(sender.points - wage)
     val ran = new Random()
     val range = 1000
-    val outcome = ran.nextInt(range - wage.toInt / 4)
+    val outcome = ran.nextInt(range) //- wage.toInt / 4)
     if (outcome <= 3) {
       channelHandler.sendMessage(f"${sender.getUsername}: Dampé found ${"%.2f".format(1000 + this.getJackpot)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! Damn you're good!", this.getChannelOrigin)
 
