@@ -1,10 +1,6 @@
-package me.krickl.memebotj.InternalCommands
+package me.krickl.memebotj.InternalCommands.UserCommands
 
-import me.krickl.memebotj.BuildInfo
-import me.krickl.memebotj.ChannelHandler
-import me.krickl.memebotj.CommandHandler
-import me.krickl.memebotj.Memebot
-import me.krickl.memebotj.UserHandler
+import me.krickl.memebotj.{BuildInfo, ChannelHandler, CommandHandler, UserHandler}
 
 class AboutCommand(channel: String,command: String, dbprefix: String) extends CommandHandler(channel, command, dbprefix) {
   this.setHelptext("")

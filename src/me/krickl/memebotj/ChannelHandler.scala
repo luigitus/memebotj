@@ -9,6 +9,10 @@ import java.util.{ArrayList, Arrays, HashMap}
 
 import com.mongodb.Block
 import com.mongodb.client.MongoCollection
+import me.krickl.memebotj.InternalCommands.AdminCommands._
+import me.krickl.memebotj.InternalCommands.FunCommands._
+import me.krickl.memebotj.InternalCommands.ModeratorCommands._
+import me.krickl.memebotj.InternalCommands.UserCommands._
 import me.krickl.memebotj.InternalCommands._
 import org.bson.Document
 import org.json.simple.JSONObject

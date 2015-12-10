@@ -1,19 +1,14 @@
-package me.krickl.memebotj.InternalCommands
+package me.krickl.memebotj.InternalCommands.UserCommands
 
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.{URLEncoder, HttpURLConnection, MalformedURLException, URL}
-import java.util.ArrayList
-import java.util.Random
-import me.krickl.memebotj.ChannelHandler
-import me.krickl.memebotj.CommandHandler
-import me.krickl.memebotj.UserHandler
-import org.json.simple.{JSONArray, JSONObject}
+import java.io.{BufferedReader, IOException, InputStreamReader}
+import java.net.{HttpURLConnection, MalformedURLException, URL, URLEncoder}
+import java.util.{ArrayList, Random}
+
+import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 import org.json.simple.parser.JSONParser
+import org.json.simple.{JSONArray, JSONObject}
 
 //remove if not needed
-import scala.collection.JavaConversions._
 
 class SpeedrunCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
     command, dbprefix) {

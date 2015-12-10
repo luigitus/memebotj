@@ -1,6 +1,6 @@
-package me.krickl.memebotj.InternalCommands
+package me.krickl.memebotj.InternalCommands.FunCommands
 
-import me.krickl.memebotj.CommandHandler
+import me.krickl.memebotj.InternalCommands.UserCommands.SpeedrunCommand
 
 /**
  * Created by unlink on 16/11/15.

@@ -1,4 +1,4 @@
-package me.krickl.memebotj.InternalCommands
+package me.krickl.memebotj.InternalCommands.FunCommands
 
 import java.util.ArrayList
 

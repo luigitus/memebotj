@@ -1,9 +1,6 @@
-package me.krickl.memebotj.InternalCommands
+package me.krickl.memebotj.InternalCommands.AdminCommands
 
-import me.krickl.memebotj.ChannelHandler
-import me.krickl.memebotj.CommandHandler
-import me.krickl.memebotj.Memebot
-import me.krickl.memebotj.UserHandler
+import me.krickl.memebotj.{ChannelHandler, CommandHandler, Memebot, UserHandler}
 //remove if not needed
 import scala.collection.JavaConversions._
 

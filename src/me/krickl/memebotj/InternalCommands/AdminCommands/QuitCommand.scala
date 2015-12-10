@@ -1,8 +1,6 @@
-package me.krickl.memebotj.InternalCommands
+package me.krickl.memebotj.InternalCommands.AdminCommands
 
-import me.krickl.memebotj.ChannelHandler
-import me.krickl.memebotj.CommandHandler
-import me.krickl.memebotj.UserHandler
+import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 
 class QuitCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {

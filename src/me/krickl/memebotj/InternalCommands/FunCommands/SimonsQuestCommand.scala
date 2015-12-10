@@ -1,5 +1,4 @@
-package me.krickl.memebotj.InternalCommands
-
+package me.krickl.memebotj.InternalCommands.FunCommands
 
 /**
  * Created by unlink on 18/11/15.
