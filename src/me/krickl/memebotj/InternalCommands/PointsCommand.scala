@@ -52,7 +52,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 								channelHandler.sendMessage(f"${sender.getUsername}: You sent $number ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")} to ${target.getUsername}", this.getChannelOrigin)
 							}
 						} else {
-							channelHandler.sendMessage(f"${target.getUsername}: Sorry you don't have ${number + tax} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.getChannelOrigin)
+							channelHandler.sendMessage(f"${sender.getUsername}: Sorry you don't have ${number + tax} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.getChannelOrigin)
 						}
 					}
 				} catch {
