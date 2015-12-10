@@ -76,8 +76,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var otherLoadedChannels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
   @BeanProperty
-  var autogreetList: java.util.HashMap[String, String] = new java.util.HashMap[String, String]()
-  @BeanProperty
   var channelCollection: MongoCollection[Document] = _
   @BeanProperty
   var pointsPerUpdate: Double = 1.0f
@@ -101,8 +99,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var random: SecureRandom = new SecureRandom()
   @BeanProperty
   var privateKey: String = new BigInteger(130, random).toString(32)
-  @BeanProperty
-  var apiConnectionIP: String = ""
   @BeanProperty
   var urlRegex: String = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
   @BooleanBeanProperty
@@ -179,23 +175,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new AboutCommand(this.channel, "!about", "#internal#"))
 
-  //this.internalCommands.add(new AddCommandHandler(this.channel, "!addcommand", "#internal#"))
-
   this.internalCommands.add(new AutogreetCommand(this.channel, "!autogreet", "#internal#"))
 
   this.internalCommands.add(new EditChannel(this.channel, "!channel", "#internal#"))
 
-  //this.internalCommands.add(new EditCommand(this.channel, "!editcommand", "#internal#"))
-
   this.internalCommands.add(new CommandList(this.channel, "!commands", "#internal#"))
-
-  //this.internalCommands.add(new DeletCommandHandler(this.channel, "!deletecommand", "#internal#"))
 
   this.internalCommands.add(new HelpCommand(this.channel, "!help", "#internal#"))
 
   this.internalCommands.add(new HugCommand(this.channel, "!mehug", "#internal#"))
-
-  //this.internalCommands.add(new ModeratorsCommand(this.channel, "!moderators", "#internal#"))
 
   this.internalCommands.add(new JoinCommand(this.channel, "!mejoin", "#internal#"))
 
@@ -211,10 +199,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new WhoisCommand(this.channel, "!whois", "#internal#"))
 
-  //this.internalCommands.add(new MujuruGame(this.channel, "!mujuru", "#internal#"))
-
-  //this.internalCommands.add(new HypeCommand(this.channel, "!hype", "#internal#"))
-
   this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"))
 
   this.internalCommands.add(new SpeedrunCommand(this.channel, "!run", "#internal#"))
@@ -225,21 +209,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"))
 
-  //this.internalCommands.add(new GiveAwayPollCommand(this.channel, "!giveaway", "#internal#"))
-
   this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"))
 
   this.internalCommands.add(new PyramidCommand(this.channel, "!pyramid", "#internal#"))
 
   this.internalCommands.add(new CommandManager(this.channel, "!command", "#internal#"))
 
-  //this.internalCommands.add(new APIInformationCommand(this.channel, "!apiinfo", "#internal#"))
-
   this.internalCommands.add(new ChannelInfoCommand(this.channel, "!ci", "#internal#"))
 
   this.internalCommands.add(new UptimeCommand(this.channel, "!uptime", "#internal#"))
-
-  //this.internalCommands.add(new AliasCommand(this.channel, "!alias", "#internal#"))
 
   this.internalCommands.add(new BobRossCommand(this.channel, "!bobross", "#internal#"))
 
@@ -249,12 +227,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new RestartThreadCommand(this.channel, "!restartt", "#internal#"))
 
-  /*val fileNameListCommand = new CommandHandler(this.channel, "!namelist", "#internal#")
-
-  fileNameListCommand.editCommand("output", this.channelPageBaseURL + "/filenames.html", new UserHandler("#internal#",
-    this.channel), userList)
-
-  this.internalCommands.add(fileNameListCommand)*/
   @BeanProperty
   var spamPrevention = false
 
@@ -271,15 +243,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   mrDestructoidCommand.setExcludeFromCommandList(true)
 
   this.internalCommands.add(mrDestructoidCommand)
-
-  //import old autogreets
-  for (key <- this.autogreetList.keySet()) {
-    val autogreet = this.autogreetList.get(key)
-    val newUser = new UserHandler(key, this.channel)
-    if (newUser.getAutogreet == "") {
-      newUser.setAutogreet(autogreet)
-    }
-  }
 
   this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName)
     .replace("{version}", BuildInfo.version)
@@ -600,19 +563,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     ChannelHandler.getLog.info("Saving data in db for channel " + this.channel)
     val channelQuery = new Document("_id", this.channel)
     val bultinStringsDoc = new Document()
-    val autogreetDoc = new Document()
     for (key <- this.builtInStrings.keySet) {
       bultinStringsDoc.append(key, this.builtInStrings.get(key))
     }
-    for (key <- this.autogreetList.keySet) {
-      autogreetDoc.append(key, this.autogreetList.get(key))
-    }
+
     val channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
       .append("raceurl", this.raceBaseURL)
       .append("fileanmelist", this.fileNameList)
       .append("otherchannels", this.otherLoadedChannels)
       .append("builtinstrings", bultinStringsDoc)
-      .append("autogreet", autogreetDoc)
       .append("pointsperupdate", this.pointsPerUpdate)
       .append("allowautogreet", this.allowAutogreet)
       .append("privatekey", this.privateKey)
@@ -791,30 +750,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         case e: java.util.regex.PatternSyntaxException => e.printStackTrace()
       }
 
-      //alias
-      /*try {
-        for (alias <- this.aliasList) {
-          val aliasSplit = alias.split("#")
-          if (aliasSplit(0) == msg) {
-            val buffer = new ArrayList[String]()
-            for (str <- aliasSplit(1).split("_")) {
-              buffer.add(str)
-            }
-            try {
-              for (str <- Arrays.copyOfRange(data, buffer.size - 1, data.length)) {
-                buffer.add(str)
-              }
-            } catch {
-              case e: java.lang.IllegalArgumentException => e.printStackTrace()
-            }
-            data = buffer.toArray(Array.ofDim[String](buffer.size)).asInstanceOf[Array[String]]
-            msg = data(0)
-          }
-        }
-      } catch {
-        case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
-      }*/
-
       //channel commands
       var p = this.findCommand(msg)
       if (p != -1) {
@@ -955,17 +890,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.purgeURLS = channelData.getOrDefault("purgelinks", this.purgeURLS.toString).toString.toBoolean
       this.purgeURLSNewUsers = channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers.toString).toString.toBoolean
       this.urlRegex = channelData.getOrDefault("urlreges", this.urlRegex).asInstanceOf[String]
-      //this.aliasList = channelData.getOrDefault("alias", this.aliasList).asInstanceOf[ArrayList[String]]
       val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
-      val autogreetDoc = channelData.getOrDefault("autogreet", new Document()).asInstanceOf[Document]
       this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
       this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
-      }
-      for (key <- autogreetDoc.keySet) {
-        this.autogreetList.put(key, autogreetDoc.getString(key))
       }
     }
     val commandCollection = Memebot.db.getCollection(this.channel + "_commands")

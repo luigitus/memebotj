@@ -10,10 +10,10 @@ import me.krickl.memebotj.UserHandler
 
 	override protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
 		try {
-		  channelHandler.sendMessage(String.format("%s hugs %s. HOW CUTE!", sender.toString(), data(0)), this.getChannelOrigin)
+		  channelHandler.sendMessage(String.format("%s hugs %s. HOW CUTE!", sender.username, data(0)), this.getChannelOrigin)
 		} catch {
 		  case e: ArrayIndexOutOfBoundsException => {
-			  channelHandler.sendMessage(sender.toString() + " hugs nobody. How pathetic!", this.getChannelOrigin())
+			  channelHandler.sendMessage(sender.username + " hugs nobody. How pathetic!", this.getChannelOrigin)
 		  }
 		}
 	}

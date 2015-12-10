@@ -36,7 +36,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
           channelHandler.getCurrentFileName().split("#")(1), this.getChannelOrigin)
         return
       } else if (data(0) == "list") {
-        channelHandler.sendMessage(s"${channelHandler.getChannelPageBaseURL} /filenames.html", this.channelOrigin)
+        channelHandler.sendMessage(s"${channelHandler.getChannelPageBaseURL}/filenames.html", this.channelOrigin)
         return
       } else if (data(0) == "remove" &&
         CommandHandler.checkPermission(sender.getUsername, this.getNeededBroadcasterCommandPower, channelHandler.getUserList)) {

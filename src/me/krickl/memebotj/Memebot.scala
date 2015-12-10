@@ -55,7 +55,7 @@ import com.mongodb.client.MongoDatabase
 //import me.krickl.memebotj.api.APIConnectionHandler
 
 /***
- * Memebot is a simpe irc bot for twitch.tv wirtten in Java
+ * Memebot is a simpe irc bot for twitch.tv written in Scala
  * @author unlink
  *
  */
@@ -82,8 +82,6 @@ object Memebot {
 	var mongoUser: String = ""
 	var mongoPassword: String = ""
 	var useMongoAuth: Boolean = false
-	// List<BlacklistModel> blackList = new
-	// ArrayList<BlacklistModel>()
 	var pid: Int = 0
 	var channels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
 
@@ -107,9 +105,6 @@ object Memebot {
 
 	var isBotMode: Boolean = true
 
-	//var apiConnection: APIConnectionHandler = null
-
-	// final ConsoleHandler ch = new ConsoleHandler()
 
 	def main(args: Array[String]) {
 		//soon to be used
@@ -186,7 +181,7 @@ object Memebot {
 			})
 		}
 
-		Memebot.log.info(f"${BuildInfo.appName} version ${BuildInfo.version} build ${BuildInfo.buildNumber} build on ${BuildInfo.timeStamp}")
+		Memebot.log.info(f"${BuildInfo.appName} version ${BuildInfo.version} build ${BuildInfo.buildNumber} built on ${BuildInfo.timeStamp}")
 
 		// get pid and write to file
 		val f = new File(memebotDir + "/pid")
@@ -232,10 +227,6 @@ object Memebot {
 				val channel: String = it.next
 				Memebot.joinChannel(channel)
 			}
-
-      //this.apiConnection = new APIConnectionHandler(Memebot.apiport)
-			//start api thread
-			//apiConnection.start()
 
 			//auto rejoin if a thread crashes
 			while(true) {

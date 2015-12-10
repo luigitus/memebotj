@@ -36,18 +36,13 @@ class AutogreetCommand(channel: String, command: String, dbprefix: String) exten
 				}
 			} else if (data(0) == "remove" &&
 					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
-				if (channelHandler.getAutogreetList.containsKey(nameToModify)) {
-					channelHandler.getAutogreetList.remove(nameToModify)
-				} else if (!user.newUser) {
+				if (!user.newUser) {
 					user.setAutogreet("")
 					user.writeDBUserData()
 					message = "Autogreet removed"
 				}
 			} else if (data(0) == "get") {
 				if (!user.newUser) {
-					if (channelHandler.getAutogreetList.containsKey(nameToModify)) {
-						user.setAutogreet(channelHandler.getAutogreetList.get(nameToModify))
-					}
 					channelHandler.sendMessage("Autogreet for " + user.getUsername + ": " + user.getAutogreet,
 						this.getChannelOrigin)
 				}
