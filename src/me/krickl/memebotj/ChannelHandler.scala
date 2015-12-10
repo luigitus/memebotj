@@ -286,6 +286,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   override def run() {
+    //let update loop run independently
+    val updateThread = new Thread {
+      override def run(): Unit = {
+        updateLoop()
+        Thread.sleep(100)
+      }
+    }
+    updateThread.start()
+
     while (this.isJoined) {
       var ircmsg = Array("", "")
       try {
@@ -293,7 +302,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       } catch {
         case e: IOException => e.printStackTrace()
       }
-      this.update()
+      //this.update()
       if (this.getChannel.equalsIgnoreCase(ircmsg(0))) {
         this.handleMessage(ircmsg(1))
       }
@@ -302,6 +311,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       } catch {
         case e: InterruptedException => e.printStackTrace()
       }
+    }
+  }
+
+  def updateLoop(): Unit = {
+    while(this.isJoined) {
+      this.update()
     }
   }
 
