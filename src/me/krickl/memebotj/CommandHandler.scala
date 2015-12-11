@@ -109,12 +109,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   @BeanProperty
   var userCooldownLen = 0
-  @BeanProperty
-  var appendGameToQuote = false
-  @BeanProperty
-  var appendDateToQuote = false
-  @BeanProperty
-  var appendSenderToQuote = false
+
   @BeanProperty
   var appendToQuoteString = ""
 
@@ -165,7 +160,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: java.util.HashMap[String, UserHandler]): String = {
     this.success = true
 
-
     if (this.overrideHandleMessage) {
       return "override"
     }
@@ -201,10 +195,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return "cost"
     }
 
-    val sdfDate = new SimpleDateFormat("yyyy-MM-dd") // dd/MM/yyyy
-    val cal = Calendar.getInstance()
-    val strDate = sdfDate.format(cal.getTime)
-
     var formattedOutput = this.unformattedOutput
     val counterStart = 1
     //var success = true
@@ -217,13 +207,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             newEntry = newEntry + " " + data(i)
           }
           if (!newEntry.isEmpty) {
-            if (this.appendDateToQuote) {
-              newEntry = newEntry + " <" + strDate + ">"
-            }
-            if (this.appendGameToQuote) {
-              newEntry = newEntry + " <" + channelHandler.getCurrentGame + ">"
-            }
-
             this.listContent.add(newEntry + " " + Memebot.formatText(this.appendToQuoteString, channelHandler, sender, this))
             formattedOutput = "Added "
           } else {
@@ -477,12 +460,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } else if (modType.equals("usercooldown")) {
         this.userCooldownLen = Integer.parseInt(newValue)
         success = true
-      } else if (modType.equals("appenddate")) {
-        this.appendDateToQuote = newValue.toBoolean
-        success = true
-      } else if (modType.equals("appendgame")) {
-        this.appendGameToQuote = newValue.toBoolean
-        success = true
       } else if (modType.equals("script") && CommandHandler.checkPermission(sender.getUsername, 75, userList)) {
         this.commandScript = newValue
         success = true
@@ -500,9 +477,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         success = true
       } else if (modType.equals("autoremove")) {
         this.removeFromListOnPickIfMod = newValue.toBoolean
-        success = true
-      } else if (modType.equals("appendsender")) {
-        this.appendSenderToQuote = true
         success = true
       } else if (modType == "appendtoquote") {
         this.appendToQuoteString = newValue
@@ -552,14 +526,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       .append("modpower", this.neededModCommandPower)
       .append("broadcasterpower", this.neededBroadcasterCommandPower)
       .append("botadminpower", this.neededBotAdminCommandPower).append("usercooldown", this.userCooldownLen)
-      .append("appendgame", this.appendGameToQuote).append("appenddate", this.appendDateToQuote)
       .append("script", this.commandScript)
       .append("enable", this.enable)
       .append("cooldownbypasspower", this.neededCooldownBypassPower)
       .append("allowpick", this.allowPicksFromList)
       .append("addpower", this.neededAddPower)
       .append("autoremove", this.removeFromListOnPickIfMod)
-      .append("appendsender", this.appendSenderToQuote)
       .append("appendtoquote", this.appendToQuoteString)
       .append("overridehandlemessage", this.overrideHandleMessage)
       .append("execcounter", this.execCounter)
@@ -625,15 +597,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.neededBroadcasterCommandPower = channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower.toString).toString.toInt
       this.neededBotAdminCommandPower = channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower.toString).toString.toInt
       this.userCooldownLen = channelData.getOrDefault("usercooldown", this.userCooldownLen.toString).toString.toInt
-      this.appendDateToQuote = channelData.getOrDefault("appendgame", this.appendDateToQuote.toString).toString.toBoolean
-      this.appendGameToQuote = channelData.getOrDefault("appenddate", this.appendGameToQuote.toString).toString.toBoolean
       this.commandScript = channelData.getOrDefault("script", this.commandScript.toString).toString
       this.enable = channelData.getOrDefault("enable", this.enable.toString).toString.toBoolean
       this.neededCooldownBypassPower = channelData.getOrDefault("cooldownbypass", this.neededCooldownBypassPower.toString).toString.toInt
       this.allowPicksFromList = channelData.getOrDefault("allowpick", this.allowPicksFromList.toString).toString.toBoolean
       this.neededAddPower = channelData.getOrDefault("addpower", this.neededAddPower.toString).toString.toInt
       this.removeFromListOnPickIfMod = channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod.toString).toString.toBoolean
-      this.appendSenderToQuote = channelData.getOrDefault("appendsender", this.appendSenderToQuote.toString).toString.toBoolean
       this.appendToQuoteString = channelData.getOrDefault("appendtoquote", this.appendToQuoteString).toString
       this.overrideHandleMessage = channelData.getOrDefault("overridehandlemessage", this.overrideHandleMessage.toString).toString.toBoolean
       this.execCounter = channelData.getOrDefault("execcounter", this.execCounter.toString).toString.toInt

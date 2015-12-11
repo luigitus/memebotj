@@ -3,6 +3,7 @@ package me.krickl.memebotj
 import java.math.BigInteger
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
+import java.util
 import java.util.{Calendar, HashMap}
 import java.util.logging.Logger
 
@@ -71,11 +72,12 @@ class UserHandler(usernameNew: String, channelNew: String) {
   @BeanProperty
 	var lastMessages = Array.ofDim[String](10)
 
+	var timeSinceActivity = System.currentTimeMillis()
+
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
 	}
 
-	// this.loadUserData()
 	readDBUserData()
 
   if(dateJoined == "null") {
@@ -92,9 +94,6 @@ class UserHandler(usernameNew: String, channelNew: String) {
 		if (!Memebot.useMongo) {
 			return
 		}
-
-		// System.out.printf("Saving data in db for channel %s\n",
-		// this.command)
 
 		val channelQuery = new Document("_id", this.username)
 
@@ -130,7 +129,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
 		// read data
 		if (channelData != null) {
-			this.isModerator = channelData.getBoolean("vip", this.isModerator)
+			this.isModerator = channelData.getBoolean("mod", this.isModerator)
 			this.points = channelData.getOrDefault("pointsf", this.points.asInstanceOf[Object]).asInstanceOf[Double]
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString
 			this.customCommandPower = channelData.getOrDefault("ccommandpower", this.customCommandPower.asInstanceOf[Object]).asInstanceOf[Int]
@@ -170,5 +169,17 @@ class UserHandler(usernameNew: String, channelNew: String) {
       return username
     }
     this.nickname
+  }
+
+  def canRemove: Boolean = {
+    // remove user after 1 hour (0x36EE80) of inactivity
+    val tmpUserList = new util.HashMap[String, UserHandler]()
+    tmpUserList.put(this.username, this)
+    if ((System.currentTimeMillis() - this.timeSinceActivity) > 0x36EE80 && username != "#internal#" && username != "#readonly#" && !CommandHandler.checkPermission(this.username, 50, tmpUserList)) {
+      UserHandler.log.info(f"Removed user ${this.username} for inactivity ${this.timeSinceActivity}")
+      return true
+    }
+
+    false
   }
 }

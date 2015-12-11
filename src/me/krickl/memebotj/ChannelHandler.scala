@@ -4,6 +4,7 @@ import java.io.{BufferedReader, BufferedWriter, File, FileWriter, IOException, I
 import java.math.BigInteger
 import java.net.{HttpURLConnection, MalformedURLException, URL, URLEncoder}
 import java.security.SecureRandom
+import java.util
 import java.util.logging.Logger
 import java.util.{ArrayList, Arrays, HashMap}
 
@@ -109,6 +110,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var purgeURLS: Boolean = false
   @BooleanBeanProperty
   var purgeURLSNewUsers: Boolean = false
+  var givePointsWhenOffline = false
 
   ChannelHandler.getLog.info("Joining channel " + this.channel)
   @BeanProperty
@@ -120,6 +122,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   val htmlDirF = new File(this.htmlDir)
   @BeanProperty
   val issueCommand = new CommandHandler(this.channel, "!issue", "#internal#")
+  @BeanProperty
+  val readOnlyUser = new UserHandler("#readonly#", this.channel)
 
   val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
@@ -376,14 +380,26 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       }
       this.writeDBChannelData()
       this.writeHTML()
-      for (key <- this.userList.keySet) {
+
+      val removeUsers = new java.util.ArrayList[String]()
+      val it = this.userList.keySet.iterator()
+      while (it.hasNext) {
+        val key = it.next()
         val uh = this.userList.get(key)
         uh.update()
-        if (this.isLive) {
+        if (this.isLive || this.givePointsWhenOffline) {
           uh.setPoints(uh.points + this.pointsPerUpdate)
         }
         uh.writeDBUserData()
+
+        if(uh.canRemove) {
+          removeUsers.add(key)
+        }
       }
+      for(user <- removeUsers) {
+        this.userList.remove(user)
+      }
+
       for (ch <- this.channelCommands) {
         ch.update(this)
       }
@@ -597,6 +613,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("silent", this.silentMode)
       .append("preventspam", this.spamPrevention)
       .append("spamtimeout", this.spamTimeout)
+      .append("pointswhenoffline", this.givePointsWhenOffline)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -791,7 +808,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         if (ch.getChannel == och || ch.getBroadcaster == och) {
           p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))
           if (p != -1 && msg.contains(channel)) {
-            ch.getChannelCommands.get(p).executeCommand(new UserHandler("#readonly#", this.channel), this, data, userList)
+            ch.getChannelCommands.get(p).executeCommand(readOnlyUser, this, data, userList)
           }
         }
       }
@@ -802,6 +819,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         val ch = this.internalCommands.get(p)
         ch.executeCommand(sender, this, java.util.Arrays.copyOfRange(data, 1, data.length), userList)
       }
+
+      //set user activity
+      sender.timeSinceActivity = System.currentTimeMillis()
     }
   }
 
@@ -909,6 +929,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
       this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
+      this.givePointsWhenOffline = channelData.getOrDefault("pointswhenoffline", this.givePointsWhenOffline.asInstanceOf[Object]).asInstanceOf[Boolean]
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }

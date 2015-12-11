@@ -52,7 +52,6 @@ import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 
-//import me.krickl.memebotj.api.APIConnectionHandler
 
 /***
  * Memebot is a simpe irc bot for twitch.tv written in Scala
@@ -64,10 +63,8 @@ object Memebot {
 
 	var ircServer: String = "irc.twitch.tv"
 	var ircport: Int = 6667
-	var apiport: Int = 6532
 	var mongoHost: String = "localhost"
 	var mongoPort: Int = 27017
-	var apiMasterKey: String = "debug::key"
 	var mongoDBName: String = "memebot"
 	var home: String = System.getProperty("user.home")
 	var memebotDir: String = System.getProperty("user.home") + "/.memebot"
@@ -162,8 +159,6 @@ object Memebot {
 		Memebot.useMongoAuth = config.getProperty("mongoauth", Memebot.useMongoAuth.toString).toBoolean
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL)
 		Memebot.useWeb = config.getProperty("useweb", Memebot.useWeb.toString).toBoolean
-		Memebot.apiMasterKey = config.getOrDefault("apimasterkey", Memebot.apiMasterKey).toString
-		Memebot.apiport = config.getOrDefault("apiport", Memebot.apiport.toString).toString.toInt
 
 		if(Memebot.isBotMode) {
 			// shutdown hook
