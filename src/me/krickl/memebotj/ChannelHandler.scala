@@ -1,6 +1,6 @@
 package me.krickl.memebotj
 
-import java.io.{BufferedReader, BufferedWriter, File, FileWriter, IOException, InputStreamReader}
+import java.io._
 import java.math.BigInteger
 import java.net.{HttpURLConnection, MalformedURLException, URL, URLEncoder}
 import java.security.SecureRandom
@@ -21,7 +21,6 @@ import org.json.simple.parser.{JSONParser, ParseException}
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.util.control.Breaks._
-
 //remove if not needed
 import scala.collection.JavaConversions._
 

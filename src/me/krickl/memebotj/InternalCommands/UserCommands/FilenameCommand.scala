@@ -11,7 +11,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
 
   this.setHelptext("Syntax: !name <filename> (100 points/name) || !name get || !name current")
 
-  this.setListregex("/^[一-龠ぁ-ゔァ-ヴーa-zA-Z0-9_,.-々〆〤]{1,8}$/u")
+  //this.setListregex("/^[一-龠ぁ-ゔァ-ヴーa-zA-Z0-9_,.-々〆〤]{1,8}$/u")
 
   this.setPointCost(0)
 
@@ -32,7 +32,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       } else if (data(0) == "current") {
         channelHandler.sendMessage("Filename: " + channelHandler.getCurrentFileName.split("#")(0) +
           " suggested by " +
-          channelHandler.getCurrentFileName().split("#")(1), this.getChannelOrigin)
+          channelHandler.getCurrentFileName.split("#")(1), this.getChannelOrigin)
         return
       } else if (data(0) == "list") {
         channelHandler.sendMessage(s"${channelHandler.getChannelPageBaseURL}/filenames.html", this.channelOrigin)
@@ -56,20 +56,25 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       try {
         i = java.lang.Integer.parseInt(data(1))
       } catch {
-        case e @ (_: ArrayIndexOutOfBoundsException | _: NumberFormatException) => i = 1
+        case e @ (_: ArrayIndexOutOfBoundsException | _: NumberFormatException) =>
+          channelHandler.sendMessage(this.helptext, this.channelOrigin)
+          return
       }
       var success = false
-      if (data(0).matches(this.listregex) || data(0).length <= channelHandler.getMaxFileNameLen) {
+      if (data(0).length <= channelHandler.getMaxFileNameLen) {
         if (!this.checkCost(sender, 100.0d * i, channelHandler)) {
-          channelHandler.sendMessage(f"Sorry, you don't have ${100f * i} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}",
+          channelHandler.sendMessage(f"${sender.screenName}: Sorry, you don't have ${100f * i} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}",
             this.getChannelOrigin)
         } else {
-          channelHandler.sendMessage(f"${sender.getUsername} added name ${data(0)} ${i} times", this.getChannelOrigin)
+          if(i > 1)
+            channelHandler.sendMessage(f"${sender.screenName} added name ${data(0)} $i times", this.getChannelOrigin)
+          else
+            channelHandler.sendMessage(f"${sender.screenName} added name ${data(0)}", this.getChannelOrigin)
           sender.setPoints(sender.points - (100 * i))
           success = true
         }
       } else {
-        channelHandler.sendMessage("The filename does not match: " + this.getListregex, this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: The filename cannot be longer than ${channelHandler.maxFileNameLen} characters.", this.getChannelOrigin)
       }
       for (c <- 0 until i if success) {
         channelHandler.getFileNameList.add(data(0) + "#" + sender.getUsername)

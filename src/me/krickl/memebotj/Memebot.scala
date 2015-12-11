@@ -81,6 +81,7 @@ object Memebot {
 	var useMongoAuth: Boolean = false
 	var pid: Int = 0
 	var channels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
+  var guiMode = true
 
 	// ConnectionHandler connection = null
 	var joinedChannels: java.util.ArrayList[ChannelHandler] = new java.util.ArrayList[ChannelHandler]()
@@ -106,6 +107,10 @@ object Memebot {
 	def main(args: Array[String]) {
 		//soon to be used
 		for(i <- 0 to args.length) {
+      val arg = args(i)
+      if(arg == "cli") {
+        guiMode = false
+      }
 		}
 
 		// initial setup
@@ -159,6 +164,7 @@ object Memebot {
 		Memebot.useMongoAuth = config.getProperty("mongoauth", Memebot.useMongoAuth.toString).toBoolean
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL)
 		Memebot.useWeb = config.getProperty("useweb", Memebot.useWeb.toString).toBoolean
+    Memebot.useMongo = config.getProperty("usemongo", Memebot.useMongo.toString).toBoolean
 
 		if(Memebot.isBotMode) {
 			// shutdown hook
@@ -203,6 +209,8 @@ object Memebot {
 				}
 				Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName)
 				Memebot.internalCollection = Memebot.db.getCollection("#internal#")
+			} else {
+				new File(Memebot.memebotDir + "/channeldata").mkdirs()
 			}
 
 			try {
@@ -222,6 +230,8 @@ object Memebot {
 				val channel: String = it.next
 				Memebot.joinChannel(channel)
 			}
+
+      initGUI()
 
 			//auto rejoin if a thread crashes
 			while(true) {
@@ -309,5 +319,11 @@ object Memebot {
 			channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
 		formattedOutput
 	}
+
+  def initGUI(): Unit = {
+    if(!Memebot.guiMode) {
+      return
+    }
+  }
 
 }

@@ -209,6 +209,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           if (!newEntry.isEmpty) {
             this.listContent.add(newEntry + " " + Memebot.formatText(this.appendToQuoteString, channelHandler, sender, this))
             formattedOutput = "Added "
+            this.success = false
           } else {
             formattedOutput = "Not added"
             this.success = false
@@ -217,6 +218,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           try {
             this.listContent.remove(Integer.parseInt(data(2)))
             formattedOutput = "Removed"
+            this.success = false
           } catch {
             case e: IndexOutOfBoundsException =>
               formattedOutput = e.toString
@@ -229,6 +231,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
           this.listContent.set(Integer.parseInt(data(2)), newEntry)
           formattedOutput = "Edited"
+          this.success = false
         } else if (data(1).equals("list")) {
           formattedOutput = "List: " + channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
           this.success = false

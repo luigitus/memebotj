@@ -5,7 +5,7 @@ import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 class PointsCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setHelptext("Shows points of user")
+	this.setHelptext("Syntax: !points || !points send <target> <amount>")
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		this.setSuccess(false)
