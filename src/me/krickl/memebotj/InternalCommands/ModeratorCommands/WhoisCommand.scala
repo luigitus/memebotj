@@ -15,6 +15,11 @@ class WhoisCommand(channel: String, command: String, dbprefix: String) extends C
 			var uh: UserHandler = null
 			uh = if (channelHandler.getUserList.containsKey(user)) channelHandler.getUserList.get(user) else new UserHandler(user,
 				this.getChannelOrigin)
+
+      if(uh.newUser) {
+        channelHandler.sendMessage(f"${uh.screenName}: This user never joined this channel" ,this.getChannelOrigin)
+      }
+
 			var isCat = false
 			if (user.contains("cat")) {
 				isCat = true
@@ -30,6 +35,7 @@ class WhoisCommand(channel: String, command: String, dbprefix: String) extends C
 					java.lang.Boolean.toString(!uh.newUser) +
 					" || Date joined: " +
 					uh.getDateJoined +
+					" || Screenname: " + uh.screenName +
 					" || Is user a cat: " +
 					java.lang.Boolean.toString(isCat), this.getChannelOrigin)
 		} catch {

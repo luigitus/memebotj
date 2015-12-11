@@ -295,7 +295,7 @@ object Memebot {
 
 		var formattedOutput = fo
 
-		formattedOutput = formattedOutput.replace("{sender}", sender.username)
+		formattedOutput = formattedOutput.replace("{sender}", sender.screenName)
 		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(commandHandler.counter))
 		formattedOutput = formattedOutput.replace("{points}", sender.points.toString)
 		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString)
