@@ -224,7 +224,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
               newEntry = newEntry + " <" + channelHandler.getCurrentGame + ">"
             }
 
-            this.listContent.add(newEntry + " " + this.formatText(this.appendToQuoteString, channelHandler, sender))
+            this.listContent.add(newEntry + " " + Memebot.formatText(this.appendToQuoteString, channelHandler, sender, this))
             formattedOutput = "Added "
           } else {
             formattedOutput = "Not added"
@@ -331,7 +331,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       }
     }
 
-    formattedOutput = this.formatText(formattedOutput, channelHandler, sender)
+    formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
 
     try {
       for (i <- counterStart to this.param) {
@@ -355,19 +355,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.writeDBCommand()
     }
 
-    // send information to api
-    /*if (!channelHandler.getApiConnectionIP.equals("")) {
-      //Memebot.apiConnection.sendData("pkey=apisourcesender=" + this.command + "request=commandmessage=Command executed", channelHandler.getApiConnectionIP(), Memebot.apiport, channelHandler)
-    }*/
-
     this.execCounter = this.execCounter + 1
 
     "OK"
-  }
-
-  @Deprecated
-  def formatText(fo: String, channelHandler: ChannelHandler, sender: UserHandler): String = {
-    Memebot.formatText(fo, channelHandler, sender, this)
   }
 
   protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
@@ -542,8 +532,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return
     }
 
-    // System.out.printf("Saving data in db for channel %s\n",
-    // this.command)
     CommandHandler.log.info(String.format("Writing data for command %s to db", this.command))
 
     val channelQuery = new Document("_id", this.command)

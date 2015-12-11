@@ -30,12 +30,14 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	//private boolean execCommands = true
   @BeanProperty
 	var newUser: Boolean = false
+	@BeanProperty
+  var nickname = ""
 	var commandPower: Int = 10
 	var autoCommandPower: Int = 10
   @BeanProperty
 	var customCommandPower: Int = 0
   @BeanProperty
-	var username = usernameNew
+  var username = usernameNew
   @BeanProperty
 	var channelOrigin: String = channelNew
 	var points: Double = 0
@@ -104,6 +106,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
         .append("enableautogreet", this.enableAutogreets)
         .append("datejoined", this.dateJoined)
         .append("timeStampJoined", this.timeStampJoined)
+        .append("nickname", this.nickname)
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -137,6 +140,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
       this.enableAutogreets = channelData.getOrDefault("enableautogreet", this.enableAutogreets.toString).toString.toBoolean
       this.dateJoined = channelData.getOrDefault("datejoined", this.dateJoined).toString
       this.timeStampJoined = channelData.getOrDefault("timeStampJoined", this.timeStampJoined.asInstanceOf[Object]).asInstanceOf[Long]
+      this.nickname = channelData.getOrDefault("nickname", this.nickname.asInstanceOf[Object]).asInstanceOf[String]
 		} else {
 			this.newUser = true
 		}
@@ -160,4 +164,11 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	def setAutoCommandPower(autoCommandPower: Int) = {
 		this.autoCommandPower = autoCommandPower
 	}
+
+  def screenName: String = {
+    if(this.nickname.isEmpty) {
+      return username
+    }
+    this.nickname
+  }
 }
