@@ -172,7 +172,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
   }
 
   def canRemove: Boolean = {
-    // remove user after 1 hour (0x36EE80) of inactivity
+    // remove user after 1 hour (0x36EE80 milliseconds) of inactivity
     val tmpUserList = new util.HashMap[String, UserHandler]()
     tmpUserList.put(this.username, this)
     if ((System.currentTimeMillis() - this.timeSinceActivity) > 0x36EE80 && username != "#internal#" && username != "#readonly#" && !CommandHandler.checkPermission(this.username, 50, tmpUserList)) {
