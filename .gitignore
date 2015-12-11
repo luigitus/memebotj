@@ -1,10 +1,11 @@
 bin/
 dist/
 lib/
+out/
+.settings/
+.idea/
 .DS_Store
 .gitignore~
-.idea
-.settings
 .classpath
 .out
 .cache-main
