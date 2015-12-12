@@ -66,9 +66,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="scala-sdk-2.11.7" level="application" />
-    <orderEntry type="library" exported="" name="bson" level="project" />
     <orderEntry type="library" name="scala-sdk-2.11.7" level="application" />
-    <orderEntry type="library" name="scala-pickling_2.10-0.9.1" level="project" />
+    <orderEntry type="library" name="bson" level="project" />
   </component>
 </module>

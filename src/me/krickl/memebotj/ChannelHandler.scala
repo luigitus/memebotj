@@ -52,7 +52,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var raceBaseURL: String = "http://kadgar.net/live"
   @BeanProperty
-  var greetMessage: String = "Hello I'm {appname} {version} the dankest irc bot ever RitzMitz"
+  var greetMessage: String = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz"
   @BeanProperty
   var currentRaceURL: String = ""
   @BeanProperty
@@ -123,6 +123,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   val issueCommand = new CommandHandler(this.channel, "!issue", "#internal#")
   @BeanProperty
   val readOnlyUser = new UserHandler("#readonly#", this.channel)
+  var allowGreetMessage = false
 
   val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
@@ -251,10 +252,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(mrDestructoidCommand)
 
-  this.sendMessage(this.greetMessage.replace("{appname}", BuildInfo.appName)
-    .replace("{version}", BuildInfo.version)
-    .replace("{build}", BuildInfo.buildNumber)
-    .replace("{builddate}", BuildInfo.timeStamp), this.channel)
+  if(this.allowGreetMessage) {
+    this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null), this.channel)
+  }
 
   ChannelHandler.getLog.info(String.format("Private key for channel %s is %s", this.channel, this.privateKey))
 
@@ -273,7 +273,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         break()
       }
     }
-    if (!isInList && removeThisCH != null) {
+    if (isInList && removeThisCH != null) {
       Memebot.joinedChannels.remove(removeThisCH)
       try {
         val bw = new BufferedWriter(new FileWriter(Memebot.channelConfig))
@@ -333,9 +333,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       try {
         val url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
         val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-        val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
-        var dataBuffer = ""
-        var data = ""
+        val in: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
+        //var dataBuffer = ""
+        var data: String = ""
         data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
         in.close()
         val parser = new JSONParser()
@@ -613,6 +613,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("preventspam", this.spamPrevention)
       .append("spamtimeout", this.spamTimeout)
       .append("pointswhenoffline", this.givePointsWhenOffline)
+      .append("allowgreetmessage", this.allowGreetMessage)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -929,6 +930,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
       this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
       this.givePointsWhenOffline = channelData.getOrDefault("pointswhenoffline", this.givePointsWhenOffline.asInstanceOf[Object]).asInstanceOf[Boolean]
+      this.allowGreetMessage = channelData.getOrDefault("allowgreetmessage", this.givePointsWhenOffline.asInstanceOf[Object]).asInstanceOf[Boolean]
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }

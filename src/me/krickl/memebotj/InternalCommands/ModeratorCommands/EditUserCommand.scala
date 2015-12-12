@@ -9,7 +9,9 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
 
 	this.setAccess("botadmin")
 
-	this.setNeededCommandPower(75)
+  this.setHelptext("Syntax: !user <alias/removealias> <nickname> || Mod only: !user <power/modalias/modremovealias> <user> <new power/nickname>")
+
+	this.setNeededCommandPower(10)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {
@@ -25,7 +27,7 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
         return
       }
 
-			if (data(0) == "power") {
+			if (data(0) == "power" && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
 				var success = false
 				val newCP = java.lang.Integer.parseInt(data(2))
 
@@ -44,10 +46,18 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
 				}
 
 			} else if (data(0) == "alias") {
+        sender.nickname = data(1)
+        channelHandler.sendMessage(f"${sender.screenName}: changed their nickname to ${data(2)}", this.getChannelOrigin)
+        sender.writeDBUserData()
+      } else if(data(0) == "removealias") {
+        sender.nickname = ""
+        channelHandler.sendMessage(f"${sender.screenName}: removed their nickname", this.getChannelOrigin)
+        sender.writeDBUserData()
+      } else if (data(0) == "modalias" && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
         uh.nickname = data(2)
         channelHandler.sendMessage(f"${sender.screenName}: changed ${uh.username}'s nickname to ${data(2)}", this.getChannelOrigin)
         uh.writeDBUserData()
-			} else if(data(0) == "removealias") {
+			} else if(data(0) == "modremovealias" && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
         uh.nickname = ""
         channelHandler.sendMessage(f"${sender.screenName}: removed ${uh.username}'s nickname", this.getChannelOrigin)
         uh.writeDBUserData()

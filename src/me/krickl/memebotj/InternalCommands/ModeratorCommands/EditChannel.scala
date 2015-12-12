@@ -60,6 +60,8 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 				channelHandler.setSpamPrevention(java.lang.Boolean.parseBoolean(data(1)))
 			} else if (data(0) == "spamtimeout") {
 				channelHandler.setSpamTimeout(java.lang.Integer.parseInt(data(1)))
+			} else if(data(0) == "allowgreet") {
+        channelHandler.allowGreetMessage = data(1).toBoolean
 			} else {
 				if (channelHandler.getBuiltInStrings.containsKey(data(0))) {
 					channelHandler.getBuiltInStrings.put(data(0), newEntry)
@@ -73,7 +75,7 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 		} catch {
 			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("CHCHANNEL_SYNTAX"),
 				this.getChannelOrigin)
-			case e: NumberFormatException =>
+			case e: NumberFormatException => e.printStackTrace()
 		}
 	}
 }

@@ -105,8 +105,8 @@ object Memebot {
 
 
 	def main(args: Array[String]) {
-		//soon to be used
-		for(i <- 0 to args.length - 1) {
+
+		for(i <- args.indices) {
       val arg = args(i)
       if(arg == "cli") {
         guiMode = false
@@ -293,30 +293,42 @@ object Memebot {
 		* @param sender sender
 		* @return
 		*/
-	def formatText(fo: String, channelHandler: ChannelHandler, sender: UserHandler, commandHandler: CommandHandler): String = {
+	def formatText(fo: String, channelHandler: ChannelHandler = null, sender: UserHandler = null, commandHandler: CommandHandler = null): String = {
 		val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
 		val cal = Calendar.getInstance()
 		val strDate = sdfDate.format(cal.getTime)
 
 		var formattedOutput = fo
 
-		formattedOutput = formattedOutput.replace("{sender}", sender.screenName)
-		formattedOutput = formattedOutput.replace("{counter}", Integer.toString(commandHandler.counter))
-		formattedOutput = formattedOutput.replace("{points}", sender.points.toString)
-		formattedOutput = formattedOutput.replace("{debugsender}", sender.toString)
-		formattedOutput = formattedOutput.replace("{debugch}", commandHandler.toString)
-		formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
+    if(sender != null) {
+      formattedOutput = formattedOutput.replace("{sender}", sender.screenName)
+      formattedOutput = formattedOutput.replace("{senderusername}", sender.username)
+      formattedOutput = formattedOutput.replace("{points}", sender.points.toString)
+      formattedOutput = formattedOutput.replace("{debugsender}", sender.toString)
+    }
+    if(commandHandler != null) {
+      formattedOutput = formattedOutput.replace("{counter}", Integer.toString(commandHandler.counter))
+      formattedOutput = formattedOutput.replace("{debugch}", commandHandler.toString)
+    }
+    if(channelHandler != null) {
+      formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
+      if (channelHandler.getCurrentGame != null) {
+        formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame)
+      }
+      formattedOutput = formattedOutput.replace("{curremote}",
+        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
+      formattedOutput = formattedOutput.replace("{currname}",
+        channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
+      formattedOutput = formattedOutput.replace("{botnick}", channelHandler.connection.botNick)
+    }
+
 		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version)
 		formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev)
 		formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName)
+    formattedOutput = formattedOutput.replace("{appname}", BuildInfo.buildNumber)
+    formattedOutput = formattedOutput.replace("{builddate}", BuildInfo.timeStamp)
 		formattedOutput = formattedOutput.replace("{date}", strDate)
-		if(channelHandler.getCurrentGame != null) {
-			formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame)
-		}
-		formattedOutput = formattedOutput.replace("{curremote}",
-			channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
-		formattedOutput = formattedOutput.replace("{currname}",
-			channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
+
 		formattedOutput
 	}
 

@@ -11,7 +11,7 @@ import java.util.Properties
  */
 object BuildInfo {
 
-	var appName: String = "memebot"
+	var appName: String = "memebotj"
 	var version: String = "no_version_available"
 	var dev: String = "Lukas Krickl"
 	var buildNumber: String = "no_build_available"
