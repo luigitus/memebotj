@@ -106,7 +106,7 @@ object Memebot {
 
 	def main(args: Array[String]) {
 		//soon to be used
-		for(i <- 0 to args.length) {
+		for(i <- 0 to args.length - 1) {
       val arg = args(i)
       if(arg == "cli") {
         guiMode = false
