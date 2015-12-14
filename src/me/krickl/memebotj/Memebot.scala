@@ -82,6 +82,7 @@ object Memebot {
 	var pid: Int = 0
 	var channels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
   var guiMode = true
+  var isTwitchBot = true
 
 	// ConnectionHandler connection = null
 	var joinedChannels: java.util.ArrayList[ChannelHandler] = new java.util.ArrayList[ChannelHandler]()
@@ -102,6 +103,8 @@ object Memebot {
 	var useWeb: Boolean = true
 
 	var isBotMode: Boolean = true
+
+  var mainChannel = "#getmemebot" // this is the home channel of the bot - in this channel people can adopt the bot
 
 
 	def main(args: Array[String]) {
@@ -171,6 +174,9 @@ object Memebot {
 		Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL)
 		Memebot.useWeb = config.getProperty("useweb", Memebot.useWeb.toString).toBoolean
     Memebot.useMongo = config.getProperty("usemongo", Memebot.useMongo.toString).toBoolean
+    Memebot.isTwitchBot = config.getProperty("istwitchbot", Memebot.isTwitchBot.toString).toBoolean
+    Memebot.mainChannel = config.getProperty("mainchannel", Memebot.mainChannel.toString).toString
+
 
 		if(Memebot.isBotMode) {
 			// shutdown hook

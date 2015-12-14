@@ -332,53 +332,65 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
     if (this.updateCooldown.canContinue) {
       this.updateCooldown.startCooldown()
-      try {
-        val url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
-        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-        val in: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
-        //var dataBuffer = ""
-        var data: String = ""
-        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
-        in.close()
-        val parser = new JSONParser()
-        val obj = parser.parse(data).asInstanceOf[JSONObject]
-        val isOnline = obj.get("stream")
-        if (isOnline == null) {
-          ChannelHandler.getLog.info(String.format("Stream %s is offline", this.channel))
-          this.isLive = false
-          this.streamStartTime = -1
-        } else {
-          ChannelHandler.getLog.info(String.format("Stream %s is live", this.channel))
-          if (this.isLive) {
-            this.streamStartTime = (System.currentTimeMillis() / 1000L).toInt
-          }
-          this.isLive = true
-        }
-      } catch {
-        case e: MalformedURLException => e.printStackTrace()
-        case e: IOException => e.printStackTrace()
-        case e: ParseException => e.printStackTrace()
-      }
-      try {
-        val url = new URL(this.channelInfoURL)
-        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-        val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
-        var dataBuffer = ""
-        var data = ""
-        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
 
-        in.close()
-        val parser = new JSONParser()
-        val obj = parser.parse(data).asInstanceOf[JSONObject]
-        this.currentGame = obj.get("game").asInstanceOf[String]
-        if (this.currentGame == null) {
-          this.currentGame = "Not Playing"
+      //twitch update
+      try {
+        if(Memebot.isTwitchBot) {
+          val url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
+          val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+          val in: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
+          //var dataBuffer = ""
+          var data: String = ""
+          data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+          in.close()
+          val parser = new JSONParser()
+          val obj = parser.parse(data).asInstanceOf[JSONObject]
+          val isOnline = obj.get("stream")
+          if (isOnline == null) {
+            ChannelHandler.getLog.info(String.format("Stream %s is offline", this.channel))
+            this.isLive = false
+            this.streamStartTime = -1
+          } else {
+            ChannelHandler.getLog.info(String.format("Stream %s is live", this.channel))
+            if (this.isLive) {
+              this.streamStartTime = (System.currentTimeMillis() / 1000L).toInt
+            }
+            this.isLive = true
+          }
+        } else {
+          this.isLive = true
+          this.streamStartTime = -1
         }
       } catch {
         case e: MalformedURLException => e.printStackTrace()
         case e: IOException => e.printStackTrace()
         case e: ParseException => e.printStackTrace()
       }
+
+      try {
+        if(Memebot.isTwitchBot) {
+          val url = new URL(this.channelInfoURL)
+          val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+          val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
+          var data = ""
+          data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+
+          in.close()
+          val parser = new JSONParser()
+          val obj = parser.parse(data).asInstanceOf[JSONObject]
+          this.currentGame = obj.get("game").asInstanceOf[String]
+          if (this.currentGame == null) {
+            this.currentGame = "Not Playing"
+          }
+        } else {
+          this.currentGame = "This bot is not running on twitch"
+        }
+      } catch {
+        case e: MalformedURLException => e.printStackTrace()
+        case e: IOException => e.printStackTrace()
+        case e: ParseException => e.printStackTrace()
+      }
+
       this.writeDBChannelData()
       this.writeHTML()
 
