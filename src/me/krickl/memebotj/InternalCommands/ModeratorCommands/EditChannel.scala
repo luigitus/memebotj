@@ -62,6 +62,8 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 				channelHandler.setSpamTimeout(java.lang.Integer.parseInt(data(1)))
 			} else if(data(0) == "allowgreet") {
         channelHandler.allowGreetMessage = data(1).toBoolean
+			} else if(data(0) == "maxpoints") {
+        channelHandler.maxPoints = data(1).toDouble
 			} else {
 				if (channelHandler.getBuiltInStrings.containsKey(data(0))) {
 					channelHandler.getBuiltInStrings.put(data(0), newEntry)
@@ -70,7 +72,7 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 							.replace("{param1}", "!channel <option> <new value>"), this.getChannelOrigin)
 				}
 			}
-			channelHandler.sendMessage("Changed channel settings.", this.getChannelOrigin)
+			channelHandler.sendMessage(f"${sender.getUsername}: Changed channel settings ${data(0)} to ${data(1)}", this.getChannelOrigin)
 			channelHandler.writeDBChannelData()
 		} catch {
 			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("CHCHANNEL_SYNTAX"),

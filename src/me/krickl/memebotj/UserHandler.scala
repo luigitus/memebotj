@@ -14,6 +14,10 @@ import com.mongodb.client.MongoCollection
 
 import scala.beans.BeanProperty
 
+//remove if not needed
+import scala.collection.JavaConversions._
+import scala.util.control.Breaks._
+
 object UserHandler {
 	final var log = Logger.getLogger(UserHandler.getClass.getName)
 }
@@ -148,11 +152,21 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	def update() = {
 	}
 
-	def setPoints(f: Double) {
+	def setPoints(f: Double): Boolean = {
 		this.points = f
     if(this.points < 0) {
       this.points = 0
     }
+
+    for(ch <- Memebot.joinedChannels) {
+      if (ch.channel == this.channelOrigin) {
+        if(this.points > ch.maxPoints) {
+          this.points = ch.maxPoints
+          return false
+        }
+      }
+    }
+    true
 	}
 
 	def setCommandPower(commandPower: Int) = {

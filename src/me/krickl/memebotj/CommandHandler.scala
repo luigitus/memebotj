@@ -149,6 +149,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   }
 
   this.readDBCommand()
+  this.overrideDBData()
 
   def update(ch: ChannelHandler) {
     if (this.cmdtype.equals("timer") && ch.isLive) {
@@ -364,6 +365,15 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       sender.getUserCommandCooldowns.get(this.command).startCooldown()
       sender.setPoints(sender.points - this.pointCost)
     }
+  }
+
+  /***
+    * This method will always be called after the Database has ben read
+    * and can be used to override data saved in the Database.
+    * This should be used instead of constructors for child classes
+    */
+  protected def overrideDBData(): Unit = {
+
   }
 
   /**

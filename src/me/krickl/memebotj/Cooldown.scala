@@ -17,6 +17,7 @@ class Cooldown(val cdLen: Integer) {
 
 	def canContinue: Boolean = {
 		if (this.cooldownEnd > (System.currentTimeMillis() / 1000).toInt) {
+			//this.cooldownEnd = this.cooldownEnd + this.cooldownEnd / 100 * 5 // make cooldown 5% longer if required
 			return false
 		}
 

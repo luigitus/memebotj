@@ -125,6 +125,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   val readOnlyUser = new UserHandler("#readonly#", this.channel)
   var allowGreetMessage = false
 
+  var maxPoints: Double = 100000.0f
+
   val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
   broadcasterHandler.isUserBroadcaster = true
@@ -614,6 +616,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("spamtimeout", this.spamTimeout)
       .append("pointswhenoffline", this.givePointsWhenOffline)
       .append("allowgreetmessage", this.allowGreetMessage)
+      .append("maxpoints", this.maxPoints)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -931,6 +934,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
       this.givePointsWhenOffline = channelData.getOrDefault("pointswhenoffline", this.givePointsWhenOffline.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.allowGreetMessage = channelData.getOrDefault("allowgreetmessage", this.givePointsWhenOffline.asInstanceOf[Object]).asInstanceOf[Boolean]
+      this.maxPoints = channelData.getOrDefault("maxpoints", this.maxPoints.asInstanceOf[Object]).asInstanceOf[Double]
       for (key <- bultinStringsDoc.keySet) {
         this.builtInStrings.put(key, bultinStringsDoc.getString(key))
       }

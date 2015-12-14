@@ -59,7 +59,18 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 						channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("EDITCOMMAND_FAIL"), this.getChannelOrigin)
 					}
 				}
-			} else if (data(0) == "info") {
+			} else if(data(0) == "toggleinternal" && CommandHandler.checkPermission(sender.getUsername, 50, channelHandler.getUserList)) {
+        val i = channelHandler.findCommand(data(1), channelHandler.internalCommands)
+        if(i != -1) {
+          val ch = channelHandler.getInternalCommands.get(i)
+          if(ch.command == this.command) {
+            channelHandler.sendMessage(f"${sender.screenName}: You cannot disable the command manager!", this.getChannelOrigin)
+          } else {
+            ch.setEnable(!ch.enable)
+            channelHandler.sendMessage(f"${sender.screenName}: Toggled internal command ${data(1)}: ${ch.enable}", this.getChannelOrigin)
+          }
+        }
+      } else if (data(0) == "info") {
 				val j = channelHandler.findCommand(data(1))
 				if (j != -1) {
 					channelHandler.sendMessage(f"Times executed: ${channelHandler.getChannelCommands.get(j).getExecCounter.toString}", this.channelOrigin)

@@ -17,7 +17,12 @@ class HelpCommand(channel: String, command: String, dbprefix: String) extends Co
 				return
 			}
 			for (ch <- channelHandler.getInternalCommands if ch.getCommand == data(0)) {
-				channelHandler.sendMessage(ch.getHelptext, this.getChannelOrigin)
+				if(ch.getHelptext == "null") {
+          channelHandler.sendMessage("No help text available!", this.getChannelOrigin)
+        }
+        else {
+          channelHandler.sendMessage(ch.getHelptext, this.getChannelOrigin)
+        }
 				return
 			}
 			channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("HELP_NOT_FOUND"), this.getChannelOrigin)

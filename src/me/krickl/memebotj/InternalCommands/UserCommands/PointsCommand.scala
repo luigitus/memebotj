@@ -6,6 +6,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 	command, dbprefix) {
 
 	this.setHelptext("Syntax: !points || !points send <target> <amount>")
+	this.setUserCooldownLen(40)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		this.setSuccess(false)
@@ -42,7 +43,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 					}
 					if (target != null && !this.getSuccess) {
 						val number = java.lang.Double.parseDouble(data(2))
-						if(number < 0) {
+						if(number < 1) {
 							return
 						}
 						val tax = number / 100 * 10
@@ -50,7 +51,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 							if (this.checkCost(sender, number + tax, channelHandler)) {
 								sender.setPoints(sender.points - (number + tax))
 								target.setPoints(target.points + number)
-								channelHandler.sendMessage(f"${sender.screenName}: You sent ${"%.2f".format(number)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")} to ${target.getUsername}", this.getChannelOrigin)
+								channelHandler.sendMessage(f"${sender.screenName}: You sent ${"%.2f".format(number)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")} to ${target.getUsername} and payed ${"%.2f".format(tax)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")} tax", this.getChannelOrigin)
 							} else {
                 channelHandler.sendMessage(f"${sender.screenName}: Sorry you don't have ${"%.2f".format(number + tax)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.getChannelOrigin)
               }
@@ -58,6 +59,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 					}
 				} catch {
 					case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
+          case e: NumberFormatException => e.printStackTrace()
 				}
 			}
 		}

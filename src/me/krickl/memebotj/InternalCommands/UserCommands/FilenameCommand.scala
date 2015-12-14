@@ -53,12 +53,14 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         return
       }
       var i: Int = 0
-      try {
-        i = java.lang.Integer.parseInt(data(1))
-      } catch {
-        case e @ (_: ArrayIndexOutOfBoundsException | _: NumberFormatException) =>
-          channelHandler.sendMessage(this.helptext, this.channelOrigin)
-          return
+      if(data.length >= 2) {
+        try {
+          i = java.lang.Integer.parseInt(data(1))
+        } catch {
+          case e@(_: ArrayIndexOutOfBoundsException | _: NumberFormatException) =>
+            channelHandler.sendMessage(this.helptext, this.channelOrigin)
+            return
+        }
       }
       var success = false
       if (data(0).length <= channelHandler.getMaxFileNameLen) {
