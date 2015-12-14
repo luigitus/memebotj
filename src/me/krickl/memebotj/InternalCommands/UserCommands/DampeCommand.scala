@@ -7,7 +7,7 @@ import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
 
-  this.setHelptext("Let dampe hate you for only all of your points")
+  this.setHelptext("Let Dampé hate you for only all of your points")
 
   this.setUserCooldownLen(40)
 
@@ -71,6 +71,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         this.setJackpot(0)
       } else {
         channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price + this.getJackpot)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
+        this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
 
@@ -80,6 +81,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! You lucky bastard!", this.getChannelOrigin)
       } else {
         channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
+        this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 200) {
@@ -88,11 +90,16 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")} and returned your bet! Pretty good!", this.getChannelOrigin)
       } else {
         channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
+        this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 450) {
-      channelHandler.sendMessage(f"${sender.screenName}: Dampé is being a dick and returned ${"%.2f".format(wage / 2)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}!", this.getChannelOrigin)
-      sender.setPoints(sender.points + wage / 2)
+      if(sender.setPoints(sender.points + wage / 2)) {
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé is being a dick and returned ${"%.2f".format(wage / 2)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}!", this.getChannelOrigin)
+      } else {
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé, being the dick he is, would have returned ${"%.2f".format(wage / 2)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}, but your wallet is too full and you had to put it back!", this.getChannelOrigin)
+        this.setJackpot(this.getJackpot + wage / 2)
+      }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage / 2)
     } else if(outcome <= 650) {

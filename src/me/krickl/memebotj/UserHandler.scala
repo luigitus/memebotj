@@ -37,15 +37,17 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	var newUser: Boolean = false
 	@BeanProperty
   var nickname = ""
-	var commandPower: Int = 10
-	var autoCommandPower: Int = 10
+	var _commandPower : Int = 10
+	var _autoCommandPower : Int = 10
   @BeanProperty
 	var customCommandPower: Int = 0
   @BeanProperty
   var username = usernameNew
   @BeanProperty
 	var channelOrigin: String = channelNew
-	var points: Double = 0
+	private var _points: Double = 0.0f
+
+  def points = _points
 	// private boolean isJoined = false
   @BeanProperty
 	var userCooldown = new Cooldown(0)
@@ -78,6 +80,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
 	var timeSinceActivity = System.currentTimeMillis()
 
+  var walletSize: Double = -1
+
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
 	}
@@ -90,7 +94,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
     this.dateJoined = sdfDate.format(cal.getTime)
   }
 
-	setCommandPower(this.autoCommandPower)
+	setCommandPower(this._autoCommandPower)
 
 	UserHandler.log.info(String.format("Private key for user %s is %s", this.username, this.privateKey))
 
@@ -101,7 +105,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
 		val channelQuery = new Document("_id", this.username)
 
-		val channelData = new Document("_id", this.username).append("pointsf", this.points)
+		val channelData = new Document("_id", this.username).append("pointsf", this._points)
 				.append("mod", this.isModerator).append("autogreet", this.autogreet)
 				.append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
 				.append("timeouts", this.timeouts)
@@ -110,6 +114,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
         .append("datejoined", this.dateJoined)
         .append("timeStampJoined", this.timeStampJoined)
         .append("nickname", this.nickname)
+        .append("wallet", this.walletSize)
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -134,7 +139,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
 		// read data
 		if (channelData != null) {
 			this.isModerator = channelData.getBoolean("mod", this.isModerator)
-			this.points = channelData.getOrDefault("pointsf", this.points.asInstanceOf[Object]).asInstanceOf[Double]
+			this._points = channelData.getOrDefault("pointsf", this._points.asInstanceOf[Object]).asInstanceOf[Double]
 			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString
 			this.customCommandPower = channelData.getOrDefault("ccommandpower", this.customCommandPower.asInstanceOf[Object]).asInstanceOf[Int]
 			this.isUserBroadcaster = channelData.getOrDefault("broadcaster", this.isUserBroadcaster.asInstanceOf[Object]).asInstanceOf[Boolean]
@@ -144,6 +149,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
       this.dateJoined = channelData.getOrDefault("datejoined", this.dateJoined).toString
       this.timeStampJoined = channelData.getOrDefault("timeStampJoined", this.timeStampJoined.asInstanceOf[Object]).asInstanceOf[Long]
       this.nickname = channelData.getOrDefault("nickname", this.nickname.asInstanceOf[Object]).asInstanceOf[String]
+      this.walletSize = channelData.getOrDefault("wallet", this.walletSize.asInstanceOf[Object]).asInstanceOf[Double]
 		} else {
 			this.newUser = true
 		}
@@ -152,30 +158,43 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	def update() = {
 	}
 
-	def setPoints(f: Double): Boolean = {
-		this.points = f
-    if(this.points < 0) {
-      this.points = 0
+  def setPoints(f: Double): Boolean = {
+    this.points = f
+  }
+
+	def points_=(f: Double): Boolean = {
+		for(ch <- Memebot.joinedChannels) {
+			if (ch.channel == this.channelOrigin) {
+				if(this._points + f > ch.maxPoints || (this._points + f > this.walletSize && this.walletSize > 0)) {
+					//this.points = ch.maxPoints
+					return false
+				}
+			}
+		}
+
+		this._points = f
+    if(this._points < 0) {
+      this._points = 0
     }
 
-    for(ch <- Memebot.joinedChannels) {
-      if (ch.channel == this.channelOrigin) {
-        if(this.points > ch.maxPoints) {
-          this.points = ch.maxPoints
-          return false
-        }
-      }
-    }
     true
 	}
 
-	def setCommandPower(commandPower: Int) = {
-		this.autoCommandPower = commandPower
-		this.commandPower = commandPower + this.customCommandPower
+  def setCommandPower(commandPower: Int) = {
+    this.commandPower_=(commandPower)
+  }
+
+	def commandPower_=(commandPower: Int) = {
+		this._autoCommandPower = commandPower
+		this._commandPower = commandPower + this.customCommandPower
 	}
 
-	def setAutoCommandPower(autoCommandPower: Int) = {
-		this.autoCommandPower = autoCommandPower
+  def setAutoCommandPower(autoCommandPower: Int) = {
+    this.autoCommandPower_=(autoCommandPower)
+  }
+
+	def autoCommandPower_=(autoCommandPower: Int) = {
+		this._autoCommandPower = autoCommandPower
 	}
 
   def screenName: String = {
@@ -189,7 +208,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
     // remove user after 1 hour (0x36EE80 milliseconds) of inactivity
     val tmpUserList = new util.HashMap[String, UserHandler]()
     tmpUserList.put(this.username, this)
-    if ((System.currentTimeMillis() - this.timeSinceActivity) > 0x36EE80 && username != "#internal#" && username != "#readonly#" && !CommandHandler.checkPermission(this.username, 50, tmpUserList)) {
+    if ((System.currentTimeMillis() - this.timeSinceActivity) > 0x36EE80 * 0x2 && username != "#internal#" && username != "#readonly#" && !CommandHandler.checkPermission(this.username, 50, tmpUserList)) {
       UserHandler.log.info(f"Removed user ${this.username} for inactivity ${this.timeSinceActivity}")
       return true
     }

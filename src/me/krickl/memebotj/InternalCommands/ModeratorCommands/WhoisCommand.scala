@@ -28,7 +28,7 @@ class WhoisCommand(channel: String, command: String, dbprefix: String) extends C
 					" || Mod: " +
 					java.lang.Boolean.toString(uh.isModerator) +
 					" || Command Power: " +
-					java.lang.Integer.toString(uh.commandPower) +
+					java.lang.Integer.toString(uh._commandPower) +
 					" || Timeouts: " +
 					java.lang.Integer.toString(uh.getTimeouts) +
 					" || Is known user: " +

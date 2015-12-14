@@ -828,11 +828,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  def sendMessage(msg: String, channel: String): Unit = {
-    this.sendMessage(msg, channel, new UserHandler("#internal#", this.channel))
-  }
-
-  def sendMessage(msg: String, channel: String, sender: UserHandler) {
+  def sendMessage(msg: String, channel: String = this.channel, sender: UserHandler = new UserHandler("#internal#", this.channel)) {
     if (!this.preventMessageCooldown.canContinue) {
       return
     }

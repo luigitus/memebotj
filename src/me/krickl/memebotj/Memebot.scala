@@ -110,7 +110,13 @@ object Memebot {
       val arg = args(i)
       if(arg == "cli") {
         guiMode = false
-      }
+      } else if(arg.contains("home=")) {
+        Memebot.home = arg.replaceAll("home=", "")
+        Memebot.memebotDir = Memebot.home + "/.memebot"
+        Memebot.configFile = Memebot.memebotDir + "/memebot.cfg"
+        Memebot.channelConfig = Memebot.memebotDir + "/channels.cfg"
+        log.info(f"Set home directory to ${Memebot.home}")
+			}
 		}
 
 		// initial setup

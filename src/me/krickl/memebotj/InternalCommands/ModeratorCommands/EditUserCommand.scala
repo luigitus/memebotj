@@ -22,7 +22,7 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
         uh = new UserHandler(data(1).toLowerCase(), channelHandler.getChannel)
       }
 
-      if(uh.newUser) {
+      if(uh.newUser && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
         channelHandler.sendMessage("This user never joined this channel: " + data(1), this.getChannelOrigin)
         return
       }
@@ -31,13 +31,13 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
 				var success = false
 				val newCP = java.lang.Integer.parseInt(data(2))
 
-        if ((newCP + uh.autoCommandPower) > sender.commandPower) {
+        if ((newCP + uh._autoCommandPower) > sender._commandPower) {
           channelHandler.sendMessage("You cannot set the command power of a user higher than your own",
             this.getChannelOrigin)
           return
         }
         uh.setCustomCommandPower(java.lang.Integer.parseInt(data(2)))
-        uh.setCommandPower(uh.autoCommandPower)
+        uh.setCommandPower(uh._autoCommandPower)
         uh.writeDBUserData()
         success = true
 

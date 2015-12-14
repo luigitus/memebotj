@@ -34,7 +34,7 @@ object CommandHandler {
     }
 
     if (userList.containsKey(sender)) {
-      if (reqPermLevel <= userList.get(sender).commandPower) {
+      if (reqPermLevel <= userList.get(sender)._commandPower) {
         return true
       }
     } else if (sender.equals("#readonly#")) {
