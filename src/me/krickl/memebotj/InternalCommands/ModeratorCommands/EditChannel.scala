@@ -72,7 +72,7 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
       } else if(data(0) == "currname") {
         channelHandler.currencyName = data(1)
       }
-			channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("EDIT_CHANNEL_OK"), channelHandler, sender, this, true, Array(sender.getUsername, data(0), data(1))), this.getChannelOrigin)
+			channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("EDIT_CHANNEL_OK"), channelHandler, sender, this, false, Array(sender.getUsername, data(0), data(1))), this.getChannelOrigin)
 			channelHandler.writeDBChannelData()
 		} catch {
 			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", channelHandler, sender, this, true),

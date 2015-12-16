@@ -4,6 +4,6 @@ class DebugCommand(channel: String, command: String = "null", dbprefix: String =
   this.setNeededCommandPower(75)
 
   override def commandScript(sender: me.krickl.memebotj.UserHandler, channelHandler: me.krickl.memebotj.ChannelHandler, data: Array[String]) = {
-    channelHandler.sendMessage("Hello This is scala", this.getChannelOrigin)
+    channelHandler.sendMessage("Congraturations. This glitch is happy end and you have prooven the justive of our coding! You are great debugger !!!", this.getChannelOrigin)
   }
 }
