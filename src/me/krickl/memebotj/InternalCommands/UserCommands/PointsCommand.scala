@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
 class PointsCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
@@ -38,7 +38,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 							this.setSuccess(true)
 						}
 						if (this.getSuccess) {
-							channelHandler.sendMessage(f"${target.screenName} your new total is: ${"%.2f".format(target.points)} ${channelHandler.currencyEmote}", this.getChannelOrigin)
+							channelHandler.sendMessage(Memebot.formatText("POINTS_MOD_NEW_TOTAL", channelHandler, sender, this, true, Array(target.screenName, "%.2f".format(target.points))), this.getChannelOrigin)
 						}
 					}
 					if (target != null && !this.getSuccess) {
@@ -51,9 +51,9 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 							if (this.checkCost(sender, number + tax, channelHandler)) {
 								sender.setPoints(sender.points - (number + tax))
 								target.setPoints(target.points + number)
-								channelHandler.sendMessage(f"${sender.screenName}: You sent ${"%.2f".format(number)} ${channelHandler.currencyEmote} to ${target.getUsername} and payed ${"%.2f".format(tax)} ${channelHandler.currencyEmote} tax", this.getChannelOrigin)
+								channelHandler.sendMessage(Memebot.formatText("POINTS_SEND", channelHandler, sender, this, true, Array("%.2f".format(number),target.screenName, "%.2f".format(tax))), this.getChannelOrigin)
 							} else {
-                channelHandler.sendMessage(f"${sender.screenName}: Sorry you don't have ${"%.2f".format(number + tax)} ${channelHandler.currencyEmote}", this.getChannelOrigin)
+                channelHandler.sendMessage(Memebot.formatText("POINTS_SEND_FAIL", channelHandler, sender, this, true, Array("%.2f".format(number + tax))), this.getChannelOrigin)
               }
 						}
 					}

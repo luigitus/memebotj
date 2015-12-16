@@ -2,7 +2,7 @@ package me.krickl.memebotj.InternalCommands.UserCommands
 
 import java.util.Random
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 //remove if not needed
 
 
@@ -24,15 +24,11 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
           val index = rand.nextInt(channelHandler.getFileNameList.size - 1)
           channelHandler.setCurrentFileName(channelHandler.getFileNameList.get(index))
           channelHandler.getFileNameList.remove(index)
-          channelHandler.sendMessage("Filename: " + channelHandler.getCurrentFileName.split("#")(0) +
-            " suggested by " +
-            channelHandler.getCurrentFileName.split("#")(1), this.getChannelOrigin)
+          channelHandler.sendMessage(Memebot.formatText("NAME_PICK", channelHandler, sender, this, true, Array(channelHandler.getCurrentFileName.split("#")(0), channelHandler.getCurrentFileName.split("#")(1))), this.getChannelOrigin)
           return
         }
       } else if (data(0) == "current") {
-        channelHandler.sendMessage("Filename: " + channelHandler.getCurrentFileName.split("#")(0) +
-          " suggested by " +
-          channelHandler.getCurrentFileName.split("#")(1), this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("NAME_PICK", channelHandler, sender, this, true, Array(channelHandler.getCurrentFileName.split("#")(0), channelHandler.getCurrentFileName.split("#")(1))), this.getChannelOrigin)
         return
       } else if (data(0) == "list") {
         channelHandler.sendMessage(s"${channelHandler.getChannelPageBaseURL}/filenames.html", this.channelOrigin)
@@ -49,7 +45,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
           }
           i -= 1
         }
-        channelHandler.sendMessage(f"Removed $counter names", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("NAME_REMOVE", channelHandler, sender, this, true, Array(f"$counter")), this.getChannelOrigin)
         return
       }
       var i: Int = 0
@@ -67,18 +63,17 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         val cost = channelHandler.pointsPerUpdate * 100
 
         if (!this.checkCost(sender, cost * i, channelHandler)) {
-          channelHandler.sendMessage(f"${sender.screenName}: Sorry, you don't have ${cost * i} ${channelHandler.currencyEmote}",
-            this.getChannelOrigin)
+          channelHandler.sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", channelHandler, sender, this, true, Array(f"${cost * i}")), this.getChannelOrigin)
         } else {
           if(i > 1)
-            channelHandler.sendMessage(f"${sender.screenName} added name ${data(0)} $i times", this.getChannelOrigin)
+            channelHandler.sendMessage(Memebot.formatText("NAME_ADD_MANY", channelHandler, sender, this, true, Array(data(0))), this.getChannelOrigin)
           else
-            channelHandler.sendMessage(f"${sender.screenName} added name ${data(0)}", this.getChannelOrigin)
+            channelHandler.sendMessage(Memebot.formatText("NAME_ADD", channelHandler, sender, this, true, Array(data(0))), this.getChannelOrigin)
           sender.setPoints(sender.points - (cost * i))
           success = true
         }
       } else {
-        channelHandler.sendMessage(f"${sender.screenName}: The filename cannot be longer than ${channelHandler.maxFileNameLen} characters.", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("NAME_ADD_TOO_LONG", channelHandler, sender, this, true, Array(f"${channelHandler.maxFileNameLen}")), this.getChannelOrigin)
       }
       for (c <- 0 until i if success) {
         channelHandler.getFileNameList.add(data(0) + "#" + sender.getUsername)

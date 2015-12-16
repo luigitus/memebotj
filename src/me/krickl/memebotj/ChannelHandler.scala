@@ -61,7 +61,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   //var aliasList: ArrayList[String] = new ArrayList[String]()
 
   @BeanProperty
-  var maxFileNameLen = -1
+  var maxFileNameLen = 8
   @BeanProperty
   var currentFileName: String = ""
   @BeanProperty

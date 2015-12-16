@@ -15,16 +15,11 @@ class Localisation(newLocal: String) {
   try {
     config.load(new FileReader(f"${Memebot.memebotDir}/locals/$local.properties"))
   } catch {
-    case e: FileNotFoundException =>
-      try {
-        config.load(new FileReader(f"${Memebot.memebotDir}/engb.properties")) // default to engb
-      } catch {
-        case e: FileNotFoundException => e.printStackTrace()
-      }
+    case e: FileNotFoundException => e.printStackTrace()
   }
 
   def localisedStringFor(stringID: String): String = {
-    config.getOrDefault(stringID, f"UNKNOWN_STRING_ERR(${stringID})").toString
+    config.getOrDefault(stringID, f"UNKNOWN_STRING_ERR($stringID)").toString
   }
 
 }
