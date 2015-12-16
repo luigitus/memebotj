@@ -125,6 +125,7 @@ object Memebot {
 		// initial setup
 		new File(home + "/.memebot").mkdir()
 		new File(home + "/.memebot/channels")
+    new File(home + "/.memebot/locals").mkdir()
 
 		BuildInfo.loadBuildInfo()
 
@@ -305,17 +306,19 @@ object Memebot {
 		* @param sender sender
 		* @return
 		*/
-	def formatText(fo: String, channelHandler: ChannelHandler = null, sender: UserHandler = null, commandHandler: CommandHandler = null): String = {
+	def formatText(fo: String, channelHandler: ChannelHandler = null, sender: UserHandler = null, commandHandler: CommandHandler = null, local: Boolean = false, params: Array[String] = Array()): String = {
 		val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
 		val cal = Calendar.getInstance()
 		val strDate = sdfDate.format(cal.getTime)
-
-		var formattedOutput = fo
+    var formattedOutput = fo
+    if(local && channelHandler != null) {
+      formattedOutput = channelHandler.localisation.localisedStringFor(fo)
+    }
 
     if(sender != null) {
       formattedOutput = formattedOutput.replace("{sender}", sender.screenName)
       formattedOutput = formattedOutput.replace("{senderusername}", sender.username)
-      formattedOutput = formattedOutput.replace("{points}", sender.points.toString)
+      formattedOutput = formattedOutput.replace("{points}", "%.2f".format(sender.points))
       formattedOutput = formattedOutput.replace("{debugsender}", sender.toString)
     }
     if(commandHandler != null) {
@@ -328,9 +331,9 @@ object Memebot {
         formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame)
       }
       formattedOutput = formattedOutput.replace("{curremote}",
-        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"))
+        channelHandler.currencyEmote)
       formattedOutput = formattedOutput.replace("{currname}",
-        channelHandler.getBuiltInStrings.get("CURRENCY_NAME"))
+        channelHandler.currencyName)
       formattedOutput = formattedOutput.replace("{botnick}", channelHandler.connection.botNick)
     }
 
@@ -340,6 +343,18 @@ object Memebot {
     formattedOutput = formattedOutput.replace("{appname}", BuildInfo.buildNumber)
     formattedOutput = formattedOutput.replace("{builddate}", BuildInfo.timeStamp)
 		formattedOutput = formattedOutput.replace("{date}", strDate)
+
+    if(params != null) {
+      for (i <- params.indices) {
+        val str = params(i)
+        val original = formattedOutput
+        formattedOutput = formattedOutput.replace(f"{param${i + 1}}", str)
+
+        if(formattedOutput == original) {
+          formattedOutput = formattedOutput + str
+        }
+      }
+    }
 
 		formattedOutput
 	}

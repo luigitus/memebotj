@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
 class WhoisCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
@@ -17,7 +17,7 @@ class WhoisCommand(channel: String, command: String, dbprefix: String) extends C
 				this.getChannelOrigin)
 
       if(uh.newUser) {
-        channelHandler.sendMessage(f"${uh.screenName}: This user never joined this channel" ,this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("WHOIS_NEW_USER", channelHandler, sender, this, true, Array(sender.screenName)) ,this.getChannelOrigin)
       }
 
 			var isCat = false

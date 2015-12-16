@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.FunCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
  class HugCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel, command, dbprefix) {
 	this.setHelptext("Give people a hug :D")
@@ -8,10 +8,10 @@ import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 
 	override protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
 		try {
-		  channelHandler.sendMessage(String.format("%s hugs %s. HOW CUTE!", sender.username, data(0)), this.getChannelOrigin)
+		  channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("HUG_SOMEONE"), channelHandler, sender, this, false, Array(data(0))), this.getChannelOrigin)
 		} catch {
 		  case e: ArrayIndexOutOfBoundsException => {
-			  channelHandler.sendMessage(sender.username + " hugs nobody. How pathetic!", this.getChannelOrigin)
+			  channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("HUG_NOBODY"), channelHandler, sender, this, false, Array(sender.screenName)), this.getChannelOrigin)
 		  }
 		}
 	}

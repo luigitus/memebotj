@@ -14,7 +14,7 @@ class SaveCommand(channel: String, command: String, dbprefix: String) extends Co
 	this.setHelptext("Saves everything to database")
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
-		channelHandler.sendMessage("Saving all the things Keepo", this.getChannelOrigin)
+		channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("SAVE"), channelHandler, sender, this, false, Array()), this.getChannelOrigin)
 		for (ch <- Memebot.joinedChannels) {
 			ch.writeDBChannelData()
 		}

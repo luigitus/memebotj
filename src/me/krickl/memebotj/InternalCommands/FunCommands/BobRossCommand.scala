@@ -8,7 +8,7 @@ import me.krickl.memebotj.CommandHandler
 class BobRossCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
 
-  this.setListContent(new ArrayList[String]())
+  this.setListContent(new java.util.ArrayList[String]())
   this.setCmdtype("list")
   this.setQuotePrefix("")
   this.setQuoteSuffix(" KappaRoss")

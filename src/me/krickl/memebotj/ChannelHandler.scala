@@ -66,8 +66,10 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var currentFileName: String = ""
   @BeanProperty
   var streamStartTime: Int = 0
-  @BeanProperty
-  var builtInStrings: java.util.HashMap[String, String] = new java.util.HashMap[String, String]()
+  //@BeanProperty @Deprecated
+  //var builtInStrings: java.util.HashMap[String, String] = new java.util.HashMap[String, String]()
+
+  var local = "engb"
   @BeanProperty
   var channelPageURL: String = Memebot.webBaseURL + this.broadcaster + "/index.html"
   @BeanProperty
@@ -129,37 +131,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
+  var currencyName = "points"
+  var currencyEmote = "points"
+
   broadcasterHandler.isUserBroadcaster = true
 
   broadcasterHandler.setIsModerator(true)
 
   this.userList.put(this.broadcaster, broadcasterHandler)
 
-  builtInStrings.put("HELP_NOT_FOUND", "Could not find help for that command")
-
-  builtInStrings.put("HELP_SYNTAX", "Syntax: {param1}")
-
-  builtInStrings.put("ADDCOM_SYNTAX", "Syntax: {param1}")
-
-  builtInStrings.put("CHMOD_SYNTAX", "Usage: {param1}")
-
-  builtInStrings.put("EDITCOMMAND_OK", "Edited command {param1}. Changed {param2} to {param3}.")
-
-  builtInStrings.put("EDITCOMMAND_FAIL", "Could not edit command")
-
-  builtInStrings.put("DELCOM_SYNTAX", "Syntax: {param1}")
-
-  builtInStrings.put("DELCOM_NOT_FOUND", "Could not find command {param1}")
-
-  builtInStrings.put("DELCOM_OK", "{param1} removed")
-
-  builtInStrings.put("CHCHANNEL_SYNTAX", "Syntax: {param1}")
-
-  builtInStrings.put("CURRENCY_NAME", "points")
-
-  builtInStrings.put("CURRENCY_EMOTE", "points")
-
-  builtInStrings.put("COMMANDMANAGER_SYNTAX", "Usage: {param1}")
   @BeanProperty
   var silentMode = false
 
@@ -174,6 +154,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   this.readDBChannelData()
+
+  var localisation = new Localisation(this.local)
 
   try {
     this.connection.sendMessageBytes("CAP REQ :twitch.tv/membership\n")
@@ -606,16 +588,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
     ChannelHandler.getLog.info("Saving data in db for channel " + this.channel)
     val channelQuery = new Document("_id", this.channel)
-    val bultinStringsDoc = new Document()
-    for (key <- this.builtInStrings.keySet) {
-      bultinStringsDoc.append(key, this.builtInStrings.get(key))
-    }
 
     val channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
       .append("raceurl", this.raceBaseURL)
       .append("fileanmelist", this.fileNameList)
       .append("otherchannels", this.otherLoadedChannels)
-      .append("builtinstrings", bultinStringsDoc)
       .append("pointsperupdate", this.pointsPerUpdate)
       .append("allowautogreet", this.allowAutogreet)
       .append("privatekey", this.privateKey)
@@ -629,6 +606,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("pointswhenoffline", this.givePointsWhenOffline)
       .append("allowgreetmessage", this.allowGreetMessage)
       .append("maxpoints", this.maxPoints)
+      .append("local", this.local)
+      .append("currname", this.currencyName)
+      .append("curremote", this.currencyEmote)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -936,16 +916,16 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.purgeURLS = channelData.getOrDefault("purgelinks", this.purgeURLS.toString).toString.toBoolean
       this.purgeURLSNewUsers = channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers.toString).toString.toBoolean
       this.urlRegex = channelData.getOrDefault("urlreges", this.urlRegex).asInstanceOf[String]
-      val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
+      //val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
       this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt
       this.givePointsWhenOffline = channelData.getOrDefault("pointswhenoffline", this.givePointsWhenOffline.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.allowGreetMessage = channelData.getOrDefault("allowgreetmessage", this.givePointsWhenOffline.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.maxPoints = channelData.getOrDefault("maxpoints", this.maxPoints.asInstanceOf[Object]).asInstanceOf[Double]
-      for (key <- bultinStringsDoc.keySet) {
-        this.builtInStrings.put(key, bultinStringsDoc.getString(key))
-      }
+      this.local = channelData.getOrDefault("local", this.local.asInstanceOf[Object]).asInstanceOf[String]
+      this.currencyName = channelData.getOrDefault("currname", this.currencyName.asInstanceOf[Object]).toString
+      this.currencyEmote = channelData.getOrDefault("curremote", this.currencyEmote.asInstanceOf[Object]).toString
     }
     val commandCollection = Memebot.db.getCollection(this.channel + "_commands")
     val comms = commandCollection.find()

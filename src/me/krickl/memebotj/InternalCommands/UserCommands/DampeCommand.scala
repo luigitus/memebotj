@@ -2,7 +2,7 @@ package me.krickl.memebotj.InternalCommands.UserCommands
 
 import java.util.Random
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
@@ -23,7 +23,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     this.otherData.put("jackpot", "0")
   }
 
-  override def overrideDBData(): Unit = {
+  override def overrideDBData(channelHandler: ChannelHandler = null): Unit = {
 
   }
 
@@ -31,33 +31,31 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     var wage: Double = 20.0f
     try {
       if (data(0) == "jackpot") {
-        channelHandler.sendMessage(f"Current jackpot: ${"%.2f".format(this.getJackpot)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT", channelHandler, sender, this, true, Array("%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
         return
-      } else if (data(0) == "reset" &&
+      } else if (data(0) == "set" &&
         CommandHandler.checkPermission(sender.getUsername, 75, channelHandler.getUserList)) {
-        this.setJackpot(0)
-        channelHandler.sendMessage("Reset jackpot", this.getChannelOrigin)
+        this.setJackpot(data(1).toDouble)
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_SETJACKPOT", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
         return
       }
       wage = data(0).toDouble
-      if (wage < 20) {
-        channelHandler.sendMessage("Sorry the wage can't be less than 20 " +
-          channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"), this.getChannelOrigin)
+      if (wage < channelHandler.pointsPerUpdate * 20) {
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MIN", channelHandler, sender, this, true, Array("%.2f".format(channelHandler.pointsPerUpdate * 20), channelHandler.currencyEmote)), this.getChannelOrigin)
         return
       }
     } catch {
       case e: ArrayIndexOutOfBoundsException =>
       case e: NumberFormatException =>
-        channelHandler.sendMessage(data(0) + " is not a number", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_NFE", channelHandler, sender, this, true, Array(data(0))) , this.getChannelOrigin)
         return
     }
     if (!this.checkCost(sender, wage, channelHandler)) {
-      channelHandler.sendMessage(f"${sender.screenName}: Sorry you don't have ${"%.2f".format(wage)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}.", this.getChannelOrigin)
+      channelHandler.sendMessage(Memebot.formatText("DAMPE_OUT_OF_MONEY", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(wage), channelHandler.currencyEmote)), this.getChannelOrigin)
       return
     }
-    if (wage > 10000) {
-      channelHandler.sendMessage(s"${sender.screenName}: Sorry the wage can't be more than 10000 " +
-        channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE"), this.getChannelOrigin)
+    if (wage > channelHandler.maxPoints / 10) {
+      channelHandler.sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MAX", channelHandler, sender, this, true, Array("%.2f".format(channelHandler.maxPoints / 10))), this.getChannelOrigin)
       return
     }
     sender.setPoints(sender.points - wage)
@@ -67,10 +65,10 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     if (outcome <= 3) {
       val price = 10 * (Math.sqrt(wage) * 5)
       if(sender.setPoints(sender.points + price + this.getJackpot + wage)) {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price + this.getJackpot)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! Damn you're good!", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price + this.getJackpot)} ${channelHandler.currencyEmote}! Damn you're good!", this.getChannelOrigin)
         this.setJackpot(0)
       } else {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price + this.getJackpot)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price + this.getJackpot)} ${channelHandler.currencyEmote}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
         this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
@@ -78,36 +76,44 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     } else if (outcome <= 50) {
       val price = 10 * (Math.sqrt(wage) * 5)
       if(sender.setPoints(sender.points + price + wage)) {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! You lucky bastard!", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.currencyEmote}! You lucky bastard!", this.getChannelOrigin)
       } else {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.currencyEmote}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
         this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 200) {
       val price = 3 * (Math.sqrt(wage) * 5)
       if(sender.setPoints(sender.points + price + wage)) {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")} and returned your bet! Pretty good!", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.currencyEmote} and returned your bet! Pretty good!", this.getChannelOrigin)
       } else {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé found ${"%.2f".format(price)} ${channelHandler.currencyEmote}! But your wallet is full so you decide to put it back! Kappa", this.getChannelOrigin)
         this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 450) {
       if(sender.setPoints(sender.points + wage / 2)) {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé is being a dick and returned ${"%.2f".format(wage / 2)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}!", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé is being a dick and returned ${"%.2f".format(wage / 2)} ${channelHandler.currencyEmote}!", this.getChannelOrigin)
       } else {
-        channelHandler.sendMessage(f"${sender.screenName}: Dampé, being the dick he is, would have returned ${"%.2f".format(wage / 2)} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}, but your wallet is too full and you had to put it back!", this.getChannelOrigin)
+        channelHandler.sendMessage(f"${sender.screenName}: Dampé, being the dick he is, would have returned ${"%.2f".format(wage / 2)} ${channelHandler.currencyEmote}, but your wallet is too full and you had to put it back!", this.getChannelOrigin)
         this.setJackpot(this.getJackpot + wage / 2)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage / 2)
     } else if(outcome <= 650) {
-      channelHandler.sendMessage(sender.screenName + ": Dampé offered to return your " + channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") + ", but in order to lighten your wallet you decide to give it to him. Kappa", this.getChannelOrigin)
+      channelHandler.sendMessage(sender.screenName + ": Dampé offered to return your " + channelHandler.currencyEmote + ", but in order to lighten your wallet you decide to give it to him. Kappa", this.getChannelOrigin)
+      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      this.setJackpot(this.getJackpot + wage)
+    } else if(outcome <= 750) {
+      channelHandler.sendMessage(f"${sender.screenName}: Dampé found a heart piece, but didn't find any ${channelHandler.currencyEmote}. Hey! At least you can PB now. Keepo", this.getChannelOrigin)
+      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      this.setJackpot(this.getJackpot + wage)
+    } else if(outcome <= 850) {
+      channelHandler.sendMessage(f"${sender.screenName}: Dampé burnt you with his fire and stole your ${channelHandler.currencyEmote}! This won't even sub 50 now!", this.getChannelOrigin)
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage)
     } else {
-      channelHandler.sendMessage(sender.screenName + ": Dampé spent your " + channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE") + " on hookers, booze and crack!", this.getChannelOrigin)
+      channelHandler.sendMessage(sender.screenName + ": Dampé spent your " + channelHandler.currencyEmote + " on hookers, booze and crack!", this.getChannelOrigin)
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage)
     }

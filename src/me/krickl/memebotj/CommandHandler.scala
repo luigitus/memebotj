@@ -192,7 +192,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return "denied"
     }
     if (!this.checkCost(sender, this.pointCost, channelHandler)) {
-      channelHandler.sendMessage(f"Sorry, you don't have ${this.pointCost.toFloat} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}", this.channelOrigin)
+      channelHandler.sendMessage(f"Sorry, you don't have ${this.pointCost.toFloat} ${channelHandler.currencyEmote}", this.channelOrigin)
       return "cost"
     }
 
@@ -299,6 +299,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } catch {
         case e: ArrayIndexOutOfBoundsException =>
           e.printStackTrace()
+        case e: NumberFormatException => e.printStackTrace()
       }
 
       try {
@@ -315,6 +316,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } catch {
         case e: ArrayIndexOutOfBoundsException =>
           e.printStackTrace()
+        case e: NumberFormatException => e.printStackTrace()
       }
     }
 
@@ -372,7 +374,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     * and can be used to override data saved in the Database.
     * This should be used instead of constructors for child classes
     */
-  protected def overrideDBData(): Unit = {
+  protected def overrideDBData(channelHandler: ChannelHandler = null): Unit = {
 
   }
 

@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 //remove if not needed
 
 class EditChannel(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
@@ -64,18 +64,18 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
         channelHandler.allowGreetMessage = data(1).toBoolean
 			} else if(data(0) == "maxpoints") {
         channelHandler.maxPoints = data(1).toDouble
-			} else {
-				if (channelHandler.getBuiltInStrings.containsKey(data(0))) {
-					channelHandler.getBuiltInStrings.put(data(0), newEntry)
-				} else {
-					channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("CHCHANNEL_SYNTAX")
-							.replace("{param1}", "!channel <option> <new value>"), this.getChannelOrigin)
-				}
-			}
-			channelHandler.sendMessage(f"${sender.getUsername}: Changed channel settings ${data(0)} to ${data(1)}", this.getChannelOrigin)
+			} else if(data(0) == "local") {
+				channelHandler.local = data(1).toString
+        channelHandler.localisation = new Localisation(channelHandler.local)
+			} else if(data(0) == "curremote") {
+        channelHandler.currencyEmote = data(1)
+      } else if(data(0) == "currname") {
+        channelHandler.currencyName = data(1)
+      }
+			channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("EDIT_CHANNEL_OK"), channelHandler, sender, this, true, Array(sender.getUsername, data(0), data(1))), this.getChannelOrigin)
 			channelHandler.writeDBChannelData()
 		} catch {
-			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("CHCHANNEL_SYNTAX"),
+			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", channelHandler, sender, this, true),
 				this.getChannelOrigin)
 			case e: NumberFormatException => e.printStackTrace()
 		}

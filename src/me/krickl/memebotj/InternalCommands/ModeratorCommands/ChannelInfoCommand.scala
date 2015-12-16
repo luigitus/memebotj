@@ -7,7 +7,7 @@ class ChannelInfoCommand(channel: String, command: String, dbprefix: String)
 
 	this.setAccess("moderators")
 
-	this.setNeededCommandPower(25)
+	this.setNeededCommandPower(75)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		channelHandler.sendMessage(f"Is live: ${channelHandler.isLive} || Points per update ${channelHandler.getPointsPerUpdate} || purge regex: ${channelHandler.getUrlRegex}", this.getChannelOrigin)

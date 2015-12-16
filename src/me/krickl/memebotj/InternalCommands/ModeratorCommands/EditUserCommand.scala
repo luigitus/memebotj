@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 //remove if not needed
 import scala.collection.JavaConversions._
 
@@ -23,7 +23,7 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
       }
 
       if(uh.newUser && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
-        channelHandler.sendMessage("This user never joined this channel: " + data(1), this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("EDIT_USER_NEVER_JOINED", channelHandler, sender, this, true, Array(data(1))), this.getChannelOrigin)
         return
       }
 
@@ -32,8 +32,7 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
 				val newCP = java.lang.Integer.parseInt(data(2))
 
         if ((newCP + uh._autoCommandPower) > sender._commandPower) {
-          channelHandler.sendMessage("You cannot set the command power of a user higher than your own",
-            this.getChannelOrigin)
+          channelHandler.sendMessage(Memebot.formatText("EDIT_USER_FAILED_UP", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
           return
         }
         uh.setCustomCommandPower(java.lang.Integer.parseInt(data(2)))
@@ -42,24 +41,24 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
         success = true
 
 				if (success) {
-					channelHandler.sendMessage("Changed user power to " + data(2), this.getChannelOrigin)
+					channelHandler.sendMessage(Memebot.formatText("EDIT_USER_UP", channelHandler, sender, this, true, Array(data(2))), this.getChannelOrigin)
 				}
 
 			} else if (data(0) == "alias") {
         sender.nickname = data(1)
-        channelHandler.sendMessage(f"${sender.screenName}: changed their nickname to ${data(2)}", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("EDIT_ALIAS", channelHandler, sender, this, true, Array(sender.screenName, data(2))), this.getChannelOrigin)
         sender.writeDBUserData()
       } else if(data(0) == "removealias") {
         sender.nickname = ""
-        channelHandler.sendMessage(f"${sender.screenName}: removed their nickname", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("REMOVE_ALIAS", channelHandler, sender, this, true, Array(sender.screenName)), this.getChannelOrigin)
         sender.writeDBUserData()
       } else if (data(0) == "modalias" && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
         uh.nickname = data(2)
-        channelHandler.sendMessage(f"${sender.screenName}: changed ${uh.username}'s nickname to ${data(2)}", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("MOD_EDIT_ALIAS", channelHandler, sender, this, true, Array(sender.screenName, uh.username, data(2))), this.getChannelOrigin)
         uh.writeDBUserData()
 			} else if(data(0) == "modremovealias" && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
         uh.nickname = ""
-        channelHandler.sendMessage(f"${sender.screenName}: removed ${uh.username}'s nickname", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("MOD_REMOVE_ALIAS", channelHandler, sender, this, true, Array(sender.screenName, uh.username)), this.getChannelOrigin)
         uh.writeDBUserData()
       }
 		} catch {

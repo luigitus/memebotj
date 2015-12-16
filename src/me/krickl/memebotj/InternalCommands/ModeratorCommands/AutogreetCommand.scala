@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
 
 class AutogreetCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
@@ -28,26 +28,24 @@ class AutogreetCommand(channel: String, command: String, dbprefix: String) exten
 				if (!user.newUser) {
 					user.setAutogreet(newValue)
 					user.writeDBUserData()
-					message = "Autogreet added"
+					message = Memebot.formatText(channelHandler.localisation.localisedStringFor("AUTOGREET_ADDED"), channelHandler, sender, this, false, Array())
 				} else {
-					message = "Autogreet was not added because this user never entered this chatroom"
+					message = Memebot.formatText(channelHandler.localisation.localisedStringFor("AUTOGREET_FAILED"), channelHandler, sender, this, false, Array())
 				}
 			} else if (data(0) == "remove" &&
 					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
 				if (!user.newUser) {
 					user.setAutogreet("")
 					user.writeDBUserData()
-					message = "Autogreet removed"
+					message = Memebot.formatText(channelHandler.localisation.localisedStringFor("AUTOGREET_REMOVED"), channelHandler, sender, this, false, Array())
 				}
 			} else if (data(0) == "get") {
 				if (!user.newUser) {
-					channelHandler.sendMessage("Autogreet for " + user.getUsername + ": " + user.getAutogreet,
-						this.getChannelOrigin)
+					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("AUTOGREET_GET"), channelHandler, sender, this, false, Array(user.getUsername, f"${user.getAutogreet}")), this.getChannelOrigin)
 				}
 			} else if (data(0) == "toggle") {
 				sender.setEnableAutogreets(!sender.getEnableAutogreets)
-				channelHandler.sendMessage(sender.getUsername + " autogreet enabled: " +
-						java.lang.Boolean.toString(sender.enableAutogreets), this.getChannelOrigin)
+				channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("AUTOGREET_TOGGLE"), channelHandler, sender, this, false, Array(sender.screenName, f"${sender.enableAutogreets}")), this.getChannelOrigin)
 			}
 			channelHandler.sendMessage(message, this.getChannelOrigin)
 		} catch {

@@ -10,8 +10,7 @@ class CommandList(channel: String, command: String, dbprefix: String) extends Co
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
     try {
       if (Memebot.useWeb) {
-        channelHandler.sendMessage("Commands: " + channelHandler.getChannelPageBaseURL +
-          "/index.html || Use !help for further information", this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("COMMAND_LIST", channelHandler, sender, this, true, Array(channelHandler.getChannelPageBaseURL + "/index.html")), this.getChannelOrigin)
       } else {
         var index = 0
         var output = ""
@@ -31,10 +30,9 @@ class CommandList(channel: String, command: String, dbprefix: String) extends Co
         channelHandler.sendMessage("Commands: " + output, this.getChannelOrigin)
       }
     } catch {
-      case e: NumberFormatException => {
-        channelHandler.sendMessage("That is not an integer 4Head", this.getChannelOrigin)
+      case e: NumberFormatException =>
+        channelHandler.sendMessage(Memebot.formatText("COMMAND_LIST_ERROR", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
         e.printStackTrace()
-      }
     }
   }
 }

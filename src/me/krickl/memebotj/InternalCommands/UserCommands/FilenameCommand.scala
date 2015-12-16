@@ -9,7 +9,7 @@ import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 class FilenameCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
 
-  this.setHelptext("Syntax: !name <filename> (100 points/name) || !name get || !name current")
+  this.setHelptext("Syntax: !name <filename> || !name get || !name current")
 
   //this.setListregex("/^[一-龠ぁ-ゔァ-ヴーa-zA-Z0-9_,.-々〆〤]{1,8}$/u")
 
@@ -64,15 +64,17 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       }
       var success = false
       if (data(0).length <= channelHandler.getMaxFileNameLen) {
-        if (!this.checkCost(sender, 100.0d * i, channelHandler)) {
-          channelHandler.sendMessage(f"${sender.screenName}: Sorry, you don't have ${100f * i} ${channelHandler.getBuiltInStrings.get("CURRENCY_EMOTE")}",
+        val cost = channelHandler.pointsPerUpdate * 100
+
+        if (!this.checkCost(sender, cost * i, channelHandler)) {
+          channelHandler.sendMessage(f"${sender.screenName}: Sorry, you don't have ${cost * i} ${channelHandler.currencyEmote}",
             this.getChannelOrigin)
         } else {
           if(i > 1)
             channelHandler.sendMessage(f"${sender.screenName} added name ${data(0)} $i times", this.getChannelOrigin)
           else
             channelHandler.sendMessage(f"${sender.screenName} added name ${data(0)}", this.getChannelOrigin)
-          sender.setPoints(sender.points - (100 * i))
+          sender.setPoints(sender.points - (cost * i))
           success = true
         }
       } else {

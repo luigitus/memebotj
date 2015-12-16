@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 //remove if not needed
 import scala.collection.JavaConversions._
 
@@ -18,17 +18,16 @@ class HelpCommand(channel: String, command: String, dbprefix: String) extends Co
 			}
 			for (ch <- channelHandler.getInternalCommands if ch.getCommand == data(0)) {
 				if(ch.getHelptext == "null") {
-          channelHandler.sendMessage("No help text available!", this.getChannelOrigin)
+          channelHandler.sendMessage(Memebot.formatText("HELP_NOT_FOUND", channelHandler, sender, this, true), this.getChannelOrigin)
         }
         else {
           channelHandler.sendMessage(ch.getHelptext, this.getChannelOrigin)
         }
 				return
 			}
-			channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("HELP_NOT_FOUND"), this.getChannelOrigin)
+			channelHandler.sendMessage(Memebot.formatText("HELP_NOT_FOUND", channelHandler, sender, this, true), this.getChannelOrigin)
 		} catch {
-			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("HELP_SYNTAX")
-					.replace("{param1}", "!help <command>"), this.getChannelOrigin)
+			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(Memebot.formatText("HELP_SYNTAX", channelHandler, sender, this, true, Array("!help <command>")), this.getChannelOrigin)
 		}
 	}
 }

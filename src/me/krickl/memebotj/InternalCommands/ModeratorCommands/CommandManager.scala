@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
 class CommandManager(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
@@ -25,22 +25,22 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					channelHandler.sendMessage("Command " + newCommand.getCommand + " created.", this.getChannelOrigin)
 					channelHandler.getChannelCommands.add(newCommand)
 				} else {
-					channelHandler.sendMessage("This command already exists", this.getChannelOrigin)
+					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_EXISTS"), channelHandler, sender, this, true, Array()), this.getChannelOrigin)
 				}
 			} else if (data(0) == "remove" &&
 					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
 				val j = channelHandler.findCommand(data(1))
 				if (j != -1) {
 					if (!channelHandler.getChannelCommands.get(j).getLocked) {
-						channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("DELCOM_OK").replace("{param1}",
-							channelHandler.getChannelCommands.get(j).getCommand), this.getChannelOrigin)
+						channelHandler.sendMessage(Memebot.formatText("DELCOM_OK", channelHandler, sender, this, true, Array(channelHandler.getChannelCommands.get(j).getCommand)), this.getChannelOrigin)
+
 						channelHandler.getChannelCommands.get(j).removeDBCommand()
 						channelHandler.getChannelCommands.remove(j)
 					} else {
-						channelHandler.sendMessage("This command has been locked by the broadcaster", this.getChannelOrigin)
+						channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("DELCOM_LOCKED"), channelHandler, sender, this, true, Array()), this.getChannelOrigin)
 					}
 				} else {
-					channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("DELCOM_NOT_FOUND"), this.getChannelOrigin)
+					channelHandler.sendMessage(Memebot.formatText("DELCOM_NOT_FOUND", channelHandler, sender, this, true), this.getChannelOrigin)
 				}
 			} else if (data(0) == "edit" &&
 					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
@@ -51,12 +51,9 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 						newValue = newValue + " " + data(x)
 					}
 					if (channelHandler.getChannelCommands.get(j).editCommand(data(2), newValue, sender, channelHandler.getUserList)) {
-						channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("EDITCOMMAND_OK")
-								.replace("{param1}", data(1))
-								.replace("{param2}", data(2))
-								.replace("{param3}", newValue), this.getChannelOrigin)
+						channelHandler.sendMessage(Memebot.formatText("EDITCOMMAND_OK", channelHandler, sender, this, true, Array(data(1), data(2), newValue)), this.getChannelOrigin)
 					} else {
-						channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("EDITCOMMAND_FAIL"), this.getChannelOrigin)
+						channelHandler.sendMessage(Memebot.formatText("EDITCOMMAND_FAIL", channelHandler, sender, this, true), this.getChannelOrigin)
 					}
 				}
 			} else if(data(0) == "toggleinternal" && CommandHandler.checkPermission(sender.getUsername, 50, channelHandler.getUserList)) {
@@ -64,21 +61,20 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
         if(i != -1) {
           val ch = channelHandler.getInternalCommands.get(i)
           if(ch.command == this.command) {
-            channelHandler.sendMessage(f"${sender.screenName}: You cannot disable the command manager!", this.getChannelOrigin)
+            channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_DISABLE_FAILED"), channelHandler, sender, this, false, Array(sender.screenName)), this.getChannelOrigin)
           } else {
             ch.setEnable(!ch.enable)
-            channelHandler.sendMessage(f"${sender.screenName}: Toggled internal command ${data(1)}: ${ch.enable}", this.getChannelOrigin)
+            channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TOGGLE"), channelHandler, sender, this, false, Array(sender.screenName, data(1), f"${ch.enable}")), this.getChannelOrigin)
           }
         }
       } else if (data(0) == "info") {
 				val j = channelHandler.findCommand(data(1))
 				if (j != -1) {
-					channelHandler.sendMessage(f"Times executed: ${channelHandler.getChannelCommands.get(j).getExecCounter.toString}", this.channelOrigin)
+					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TIMES_EXECUTED"), channelHandler, sender, this, false, Array(f"${channelHandler.getChannelCommands.get(j).getExecCounter}")), this.channelOrigin)
 				}
 			}
 		} catch {
-			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(channelHandler.getBuiltInStrings.get("COMMANDMANAGER_SYNTAX")
-					.replace("{param1}", "!command add/remove/edit <command> <param1> ..."), this.getChannelOrigin)
+			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(this.helptext, this.getChannelOrigin)
 		}
 	}
 }
