@@ -8,7 +8,7 @@ import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
 	override protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
 		try {
-		  channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("HUG_SOMEONE"), channelHandler, sender, this, false, Array(data(0))), this.getChannelOrigin)
+		  channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("HUG_SOMEONE"), channelHandler, sender, this, false, Array(sender.screenName, data(0))), this.getChannelOrigin)
 		} catch {
 		  case e: ArrayIndexOutOfBoundsException => {
 			  channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("HUG_NOBODY"), channelHandler, sender, this, false, Array(sender.screenName)), this.getChannelOrigin)

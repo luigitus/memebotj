@@ -59,7 +59,9 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 					}
 				} catch {
 					case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
-          case e: NumberFormatException => e.printStackTrace()
+          case e: NumberFormatException =>
+						CommandHandler.log.info(f"This exception is an illusion and is a trap devised by satan! ${e.toString}")
+            channelHandler.sendMessage(Memebot.formatText("POINTS_ERROR_NFE", channelHandler, sender, this, true, Array("NumberFormatException")))
 				}
 			}
 		}

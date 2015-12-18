@@ -48,7 +48,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         channelHandler.sendMessage(Memebot.formatText("NAME_REMOVE", channelHandler, sender, this, true, Array(f"$counter")), this.getChannelOrigin)
         return
       }
-      var i: Int = 0
+      var i: Int = 1
       if(data.length >= 2) {
         try {
           i = java.lang.Integer.parseInt(data(1))
@@ -65,10 +65,12 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         if (!this.checkCost(sender, cost * i, channelHandler)) {
           channelHandler.sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", channelHandler, sender, this, true, Array(f"${cost * i}")), this.getChannelOrigin)
         } else {
-          if(i > 1)
-            channelHandler.sendMessage(Memebot.formatText("NAME_ADD_MANY", channelHandler, sender, this, true, Array(data(0))), this.getChannelOrigin)
-          else
-            channelHandler.sendMessage(Memebot.formatText("NAME_ADD", channelHandler, sender, this, true, Array(data(0))), this.getChannelOrigin)
+          if(i > 1) {
+            channelHandler.sendMessage(Memebot.formatText("NAME_ADD_MANY", channelHandler, sender, this, true, Array(data(0), data(1))), this.getChannelOrigin)
+          }
+          else {
+              channelHandler.sendMessage(Memebot.formatText("NAME_ADD", channelHandler, sender, this, true, Array(data(0))), this.getChannelOrigin)
+            }
           sender.setPoints(sender.points - (cost * i))
           success = true
         }
