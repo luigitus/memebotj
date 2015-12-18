@@ -9,7 +9,7 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
 
 	this.setAccess("botadmin")
 
-  this.setHelptext("Syntax: !user <alias/removealias> <nickname> || Mod only: !user <power/modalias/modremovealias> <user> <new power/nickname>")
+  this.setHelptext(Memebot.formatText("EDIT_USER_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	this.setNeededCommandPower(10)
 

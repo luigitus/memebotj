@@ -1,13 +1,13 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
 class RaceCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
 	this.setAccess("moderators")
 
-	this.setHelptext("Syntax: !race <channel1> <channel2> <channel3> ... || !race")
+	this.setHelptext(Memebot.formatText("RACE_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	this.enable = false
 

@@ -3,7 +3,7 @@ package me.krickl.memebotj.InternalCommands.FunCommands
 import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 
  class HugCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel, command, dbprefix) {
-	this.setHelptext("Give people a hug :D")
+	this.setHelptext(Memebot.formatText("HUG_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 
 	override protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {

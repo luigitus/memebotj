@@ -9,7 +9,7 @@ class PartCommand(channel: String, command: String, dbprefix: String) extends Co
 
 	this.setNeededCommandPower(50)
 
-	this.setHelptext("Syntax: !mepart")
+	this.setHelptext(Memebot.formatText("PART_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		channelHandler.partChannel(this.getChannelOrigin)

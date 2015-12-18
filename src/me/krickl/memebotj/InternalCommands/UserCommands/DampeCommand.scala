@@ -7,7 +7,7 @@ import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
 
-  this.setHelptext("Let Dampé hate you for only all of your points")
+  this.setHelptext(Memebot.formatText("DAMPE_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
   this.setUserCooldownLen(40)
 

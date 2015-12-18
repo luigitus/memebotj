@@ -5,7 +5,7 @@ import me.krickl.memebotj.{ChannelHandler, CommandHandler, Memebot, UserHandler}
 class CommandList(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
 
-  this.setHelptext("Displays a command list")
+  this.setHelptext(Memebot.formatText("COMMAND_LIST_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
     try {

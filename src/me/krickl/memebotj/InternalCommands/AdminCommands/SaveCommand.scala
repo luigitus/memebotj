@@ -11,7 +11,7 @@ class SaveCommand(channel: String, command: String, dbprefix: String) extends Co
 
 	this.setNeededCommandPower(75)
 
-	this.setHelptext("Saves everything to database")
+	this.setHelptext(Memebot.formatText("SAVE_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("SAVE"), channelHandler, sender, this, false, Array()), this.getChannelOrigin)

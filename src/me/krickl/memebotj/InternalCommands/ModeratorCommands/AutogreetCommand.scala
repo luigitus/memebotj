@@ -10,7 +10,7 @@ class AutogreetCommand(channel: String, command: String, dbprefix: String) exten
 
 	this.setNeededCommandPower(0)
 
-	this.setHelptext("Syntax: !autogreet <add/remove/get> <name>")
+	this.setHelptext(Memebot.formatText("AUTOGREET_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {

@@ -140,6 +140,14 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   @BeanProperty
   var commandScript: String = ""
 
+  var channelOriginHandler: ChannelHandler = null
+
+  for(ch <- Memebot.joinedChannels) {
+    if(ch.channel == channelOrigin) {
+      channelOriginHandler = ch
+    }
+  }
+
   if (Memebot.useMongo) {
     if (dbprefix == null) {
       this.commandCollection = Memebot.db.getCollection(this.channelOrigin + "_commands")
@@ -192,7 +200,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return "denied"
     }
     if (!this.checkCost(sender, this.pointCost, channelHandler)) {
-      channelHandler.sendMessage(f"Sorry, you don't have ${this.pointCost.toFloat} ${channelHandler.currencyEmote}", this.channelOrigin)
+      channelHandler.sendMessage(Memebot.formatText("POINTS_NOT_ENOUGH", channelHandler, sender, this, true, Array(f"${this.pointCost.toFloat}")), this.channelOrigin)
       return "cost"
     }
 
@@ -209,16 +217,16 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           }
           if (!newEntry.isEmpty) {
             this.listContent.add(newEntry + " " + Memebot.formatText(this.appendToQuoteString, channelHandler, sender, this))
-            formattedOutput = "Added "
+            formattedOutput = Memebot.formatText("ADDED", channelHandler, sender, this, true, Array())
             this.success = false
           } else {
-            formattedOutput = "Not added"
+            formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, Array())
             this.success = false
           }
         } else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername, this.neededModCommandPower, userList)) {
           try {
             this.listContent.remove(Integer.parseInt(data(2)))
-            formattedOutput = "Removed"
+            formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, Array())
             this.success = false
           } catch {
             case e: IndexOutOfBoundsException =>
@@ -231,19 +239,19 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           }
 
           this.listContent.set(Integer.parseInt(data(2)), newEntry)
-          formattedOutput = "Edited"
+          formattedOutput = Memebot.formatText("EDITED", channelHandler, sender, this, true, Array())
           this.success = false
         } else if (data(1).equals("list")) {
-          formattedOutput = "List: " + channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"
+          formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, Array(channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"))
           this.success = false
 
         } else if (data(1).equals("clear") && CommandHandler.checkPermission(sender.getUsername, 75, channelHandler.getUserList)) {
-          formattedOutput = "Cleared list. This cannot be undone."
+          formattedOutput = Memebot.formatText("LIST_CLEAR", channelHandler, sender, this, true, Array())
           this.listContent.clear()
           this.success = true
 
         } else if (data(1).equals("import_json")) {
-          formattedOutput = "Could not import json"
+          formattedOutput = Memebot.formatText("JSON_ERROR", channelHandler, sender, this, true, Array())
           // todo fix later
           try {
             val url = new URL(data(2))
@@ -267,9 +275,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             }
           } catch {
             case e: NumberFormatException =>
-              formattedOutput = "That's not an integer"
+              formattedOutput = Memebot.formatText("NOFE", channelHandler, sender, this, true, Array())
             case e: IndexOutOfBoundsException =>
-              formattedOutput = "Index out of bounds: Size " + Integer.toString(this.listContent.size())
+              formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, Array(f"${Integer.toString(this.listContent.size())}"))
           }
         } else {
           this.success = false

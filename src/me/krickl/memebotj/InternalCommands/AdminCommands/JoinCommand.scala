@@ -10,7 +10,7 @@ class JoinCommand(channel: String, command: String, dbprefix: String) extends Co
 
 	this.setNeededCommandPower(10)
 
-	this.setHelptext("Syntax: !mejoin <channel>")
+	this.setHelptext(Memebot.formatText("JOIN_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {

@@ -5,7 +5,7 @@ import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
 class WhoisCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setHelptext("Syntax: !whois <name>")
+	this.setHelptext(Memebot.formatText("WHOIS_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	this.setNeededCommandPower(25)
 
