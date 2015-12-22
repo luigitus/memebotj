@@ -13,12 +13,15 @@ class Localisation(newLocal: String) {
   val config = new Properties()
 
   try {
-    val reader = new InputStreamReader(getClass.getResourceAsStream(f"/local/$local.properties"), "UTF-8")
-    config.load(reader)
-    reader.close()
+    val localsURL = getClass.getResourceAsStream(f"/local/$local.properties")
+
+    if(localsURL != null) {
+      val reader = new InputStreamReader(localsURL, "UTF-8")
+      config.load(reader)
+      reader.close()
+    }
   } catch {
     case e: FileNotFoundException => e.printStackTrace()
-    case e: NullPointerException => e.printStackTrace() // needs to be caught cause it can be reloaded by a user
   }
 
   def localisedStringFor(stringID: String): String = {

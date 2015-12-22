@@ -14,19 +14,24 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
 	this.setNeededCommandPower(10)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
+    var uh: UserHandler = null
+
 		try {
-      var uh: UserHandler = null
-      if(channelHandler.getUserList.containsKey(data(1).toLowerCase())) {
+      if (channelHandler.getUserList.containsKey(data(1).toLowerCase())) {
         uh = channelHandler.getUserList.get(data(1).toLowerCase())
       } else {
         uh = new UserHandler(data(1).toLowerCase(), channelHandler.getChannel)
       }
 
-      if(uh.newUser && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
+      if (uh.newUser && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
         channelHandler.sendMessage(Memebot.formatText("EDIT_USER_NEVER_JOINED", channelHandler, sender, this, true, Array(data(1))), this.getChannelOrigin)
         return
       }
-
+    } catch {
+      case e: ArrayIndexOutOfBoundsException =>
+        e.printStackTrace()
+    }
+    try {
 			if (data(0) == "power" && CommandHandler.checkPermission(sender.username, 75, channelHandler.userList)) {
 				var success = false
 				val newCP = java.lang.Integer.parseInt(data(2))

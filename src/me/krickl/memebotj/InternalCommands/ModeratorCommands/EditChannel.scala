@@ -20,12 +20,12 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 			}
 			if (data(0) == "race") {
 				channelHandler.setRaceBaseURL(data(1))
-			} else if (data(0) == "otherch") {
+			} else if (data(0) == "otherchannel") {
 				if (data(1) == "add") {
-					channelHandler.getOtherLoadedChannels.add(data(2))
+					channelHandler.getOtherLoadedChannels.add(data(2).toLowerCase)
 				} else if (data(1) == "remove") {
 					var index = -1
-					for (x <- 0 until channelHandler.getOtherLoadedChannels.size if channelHandler.getOtherLoadedChannels.get(x) == data(2)) {
+					for (x <- 0 until channelHandler.getOtherLoadedChannels.size if channelHandler.getOtherLoadedChannels.get(x).toLowerCase == data(2).toLowerCase) {
 						index = x
 					}
 					if (index >= 0) {

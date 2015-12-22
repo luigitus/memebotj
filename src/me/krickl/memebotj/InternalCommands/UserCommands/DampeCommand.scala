@@ -28,7 +28,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
   }
 
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
-    var wage: Double = 20.0f
+    var wage: Double = 50.0f
     try {
       if (data(0) == "jackpot") {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT", channelHandler, sender, this, true, Array("%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
@@ -40,8 +40,8 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         return
       }
       wage = data(0).toDouble
-      if (wage < channelHandler.pointsPerUpdate * 20) {
-        channelHandler.sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MIN", channelHandler, sender, this, true, Array("%.2f".format(channelHandler.pointsPerUpdate * 20), channelHandler.currencyEmote)), this.getChannelOrigin)
+      if (wage < channelHandler.pointsPerUpdate * 50) {
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MIN", channelHandler, sender, this, true, Array("%.2f".format(channelHandler.pointsPerUpdate * 50), channelHandler.currencyEmote)), this.getChannelOrigin)
         return
       }
     } catch {
