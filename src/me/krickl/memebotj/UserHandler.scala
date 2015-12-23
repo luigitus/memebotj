@@ -163,21 +163,23 @@ class UserHandler(usernameNew: String, channelNew: String) {
   }
 
 	def points_=(f: Double): Boolean = {
-		for(ch <- Memebot.joinedChannels) {
-			if (ch.channel == this.channelOrigin) {
-				if(this._points + f > ch.maxPoints || (this._points + f > this.walletSize && this.walletSize > 0)) {
-					//this.points = ch.maxPoints
-					return false
-				}
-			}
-		}
+		var result = true
 
 		this._points = f
     if(this._points < 0) {
       this._points = 0
     }
 
-    true
+    for(ch <- Memebot.joinedChannels) {
+      if (ch.channel == this.channelOrigin) {
+        if(this._points + f > ch.maxPoints || (this._points + f > this.walletSize && this.walletSize > 0)) {
+          this._points = ch.maxPoints
+          result = false
+        }
+      }
+    }
+
+    result
 	}
 
   def setCommandPower(commandPower: Int) = {

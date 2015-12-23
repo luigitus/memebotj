@@ -1,5 +1,6 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
+import java.security.SecureRandom
 import java.util.Random
 
 import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
@@ -59,7 +60,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       return
     }
     sender.setPoints(sender.points - wage)
-    val ran = new Random()
+    val ran = new SecureRandom()
     val range = 1000
     val outcome = ran.nextInt(range) //- wage.toInt / 4)
     if (outcome <= 3) {
