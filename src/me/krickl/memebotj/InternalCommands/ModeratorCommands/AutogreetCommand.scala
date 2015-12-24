@@ -1,14 +1,12 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 
 
 class AutogreetCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setAccess("moderators")
-
-	this.setNeededCommandPower(0)
+	this.setNeededCommandPower(10)
 
 	this.setHelptext(Memebot.formatText("AUTOGREET_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
@@ -20,7 +18,7 @@ class AutogreetCommand(channel: String, command: String, dbprefix: String) exten
 			user = if (channelHandler.getUserList.containsKey(nameToModify)) channelHandler.getUserList.get(nameToModify) else new UserHandler(nameToModify,
 				this.getChannelOrigin)
 			if ((data(0) == "add" || data(0) == "edit") &&
-					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
+					CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				var newValue = data(2)
 				for (x <- 3 until data.length) {
 					newValue = newValue + " " + data(x)
@@ -33,7 +31,7 @@ class AutogreetCommand(channel: String, command: String, dbprefix: String) exten
 					message = Memebot.formatText(channelHandler.localisation.localisedStringFor("AUTOGREET_FAILED"), channelHandler, sender, this, false, Array())
 				}
 			} else if (data(0) == "remove" &&
-					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
+					CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				if (!user.newUser) {
 					user.setAutogreet("")
 					user.writeDBUserData()

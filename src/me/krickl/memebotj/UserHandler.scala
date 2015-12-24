@@ -37,8 +37,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	var newUser: Boolean = false
 	@BeanProperty
   var nickname = ""
-	var _commandPower : Int = 10
-	var _autoCommandPower : Int = 10
+	var _commandPower : Int = CommandPower.viewer
+	var _autoCommandPower : Int = CommandPower.viewer
   @BeanProperty
 	var customCommandPower: Int = 0
   @BeanProperty
@@ -158,6 +158,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	def update() = {
 	}
 
+  //comparability for old function calls
+  @Deprecated
   def setPoints(f: Double): Boolean = {
     this.points = f
   }

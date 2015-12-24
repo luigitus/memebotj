@@ -695,11 +695,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           if (ircmsgList(3) == "+o") {
             user.isModerator = true
             if (!user.isUserBroadcaster) {
-              user.setCommandPower(25)
+              user.setCommandPower(CommandPower.modAbsolute)
             }
           } else {
             user.isModerator = false
-            user.setCommandPower(10)
+            user.setCommandPower(CommandPower.viewer)
           }
         }
       } else if (ircmsgList(1) == "PART") {
@@ -737,23 +737,23 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       if (ircTags.containsKey("user-type")) {
         if (ircTags.get("user-type") == "mod" && !sender.isUserBroadcaster) {
           sender.setIsModerator(true)
-          sender.setCommandPower(25)
+          sender.setCommandPower(CommandPower.modAbsolute)
         } else if (!sender.isUserBroadcaster) {
           sender.setIsModerator(false)
-          sender.setCommandPower(10)
+          sender.setCommandPower(CommandPower.viewer)
         }
       } else {
         sender.setIsModerator(false)
-        sender.setCommandPower(10)
+        sender.setCommandPower(CommandPower.viewer)
       }
       if (sender.getUsername.equalsIgnoreCase(this.broadcaster)) {
         sender.setIsModerator(true)
         sender.isUserBroadcaster = true
-        sender.setCommandPower(50)
+        sender.setCommandPower(CommandPower.broadcasterAbsolute)
       }
       for (user <- Memebot.botAdmins) {
         if (user.equalsIgnoreCase(sender.getUsername)) {
-          sender.setCommandPower(75)
+          sender.setCommandPower(CommandPower.adminAbsolute)
         }
       }
       val msg = msgContent(0)

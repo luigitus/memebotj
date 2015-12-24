@@ -2,7 +2,7 @@ package me.krickl.memebotj.InternalCommands.UserCommands
 
 import java.util.Random
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 //remove if not needed
 
 
@@ -18,8 +18,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
     try {
       if (data(0) == "get") {
-        if (CommandHandler.checkPermission(sender.getUsername, this.getNeededBroadcasterCommandPower,
-          channelHandler.getUserList)) {
+        if (CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
           val rand = new Random()
           val index = rand.nextInt(channelHandler.getFileNameList.size - 1)
           channelHandler.setCurrentFileName(channelHandler.getFileNameList.get(index))
@@ -34,7 +33,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         channelHandler.sendMessage(s"${channelHandler.getChannelPageBaseURL}/filenames.html", this.channelOrigin)
         return
       } else if (data(0) == "remove" &&
-        CommandHandler.checkPermission(sender.getUsername, this.getNeededBroadcasterCommandPower, channelHandler.getUserList)) {
+        CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
         var counter = 0
         var i = channelHandler.getFileNameList.size - 1
         while (i >= 0) {

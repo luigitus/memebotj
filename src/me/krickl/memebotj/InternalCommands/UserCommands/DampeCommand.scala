@@ -3,7 +3,7 @@ package me.krickl.memebotj.InternalCommands.UserCommands
 import java.security.SecureRandom
 import java.util.Random
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
@@ -16,7 +16,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setPointCost(0)
 
-  this.setNeededCommandPower(0)
+  this.setNeededCommandPower(10)
 
   this.setCmdtype("default")
 
@@ -35,7 +35,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT", channelHandler, sender, this, true, Array("%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
         return
       } else if (data(0) == "set" &&
-        CommandHandler.checkPermission(sender.getUsername, 75, channelHandler.getUserList)) {
+        CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, channelHandler.getUserList)) {
         this.setJackpot(data(1).toDouble)
         channelHandler.sendMessage(Memebot.formatText("DAMPE_SETJACKPOT", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
         return

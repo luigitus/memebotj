@@ -6,9 +6,7 @@ import me.krickl.memebotj._
 class EditChannel(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setAccess("broadcaster")
-
-	this.setNeededCommandPower(50)
+	this.setNeededCommandPower(CommandPower.broadcasterAbsolute)
 
 	this.setHelptext("")
 

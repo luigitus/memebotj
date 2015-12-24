@@ -1,11 +1,9 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 
 class RaceCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
-
-	this.setAccess("moderators")
 
 	this.setHelptext(Memebot.formatText("RACE_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
@@ -13,9 +11,9 @@ class RaceCommand(channel: String, command: String, dbprefix: String) extends Co
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		if (data.length >= 1 &&
-				CommandHandler.checkPermission(sender.getUsername, this.getNeededModCommandPower, channelHandler.getUserList)) {
+				CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, channelHandler.getUserList)) {
 			channelHandler.setCurrentRaceURL(channelHandler.getRaceBaseURL + "/" + channelHandler.getBroadcaster)
-			for (i <- 0 until data.length) {
+			for (i <- data.indices) {
 				channelHandler.setCurrentRaceURL(channelHandler.getCurrentRaceURL + "/" + data(i))
 			}
 			channelHandler.sendMessage(channelHandler.getCurrentRaceURL, this.getChannelOrigin)

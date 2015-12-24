@@ -1,13 +1,13 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 
 class WhoisCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
 	this.setHelptext(Memebot.formatText("WHOIS_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
-	this.setNeededCommandPower(25)
+	this.setNeededCommandPower(CommandPower.modAbsolute)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {

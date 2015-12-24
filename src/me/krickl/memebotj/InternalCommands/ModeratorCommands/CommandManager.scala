@@ -1,6 +1,6 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 
 class CommandManager(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
@@ -11,8 +11,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {
-			if (data(0) == "add" &&
-					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
+			if (data(0) == "add" && CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				val newCommand = new CommandHandler(this.getChannelOrigin, "null", null)
 				if (channelHandler.findCommand(data(1)) == -1) {
 					newCommand.editCommand("name", data(1), new UserHandler("#internal#", "#internal#"), channelHandler.getUserList)
@@ -28,7 +27,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_EXISTS"), channelHandler, sender, this, true, Array()), this.getChannelOrigin)
 				}
 			} else if (data(0) == "remove" &&
-					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
+					CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				val j = channelHandler.findCommand(data(1))
 				if (j != -1) {
 					if (!channelHandler.getChannelCommands.get(j).getLocked) {
@@ -43,7 +42,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					channelHandler.sendMessage(Memebot.formatText("DELCOM_NOT_FOUND", channelHandler, sender, this, true), this.getChannelOrigin)
 				}
 			} else if (data(0) == "edit" &&
-					CommandHandler.checkPermission(sender.getUsername, 25, channelHandler.getUserList)) {
+					CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				val j = channelHandler.findCommand(data(1))
 				if (j != -1) {
 					var newValue = data(3)
@@ -56,7 +55,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 						channelHandler.sendMessage(Memebot.formatText("EDITCOMMAND_FAIL", channelHandler, sender, this, true), this.getChannelOrigin)
 					}
 				}
-			} else if(data(0) == "toggleinternal" && CommandHandler.checkPermission(sender.getUsername, 50, channelHandler.getUserList)) {
+			} else if(data(0) == "toggleinternal" && CommandHandler.checkPermission(sender.getUsername, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
         val i = channelHandler.findCommand(data(1), channelHandler.internalCommands)
         if(i != -1) {
           val ch = channelHandler.getInternalCommands.get(i)
@@ -68,10 +67,15 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
           }
         }
       } else if (data(0) == "info") {
-				val j = channelHandler.findCommand(data(1))
+				var j = channelHandler.findCommand(data(1))
 				if (j != -1) {
-					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TIMES_EXECUTED"), channelHandler, sender, this, false, Array(f"${channelHandler.getChannelCommands.get(j).getExecCounter}")), this.channelOrigin)
+					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TIMES_EXECUTED"), channelHandler, sender, this, false, Array(f"${channelHandler.getChannelCommands.get(j).getExecCounter}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower + CommandPower.mod}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower + CommandPower.broadcaster}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower + CommandPower.admin}")), this.channelOrigin)
 				}
+
+        j = channelHandler.findCommand(data(1), channelHandler.internalCommands)
+        if(j!= -1) {
+          channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TIMES_EXECUTED"), channelHandler, sender, this, false, Array(f"${channelHandler.getInternalCommands.get(j).getExecCounter}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower + CommandPower.mod}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower + CommandPower.broadcaster}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower + CommandPower.admin}")), this.channelOrigin)
+        }
 			}
 		} catch {
 			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(this.helptext, this.getChannelOrigin)

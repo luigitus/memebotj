@@ -2,7 +2,7 @@ package me.krickl.memebotj.InternalCommands.FunCommands
 
 import java.util.ArrayList
 
-import me.krickl.memebotj.CommandHandler
+import me.krickl.memebotj.{CommandPower, CommandHandler}
 
 
 class BobRossCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
@@ -13,7 +13,7 @@ class BobRossCommand(channel: String, command: String, dbprefix: String) extends
   this.setQuotePrefix("")
   this.setQuoteSuffix(" KappaRoss")
   this.setUserCooldownLen(60)
-  this.setNeededCooldownBypassPower(75)
+  this.setNeededCooldownBypassPower(CommandPower.adminAbsolute)
   this.setAllowPicksFromList(true)
 
   this.listContent.add("There's nothing wrong with having a tree as a friend.")

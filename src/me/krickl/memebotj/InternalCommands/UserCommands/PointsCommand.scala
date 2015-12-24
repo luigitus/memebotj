@@ -1,11 +1,11 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 
 class PointsCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setHelptext("Syntax: !points || !points send <target> <amount>")
+	this.setHelptext(Memebot.formatText("POINTS_SYNTAX", this.channelOriginHandler, null, this, true, Array()))
 	this.setUserCooldownLen(40)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
@@ -24,8 +24,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 							target = null
 						}
 					}
-					if (target != null &&
-							CommandHandler.checkPermission(sender.getUsername, this.getNeededBotAdminCommandPower, channelHandler.getUserList)) {
+					if (target != null && CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, channelHandler.getUserList)) {
 						val number = java.lang.Double.parseDouble(data(2))
 						if (data(0) == "add") {
 							target.setPoints(target.points + number)

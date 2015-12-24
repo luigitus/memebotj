@@ -42,7 +42,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.{Calendar, Properties}
+import java.util.{Random, Calendar, Properties}
 import java.util.logging.Logger
 
 import org.bson.Document
@@ -311,6 +311,11 @@ object Memebot {
 		val cal = Calendar.getInstance()
 		val strDate = sdfDate.format(cal.getTime)
     var formattedOutput = fo
+
+    val sdfTime = new SimpleDateFormat("hh:mm:ss a")// dd/MM/yyyy
+    val calTime = Calendar.getInstance()
+    val strTime = sdfTime.format(calTime.getTime)
+
     if(local && channelHandler != null) {
       formattedOutput = channelHandler.localisation.localisedStringFor(fo)
     }
@@ -324,6 +329,7 @@ object Memebot {
     if(commandHandler != null) {
       formattedOutput = formattedOutput.replace("{counter}", Integer.toString(commandHandler.counter))
       formattedOutput = formattedOutput.replace("{debugch}", commandHandler.toString)
+      formattedOutput = formattedOutput.replace("{execcount}", commandHandler.execCounter.toString)
     }
     if(channelHandler != null) {
       formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL)
@@ -335,6 +341,8 @@ object Memebot {
       formattedOutput = formattedOutput.replace("{currname}",
         channelHandler.currencyName)
       formattedOutput = formattedOutput.replace("{botnick}", channelHandler.connection.botNick)
+
+      formattedOutput = formattedOutput.replace("{randomuser}", "soon")
     }
 
 		formattedOutput = formattedOutput.replace("{version}", BuildInfo.version)
@@ -343,6 +351,7 @@ object Memebot {
     formattedOutput = formattedOutput.replace("{appname}", BuildInfo.buildNumber)
     formattedOutput = formattedOutput.replace("{builddate}", BuildInfo.timeStamp)
 		formattedOutput = formattedOutput.replace("{date}", strDate)
+    formattedOutput = formattedOutput.replace("{time}", strTime)
 
     if(params != null) {
       for (i <- params.indices) {

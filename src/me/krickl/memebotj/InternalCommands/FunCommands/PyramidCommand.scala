@@ -1,11 +1,11 @@
 package me.krickl.memebotj.InternalCommands.FunCommands
 
-import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.{CommandPower, ChannelHandler, CommandHandler, UserHandler}
 
 class PyramidCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setNeededCommandPower(75)
+	this.setNeededCommandPower(CommandPower.adminAbsolute)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {

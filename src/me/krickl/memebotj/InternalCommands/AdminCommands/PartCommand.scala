@@ -1,13 +1,11 @@
 package me.krickl.memebotj.InternalCommands.AdminCommands
 
-import me.krickl.memebotj.{Memebot, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj._
 
 class PartCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setAccess("botadmin")
-
-	this.setNeededCommandPower(50)
+	this.setNeededCommandPower(CommandPower.broadcasterAbsolute)
 
 	this.setHelptext(Memebot.formatText("PART_SYNTAX", channelOriginHandler, null, this, true, Array()))
 

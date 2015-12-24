@@ -66,8 +66,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   @BeanProperty
   var cooldown = new Cooldown(2)
   @BeanProperty
-  var access: String = "viewers"
-  @BeanProperty
   var helptext: String = "null"
   @BeanProperty
   var cmdtype = "default"
@@ -80,8 +78,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   @BeanProperty
   var quoteSuffix = ""
   @BeanProperty
-  var quoteModAccess = "moderators"
-  @BeanProperty
   var counter: Int = 0
   @BeanProperty
   var aliases = new java.util.ArrayList[String]()
@@ -91,17 +87,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   var texttrigger = false
 
   @BeanProperty
-  var neededCommandPower = 10
+  var neededCommandPower = CommandPower.viewer
   @BeanProperty
-  var neededModCommandPower = 25
-  @BeanProperty
-  var neededBroadcasterCommandPower = 50
-  @BeanProperty
-  var neededBotAdminCommandPower = 75
-  @BeanProperty
-  var neededCooldownBypassPower = 50
-  @BeanProperty
-  var neededAddPower = 25
+  var neededCooldownBypassPower = CommandPower.broadcasterAbsolute
   @BeanProperty
   var allowPicksFromList = true
   @BeanProperty
@@ -156,6 +144,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
   }
 
+  this.beforeDBLoad()
   this.readDBCommand()
   this.overrideDBData()
 
@@ -210,7 +199,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
     if (this.cmdtype.equals("list")) {
       try {
-        if (data(1).equals("add") && CommandHandler.checkPermission(sender.getUsername, this.neededAddPower, userList)) {
+        if (data(1).equals("add") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
           var newEntry = ""
           for (i <- 2 to data.length - 1) {
             newEntry = newEntry + " " + data(i)
@@ -223,7 +212,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, Array())
             this.success = false
           }
-        } else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername, this.neededModCommandPower, userList)) {
+        } else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
           try {
             this.listContent.remove(Integer.parseInt(data(2)))
             formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, Array())
@@ -232,7 +221,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             case e: IndexOutOfBoundsException =>
               formattedOutput = e.toString
           }
-        } else if (data(1).equals("edit") && CommandHandler.checkPermission(sender.getUsername, this.neededModCommandPower, userList)) {
+        } else if (data(1).equals("edit") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
           var newEntry = ""
           for (i <- 3 to data.length - 1) {
             newEntry = newEntry + " " + data(i)
@@ -245,12 +234,12 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, Array(channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"))
           this.success = false
 
-        } else if (data(1).equals("clear") && CommandHandler.checkPermission(sender.getUsername, 75, channelHandler.getUserList)) {
+        } else if (data(1).equals("clear") && CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, channelHandler.getUserList)) {
           formattedOutput = Memebot.formatText("LIST_CLEAR", channelHandler, sender, this, true, Array())
           this.listContent.clear()
           this.success = true
 
-        } else if (data(1).equals("import_json")) {
+        } else if (data(1).equals("import_json") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, channelHandler.getUserList)) {
           formattedOutput = Memebot.formatText("JSON_ERROR", channelHandler, sender, this, true, Array())
           // todo fix later
           try {
@@ -270,7 +259,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         } else if (allowPicksFromList) {
           try {
             formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
-            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername, this.neededBroadcasterCommandPower, userList)) {
+            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, userList)) {
               this.listContent.remove(Integer.parseInt(data(1)))
             }
           } catch {
@@ -289,7 +278,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             val i = rand.nextInt(this.listContent.size())
             formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + this.listContent.get(i) + this.quoteSuffix.replace("{number}", Integer.toString(i))
 
-            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername, this.neededBroadcasterCommandPower, userList)) {
+            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, userList)) {
               this.listContent.remove(i)
             }
           } catch {
@@ -312,13 +301,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
       try {
         if (data(1).equals("add")
-          && CommandHandler.checkPermission(sender.getUsername, this.neededModCommandPower, userList)) {
+          && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
           counter = counter + modifier
         } else if (data(1).equals("sub")
-          && CommandHandler.checkPermission(sender.getUsername, this.neededModCommandPower, userList)) {
+          && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
           counter = counter - modifier
         } else if (data(1).equals("set")
-          && CommandHandler.checkPermission(sender.getUsername, this.neededModCommandPower, userList)) {
+          && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
           counter = modifier
         }
       } catch {
@@ -358,7 +347,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   }
 
   protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
-    if (sender.points >= cost || CommandHandler.checkPermission(sender.getUsername, this.neededBotAdminCommandPower, ch.getUserList)) {
+    if (sender.points >= cost || CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, ch.getUserList)) {
       return true
     }
 
@@ -375,6 +364,14 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       sender.getUserCommandCooldowns.get(this.command).startCooldown()
       sender.setPoints(sender.points - this.pointCost)
     }
+  }
+
+  /***
+    * This method will always be called before the database load and can be used to init a class
+    * @param channelHandler
+    */
+  protected def beforeDBLoad(channelHandler: ChannelHandler = null): Unit = {
+
   }
 
   /***
@@ -417,7 +414,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     * @return
     */
   def editCommand(modType: String, newValue: String, sender: UserHandler, userList: java.util.HashMap[String, UserHandler]): Boolean = {
-    if (!CommandHandler.checkPermission(sender.getUsername, this.neededModCommandPower, userList)) {
+    if (!CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
       return false
     }
 
@@ -434,9 +431,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } else if (modType.equals("helptext")) {
         this.helptext = newValue
         success = true
-      } else if (modType.equals("access")) {
-        this.access = newValue
-        success = true
       } else if (modType.equals("output")) {
         if (newValue == "{none}") {
           this.unformattedOutput = ""
@@ -451,34 +445,30 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         this.cmdtype = newValue
         success = true
       } else if (modType.equals("qsuffix")) {
-        this.quoteSuffix = newValue
+        if(newValue == "{none}") {
+          this.quoteSuffix = ""
+        } else {
+          this.quoteSuffix = newValue
+        }
         success = true
       } else if (modType.equals("qprefix")) {
-        this.quotePrefix = newValue
-        success = true
-      } else if (modType.equals("qmodaccess")) {
-        this.quoteModAccess = newValue
+        if(newValue == "{none}") {
+          this.quotePrefix = ""
+        } else {
+          this.quotePrefix = newValue
+        }
         success = true
       } else if (modType.equals("cost")) {
         this.pointCost = newValue.toDouble
         success = true
-      } else if (modType.equals("lock") && CommandHandler.checkPermission(sender.getUsername, this.neededBroadcasterCommandPower, userList)) {
+      } else if (modType.equals("lock") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, userList)) {
         this.locked = newValue.toBoolean
         success = true
       } else if (modType.equals("texttrigger")) {
         this.texttrigger = newValue.toBoolean
         success = true
-      } else if (modType.equals("modpower")) {
-        this.neededModCommandPower = Integer.parseInt(newValue)
-        success = true
-      } else if (modType.equals("viewerpower")) {
+      } else if (modType.equals("access")) {
         this.neededCommandPower = Integer.parseInt(newValue)
-        success = true
-      } else if (modType.equals("broadcasterpower")) {
-        this.neededBroadcasterCommandPower = Integer.parseInt(newValue)
-        success = true
-      } else if (modType.equals("botadminpower")) {
-        this.neededBotAdminCommandPower = Integer.parseInt(newValue)
         success = true
       } else if (modType.equals("usercooldown")) {
         this.userCooldownLen = Integer.parseInt(newValue)
@@ -494,9 +484,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         success = true
       } else if (modType.equals("cooldownbypasspower")) {
         this.neededCooldownBypassPower = Integer.parseInt(newValue)
-        success = true
-      } else if (modType.equals("neededAddPower")) {
-        this.neededAddPower = Integer.parseInt(newValue)
         success = true
       } else if (modType.equals("autoremove")) {
         this.removeFromListOnPickIfMod = newValue.toBoolean
@@ -520,7 +507,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
     this.writeDBCommand()
 
-
     success
   }
 
@@ -539,21 +525,18 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
 
     val channelData = new Document("_id", this.command).append("command", this.command)
-      .append("cooldown", new Integer(this.cooldown.getCooldownLen)).append("access", this.access)
+      .append("cooldown", new Integer(this.cooldown.getCooldownLen))
       .append("helptext", this.helptext).append("param", new Integer(this.param))
       .append("cmdtype", this.cmdtype).append("output", this.unformattedOutput)
       .append("qsuffix", this.quoteSuffix).append("qprefix", this.quotePrefix)
-      .append("qmodaccess", this.quoteModAccess).append("costf", this.pointCost)
+      .append("costf", this.pointCost)
       .append("counter", this.counter).append("listcontent", this.listContent).append("locked", this.locked)
       .append("texttrigger", this.texttrigger).append("viewerpower", this.neededCommandPower)
-      .append("modpower", this.neededModCommandPower)
-      .append("broadcasterpower", this.neededBroadcasterCommandPower)
-      .append("botadminpower", this.neededBotAdminCommandPower).append("usercooldown", this.userCooldownLen)
+      .append("usercooldown", this.userCooldownLen)
       .append("script", this.commandScript)
       .append("enable", this.enable)
       .append("cooldownbypasspower", this.neededCooldownBypassPower)
       .append("allowpick", this.allowPicksFromList)
-      .append("addpower", this.neededAddPower)
       .append("autoremove", this.removeFromListOnPickIfMod)
       .append("appendtoquote", this.appendToQuoteString)
       .append("overridehandlemessage", this.overrideHandleMessage)
@@ -602,29 +585,23 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     if (channelData != null) {
       this.command = channelData.getOrDefault("command", this.command).toString
       this.cooldown = new Cooldown(channelData.getInteger("cooldown", 2))
-      this.access = channelData.getOrDefault("access", this.access).toString
       this.helptext = channelData.getOrDefault("helptext", this.helptext).toString
       this.param = channelData.getInteger("param", this.param)
       this.cmdtype = channelData.getOrDefault("cmdtype", this.cmdtype).toString
       this.unformattedOutput = channelData.getOrDefault("output", this.unformattedOutput).toString
       this.quoteSuffix = channelData.getOrDefault("qsuffix", this.quoteSuffix).toString
       this.quotePrefix = channelData.getOrDefault("qprefix", this.quotePrefix).toString
-      this.quoteModAccess = channelData.getOrDefault("qmodaccess", this.quoteModAccess).toString
       this.pointCost = channelData.getOrDefault("costf", this.pointCost.toString).toString.toDouble
       this.counter = channelData.getInteger("counter", this.counter)
       this.listContent = channelData.getOrDefault("listcontent", this.listContent).asInstanceOf[java.util.ArrayList[String]]
       this.locked = channelData.getOrDefault("locked", this.locked.toString).toString.toBoolean
       this.texttrigger = channelData.getOrDefault("texttrigger", this.texttrigger.toString).toString.toBoolean
       this.neededCommandPower = channelData.getOrDefault("viewerpower", this.neededCommandPower.toString).toString.toInt
-      this.neededModCommandPower = channelData.getOrDefault("modpower", this.neededModCommandPower.toString).toString.toInt
-      this.neededBroadcasterCommandPower = channelData.getOrDefault("broadcasterpower", this.neededBroadcasterCommandPower.toString).toString.toInt
-      this.neededBotAdminCommandPower = channelData.getOrDefault("botadminpower", this.neededBotAdminCommandPower.toString).toString.toInt
       this.userCooldownLen = channelData.getOrDefault("usercooldown", this.userCooldownLen.toString).toString.toInt
       this.commandScript = channelData.getOrDefault("script", this.commandScript.toString).toString
       this.enable = channelData.getOrDefault("enable", this.enable.toString).toString.toBoolean
       this.neededCooldownBypassPower = channelData.getOrDefault("cooldownbypass", this.neededCooldownBypassPower.toString).toString.toInt
       this.allowPicksFromList = channelData.getOrDefault("allowpick", this.allowPicksFromList.toString).toString.toBoolean
-      this.neededAddPower = channelData.getOrDefault("addpower", this.neededAddPower.toString).toString.toInt
       this.removeFromListOnPickIfMod = channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod.toString).toString.toBoolean
       this.appendToQuoteString = channelData.getOrDefault("appendtoquote", this.appendToQuoteString).toString
       this.overrideHandleMessage = channelData.getOrDefault("overridehandlemessage", this.overrideHandleMessage.toString).toString.toBoolean
