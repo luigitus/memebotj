@@ -64,6 +64,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
           } else {
             ch.setEnable(!ch.enable)
             channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TOGGLE"), channelHandler, sender, this, false, Array(sender.screenName, data(1), f"${ch.enable}")), this.getChannelOrigin)
+            ch.writeDBCommand()
           }
         }
       } else if (data(0) == "info") {

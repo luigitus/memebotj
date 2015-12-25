@@ -37,8 +37,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	var newUser: Boolean = false
 	@BeanProperty
   var nickname = ""
-	var _commandPower : Int = CommandPower.viewer
-	var _autoCommandPower : Int = CommandPower.viewer
+	var _commandPower : Int = CommandPower.viewerAbsolute
+	var _autoCommandPower : Int = CommandPower.viewerAbsolute
   @BeanProperty
 	var customCommandPower: Int = 0
   @BeanProperty

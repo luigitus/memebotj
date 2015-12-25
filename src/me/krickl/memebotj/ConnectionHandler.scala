@@ -39,6 +39,10 @@ class ConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, pas
 
 		this.outToServer.writeBytes("PASS " + this.password + "\n")
 		this.outToServer.writeBytes("NICK " + this.botNick + "\n")
+    this.sendMessageBytes("CAP REQ :twitch.tv/membership\n")
+    this.sendMessageBytes("CAP REQ :twitch.tv/commands\n")
+    this.sendMessageBytes("CAP REQ :twitch.tv/tags\n")
+
 	} else {
 		debugMode = true
 	}

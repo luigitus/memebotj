@@ -157,14 +157,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   var localisation = new Localisation(this.local)
 
-  try {
-    this.connection.sendMessageBytes("CAP REQ :twitch.tv/membership\n")
-    this.connection.sendMessageBytes("CAP REQ :twitch.tv/commands\n")
-    this.connection.sendMessageBytes("CAP REQ :twitch.tv/tags\n")
-  } catch {
-    case e: IOException => e.printStackTrace()
-  }
-
   this.internalCommands.add(new AboutCommand(this.channel, "!about", "#internal#"))
 
   this.internalCommands.add(new AutogreetCommand(this.channel, "!autogreet", "#internal#"))
@@ -740,11 +732,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           sender.setCommandPower(CommandPower.modAbsolute)
         } else if (!sender.isUserBroadcaster) {
           sender.setIsModerator(false)
-          sender.setCommandPower(CommandPower.viewer)
+          sender.setCommandPower(CommandPower.viewerAbsolute)
         }
       } else {
         sender.setIsModerator(false)
-        sender.setCommandPower(CommandPower.viewer)
+        sender.setCommandPower(CommandPower.viewerAbsolute)
       }
       if (sender.getUsername.equalsIgnoreCase(this.broadcaster)) {
         sender.setIsModerator(true)

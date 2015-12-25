@@ -23,12 +23,16 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 					channelHandler.getOtherLoadedChannels.add(data(2).toLowerCase)
 				} else if (data(1) == "remove") {
 					var index = -1
-					for (x <- 0 until channelHandler.getOtherLoadedChannels.size if channelHandler.getOtherLoadedChannels.get(x).toLowerCase == data(2).toLowerCase) {
-						index = x
+					for (x <- 0 until channelHandler.getOtherLoadedChannels.size) {
+            if(channelHandler.getOtherLoadedChannels.get(x).toLowerCase == data(2).toLowerCase) {
+              index = x
+            }
 					}
 					if (index >= 0) {
 						channelHandler.getOtherLoadedChannels.remove(index)
 					}
+				} else if(data(1) == "clear") {
+					channelHandler.getOtherLoadedChannels.clear()
 				}
 			} else if (data(0) == "allowautogreet") {
 				channelHandler.setAllowAutogreet(!channelHandler.isAllowAutogreet)

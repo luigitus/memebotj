@@ -5,11 +5,12 @@ package me.krickl.memebotj
   * Created by unlink on 24/12/15.
   */
 object CommandPower {
-  final val viewer = 10
-  final val mod = 15
+  final val viewerAbsolute = 10
+  final val viewer = viewerAbsolute
   final val modAbsolute = 25
-  final val broadcaster = 40
+  final val mod = modAbsolute - viewerAbsolute
   final val broadcasterAbsolute = 50
-  final val admin = 65
+  final val broadcaster = broadcasterAbsolute - viewerAbsolute
   final val adminAbsolute = 75
+  final val admin = adminAbsolute - viewerAbsolute
 }

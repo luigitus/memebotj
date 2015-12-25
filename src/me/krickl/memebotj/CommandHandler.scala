@@ -87,7 +87,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   var texttrigger = false
 
   @BeanProperty
-  var neededCommandPower = CommandPower.viewer
+  var neededCommandPower = CommandPower.viewerAbsolute
   @BeanProperty
   var neededCooldownBypassPower = CommandPower.broadcasterAbsolute
   @BeanProperty
