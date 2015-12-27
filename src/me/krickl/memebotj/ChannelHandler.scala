@@ -133,6 +133,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   var currencyName = "points"
   var currencyEmote = "points"
+  var followAnnouncement = ""
 
   broadcasterHandler.isUserBroadcaster = true
 
@@ -373,7 +374,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       while (it.hasNext) {
         val key = it.next()
         val uh = this.userList.get(key)
-        uh.update()
+        uh.update(this)
         if (this.isLive || this.givePointsWhenOffline) {
           uh.setPoints(uh.points + this.pointsPerUpdate)
         }
@@ -601,6 +602,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("local", this.local)
       .append("currname", this.currencyName)
       .append("curremote", this.currencyEmote)
+      .append("followannouncement", this.followAnnouncement)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -918,6 +920,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.local = channelData.getOrDefault("local", this.local.asInstanceOf[Object]).asInstanceOf[String]
       this.currencyName = channelData.getOrDefault("currname", this.currencyName.asInstanceOf[Object]).toString
       this.currencyEmote = channelData.getOrDefault("curremote", this.currencyEmote.asInstanceOf[Object]).toString
+      this.followAnnouncement = channelData.getOrDefault("followannouncement", this.followAnnouncement.asInstanceOf[Object]).toString
     }
     val commandCollection = Memebot.db.getCollection(this.channel + "_commands")
     val comms = commandCollection.find()

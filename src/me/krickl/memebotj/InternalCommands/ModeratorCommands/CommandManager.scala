@@ -7,7 +7,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 
 	this.setNeededCommandPower(0)
 
-	this.setHelptext("Syntax: !command add/remove/edit <command> <param1> ...")
+	this.setHelptext(Memebot.formatText("COMMANDMANAGER_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {
@@ -17,11 +17,13 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					newCommand.editCommand("name", data(1), new UserHandler("#internal#", "#internal#"), channelHandler.getUserList)
 					newCommand.editCommand("access", "viewers", new UserHandler("#internal#", "#internal#"), channelHandler.getUserList)
 					var output = data(2)
-					for (i <- 3 until data.length) {
-						output = output + " " + data(i)
-					}
+          if(output != "{none}") {
+            for (i <- 3 until data.length) {
+              output = output + " " + data(i)
+            }
+          }
 					newCommand.editCommand("output", output, new UserHandler("#internal#", "#internal#"), channelHandler.getUserList)
-					channelHandler.sendMessage("Command " + newCommand.getCommand + " created.", this.getChannelOrigin)
+					channelHandler.sendMessage(Memebot.formatText("ADD_COMMAND", channelHandler, sender, this, true, Array(newCommand.getCommand)), this.getChannelOrigin)
 					channelHandler.getChannelCommands.add(newCommand)
 				} else {
 					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_EXISTS"), channelHandler, sender, this, true, Array()), this.getChannelOrigin)

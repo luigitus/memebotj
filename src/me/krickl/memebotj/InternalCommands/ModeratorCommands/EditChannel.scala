@@ -16,6 +16,7 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 			for (x <- 1 until data.length) {
 				newEntry = newEntry + " " + data(x)
 			}
+
 			if (data(0) == "race") {
 				channelHandler.setRaceBaseURL(data(1))
 			} else if (data(0) == "otherchannel") {
@@ -73,6 +74,12 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
         channelHandler.currencyEmote = data(1)
       } else if(data(0) == "currname") {
         channelHandler.currencyName = data(1)
+      } else if(data(0) == "followannouncement") {
+        if(newEntry != "{none}") {
+          channelHandler.followAnnouncement = newEntry
+        } else {
+          channelHandler.followAnnouncement = ""
+        }
       }
 			channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("EDIT_CHANNEL_OK"), channelHandler, sender, this, false, Array(sender.getUsername, data(0), data(1))), this.getChannelOrigin)
 			channelHandler.writeDBChannelData()

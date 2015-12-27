@@ -352,6 +352,8 @@ object Memebot {
     formattedOutput = formattedOutput.replace("{builddate}", BuildInfo.timeStamp)
 		formattedOutput = formattedOutput.replace("{date}", strDate)
     formattedOutput = formattedOutput.replace("{time}", strTime)
+    formattedOutput = formattedOutput.replace("{space}", " ")
+    formattedOutput = formattedOutput.replace("{none}", "")
 
     if(params != null) {
       for (i <- params.indices) {

@@ -1,6 +1,8 @@
 package me.krickl.memebotj
 
+import java.io.{FileNotFoundException, InputStreamReader, BufferedReader}
 import java.math.BigInteger
+import java.net.{HttpURLConnection, URL}
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
 import java.util
@@ -11,6 +13,8 @@ import org.bson.Document
 
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
+import org.json.simple.JSONObject
+import org.json.simple.parser.JSONParser
 
 import scala.beans.BeanProperty
 
@@ -82,6 +86,9 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
   var walletSize: Double = -1
 
+  var isFollowing = false
+  var hasFollowed = false
+
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
 	}
@@ -115,6 +122,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
         .append("timeStampJoined", this.timeStampJoined)
         .append("nickname", this.nickname)
         .append("wallet", this.walletSize)
+        .append("isfollowing", this.isFollowing)
+        .append("hasfollowed", this.hasFollowed)
 
 		try {
 			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -150,15 +159,47 @@ class UserHandler(usernameNew: String, channelNew: String) {
       this.timeStampJoined = channelData.getOrDefault("timeStampJoined", this.timeStampJoined.asInstanceOf[Object]).asInstanceOf[Long]
       this.nickname = channelData.getOrDefault("nickname", this.nickname.asInstanceOf[Object]).asInstanceOf[String]
       this.walletSize = channelData.getOrDefault("wallet", this.walletSize.asInstanceOf[Object]).asInstanceOf[Double]
+      this.isFollowing = channelData.getOrDefault("isfollowing", this.isFollowing.asInstanceOf[Object]).asInstanceOf[Boolean]
+      this.hasFollowed = channelData.getOrDefault("hasfollowed", this.hasFollowed.asInstanceOf[Object]).asInstanceOf[Boolean]
 		} else {
 			this.newUser = true
 		}
 	}
 
-	def update() = {
+	def update(channelHandler: ChannelHandler = null) = {
+    try {
+      if (Memebot.isTwitchBot && !this.hasFollowed) {
+        val url = new URL(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}")
+        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+        val in: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
+        //var dataBuffer = ""
+        var data: String = ""
+        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+        in.close()
+        val parser = new JSONParser()
+        val obj = parser.parse(data).asInstanceOf[JSONObject]
+        val status = obj.get("status")
+        if (status == null) {
+          isFollowing = true
+          hasFollowed = true
+
+          if (!hasFollowed && channelHandler != null) {
+            channelHandler.sendMessage(Memebot.formatText(channelHandler.followAnnouncement, channelHandler, this))
+          }
+        } else if (status.toString == "404") {
+          isFollowing = false
+        }
+      }
+    } catch {
+      case e: FileNotFoundException =>
+    }
 	}
 
-  //comparability for old function calls
+  /**
+    * @deprecated compatibility for old function calls. This function should not be used anymore.
+    * @param f new amount
+    * @return
+    */
   @Deprecated
   def setPoints(f: Double): Boolean = {
     this.points = f

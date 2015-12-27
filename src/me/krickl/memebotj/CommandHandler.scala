@@ -158,6 +158,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: java.util.HashMap[String, UserHandler]): String = {
     this.success = true
 
+    for(i <- data.indices) {
+      data(i) = Memebot.formatText(data(i), channelHandler, sender, this)
+    }
+
     if (this.overrideHandleMessage) {
       return "override"
     }
@@ -320,6 +324,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
 
     try {
+      // todo this formatting needs to be moved to the general Memebot.format method
       for (i <- counterStart to this.param) {
         formattedOutput = formattedOutput.replace("{param" + Integer.toString(i) + "}", data(i))
       }
@@ -329,7 +334,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     } catch {
       case e: ArrayIndexOutOfBoundsException =>
         if (!this.helptext.equals("null")) {
-          channelHandler.sendMessage(this.helptext, this.channelOrigin)
+          channelHandler.sendMessage(Memebot.formatText(this.helptext, channelHandler, sender, this), this.channelOrigin)
         }
         return "usage"
     }
@@ -385,27 +390,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   /**
     * This function is used to set new command variables from chat.
-    * The following variables can be set:
-    * name
-    * param
-    * helptext
-    * access
-    * output
-    * cooldown
-    * cmdtype
-    * qsuffix
-    * qprefix
-    * qmodaccess
-    * cost
-    * lock
-    * texttrigger
-    * modpower
-    * viewerpower
-    * broadcasterpower
-    * botadminpower
-    * usercooldown
-    * appenddate
-    * appendgame
     *
     * @param modType Modification type
     * @param newValue New Value as String
@@ -417,6 +401,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     if (!CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
       return false
     }
+
+    //val newValue = Memebot.formatText(nv)
 
     success = false
     try {
@@ -576,6 +562,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return
     }
 
+    // uniquie id of command
     val channelQuery = new Document("_id", this.command)
     val cursor = this.commandCollection.find(channelQuery)
 
