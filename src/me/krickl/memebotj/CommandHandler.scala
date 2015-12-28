@@ -66,13 +66,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   @BeanProperty
   var cooldown = new Cooldown(2)
   @BeanProperty
-  var helptext: String = "null"
+  var helptext: String = ""
   @BeanProperty
   var cmdtype = "default"
   @BeanProperty
   var listContent = new java.util.ArrayList[String]()
   @BeanProperty
-  var unformattedOutput = "null"
+  var unformattedOutput = ""
   @BeanProperty
   var quotePrefix = "#{number}: "
   @BeanProperty
@@ -321,7 +321,14 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       }
     }
 
-    formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
+    //format parameters
+    if(counterStart < this.param + 1) {
+      formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.param + 1), this.helptext)
+    }
+
+    channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
+
+    /*formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
 
     try {
       // todo this formatting needs to be moved to the general Memebot.format method
@@ -337,7 +344,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           channelHandler.sendMessage(Memebot.formatText(this.helptext, channelHandler, sender, this), this.channelOrigin)
         }
         return "usage"
-    }
+    }*/
 
     this.commandScript(sender, channelHandler, data)
 
@@ -392,17 +399,21 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     * This function is used to set new command variables from chat.
     *
     * @param modType Modification type
-    * @param newValue New Value as String
+    * @param nv New Value as String
     * @param sender Sender Object
     * @param userList List of all Users
     * @return
     */
-  def editCommand(modType: String, newValue: String, sender: UserHandler, userList: java.util.HashMap[String, UserHandler]): Boolean = {
+  def editCommand(modType: String, nv: String, sender: UserHandler, userList: java.util.HashMap[String, UserHandler]): Boolean = {
     if (!CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
       return false
     }
 
-    //val newValue = Memebot.formatText(nv)
+    var newValue = nv
+    if(newValue == "{none}" && modType != "name") {
+      newValue = ""
+    }
+
 
     success = false
     try {

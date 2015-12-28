@@ -36,6 +36,7 @@ class WhoisCommand(channel: String, command: String, dbprefix: String) extends C
 					" || Date joined: " +
 					uh.getDateJoined +
 					" || Screenname: " + uh.screenName +
+					"|| Weird Boolean: " + uh.hasFollowed +
 					" || Is user a cat: " +
 					java.lang.Boolean.toString(isCat), this.getChannelOrigin)
 		} catch {

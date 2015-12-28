@@ -306,7 +306,7 @@ object Memebot {
 		* @param sender sender
 		* @return
 		*/
-	def formatText(fo: String, channelHandler: ChannelHandler = null, sender: UserHandler = null, commandHandler: CommandHandler = null, local: Boolean = false, params: Array[String] = Array()): String = {
+	def formatText(fo: String, channelHandler: ChannelHandler = null, sender: UserHandler = null, commandHandler: CommandHandler = null, local: Boolean = false, params: Array[String] = Array(), alternativeText: String = null): String = {
 		val sdfDate = new SimpleDateFormat("yyyy-MM-dd")// dd/MM/yyyy
 		val cal = Calendar.getInstance()
 		val strDate = sdfDate.format(cal.getTime)
@@ -359,10 +359,14 @@ object Memebot {
       for (i <- params.indices) {
         val str = params(i)
         val original = formattedOutput
-        formattedOutput = formattedOutput.replace(f"{param${i + 1}}", str)
+        if(str != null) {
+          formattedOutput = formattedOutput.replace(f"{param${i + 1}}", str)
 
-        if(formattedOutput == original) {
-          formattedOutput = formattedOutput + str
+          if(formattedOutput == original) {
+            formattedOutput = formattedOutput + " " + str
+          }
+        } else if(alternativeText != null) {
+          formattedOutput = alternativeText
         }
       }
     }
