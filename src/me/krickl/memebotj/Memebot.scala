@@ -106,6 +106,7 @@ object Memebot {
 
   var mainChannel = "#getmemebot" // this is the home channel of the bot - in this channel people can adopt the bot
 
+  var debug = false
 
 	def main(args: Array[String]) {
 
@@ -176,7 +177,8 @@ object Memebot {
 		Memebot.useWeb = config.getProperty("useweb", Memebot.useWeb.toString).toBoolean
     Memebot.useMongo = config.getProperty("usemongo", Memebot.useMongo.toString).toBoolean
     Memebot.isTwitchBot = config.getProperty("istwitchbot", Memebot.isTwitchBot.toString).toBoolean
-    Memebot.mainChannel = config.getProperty("mainchannel", Memebot.mainChannel.toString).toString
+    Memebot.mainChannel = config.getProperty("mainchannel", Memebot.mainChannel)
+    Memebot.debug = config.getProperty("debug", Memebot.debug.toString).toBoolean
 
 
 		if(Memebot.isBotMode) {
@@ -316,6 +318,11 @@ object Memebot {
     val calTime = Calendar.getInstance()
     val strTime = sdfTime.format(calTime.getTime)
 
+    var containsNone = false
+    if(formattedOutput.contains("{none}")) {
+      containsNone = true
+    }
+
     if(local && channelHandler != null) {
       formattedOutput = channelHandler.localisation.localisedStringFor(fo)
     }
@@ -369,6 +376,10 @@ object Memebot {
           formattedOutput = alternativeText
         }
       }
+    }
+
+    if(formattedOutput.isEmpty && !containsNone && Memebot.debug) {
+      formattedOutput = f"NO_OUTPUT_ERROR(sender = $sender, channelHandler = $channelHandler, commandHandler = $commandHandler)"
     }
 
 		formattedOutput

@@ -84,7 +84,9 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       case e: ArrayIndexOutOfBoundsException =>
         channelHandler.sendMessage(this.helptext, this.getChannelOrigin)
         e.printStackTrace()
-      case e: java.lang.IllegalArgumentException => e.printStackTrace()
+      case e: java.lang.IllegalArgumentException =>
+        e.printStackTrace()
+        channelHandler.sendMessage(Memebot.formatText("NAME_EMPTY", channelHandler, sender, this, true, Array()))
     }
   }
 }

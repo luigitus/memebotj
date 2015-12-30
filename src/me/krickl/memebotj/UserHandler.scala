@@ -168,7 +168,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
 	def update(channelHandler: ChannelHandler = null) = {
     try {
-      if (Memebot.isTwitchBot && !this.hasFollowed) {
+      //todo this causes issues
+      if (Memebot.isTwitchBot && !this.hasFollowed && Memebot.debug) {
         val url = new URL(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}")
         val connection = url.openConnection().asInstanceOf[HttpURLConnection]
         val in: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))

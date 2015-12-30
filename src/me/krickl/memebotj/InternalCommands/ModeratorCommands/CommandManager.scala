@@ -53,6 +53,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					}
 					if (channelHandler.getChannelCommands.get(j).editCommand(data(2), newValue, sender, channelHandler.getUserList)) {
 						channelHandler.sendMessage(Memebot.formatText("EDITCOMMAND_OK", channelHandler, sender, this, true, Array(data(1), data(2), newValue)), this.getChannelOrigin)
+
 					} else {
 						channelHandler.sendMessage(Memebot.formatText("EDITCOMMAND_FAIL", channelHandler, sender, this, true), this.getChannelOrigin)
 					}

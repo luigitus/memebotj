@@ -212,6 +212,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(new RestartThreadCommand(this.channel, "!restartt", "#internal#"))
 
+  this.internalCommands.add(new CategoryGeneratorCommand(this.channel, "!category", "#internal#"))
+
   @BeanProperty
   var spamPrevention = false
 

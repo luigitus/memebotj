@@ -325,13 +325,15 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     if(counterStart < this.param + 1) {
       formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.param + 1), this.helptext)
     }
+    formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
 
-    channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
+    if(formattedOutput != "null") {
+      channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
+    }
 
     /*formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
 
     try {
-      // todo this formatting needs to be moved to the general Memebot.format method
       for (i <- counterStart to this.param) {
         formattedOutput = formattedOutput.replace("{param" + Integer.toString(i) + "}", data(i))
       }
@@ -392,7 +394,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     * This should be used instead of constructors for child classes
     */
   protected def overrideDBData(channelHandler: ChannelHandler = null): Unit = {
-
   }
 
   /**
@@ -409,11 +410,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return false
     }
 
-    var newValue = nv
-    if(newValue == "{none}" && modType != "name") {
-      newValue = ""
-    }
-
+    val newValue = nv
 
     success = false
     try {
@@ -429,11 +426,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         this.helptext = newValue
         success = true
       } else if (modType.equals("output")) {
-        if (newValue == "{none}") {
-          this.unformattedOutput = ""
-        } else {
-          this.unformattedOutput = newValue
-        }
+        this.unformattedOutput = newValue
         success = true
       } else if (modType.equals("cooldown")) {
         this.cooldown = new Cooldown(Integer.parseInt(newValue))
@@ -442,18 +435,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         this.cmdtype = newValue
         success = true
       } else if (modType.equals("qsuffix")) {
-        if(newValue == "{none}") {
-          this.quoteSuffix = ""
-        } else {
-          this.quoteSuffix = newValue
-        }
+        this.quoteSuffix = newValue
         success = true
       } else if (modType.equals("qprefix")) {
-        if(newValue == "{none}") {
-          this.quotePrefix = ""
-        } else {
-          this.quotePrefix = newValue
-        }
+        this.quotePrefix = newValue
         success = true
       } else if (modType.equals("cost")) {
         this.pointCost = newValue.toDouble
