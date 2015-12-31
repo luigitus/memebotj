@@ -140,7 +140,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   broadcasterHandler.setIsModerator(true)
 
   this.userList.put(this.broadcaster, broadcasterHandler)
-Fixed
+
   @BeanProperty
   var silentMode = false
 
