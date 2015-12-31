@@ -31,13 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 package me.krickl.memebotj
 
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileReader
-import java.io.FileWriter
-import java.io.IOException
+import java.io._
 import java.lang.management.ManagementFactory
+import java.net.{HttpURLConnection, URL}
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -384,6 +380,38 @@ object Memebot {
 
 		formattedOutput
 	}
+
+  def readHttpRequest(urlstring: String): String = {
+    var url: URL = null
+    var connection: HttpURLConnection = null
+    var data = ""
+    var in: BufferedReader = null
+    try {
+      url = new URL(urlstring)
+      connection = url.openConnection().asInstanceOf[HttpURLConnection]
+      var isError = connection.getResponseCode >= 400
+
+      if(!isError) {
+        in = new BufferedReader(new InputStreamReader(connection.getInputStream))
+      } else {
+        in = new BufferedReader(new InputStreamReader(connection.getErrorStream))
+      }
+      data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+
+    } catch {
+      case e: Exception => log.info(f"Exception in http request to ${urlstring}")
+    } finally {
+      if(connection != null) {
+        connection.disconnect()
+      }
+
+      if(in != null) {
+        in.close()
+      }
+    }
+
+    data
+  }
 
   def initGUI(): Unit = {
     if(!Memebot.guiMode) {

@@ -8,6 +8,6 @@ class ChannelInfoCommand(channel: String, command: String, dbprefix: String)
 	this.setNeededCommandPower(CommandPower.adminAbsolute)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
-		channelHandler.sendMessage(f"Is live: ${channelHandler.isLive} || Points per update ${channelHandler.getPointsPerUpdate} || purge regex: ${channelHandler.getUrlRegex}", this.getChannelOrigin)
+		channelHandler.sendMessage(f"Is live: ${channelHandler.isLive} || Points per update ${channelHandler.getPointsPerUpdate} || purge regex: ${channelHandler.getUrlRegex} || Game: ${channelHandler.currentGame} || ${channelHandler.followAnnouncement}", this.getChannelOrigin)
 	}
 }

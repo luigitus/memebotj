@@ -169,24 +169,22 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	def update(channelHandler: ChannelHandler = null) = {
     try {
       //todo this causes issues
-      if (Memebot.isTwitchBot && !this.hasFollowed && !channelHandler.followAnnouncement.isEmpty && this.username != "#internal#" && this.username != "#readonly#") {
-        val url = new URL(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}")
-        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-        val in: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
-        //var dataBuffer = ""
-        var data: String = ""
-        data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
-        in.close()
+      var url: URL = null
+      var connection: HttpURLConnection = null
+
+      if (Memebot.isTwitchBot && !this.hasFollowed && this.username != "#internal#" && this.username != "#readonly#") {
+        val data = Memebot.readHttpRequest(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}")
         val parser = new JSONParser()
         val obj = parser.parse(data).asInstanceOf[JSONObject]
         val status = obj.get("status")
         if (status == null) {
-          isFollowing = true
-          hasFollowed = true
 
           if (!hasFollowed && channelHandler != null) {
             channelHandler.sendMessage(Memebot.formatText(channelHandler.followAnnouncement, channelHandler, this))
           }
+
+          isFollowing = true
+          hasFollowed = true
         } else if (status.toString == "404") {
           isFollowing = false
         }

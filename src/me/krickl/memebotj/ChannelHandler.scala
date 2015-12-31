@@ -133,14 +133,14 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   var currencyName = "points"
   var currencyEmote = "points"
-  var followAnnouncement = "Welcome {sender}"
+  var followAnnouncement = ""
 
   broadcasterHandler.isUserBroadcaster = true
 
   broadcasterHandler.setIsModerator(true)
 
   this.userList.put(this.broadcaster, broadcasterHandler)
-
+Fixed
   @BeanProperty
   var silentMode = false
 
@@ -313,13 +313,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       //twitch update
       try {
         if(Memebot.isTwitchBot) {
-          val url = new URL("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
-          val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-          val in: BufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream))
-          //var dataBuffer = ""
-          var data: String = ""
-          data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
-          in.close()
+          val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
           val parser = new JSONParser()
           val obj = parser.parse(data).asInstanceOf[JSONObject]
           val isOnline = obj.get("stream")
@@ -347,13 +341,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       //get game
       try {
         if(Memebot.isTwitchBot) {
-          val url = new URL(this.channelInfoURL)
-          val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-          val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
-          var data = ""
-          data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
+          val data = Memebot.readHttpRequest(this.channelInfoURL)
 
-          in.close()
           val parser = new JSONParser()
           val obj = parser.parse(data).asInstanceOf[JSONObject]
           this.currentGame = obj.get("game").asInstanceOf[String]
