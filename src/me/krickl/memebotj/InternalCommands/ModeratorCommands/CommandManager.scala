@@ -8,6 +8,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 	this.setNeededCommandPower(0)
 
 	this.setHelptext(Memebot.formatText("COMMANDMANAGER_SYNTAX", channelOriginHandler, null, this, true, Array()))
+  this.formatData = false
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {
@@ -26,7 +27,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					channelHandler.sendMessage(Memebot.formatText("ADD_COMMAND", channelHandler, sender, this, true, Array(newCommand.getCommand)), this.getChannelOrigin)
 					channelHandler.getChannelCommands.add(newCommand)
 				} else {
-					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_EXISTS"), channelHandler, sender, this, true, Array()), this.getChannelOrigin)
+					channelHandler.sendMessage(Memebot.formatText("COMMAND_EXISTS", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
 				}
 			} else if (data(0) == "remove" &&
 					CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {

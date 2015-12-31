@@ -77,6 +77,10 @@ class CategoryGeneratorCommand(channel: String, command: String, dbprefix: Strin
     this.listContent.add("103")
     this.listContent.add("no reset")
     this.listContent.add("no save and quit")
+    this.listContent.add("deku nuts")
+    this.listContent.add("diddy baloons")
+    this.listContent.add("ique")
+
   }
 
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]): Unit = {

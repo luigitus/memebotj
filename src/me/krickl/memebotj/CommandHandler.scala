@@ -128,6 +128,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   @BeanProperty
   var commandScript: String = ""
 
+  var formatData = true
+
   var channelOriginHandler: ChannelHandler = null
 
   for(ch <- Memebot.joinedChannels) {
@@ -158,8 +160,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: java.util.HashMap[String, UserHandler]): String = {
     this.success = true
 
-    for(i <- data.indices) {
-      data(i) = Memebot.formatText(data(i), channelHandler, sender, this)
+    if(formatData) {
+      for (i <- data.indices) {
+        data(i) = Memebot.formatText(data(i), channelHandler, sender, this)
+      }
     }
 
     if (this.overrideHandleMessage) {
@@ -482,6 +486,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } else if (modType == "case") {
         this.caseSensitive = newValue.toBoolean
         success = true
+      } else if(modType == "format") {
+        this.formatData = newValue.toBoolean
+        success = false
       }
     } catch {
       case e: NumberFormatException =>
@@ -526,6 +533,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       .append("listregex", this.listregex)
       .append("case", this.caseSensitive)
       .append("otherdata", otherDataDocument)
+      .append("format", this.formatData)
 
     try {
       if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -591,6 +599,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.execCounter = channelData.getOrDefault("execcounter", this.execCounter.toString).toString.toInt
       this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
       this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
+      this.formatData = channelData.getOrDefault("format", this.formatData.asInstanceOf[Object]).asInstanceOf[Boolean]
       //other data are used to store data that are used for internal commands
       val otherDataDocument = channelData.getOrDefault("otherdata", new Document()).asInstanceOf[Document]
 

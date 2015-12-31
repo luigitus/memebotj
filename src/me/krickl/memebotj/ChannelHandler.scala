@@ -133,7 +133,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   var currencyName = "points"
   var currencyEmote = "points"
-  var followAnnouncement = ""
+  var followAnnouncement = "Welcome {sender}"
 
   broadcasterHandler.isUserBroadcaster = true
 
@@ -344,6 +344,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         case e: ParseException => e.printStackTrace()
       }
 
+      //get game
       try {
         if(Memebot.isTwitchBot) {
           val url = new URL(this.channelInfoURL)
@@ -360,13 +361,16 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
             this.currentGame = "Not Playing"
           }
         } else {
-          this.currentGame = "This bot is not running on twitch"
+          this.currentGame = ""
         }
       } catch {
         case e: MalformedURLException => e.printStackTrace()
         case e: IOException => e.printStackTrace()
         case e: ParseException => e.printStackTrace()
       }
+
+      //get follower list
+
 
       this.writeDBChannelData()
       this.writeHTML()
