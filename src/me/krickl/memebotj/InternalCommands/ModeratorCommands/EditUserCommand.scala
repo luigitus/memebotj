@@ -48,9 +48,13 @@ class EditUserCommand(channel: String, command: String, dbprefix: String) extend
 				}
 
 			} else if (data(0) == "alias") {
-        sender.nickname = data(1)
-        channelHandler.sendMessage(Memebot.formatText("EDIT_ALIAS", channelHandler, sender, this, true, Array(sender.screenName, data(2))), this.getChannelOrigin)
-        sender.writeDBUserData()
+        if(data(1).length > channelHandler.maxScreenNameLen) {
+          channelHandler.sendMessage(Memebot.formatText("EDIT_ALIAS_FAIL", channelHandler, sender, this, true, Array(sender.screenName, channelHandler.maxScreenNameLen.toString)), this.getChannelOrigin)
+        } else {
+          sender.nickname = data(1)
+          channelHandler.sendMessage(Memebot.formatText("EDIT_ALIAS", channelHandler, sender, this, true, Array(sender.screenName, data(2))), this.getChannelOrigin)
+          sender.writeDBUserData()
+        }
       } else if(data(0) == "removealias") {
         sender.nickname = ""
         channelHandler.sendMessage(Memebot.formatText("REMOVE_ALIAS", channelHandler, sender, this, true, Array(sender.screenName)), this.getChannelOrigin)

@@ -147,3 +147,28 @@ possible values: any string
 description: announcement for followers (work in progress)<br/>
 possible values: any string
 
+##Formatting options
+
+####{sender}
+description: sender's username or screenname
+
+####{senderusername}
+description: sender's username
+
+####{points}
+description: sender's points balance
+
+####{counter}
+description: command's counter
+
+####{date}
+description: current date
+
+####{time}
+description: current time (for bot's location)
+
+####{space}
+description: a blank space
+
+####{none}
+description: {none} is replaced with nothing
