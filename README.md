@@ -14,15 +14,15 @@ To compile memebot you will need the following libraries:
 
 Most of the commands have an attached helptext and do not need further expalnation. Just use !help <command>.
 
-##!command add <command> <output>
+##!command add command output
 
 This can be used to add a new command
 
-##!command remove <command>
+##!command remove command
 
 This can be used to delete a command
 
-##!command edit <command> <option> <value>
+##!command edit command option value
 
 Command edit has many options available:
 
@@ -90,20 +90,20 @@ possible values: true/false
 description: make a command case sensitive<br/>
 possible values: true/false
 
-##!user <option>
+##!user option
 
 !user can be used to edit user settings
 
 ###mod only options:
 
-####modalias <username> <new value>
+####modalias username new value
 description: changes the nickname of a user
 possible value: any string of text without space
 
-####modremovealias <username>
+####modremovealias username
 description: removes the alias of a user
 
-##!channel <option> <new value>
+##!channel option new value
 
 This command can be used by the broadcaster to edit the channel settings
 
