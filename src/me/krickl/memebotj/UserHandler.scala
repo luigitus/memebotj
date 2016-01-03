@@ -169,10 +169,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	def update(channelHandler: ChannelHandler = null) = {
     try {
       //todo this causes issues
-      var url: URL = null
-      var connection: HttpURLConnection = null
-
-      if (Memebot.isTwitchBot && !this.hasFollowed && this.username != "#internal#" && this.username != "#readonly#") {
+      if (Memebot.isTwitchBot && !this.hasFollowed && this.username != "#internal#" && this.username != "#readonly#" && Memebot.debug) {
         val data = Memebot.readHttpRequest(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}")
         val parser = new JSONParser()
         val obj = parser.parse(data).asInstanceOf[JSONObject]

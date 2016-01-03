@@ -65,7 +65,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var currentFileName: String = ""
   @BeanProperty
-  var streamStartTime: Int = 0
+  var streamStartTime: Long = 0
   //@BeanProperty @Deprecated
   //var builtInStrings: java.util.HashMap[String, String] = new java.util.HashMap[String, String]()
 
@@ -129,7 +129,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   var maxPoints: Double = 100000.0f
 
-  val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
+  //val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
   var currencyName = "points"
   var currencyEmote = "points"
@@ -224,12 +224,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var spamTimeout = -1
 
-  mrDestructoidCommand.editCommand("output", "MrDestructoid Midnight Raid MrDestructoid", new UserHandler("#internal#",
+  /* mrDestructoidCommand.editCommand("output", "MrDestructoid Midnight Raid MrDestructoid", new UserHandler("#internal#",
     this.channel), userList)
 
   mrDestructoidCommand.setExcludeFromCommandList(true)
 
-  this.internalCommands.add(mrDestructoidCommand)
+  this.internalCommands.add(mrDestructoidCommand)*/
 
   if(this.allowGreetMessage) {
     this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null), this.channel)
@@ -324,7 +324,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
           } else {
             ChannelHandler.getLog.info(String.format("Stream %s is live", this.channel))
             if (this.isLive) {
-              this.streamStartTime = (System.currentTimeMillis() / 1000L).toInt
+              this.streamStartTime = System.currentTimeMillis()
             }
             this.isLive = true
           }

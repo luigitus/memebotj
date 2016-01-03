@@ -32,6 +32,10 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       } else if (data(0) == "list") {
         channelHandler.sendMessage(s"${channelHandler.getChannelPageBaseURL}/filenames.html", this.channelOrigin)
         return
+      } else if(data(0) == "return" && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
+        channelHandler.getFileNameList.add(channelHandler.getCurrentFileName)
+        channelHandler.sendMessage(Memebot.formatText("NAME_RETURN", channelHandler, sender, this, true, Array(f"$counter")), this.getChannelOrigin)
+        return
       } else if (data(0) == "remove" &&
         CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
         var counter = 0
