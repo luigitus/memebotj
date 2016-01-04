@@ -7,8 +7,7 @@ class AboutCommand(channel: String,command: String, dbprefix: String) extends Co
   this.setUserCooldownLen(60)
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
-		channelHandler.sendMessage(BuildInfo.appName + " version " + BuildInfo.version
-				+ ". Developed by " + BuildInfo.dev, this.getChannelOrigin)
+		channelHandler.sendMessage(BuildInfo.appName + " version " + BuildInfo.version + ". Developed by " + BuildInfo.dev, this.getChannelOrigin)
 		channelHandler.sendMessage("Fork me RitzMitz : https://github.com/unlink2/memebotj")
     if(Memebot.isTwitchBot) {
       channelHandler.sendMessage(f"Get me here: http://www.twitch.tv/${Memebot.mainChannel.replace("#", "")}/chat - just type !mejoin in chat! :)", this.getChannelOrigin)

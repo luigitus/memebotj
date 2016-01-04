@@ -38,7 +38,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var userList: java.util.HashMap[String, UserHandler] = new java.util.HashMap[String, UserHandler]()
   @BeanProperty
-  var updateCooldown: Cooldown = new Cooldown(60)
+  var updateCooldown: Cooldown = new Cooldown(600)
   @BeanProperty
   var channelCommands: java.util.ArrayList[CommandHandler] = new java.util.ArrayList[CommandHandler]()
   @BeanProperty
@@ -222,6 +222,13 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     new UserHandler("#internal#", this.channel), userList)
 
   this.internalCommands.add(issueCommand)
+
+  val annoyingDog = new CommandHandler(this.channel, "AnnoyingZ", "#internal#")
+  annoyingDog.texttrigger = true
+  annoyingDog.setUnformattedOutput("http://annoying.dog ")
+  annoyingDog.cooldown = new Cooldown(6000)
+  this.internalCommands.add(annoyingDog)
+
   @BeanProperty
   var spamTimeout = -1
 
@@ -372,7 +379,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         val uh = this.userList.get(key)
         uh.update(this)
         if (this.isLive || this.givePointsWhenOffline) {
-          uh.setPoints(uh.points + this.pointsPerUpdate)
+          uh.setPoints(uh.points + this.pointsPerUpdate * 10)
         }
         uh.writeDBUserData()
 
