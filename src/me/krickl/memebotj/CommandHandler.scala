@@ -410,7 +410,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     * @return
     */
   def editCommand(modType: String, nv: String, sender: UserHandler, userList: java.util.HashMap[String, UserHandler]): Boolean = {
-    if (!CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
+    if (!CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower, userList)) {
       return false
     }
 

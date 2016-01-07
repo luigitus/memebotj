@@ -167,27 +167,23 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	}
 
 	def update(channelHandler: ChannelHandler = null) = {
-    try {
-      //todo this causes issues
-      if (Memebot.isTwitchBot && !this.hasFollowed && this.username != "#internal#" && this.username != "#readonly#" && Memebot.debug) {
-        val data = Memebot.readHttpRequest(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}")
-        val parser = new JSONParser()
-        val obj = parser.parse(data).asInstanceOf[JSONObject]
-        val status = obj.get("status")
-        if (status == null) {
+    //todo this causes issues
+    if (Memebot.isTwitchBot && !this.hasFollowed && this.username != "#internal#" && this.username != "#readonly#" && Memebot.debug) {
+      val data = Memebot.readHttpRequest(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}")
+      val parser = new JSONParser()
+      val obj = parser.parse(data).asInstanceOf[JSONObject]
+      val status = obj.get("status")
+      if (status == null) {
 
-          if (!hasFollowed && channelHandler != null) {
-            channelHandler.sendMessage(Memebot.formatText(channelHandler.followAnnouncement, channelHandler, this))
-          }
-
-          isFollowing = true
-          hasFollowed = true
-        } else if (status.toString == "404") {
-          isFollowing = false
+        if (!hasFollowed && channelHandler != null) {
+          channelHandler.sendMessage(Memebot.formatText(channelHandler.followAnnouncement, channelHandler, this))
         }
+
+        isFollowing = true
+        hasFollowed = true
+      } else if (status.toString == "404") {
+        isFollowing = false
       }
-    } catch {
-      case e: Exception => e.printStackTrace()
     }
 	}
 

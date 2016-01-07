@@ -16,7 +16,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setPointCost(0)
 
-  this.setNeededCommandPower(10)
+  this.setNeededCommandPower(CommandPower.viewerAbsolute)
 
   this.setCmdtype("default")
 

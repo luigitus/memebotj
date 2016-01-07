@@ -19,11 +19,21 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
     try {
       if (data(0) == "get") {
         if (CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
-          val rand = new Random()
-          val index = rand.nextInt(channelHandler.getFileNameList.size - 1)
-          channelHandler.setCurrentFileName(channelHandler.getFileNameList.get(index))
-          channelHandler.getFileNameList.remove(index)
-          channelHandler.sendMessage(Memebot.formatText("NAME_PICK", channelHandler, sender, this, true, Array(channelHandler.getCurrentFileName.split("#")(0), channelHandler.getCurrentFileName.split("#")(1))), this.getChannelOrigin)
+          var amount = 1
+
+          try {
+            amount = data(1).toInt
+          } catch {
+            case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
+          }
+
+          for(i <- 0 until amount) {
+            val rand = new Random()
+            val index = rand.nextInt(channelHandler.getFileNameList.size - 1)
+            channelHandler.setCurrentFileName(channelHandler.getFileNameList.get(index))
+            channelHandler.getFileNameList.remove(index)
+            channelHandler.sendMessage(Memebot.formatText("NAME_PICK", channelHandler, sender, this, true, Array(channelHandler.getCurrentFileName.split("#")(0), channelHandler.getCurrentFileName.split("#")(1))), this.getChannelOrigin)
+          }
           return
         }
       } else if (data(0) == "current") {
@@ -91,6 +101,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       case e: java.lang.IllegalArgumentException =>
         e.printStackTrace()
         channelHandler.sendMessage(Memebot.formatText("NAME_EMPTY", channelHandler, sender, this, true, Array()))
+      case e: NumberFormatException => e.printStackTrace()
     }
   }
 }

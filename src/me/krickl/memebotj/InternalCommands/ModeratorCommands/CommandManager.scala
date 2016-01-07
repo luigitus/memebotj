@@ -5,7 +5,7 @@ import me.krickl.memebotj._
 class CommandManager(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setNeededCommandPower(0)
+	this.setNeededCommandPower(CommandPower.modAbsolute)
 
 	this.setHelptext(Memebot.formatText("COMMANDMANAGER_SYNTAX", channelOriginHandler, null, this, true, Array()))
   this.formatData = false

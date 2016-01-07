@@ -324,8 +324,8 @@ object Memebot {
     }
 
     if(sender != null) {
-      formattedOutput = formattedOutput.replace("{sender}", sender.screenName)
-      formattedOutput = formattedOutput.replace("{senderusername}", sender.username)
+      formattedOutput = formattedOutput.replace("{sender}", sender.username)
+      formattedOutput = formattedOutput.replace("{senderusername}", sender.screenName)
       formattedOutput = formattedOutput.replace("{points}", "%.2f".format(sender.points))
       formattedOutput = formattedOutput.replace("{debugsender}", sender.toString)
     }
