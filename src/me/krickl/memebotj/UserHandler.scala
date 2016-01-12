@@ -235,10 +235,10 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	}
 
   def screenName: String = {
-    if(this.nickname.isEmpty) {
-      return username
+    if(!this.nickname.isEmpty && Memebot.debug) {
+      return nickname
     }
-    this.nickname
+    this.username
   }
 
   def canRemove: Boolean = {

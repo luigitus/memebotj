@@ -324,8 +324,8 @@ object Memebot {
     }
 
     if(sender != null) {
-      formattedOutput = formattedOutput.replace("{sender}", sender.username)
-      formattedOutput = formattedOutput.replace("{senderusername}", sender.screenName)
+      formattedOutput = formattedOutput.replace("{sender}", sender.screenName)
+      formattedOutput = formattedOutput.replace("{senderusername}", sender.username)
       formattedOutput = formattedOutput.replace("{points}", "%.2f".format(sender.points))
       formattedOutput = formattedOutput.replace("{debugsender}", sender.toString)
     }
@@ -389,7 +389,7 @@ object Memebot {
     try {
       url = new URL(urlstring)
       connection = url.openConnection().asInstanceOf[HttpURLConnection]
-      var isError = connection.getResponseCode >= 400
+      val isError = connection.getResponseCode >= 400
 
       if(!isError) {
         in = new BufferedReader(new InputStreamReader(connection.getInputStream))

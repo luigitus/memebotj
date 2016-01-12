@@ -247,19 +247,21 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           this.listContent.clear()
           this.success = true
 
-        } else if (data(1).equals("import_json") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, channelHandler.getUserList)) {
+        } else if (data(1).equals("import") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, channelHandler.getUserList)) {
           formattedOutput = Memebot.formatText("JSON_ERROR", channelHandler, sender, this, true, Array())
           // todo fix later
           try {
-            val url = new URL(data(2))
-            val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-            val in = new BufferedReader(new InputStreamReader(connection.getInputStream))
-            var dataBuffer = ""
-            dataBuffer = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
-            in.close()
+            val dataImport: String = Memebot.readHttpRequest(data(2))
+
+            val lines = dataImport.split("\n")
+
+            for(line <- lines) {
+              this.listContent.add(line)
+            }
+
+            formattedOutput = Memebot.formatText("IMPORT_OK", channelHandler, sender, this, true, Array())
+
             this.success = true
-            val parser = new JSONParser()
-            val obj = parser.parse(dataBuffer).asInstanceOf[JSONObject]
           } catch {
             case e: IndexOutOfBoundsException => e.printStackTrace()
           }
@@ -330,9 +332,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.param + 1), this.helptext)
     }
     formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
+    commandScript = Memebot.formatText(commandScript, channelHandler, sender, this)
 
     if(formattedOutput != "null") {
       channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
+      channelHandler.sendMessage(commandScript, this.channelOrigin, sender)
     }
 
     /*formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
