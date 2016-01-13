@@ -132,7 +132,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   var formatData = true
 
-  var cooldownAfterUse = 1
+  var cooldownAfterUse = 1 // todo this will be used to start a cooldown after a certain amount of uses. -> need to save additional cooldown data for each user
 
   var channelOriginHandler: ChannelHandler = null
 
@@ -327,6 +327,17 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         case e: ArrayIndexOutOfBoundsException =>
           e.printStackTrace()
         case e: NumberFormatException => e.printStackTrace()
+      }
+    } else if (this.cmdtype == "raffel") {
+      // todo guessing game - use list content to save guesses
+      if(data(1) == "start") {
+        // todo clear list add output
+      } else if(data(1) == "keyword") {
+        // todo set keyword
+      } else if (data(1) == "end") {
+        // todo add end conditions -> winner is first person to have said the keyword or a random user
+      } else {
+        // todo add username and keyword to the list
       }
     }
 
@@ -543,7 +554,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       .append("case", this.caseSensitive)
       .append("otherdata", otherDataDocument)
       .append("format", this.formatData)
-      .append("cooldownuse", cooldownAfterUse)
+      .append("cooldownuse", this.cooldownAfterUse)
 
     try {
       if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -576,6 +587,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return
     }
 
+    CommandHandler.log.info(f"Reading DB for command ${this.command} on channel #${this.channel}")
+
     // uniquie id of command
     val channelQuery = new Document("_id", this.command)
     val cursor = this.commandCollection.find(channelQuery)
@@ -600,7 +613,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.neededCommandPower = channelData.getOrDefault("viewerpower", this.neededCommandPower.toString).toString.toInt
       this.userCooldownLen = channelData.getOrDefault("usercooldown", this.userCooldownLen.toString).toString.toInt
       this.commandScript = channelData.getOrDefault("script", this.commandScript.toString).toString
-      this.enable = channelData.getOrDefault("enable", this.enable.toString).toString.toBoolean
+      this.enable = channelData.getOrDefault("enable", this.enable.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.neededCooldownBypassPower = channelData.getOrDefault("cooldownbypass", this.neededCooldownBypassPower.toString).toString.toInt
       this.allowPicksFromList = channelData.getOrDefault("allowpick", this.allowPicksFromList.toString).toString.toBoolean
       this.removeFromListOnPickIfMod = channelData.getOrDefault("autoremove", this.removeFromListOnPickIfMod.toString).toString.toBoolean
@@ -610,7 +623,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
       this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
       this.formatData = channelData.getOrDefault("format", this.formatData.asInstanceOf[Object]).asInstanceOf[Boolean]
-      this.cooldownAfterUse = channelData.getOrDefault("cooldownuse", this.formatData.asInstanceOf[Object]).asInstanceOf[Int]
+      this.cooldownAfterUse = channelData.getOrDefault("cooldownuse", this.cooldownAfterUse.asInstanceOf[Object]).asInstanceOf[Int]
       //other data are used to store data that are used for internal commands
       val otherDataDocument = channelData.getOrDefault("otherdata", new Document()).asInstanceOf[Document]
 

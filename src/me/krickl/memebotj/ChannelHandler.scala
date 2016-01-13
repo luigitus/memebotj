@@ -281,15 +281,17 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   override def run() {
     //let update loop run independently
-    val updateThread = new Thread {
-      override def run(): Unit = {
-        while(isJoined) {
-          update()
-          Thread.sleep(100)
+    if(Memebot.useUpdateThread) {
+      val updateThread = new Thread {
+        override def run(): Unit = {
+          while (isJoined) {
+            update()
+            Thread.sleep(100)
+          }
         }
       }
+      updateThread.start()
     }
-    updateThread.start()
 
     while (this.isJoined) {
       var ircmsg = Array("", "")
@@ -306,6 +308,10 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         Thread.sleep(50)
       } catch {
         case e: InterruptedException => e.printStackTrace()
+      }
+
+      if(!Memebot.useUpdateThread) {
+        this.update()
       }
     }
   }

@@ -104,6 +104,8 @@ object Memebot {
 
   var debug = false
 
+	var useUpdateThread = true
+
 	def main(args: Array[String]) {
 
 		for(i <- args.indices) {
@@ -175,6 +177,7 @@ object Memebot {
     Memebot.isTwitchBot = config.getProperty("istwitchbot", Memebot.isTwitchBot.toString).toBoolean
     Memebot.mainChannel = config.getProperty("mainchannel", Memebot.mainChannel)
     Memebot.debug = config.getProperty("debug", Memebot.debug.toString).toBoolean
+    Memebot.useUpdateThread = config.getProperty("updatethread", Memebot.useUpdateThread.toString).toBoolean
 
 
 		if(Memebot.isBotMode) {
