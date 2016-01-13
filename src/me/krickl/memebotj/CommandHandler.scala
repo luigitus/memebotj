@@ -20,7 +20,9 @@ import scala.collection.JavaConversions._
 object CommandHandler {
   final val log = Logger.getLogger(CommandHandler.getClass.getName)
 
-  def checkPermission(sender: String, reqPermLevel: Int, userList: java.util.HashMap[String, UserHandler]): Boolean = {
+  def checkPermission(senderObject: UserHandler, reqPermLevel: Int, userList: java.util.HashMap[String, UserHandler], secondPerm: Int = 0): Boolean = {
+    val sender = senderObject.username
+
     val it = Memebot.botAdmins.iterator()
     while (it.hasNext) {
       val user = it.next()
@@ -34,7 +36,7 @@ object CommandHandler {
     }
 
     if (userList.containsKey(sender)) {
-      if (reqPermLevel <= userList.get(sender)._commandPower) {
+      if (reqPermLevel <= userList.get(sender)._commandPower && secondPerm <= senderObject._commandPower) {
         return true
       }
     } else if (sender.equals("#readonly#")) {
@@ -130,6 +132,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   var formatData = true
 
+  var cooldownAfterUse = 1
+
   var channelOriginHandler: ChannelHandler = null
 
   for(ch <- Memebot.joinedChannels) {
@@ -175,7 +179,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
 
     // check global cooldown
-    if ((!this.cooldown.canContinue || !sender.getUserCooldown.canContinue) && !CommandHandler.checkPermission(sender.getUsername, this.neededCooldownBypassPower, userList)) {
+    if ((!this.cooldown.canContinue || !sender.getUserCooldown.canContinue) && !CommandHandler.checkPermission(sender, this.neededCooldownBypassPower, userList)) {
       return "cooldown"
     }
 
@@ -189,11 +193,11 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
 
     if (!sender.getUserCommandCooldowns.get(this.command).canContinue
-      && !CommandHandler.checkPermission(sender.getUsername, this.neededCooldownBypassPower, userList)) {
+      && !CommandHandler.checkPermission(sender, this.neededCooldownBypassPower, userList)) {
       return "usercooldown"
     }
 
-    if (!CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower, userList)) {
+    if (!CommandHandler.checkPermission(sender, this.neededCommandPower, userList)) {
       return "denied"
     }
     if (!this.checkCost(sender, this.pointCost, channelHandler)) {
@@ -207,7 +211,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
     if (this.cmdtype.equals("list")) {
       try {
-        if (data(1).equals("add") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
+        if (data(1).equals("add") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           var newEntry = ""
           for (i <- 2 to data.length - 1) {
             newEntry = newEntry + " " + data(i)
@@ -220,7 +224,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, Array())
             this.success = false
           }
-        } else if (data(1).equals("remove") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
+        } else if (data(1).equals("remove") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower )) {
           try {
             this.listContent.remove(Integer.parseInt(data(2)))
             formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, Array())
@@ -229,7 +233,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             case e: IndexOutOfBoundsException =>
               formattedOutput = e.toString
           }
-        } else if (data(1).equals("edit") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
+        } else if (data(1).equals("edit") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower )) {
           var newEntry = ""
           for (i <- 3 to data.length - 1) {
             newEntry = newEntry + " " + data(i)
@@ -242,14 +246,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, Array(channelHandler.getChannelPageBaseURL + "/" + URLEncoder.encode(this.command, "UTF-8") + ".html"))
           this.success = false
 
-        } else if (data(1).equals("clear") && CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, channelHandler.getUserList)) {
+        } else if (data(1).equals("clear") && CommandHandler.checkPermission(sender, CommandPower.adminAbsolute, channelHandler.getUserList)) {
           formattedOutput = Memebot.formatText("LIST_CLEAR", channelHandler, sender, this, true, Array())
           this.listContent.clear()
           this.success = true
 
-        } else if (data(1).equals("import") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, channelHandler.getUserList)) {
+        } else if (data(1).equals("import") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, channelHandler.getUserList,  this.neededCommandPower)) {
           formattedOutput = Memebot.formatText("JSON_ERROR", channelHandler, sender, this, true, Array())
-          // todo fix later
           try {
             val dataImport: String = Memebot.readHttpRequest(data(2))
 
@@ -269,7 +272,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         } else if (allowPicksFromList) {
           try {
             formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
-            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, userList)) {
+            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, userList,  this.neededCommandPower)) {
               this.listContent.remove(Integer.parseInt(data(1)))
             }
           } catch {
@@ -288,7 +291,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             val i = rand.nextInt(this.listContent.size())
             formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + this.listContent.get(i) + this.quoteSuffix.replace("{number}", Integer.toString(i))
 
-            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, userList)) {
+            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, userList, this.neededCommandPower)) {
               this.listContent.remove(i)
             }
           } catch {
@@ -311,13 +314,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
       try {
         if (data(1).equals("add")
-          && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
+          && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           counter = counter + modifier
         } else if (data(1).equals("sub")
-          && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
+          && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           counter = counter - modifier
         } else if (data(1).equals("set")
-          && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, userList)) {
+          && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           counter = modifier
         }
       } catch {
@@ -369,7 +372,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   }
 
   protected def checkCost(sender: UserHandler, cost: Double, ch: ChannelHandler): Boolean = {
-    if (sender.points >= cost || CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, ch.getUserList)) {
+    if (sender.points >= cost || CommandHandler.checkPermission(sender, CommandPower.adminAbsolute, ch.getUserList)) {
       return true
     }
 
@@ -414,7 +417,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     * @return
     */
   def editCommand(modType: String, nv: String, sender: UserHandler, userList: java.util.HashMap[String, UserHandler]): Boolean = {
-    if (!CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower, userList)) {
+    if (!CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
       return false
     }
 
@@ -451,7 +454,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } else if (modType.equals("cost")) {
         this.pointCost = newValue.toDouble
         success = true
-      } else if (modType.equals("lock") && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, userList)) {
+      } else if (modType.equals("lock") && CommandHandler.checkPermission(sender, CommandPower.broadcaster, userList, this.neededCommandPower)) {
         this.locked = newValue.toBoolean
         success = true
       } else if (modType.equals("texttrigger")) {
@@ -463,7 +466,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } else if (modType.equals("usercooldown")) {
         this.userCooldownLen = Integer.parseInt(newValue)
         success = true
-      } else if (modType.equals("script") && CommandHandler.checkPermission(sender.getUsername, 75, userList)) {
+      } else if (modType.equals("script")) {
         this.commandScript = newValue
         success = true
       } else if (modType.equals("enable")) {
@@ -493,6 +496,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } else if(modType == "format") {
         this.formatData = newValue.toBoolean
         success = false
+      } else if(modType == "cooldownuse") {
+        cooldownAfterUse = newValue.toInt
       }
     } catch {
       case e: NumberFormatException =>
@@ -538,6 +543,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       .append("case", this.caseSensitive)
       .append("otherdata", otherDataDocument)
       .append("format", this.formatData)
+      .append("cooldownuse", cooldownAfterUse)
 
     try {
       if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -604,6 +610,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.listregex = channelData.getOrDefault("listregex", this.listregex).toString
       this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
       this.formatData = channelData.getOrDefault("format", this.formatData.asInstanceOf[Object]).asInstanceOf[Boolean]
+      this.cooldownAfterUse = channelData.getOrDefault("cooldownuse", this.formatData.asInstanceOf[Object]).asInstanceOf[Int]
       //other data are used to store data that are used for internal commands
       val otherDataDocument = channelData.getOrDefault("otherdata", new Document()).asInstanceOf[Document]
 

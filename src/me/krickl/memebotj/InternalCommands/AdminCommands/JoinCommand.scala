@@ -12,7 +12,7 @@ class JoinCommand(channel: String, command: String, dbprefix: String) extends Co
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {
-			if(CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, channelHandler.userList) && data.length > 1) {
+			if(CommandHandler.checkPermission(sender, CommandPower.adminAbsolute, channelHandler.userList) && data.length > 1) {
         Memebot.joinChannel("#" + data(0).toLowerCase())
         channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("JOIN"), channelHandler, sender, this, false, Array(data(0))), this.getChannelOrigin)
       } else if(channelHandler.channel == Memebot.mainChannel) {

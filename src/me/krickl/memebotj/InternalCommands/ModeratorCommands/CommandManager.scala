@@ -12,7 +12,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		try {
-			if (data(0) == "add" && CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
+			if (data(0) == "add" && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				val newCommand = new CommandHandler(this.getChannelOrigin, "null", null)
 				if (channelHandler.findCommand(data(1)) == -1) {
 					newCommand.editCommand("name", data(1), new UserHandler("#internal#", "#internal#"), channelHandler.getUserList)
@@ -30,7 +30,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					channelHandler.sendMessage(Memebot.formatText("COMMAND_EXISTS", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
 				}
 			} else if (data(0) == "remove" &&
-					CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
+					CommandHandler.checkPermission(sender, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				val j = channelHandler.findCommand(data(1))
 				if (j != -1) {
 					if (!channelHandler.getChannelCommands.get(j).getLocked) {
@@ -45,7 +45,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 					channelHandler.sendMessage(Memebot.formatText("DELCOM_NOT_FOUND", channelHandler, sender, this, true), this.getChannelOrigin)
 				}
 			} else if (data(0) == "edit" &&
-					CommandHandler.checkPermission(sender.getUsername, CommandPower.modAbsolute, channelHandler.getUserList)) {
+					CommandHandler.checkPermission(sender, CommandPower.modAbsolute, channelHandler.getUserList)) {
 				val j = channelHandler.findCommand(data(1))
 				if (j != -1) {
 					var newValue = data(3)
@@ -59,7 +59,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
 						channelHandler.sendMessage(Memebot.formatText("EDITCOMMAND_FAIL", channelHandler, sender, this, true), this.getChannelOrigin)
 					}
 				}
-			} else if(data(0) == "toggleinternal" && CommandHandler.checkPermission(sender.getUsername, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
+			} else if(data(0) == "toggleinternal" && CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
         val i = channelHandler.findCommand(data(1), channelHandler.internalCommands)
         if(i != -1) {
           val ch = channelHandler.getInternalCommands.get(i)

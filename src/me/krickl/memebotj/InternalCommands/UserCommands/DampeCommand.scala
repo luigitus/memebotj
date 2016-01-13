@@ -35,7 +35,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT", channelHandler, sender, this, true, Array("%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
         return
       } else if (data(0) == "set" &&
-        CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, channelHandler.getUserList)) {
+        CommandHandler.checkPermission(sender, CommandPower.adminAbsolute, channelHandler.getUserList)) {
         this.setJackpot(data(1).toDouble)
         channelHandler.sendMessage(Memebot.formatText("DAMPE_SETJACKPOT", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
         return

@@ -11,7 +11,7 @@ class RaceCommand(channel: String, command: String, dbprefix: String) extends Co
 
 	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
 		if (data.length >= 1 &&
-				CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.mod, channelHandler.getUserList)) {
+				CommandHandler.checkPermission(sender, CommandPower.modAbsolute, channelHandler.getUserList)) {
 			channelHandler.setCurrentRaceURL(channelHandler.getRaceBaseURL + "/" + channelHandler.getBroadcaster)
 			for (i <- data.indices) {
 				channelHandler.setCurrentRaceURL(channelHandler.getCurrentRaceURL + "/" + data(i))

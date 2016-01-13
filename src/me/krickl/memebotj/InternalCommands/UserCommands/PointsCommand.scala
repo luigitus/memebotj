@@ -24,7 +24,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 							target = null
 						}
 					}
-					if (target != null && CommandHandler.checkPermission(sender.getUsername, CommandPower.adminAbsolute, channelHandler.getUserList)) {
+					if (target != null && CommandHandler.checkPermission(sender, CommandPower.adminAbsolute, channelHandler.getUserList)) {
 						val number = java.lang.Double.parseDouble(data(2))
 						if (data(0) == "add") {
 							target.setPoints(target.points + number)

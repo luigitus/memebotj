@@ -18,7 +18,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
     try {
       if (data(0) == "get") {
-        if (CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
+        if (CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
           var amount = 1
 
           try {
@@ -42,12 +42,12 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       } else if (data(0) == "list") {
         channelHandler.sendMessage(s"${channelHandler.getChannelPageBaseURL}/filenames.html", this.channelOrigin)
         return
-      } else if(data(0) == "return" && CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
+      } else if(data(0) == "return" && CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
         channelHandler.getFileNameList.add(channelHandler.getCurrentFileName)
         channelHandler.sendMessage(Memebot.formatText("NAME_RETURN", channelHandler, sender, this, true, Array(f"$counter")), this.getChannelOrigin)
         return
       } else if (data(0) == "remove" &&
-        CommandHandler.checkPermission(sender.getUsername, this.neededCommandPower + CommandPower.broadcaster, channelHandler.getUserList)) {
+        CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
         var counter = 0
         var i = channelHandler.getFileNameList.size - 1
         while (i >= 0) {
