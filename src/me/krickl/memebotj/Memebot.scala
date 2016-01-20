@@ -402,7 +402,7 @@ object Memebot {
       data = Stream.continually(in.readLine()).takeWhile(_ != null).mkString("\n")
 
     } catch {
-      case e: Exception => log.info(f"Exception in http request to ${urlstring}")
+      case e: Exception => log.info(f"Exception in http request to $urlstring")
     } finally {
       if(connection != null) {
         connection.disconnect()
