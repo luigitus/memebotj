@@ -5,7 +5,7 @@ import me.krickl.memebotj._
 class CommandManager(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {
 
-	this.setNeededCommandPower(CommandPower.modAbsolute)
+	this.setNeededCommandPower(CommandPower.viewerAbsolute)
 
 	this.setHelptext(Memebot.formatText("COMMANDMANAGER_SYNTAX", channelOriginHandler, null, this, true, Array()))
   this.formatData = false
@@ -71,7 +71,7 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
             ch.writeDBCommand()
           }
         }
-      } else if (data(0) == "info") {
+      } else if (data(0) == "info" && CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
 				var j = channelHandler.findCommand(data(1))
 				if (j != -1) {
 					channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TIMES_EXECUTED"), channelHandler, sender, this, false, Array(f"${channelHandler.getChannelCommands.get(j).getExecCounter}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower + CommandPower.mod}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower + CommandPower.broadcaster}", f"${channelHandler.getChannelCommands.get(j).getNeededCommandPower + CommandPower.admin}")), this.channelOrigin)
@@ -81,9 +81,33 @@ class CommandManager(channel: String, command: String, dbprefix: String) extends
         if(j!= -1) {
           channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("COMMAND_TIMES_EXECUTED"), channelHandler, sender, this, false, Array(f"${channelHandler.getInternalCommands.get(j).getExecCounter}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower + CommandPower.mod}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower + CommandPower.broadcaster}", f"${channelHandler.getInternalCommands.get(j).getNeededCommandPower + CommandPower.admin}")), this.channelOrigin)
         }
+			} else if(data(0) == "list") {
+        if (Memebot.useWeb) {
+          channelHandler.sendMessage(Memebot.formatText("COMMAND_LIST", channelHandler, sender, this, true, Array(channelHandler.getChannelPageBaseURL + "/index.html")), this.getChannelOrigin)
+        } else {
+          var index = 0
+          var output = ""
+          try {
+            index = java.lang.Integer.parseInt(data(0))
+          } catch {
+            case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
+            case e: NumberFormatException => e.printStackTrace()
+          }
+          for (i <- index * 10 until channelHandler.getChannelCommands.size) {
+            if (i > index * 10 + 10) {
+              //break
+            }
+            output = output + " || " +
+              channelHandler.getChannelCommands.get(i).getCommand
+          }
+          channelHandler.sendMessage("Commands: " + output, this.getChannelOrigin)
+        }
 			}
 		} catch {
 			case e: ArrayIndexOutOfBoundsException => channelHandler.sendMessage(this.helptext, this.getChannelOrigin)
+      case e: NumberFormatException =>
+        channelHandler.sendMessage(Memebot.formatText("COMMAND_LIST_ERROR", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
+        e.printStackTrace()
 		}
 	}
 }

@@ -2,6 +2,7 @@ package me.krickl.memebotj.InternalCommands.UserCommands
 
 import me.krickl.memebotj.{ChannelHandler, CommandHandler, Memebot, UserHandler}
 
+@Deprecated
 class CommandList(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
 

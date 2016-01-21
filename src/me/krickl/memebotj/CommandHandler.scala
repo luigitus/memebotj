@@ -163,6 +163,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: java.util.HashMap[String, UserHandler]): String = {
     this.success = true
+    var checkCooldown = true
 
     if(formatData) {
       for (i <- data.indices) {
@@ -178,23 +179,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return "disabled"
     }
 
-    // check global cooldown
-    if ((!this.cooldown.canContinue || !sender.getUserCooldown.canContinue) && !CommandHandler.checkPermission(sender, this.neededCooldownBypassPower, userList)) {
+    if(checkCooldown && this.checkCooldown(sender, channelHandler)) {
       return "cooldown"
-    }
-
-    // check user cooldown
-    if (!sender.getUserCommandCooldowns.containsKey(this.command)) {
-      sender.getUserCommandCooldowns.put(this.command, new Cooldown(this.userCooldownLen))
-    } else {
-      if (sender.getUserCommandCooldowns.get(this.command).getCooldownLen != this.userCooldownLen) {
-        sender.getUserCommandCooldowns.get(this.command).setCooldownLen(this.userCooldownLen)
-      }
-    }
-
-    if (!sender.getUserCommandCooldowns.get(this.command).canContinue
-      && !CommandHandler.checkPermission(sender, this.neededCooldownBypassPower, userList)) {
-      return "usercooldown"
     }
 
     if (!CommandHandler.checkPermission(sender, this.neededCommandPower, userList)) {
@@ -393,6 +379,28 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     false
   }
 
+  protected def checkCooldown(sender: UserHandler, ch: ChannelHandler): Boolean = {
+    // check global cooldown
+    if ((!this.cooldown.canContinue || !sender.getUserCooldown.canContinue) && !CommandHandler.checkPermission(sender, this.neededCooldownBypassPower, ch.userList)) {
+      return true
+    }
+
+    // check user cooldown
+    if (!sender.getUserCommandCooldowns.containsKey(this.command)) {
+      sender.getUserCommandCooldowns.put(this.command, new Cooldown(this.userCooldownLen))
+    } else {
+      if (sender.getUserCommandCooldowns.get(this.command).getCooldownLen != this.userCooldownLen) {
+        sender.getUserCommandCooldowns.get(this.command).setCooldownLen(this.userCooldownLen)
+      }
+    }
+
+    if (!sender.getUserCommandCooldowns.get(this.command).canContinue && !CommandHandler.checkPermission(sender, this.neededCooldownBypassPower, ch.userList)) {
+      return true
+    }
+
+    false
+  }
+
   protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
     if (this.success) {
       this.cooldown.startCooldown()
@@ -407,7 +415,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     * @param channelHandler
     */
   protected def beforeDBLoad(channelHandler: ChannelHandler = null): Unit = {
-
   }
 
   /***
