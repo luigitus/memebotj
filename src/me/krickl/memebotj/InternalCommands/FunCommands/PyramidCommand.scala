@@ -14,13 +14,13 @@ class PyramidCommand(channel: String, command: String, dbprefix: String) extends
 			for (i <- 0 until size) {
 				channelHandler.sendMessage(message, this.getChannelOrigin)
 				message = message + " " + data(0)
-				Thread.sleep(1000)
+				//Thread.sleep(1000)
 			}
 			var i = size
 			while (i >= 0) {
 				channelHandler.sendMessage(message, this.getChannelOrigin)
 				message = message.substring(0, message.length - data(0).length - 1)
-				Thread.sleep(1000)
+				//Thread.sleep(1000)
 				i -= 1
 			}
 		} catch {

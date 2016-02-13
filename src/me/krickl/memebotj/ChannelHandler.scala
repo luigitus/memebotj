@@ -636,9 +636,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     i = 0
     while (i < ircmsgBuffer.length) {
       val msg = ircmsgBuffer(i)
-      if ((msg == "PRIVMSG" || msg == "MODE" || msg == "PART" || msg == "JOIN" ||
-        msg == "CLEARCHAT") &&
-        messageType == "UNDEFINED") {
+      if ((msg == "PRIVMSG" || msg == "MODE" || msg == "PART" || msg == "JOIN" || msg == "CLEARCHAT") && messageType == "UNDEFINED") {
         messageType = msg
       }
       if (msg.charAt(0) == '@' && i == 0) {
@@ -766,12 +764,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         for (x <- 0 until data.length if data(x).matches(this.urlRegex)) {
           ChannelHandler.getLog.info("Found url in message")
           if (this.purgeURLSNewUsers && sender.newUser) {
-            ChannelHandler.getLog.info("Puriging " + sender.getUsername + " for posting a link that matches the regex " +
+            ChannelHandler.getLog.info("Reking " + sender.getUsername + " for posting a link that matches the regex " +
               this.urlRegex)
             this.sendMessage("/timeout " + sender.getUsername + " " + java.lang.Integer.toString(this.linkTimeout),
               this.channel)
           } else if (this.purgeURLS) {
-            ChannelHandler.getLog.info("Puriging " + sender.getUsername + " for posting a link that matches the regex " +
+            ChannelHandler.getLog.info("Reking " + sender.getUsername + " for posting a link that matches the regex " +
               this.urlRegex)
             this.sendMessage("/timeout " + sender.getUsername + " " + java.lang.Integer.toString(this.linkTimeout),
               this.channel)

@@ -4,6 +4,7 @@ import java.util.Random
 
 import me.krickl.memebotj._
 //remove if not needed
+import scala.collection.JavaConversions._
 
 
 class FilenameCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
@@ -60,7 +61,11 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         }
         channelHandler.sendMessage(Memebot.formatText("NAME_REMOVE", channelHandler, sender, this, true, Array(f"$counter")), this.getChannelOrigin)
         return
+      } else if (data(0) == "count") {
+        channelHandler.sendMessage(Memebot.formatText("NAME_COUNT", channelHandler, sender, this, true, Array(f"${channelHandler.fileNameList.size()}")), this.getChannelOrigin)
+        return
       }
+
       var i: Int = 1
       if(data.length >= 2) {
         try {
@@ -73,9 +78,18 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       }
       var success = false
       if (data(0).length <= channelHandler.getMaxFileNameLen) {
+        // count how many names a user has in the list
+        var amountOfNamesInList = 0
+
+        for(name <- channelHandler.getFileNameList) {
+          if(name.contains(f"#${sender.getUsername}")) {
+            amountOfNamesInList = amountOfNamesInList + 1
+          }
+        }
+
         val cost = channelHandler.pointsPerUpdate * 100
 
-        if (!this.checkCost(sender, cost * i, channelHandler)) {
+        if (!this.checkCost(sender, cost * i + channelHandler.pointsPerUpdate * amountOfNamesInList, channelHandler)) {
           channelHandler.sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", channelHandler, sender, this, true, Array(f"${cost * i}")), this.getChannelOrigin)
         } else {
           if(i > 1) {
@@ -84,7 +98,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
           else {
               channelHandler.sendMessage(Memebot.formatText("NAME_ADD", channelHandler, sender, this, true, Array(data(0))), this.getChannelOrigin)
             }
-          sender.setPoints(sender.points - (cost * i))
+          sender.setPoints(sender.points - (cost * i  + channelHandler.pointsPerUpdate * amountOfNamesInList))
           success = true
         }
       } else {
