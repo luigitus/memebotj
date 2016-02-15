@@ -105,12 +105,12 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var random: SecureRandom = new SecureRandom()
   @BeanProperty
   var privateKey: String = new BigInteger(130, random).toString(32)
-  @BeanProperty
-  var urlRegex: String = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
+  //@BeanProperty
+  //var urlRegex: String = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
   @BooleanBeanProperty
   var purgeURLS: Boolean = false
-  @BooleanBeanProperty
-  var purgeURLSNewUsers: Boolean = false
+  //@BooleanBeanProperty
+  //var purgeURLSNewUsers: Boolean = false
   var givePointsWhenOffline = false
 
   ChannelHandler.getLog.info("Joining channel " + this.channel)
@@ -599,9 +599,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("allowautogreet", this.allowAutogreet)
       .append("privatekey", this.privateKey)
       .append("purgelinks", this.purgeURLS)
-      .append("purgelinknu", this.purgeURLSNewUsers)
       .append("linktimeout", this.linkTimeout)
-      .append("urlreges", this.urlRegex)
       .append("silent", this.silentMode)
       .append("preventspam", this.spamPrevention)
       .append("spamtimeout", this.spamTimeout)
@@ -675,11 +673,15 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       }
       i += 1
     }
-    if (!this.userList.containsKey(senderName) && !senderName.isEmpty) {
+    if(!this.userList.containsKey(senderName) && !senderName.isEmpty) {
       val newUser = new UserHandler(senderName, this.channel)
       this.userList.put(senderName, newUser)
     }
+
     val sender = this.userList.get(senderName)
+    //todo make sure sender is not removed
+    sender.shouldBeRemoved = false
+
     if (messageType != "PRIVMSG") {
       val ircmsgList = rawircmsg.split(" ")
       if (ircmsgList(1) == null) {
@@ -706,15 +708,19 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         }
       } else if (ircmsgList(1) == "PART") {
         if (sender != null) {
+          //todo mark user for removal 5 minutes after part message
           if (this.userList.containsKey(sender.getUsername)) {
-            this.userList.get(sender.getUsername).writeDBUserData()
-            this.userList.remove(sender.getUsername)
+            //this.userList.get(sender.getUsername).writeDBUserData()
+            //this.userList.remove(sender.getUsername)
+            sender.shouldBeRemoved = true
+            sender.removeCooldown = new Cooldown(300)
           }
         }
       } else if (ircmsgList(1) == "JOIN") {
         if (sender != null) {
+          //send autogreet if the channel allows autogreets
           if (this.allowAutogreet && sender.getAutogreet != "") {
-            this.sendMessage(sender.getAutogreet, this.channel)
+            sender.sendAutogreet(this)
           }
         }
       } else if (ircmsgList(1) == "CLEARCHAT") {
@@ -760,23 +766,25 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       }
       val msg = msgContent(0)
       val data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length)
-      try {
-        for (x <- 0 until data.length if data(x).matches(this.urlRegex)) {
-          ChannelHandler.getLog.info("Found url in message")
-          if (this.purgeURLSNewUsers && sender.newUser) {
-            ChannelHandler.getLog.info("Reking " + sender.getUsername + " for posting a link that matches the regex " +
-              this.urlRegex)
-            this.sendMessage("/timeout " + sender.getUsername + " " + java.lang.Integer.toString(this.linkTimeout),
-              this.channel)
-          } else if (this.purgeURLS) {
-            ChannelHandler.getLog.info("Reking " + sender.getUsername + " for posting a link that matches the regex " +
-              this.urlRegex)
-            this.sendMessage("/timeout " + sender.getUsername + " " + java.lang.Integer.toString(this.linkTimeout),
-              this.channel)
+      if(this.purgeURLS) {
+        for(username <- Memebot.globalBanList) {
+          if(sender.username == username && !sender.isModerator) {
+            this.sendMessage("/ban " + sender.username)
+            this.sendMessage(f"Banned ${sender.username} for being in the global ban list")
           }
         }
-      } catch {
-        case e: java.util.regex.PatternSyntaxException => e.printStackTrace()
+
+        for(message <- Memebot.urlBanList) {
+          if(rawircmsg.contains(message)) {
+            this.sendMessage("/timeout " + sender.username + " 1")
+          }
+        }
+
+        for(message <- Memebot.phraseBanList) {
+          if(rawircmsg.contains(message)) {
+            this.sendMessage("/timeout " + sender.username + " 1")
+          }
+        }
       }
 
       //channel commands
@@ -916,8 +924,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.privateKey = channelData.getOrDefault("privatekey", this.privateKey).asInstanceOf[String]
       this.linkTimeout = channelData.getOrDefault("linktimeout", this.linkTimeout.toString).toString.toInt
       this.purgeURLS = channelData.getOrDefault("purgelinks", this.purgeURLS.toString).toString.toBoolean
-      this.purgeURLSNewUsers = channelData.getOrDefault("purgelinknu", this.purgeURLSNewUsers.toString).toString.toBoolean
-      this.urlRegex = channelData.getOrDefault("urlreges", this.urlRegex).asInstanceOf[String]
       //val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean

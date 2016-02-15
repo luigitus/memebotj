@@ -18,6 +18,18 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
 
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
     try {
+
+      // count how many names a user has in the list
+      var amountOfNamesInList = 0
+
+      for(name <- channelHandler.getFileNameList) {
+        if(name.contains(f"#${sender.getUsername}")) {
+          amountOfNamesInList = amountOfNamesInList + 1
+        }
+      }
+
+      val cost = channelHandler.pointsPerUpdate * 100
+
       if (data(0) == "get") {
         if (CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
           var amount = 1
@@ -64,6 +76,9 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       } else if (data(0) == "count") {
         channelHandler.sendMessage(Memebot.formatText("NAME_COUNT", channelHandler, sender, this, true, Array(f"${channelHandler.fileNameList.size()}")), this.getChannelOrigin)
         return
+      } else if(data(0) == "cost") {
+        channelHandler.sendMessage(Memebot.formatText("NAME_COST", channelHandler, sender, this, true, Array(f"${cost + channelHandler.pointsPerUpdate * amountOfNamesInList}")), this.getChannelOrigin)
+        return
       }
 
       var i: Int = 1
@@ -78,17 +93,6 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       }
       var success = false
       if (data(0).length <= channelHandler.getMaxFileNameLen) {
-        // count how many names a user has in the list
-        var amountOfNamesInList = 0
-
-        for(name <- channelHandler.getFileNameList) {
-          if(name.contains(f"#${sender.getUsername}")) {
-            amountOfNamesInList = amountOfNamesInList + 1
-          }
-        }
-
-        val cost = channelHandler.pointsPerUpdate * 100
-
         if (!this.checkCost(sender, cost * i + channelHandler.pointsPerUpdate * amountOfNamesInList, channelHandler)) {
           channelHandler.sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", channelHandler, sender, this, true, Array(f"${cost * i}")), this.getChannelOrigin)
         } else {

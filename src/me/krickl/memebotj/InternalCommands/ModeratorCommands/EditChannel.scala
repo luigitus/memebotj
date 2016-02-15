@@ -47,16 +47,8 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
 				channelHandler.sendMessage("Changed max ppi to " + data(1), this.getChannelOrigin)
 			} else if (data(0) == "purgelinks") {
 				channelHandler.setPurgeURLS(java.lang.Boolean.parseBoolean(data(1)))
-			} else if (data(0) == "purgelinksnu") {
-				channelHandler.setPurgeURLSNewUsers(java.lang.Boolean.parseBoolean(data(1)))
 			} else if (data(0) == "linkto") {
 				channelHandler.setLinkTimeout(java.lang.Integer.parseInt(data(1)))
-			} else if (data(0) == "urlregex") {
-				if (data(1) == "append") {
-					channelHandler.setUrlRegex(channelHandler.getUrlRegex + data(2))
-				} else {
-					channelHandler.setUrlRegex(data(1))
-				}
 			} else if (data(0) == "silent") {
 				channelHandler.setSilentMode(java.lang.Boolean.parseBoolean(data(1)))
 			} else if (data(0) == "preventspam") {

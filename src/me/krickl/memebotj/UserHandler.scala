@@ -89,6 +89,11 @@ class UserHandler(usernameNew: String, channelNew: String) {
   var isFollowing = false
   var hasFollowed = false
 
+  var hasAutogreeted = false
+
+  var removeCooldown: Cooldown = new Cooldown(0)
+  var shouldBeRemoved = false
+
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
 	}
@@ -187,6 +192,13 @@ class UserHandler(usernameNew: String, channelNew: String) {
     }
 	}
 
+  def sendAutogreet(channelHandler: ChannelHandler): Unit = {
+    if(!this.hasAutogreeted && this.enableAutogreets && channelHandler.allowAutogreet && this.autogreet != "") {
+      channelHandler.sendMessage(this.autogreet, sender = this)
+      this.hasAutogreeted = true
+    }
+  }
+
   /**
     * @deprecated compatibility for old function calls. This function should not be used anymore.
     * @param f new amount
@@ -247,6 +259,12 @@ class UserHandler(usernameNew: String, channelNew: String) {
     tmpUserList.put(this.username, this)
     if ((System.currentTimeMillis() - this.timeSinceActivity) > 0x36EE80 * 0x2 && username != "#internal#" && username != "#readonly#" && !CommandHandler.checkPermission(this, CommandPower.broadcasterAbsolute, tmpUserList)) {
       UserHandler.log.info(f"Removed user ${this.username} for inactivity ${this.timeSinceActivity}")
+      return true
+    }
+
+    //check if user has been marked for removal
+    if(this.shouldBeRemoved && this.removeCooldown.canContinue) {
+      UserHandler.log.info(f"Removed user ${this.username}")
       return true
     }
 

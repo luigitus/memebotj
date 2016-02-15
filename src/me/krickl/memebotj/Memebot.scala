@@ -38,6 +38,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
+import java.util
 import java.util.{Random, Calendar, Properties}
 import java.util.logging.Logger
 
@@ -105,6 +106,12 @@ object Memebot {
   var debug = false
 
 	var useUpdateThread = true
+
+	var urlBanList = new java.util.ArrayList[String]()
+
+  var globalBanList = new java.util.ArrayList[String]()
+
+  var phraseBanList = new util.ArrayList[String]()
 
 	def main(args: Array[String]) {
 
@@ -230,6 +237,15 @@ object Memebot {
 			try {
 				channels = Files.readAllLines(Paths.get(Memebot.channelConfig),
 						Charset.defaultCharset()).asInstanceOf[java.util.ArrayList[String]]
+
+        urlBanList = Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
+          Charset.defaultCharset()).asInstanceOf[java.util.ArrayList[String]]
+
+        phraseBanList = Files.readAllLines(Paths.get(Memebot.memebotDir + "/phrasebanlist.cfg"),
+          Charset.defaultCharset()).asInstanceOf[java.util.ArrayList[String]]
+
+        globalBanList = Files.readAllLines(Paths.get(Memebot.memebotDir + "/globalbanlist.cfg"),
+          Charset.defaultCharset()).asInstanceOf[java.util.ArrayList[String]]
 
 			} catch {
 				case  e: IOException =>

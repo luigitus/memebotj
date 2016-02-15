@@ -24,6 +24,10 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     this.otherData.put("jackpot", "0")
   }
 
+  if(!this.otherData.containsKey("winner")) {
+    this.otherData.put("winner", "null")
+  }
+
   override def overrideDBData(channelHandler: ChannelHandler = null): Unit = {
 
   }
@@ -39,7 +43,12 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         this.setJackpot(data(1).toDouble)
         channelHandler.sendMessage(Memebot.formatText("DAMPE_SETJACKPOT", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
         return
+      } else if(data(0) == "winner") {
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_WINNER", channelHandler, sender, this, true, Array(this.otherData.get("winner"))), this.getChannelOrigin)
+        return
       }
+
+
       wage = data(0).toDouble
       if (wage < channelHandler.pointsPerUpdate * 50) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MIN", channelHandler, sender, this, true, Array("%.2f".format(channelHandler.pointsPerUpdate * 50), channelHandler.currencyEmote)), this.getChannelOrigin)
@@ -59,18 +68,21 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       channelHandler.sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MAX", channelHandler, sender, this, true, Array("%.2f".format(channelHandler.maxPoints / 10))), this.getChannelOrigin)
       return
     }
+
     sender.setPoints(sender.points - wage)
     val ran = new SecureRandom()
     val range = 1000
     val outcome = ran.nextInt(range) //- wage.toInt / 4)
-    if (outcome <= 3) {
-      val price = 10 * (Math.sqrt(wage) * 5)
-      if (sender.setPoints(sender.points + price + this.getJackpot + wage)) {
-        channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price + this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
+
+    //outcomes of dampe
+    if (outcome <= 5) {
+      if (sender.setPoints(sender.points + this.getJackpot + wage)) {
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
         this.setJackpot(0)
+        this.otherData.put("winner", sender.getUsername)
       } else {
-        channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON_WALLET_FULL", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price + this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
-        this.setJackpot(this.getJackpot + price)
+        channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON_WALLET_FULL", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
+        this.setJackpot(this.getJackpot)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
 
