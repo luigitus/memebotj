@@ -135,6 +135,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var currencyEmote = "points"
   var followAnnouncement = ""
   var maxScreenNameLen = 15
+  var maxAmountOfNameInList = 250
 
   broadcasterHandler.isUserBroadcaster = true
 
@@ -611,6 +612,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("curremote", this.currencyEmote)
       .append("followannouncement", this.followAnnouncement)
       .append("maxscreennamelen", this.maxScreenNameLen)
+      .append("maxnameinlist", this.maxAmountOfNameInList)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -936,6 +938,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.currencyEmote = channelData.getOrDefault("curremote", this.currencyEmote.asInstanceOf[Object]).toString
       this.followAnnouncement = channelData.getOrDefault("followannouncement", this.followAnnouncement.asInstanceOf[Object]).toString
       this.maxScreenNameLen = channelData.getOrDefault("maxscreennamelen", this.maxScreenNameLen.asInstanceOf[Object]).asInstanceOf[Int]
+      this.maxAmountOfNameInList = channelData.getOrDefault("maxnameinlist", this.maxScreenNameLen.asInstanceOf[Object]).asInstanceOf[Int]
     }
     val commandCollection = Memebot.db.getCollection(this.channel + "_commands")
     val comms = commandCollection.find()

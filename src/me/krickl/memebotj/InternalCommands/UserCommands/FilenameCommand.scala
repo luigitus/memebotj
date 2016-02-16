@@ -23,12 +23,12 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       var amountOfNamesInList = 0
 
       for(name <- channelHandler.getFileNameList) {
-        if(name.contains(f"#${sender.getUsername}")) {
+        if(name.contains(f"${data(0)}#")) {
           amountOfNamesInList = amountOfNamesInList + 1
         }
       }
 
-      val cost = channelHandler.pointsPerUpdate * 100
+      val cost = channelHandler.pointsPerUpdate * 40
 
       if (data(0) == "get") {
         if (CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, channelHandler.getUserList)) {
@@ -77,7 +77,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         channelHandler.sendMessage(Memebot.formatText("NAME_COUNT", channelHandler, sender, this, true, Array(f"${channelHandler.fileNameList.size()}")), this.getChannelOrigin)
         return
       } else if(data(0) == "cost") {
-        channelHandler.sendMessage(Memebot.formatText("NAME_COST", channelHandler, sender, this, true, Array(f"${cost + channelHandler.pointsPerUpdate * amountOfNamesInList}")), this.getChannelOrigin)
+        channelHandler.sendMessage(Memebot.formatText("NAME_COST", channelHandler, sender, this, true, Array(f"${cost + channelHandler.pointsPerUpdate}")), this.getChannelOrigin)
         return
       }
 
@@ -92,8 +92,12 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
         }
       }
       var success = false
-      if (data(0).length <= channelHandler.getMaxFileNameLen) {
-        if (!this.checkCost(sender, cost * i + channelHandler.pointsPerUpdate * amountOfNamesInList, channelHandler)) {
+      if (data(0).length  <= channelHandler.getMaxFileNameLen) {
+        if(amountOfNamesInList + i > channelHandler.maxAmountOfNameInList) {
+          channelHandler.sendMessage(Memebot.formatText("NAME_ADD_TOO_MANY", channelHandler, sender, this, true, Array(f"${channelHandler.maxAmountOfNameInList}")), this.getChannelOrigin)
+          success = false
+        }
+        else if (!this.checkCost(sender, cost * i + channelHandler.pointsPerUpdate, channelHandler)) {
           channelHandler.sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", channelHandler, sender, this, true, Array(f"${cost * i}")), this.getChannelOrigin)
         } else {
           if(i > 1) {
@@ -102,14 +106,14 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
           else {
               channelHandler.sendMessage(Memebot.formatText("NAME_ADD", channelHandler, sender, this, true, Array(data(0))), this.getChannelOrigin)
             }
-          sender.setPoints(sender.points - (cost * i  + channelHandler.pointsPerUpdate * amountOfNamesInList))
+          sender.setPoints(sender.points - (cost * i  + channelHandler.pointsPerUpdate))
           success = true
         }
       } else {
         channelHandler.sendMessage(Memebot.formatText("NAME_ADD_TOO_LONG", channelHandler, sender, this, true, Array(f"${channelHandler.maxFileNameLen}")), this.getChannelOrigin)
       }
       for (c <- 0 until i if success) {
-        channelHandler.getFileNameList.add(data(0) + "#" + sender.getUsername)
+        channelHandler.getFileNameList.add(data(0).replace("#", "") + "#" + sender.getUsername)
       }
       channelHandler.writeDBChannelData()
     } catch {

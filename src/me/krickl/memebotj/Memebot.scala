@@ -186,7 +186,6 @@ object Memebot {
     Memebot.debug = config.getProperty("debug", Memebot.debug.toString).toBoolean
     Memebot.useUpdateThread = config.getProperty("updatethread", Memebot.useUpdateThread.toString).toBoolean
 
-
 		if(Memebot.isBotMode) {
 			// shutdown hook
 			Runtime.getRuntime.addShutdownHook(new Thread() {
