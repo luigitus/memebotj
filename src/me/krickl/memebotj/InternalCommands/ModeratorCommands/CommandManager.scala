@@ -1,6 +1,7 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.CommandPower
 
 class CommandManager(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {

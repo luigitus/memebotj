@@ -9,6 +9,8 @@ import java.util
 import java.util.{Calendar, HashMap}
 import java.util.logging.Logger
 
+import me.krickl.memebotj.Services.Twitch.UserAPI
+import me.krickl.memebotj.Utility.{CommandPower, Cooldown}
 import org.bson.Document
 
 import com.mongodb.client.FindIterable
@@ -28,7 +30,8 @@ object UserHandler {
 
 /**
  * This class handles users
- * @author unlink
+  *
+  * @author unlink
  *
  */
 class UserHandler(usernameNew: String, channelNew: String) {
@@ -93,6 +96,8 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
   var removeCooldown: Cooldown = new Cooldown(0)
   var shouldBeRemoved = false
+
+  val twitchUserAPI = new UserAPI(this.username)
 
 	if (Memebot.useMongo) {
 		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
@@ -172,24 +177,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
 	}
 
 	def update(channelHandler: ChannelHandler = null) = {
-    //todo this causes issues
-    if (Memebot.isTwitchBot && !this.hasFollowed && this.username != "#internal#" && this.username != "#readonly#") {
-      val data = Memebot.readHttpRequest(f"https://api.twitch.tv/kraken/users/${this.username}/follows/channels/${this.channelOrigin.replace("#", "")}", 1000)
-      val parser = new JSONParser()
-      val obj = parser.parse(data).asInstanceOf[JSONObject]
-      val status = obj.get("status")
-      if (status == null) {
-
-        if (!hasFollowed && channelHandler != null) {
-          channelHandler.sendMessage(Memebot.formatText(channelHandler.followAnnouncement, channelHandler, this))
-        }
-
-        isFollowing = true
-        hasFollowed = true
-      } else if (status.toString == "404") {
-        isFollowing = false
-      }
-    }
+    twitchUserAPI.update(this, channelHandler)
 	}
 
   def sendAutogreet(channelHandler: ChannelHandler): Unit = {

@@ -1,6 +1,7 @@
 package me.krickl.memebotj.InternalCommands.FunCommands
 
-import me.krickl.memebotj.{CommandPower, ChannelHandler, CommandHandler, UserHandler}
+import me.krickl.memebotj.Utility.CommandPower
+import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 
 class PyramidCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
 	command, dbprefix) {

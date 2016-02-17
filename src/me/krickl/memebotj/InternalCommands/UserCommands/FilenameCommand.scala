@@ -3,6 +3,8 @@ package me.krickl.memebotj.InternalCommands.UserCommands
 import java.util.Random
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.CommandPower
+
 //remove if not needed
 import scala.collection.JavaConversions._
 

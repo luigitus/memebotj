@@ -2,7 +2,8 @@ package me.krickl.memebotj.InternalCommands.FunCommands
 
 import java.util.ArrayList
 
-import me.krickl.memebotj.{CommandPower, CommandHandler}
+import me.krickl.memebotj.CommandHandler
+import me.krickl.memebotj.Utility.CommandPower
 
 
 class BobRossCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,

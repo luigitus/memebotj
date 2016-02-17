@@ -1,6 +1,8 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.CommandPower
+
 //remove if not needed
 import scala.collection.JavaConversions._
 

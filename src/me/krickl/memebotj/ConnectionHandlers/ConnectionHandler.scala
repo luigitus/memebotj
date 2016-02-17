@@ -1,7 +1,7 @@
-package me.krickl.memebotj
+package me.krickl.memebotj.ConnectionHandlers
 
-import java.io.{DataOutputStream, BufferedReader}
-import java.net.Socket
+import me.krickl.memebotj.ChannelHandler
+import me.krickl.memebotj.Utility.MessagePackage
 
 /**
   * This file is part of memebotj.

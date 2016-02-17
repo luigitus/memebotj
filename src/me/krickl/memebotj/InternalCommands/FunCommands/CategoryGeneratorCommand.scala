@@ -2,7 +2,8 @@ package me.krickl.memebotj.InternalCommands.FunCommands
 
 import java.security.SecureRandom
 
-import me.krickl.memebotj.{Cooldown, UserHandler, ChannelHandler, CommandHandler}
+import me.krickl.memebotj.Utility.Cooldown
+import me.krickl.memebotj.{UserHandler, ChannelHandler, CommandHandler}
 
 import scala.util.Random
 

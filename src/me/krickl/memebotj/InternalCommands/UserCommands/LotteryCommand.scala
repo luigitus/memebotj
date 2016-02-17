@@ -1,6 +1,7 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.CommandPower
 
 import scala.util.Random
 

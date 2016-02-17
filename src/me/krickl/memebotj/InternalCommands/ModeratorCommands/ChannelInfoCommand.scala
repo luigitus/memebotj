@@ -5,6 +5,7 @@ import java.nio.charset.Charset
 import java.nio.file.{Paths, Files}
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.CommandPower
 
 class ChannelInfoCommand(channel: String, command: String, dbprefix: String)
 		extends CommandHandler(channel, command, dbprefix) {

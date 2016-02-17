@@ -1,6 +1,7 @@
 package me.krickl.memebotj.InternalCommands.AdminCommands
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.CommandPower
 import scala.collection.JavaConversions._
 
 class JoinCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,

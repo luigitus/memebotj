@@ -1,6 +1,7 @@
 package me.krickl.memebotj.InternalCommands.AdminCommands
 
-import me.krickl.memebotj.{CommandPower, Memebot}
+import me.krickl.memebotj.Memebot
+import me.krickl.memebotj.Utility.CommandPower
 
 /**
  * Created by unlink on 21/11/15.

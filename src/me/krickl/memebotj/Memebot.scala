@@ -42,6 +42,8 @@ import java.util
 import java.util.{Random, Calendar, Properties}
 import java.util.logging.Logger
 
+import me.krickl.memebotj.ConnectionHandlers.IRCConnectionHandler
+import me.krickl.memebotj.Utility.BuildInfo
 import org.bson.Document
 
 import com.mongodb.MongoClient
@@ -52,7 +54,8 @@ import com.mongodb.client.MongoDatabase
 
 /***
  * Memebot is a simpe irc bot for twitch.tv written in Scala
- * @author unlink
+  *
+  * @author unlink
  *
  */
 object Memebot {
@@ -317,7 +320,8 @@ object Memebot {
 		* {game}
 		* {curremote}
 		* {currname}
-		* @param fo format object
+    *
+    * @param fo format object
 		* @param channelHandler channelhandler
 		* @param sender sender
 		* @return

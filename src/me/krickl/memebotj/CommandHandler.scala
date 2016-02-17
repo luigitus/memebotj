@@ -8,6 +8,7 @@ import java.util.logging.Logger
 import java.util.{ArrayList, Calendar, HashMap, Random}
 
 import com.mongodb.client.{FindIterable, MongoCollection}
+import me.krickl.memebotj.Utility.{CommandPower, Cooldown}
 import org.bson.Document
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
@@ -408,6 +409,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   /***
     * This method will always be called before the database load and can be used to init a class
+    *
     * @param channelHandler
     */
   protected def beforeDBLoad(channelHandler: ChannelHandler = null): Unit = {

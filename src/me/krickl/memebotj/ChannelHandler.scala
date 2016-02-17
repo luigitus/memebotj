@@ -10,11 +10,13 @@ import java.util.{ArrayList, Arrays, HashMap}
 
 import com.mongodb.Block
 import com.mongodb.client.MongoCollection
+import me.krickl.memebotj.ConnectionHandlers.ConnectionHandler
 import me.krickl.memebotj.InternalCommands.AdminCommands._
 import me.krickl.memebotj.InternalCommands.FunCommands._
 import me.krickl.memebotj.InternalCommands.ModeratorCommands._
 import me.krickl.memebotj.InternalCommands.UserCommands._
 import me.krickl.memebotj.InternalCommands._
+import me.krickl.memebotj.Utility.{Localisation, Cooldown}
 import org.bson.Document
 import org.json.simple.JSONObject
 import org.json.simple.parser.{JSONParser, ParseException}
@@ -46,10 +48,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   @BeanProperty
   var followerNotification: String = ""
   @BeanProperty
-  var channelInfoURL: String = "https://api.twitch.tv/kraken/channels/" + this.broadcaster
-  @BeanProperty
-  var channelFollowersURL: String = channelInfoURL + "/follows/?limit="
-  @BeanProperty
   var raceBaseURL: String = "http://kadgar.net/live"
   @BeanProperty
   var greetMessage: String = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz"
@@ -76,9 +74,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var channelPageBaseURL: String = Memebot.webBaseURL + this.broadcaster
   @BeanProperty
   var htmlDir: String = Memebot.htmlDir + "/" + this.broadcaster
-  @BeanProperty
-  var youtubeAPIURL: String = "https://www.googleapis.com/youtube/v3/videos?id={videoid}&part=contentDetails&key=" +
-    Memebot.youtubeAPIKey
   @BeanProperty
   var otherLoadedChannels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
   @BeanProperty
@@ -137,6 +132,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var maxScreenNameLen = 15
   var maxAmountOfNameInList = 25
   var pointsTax: Double = 0
+  val twitchChannelAPI = new Services.Twitch.ChannelAPI(this.broadcaster)
 
   broadcasterHandler.isUserBroadcaster = true
 
@@ -328,56 +324,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     if (this.updateCooldown.canContinue) {
       this.updateCooldown.startCooldown()
 
-      //twitch update
-      try {
-        if(Memebot.isTwitchBot) {
-          val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/streams/" + this.broadcaster)
-          val parser = new JSONParser()
-          val obj = parser.parse(data).asInstanceOf[JSONObject]
-          val isOnline = obj.get("stream")
-          if (isOnline == null) {
-            ChannelHandler.getLog.info(String.format("Stream %s is offline", this.channel))
-            this.isLive = false
-            this.streamStartTime = -1
-          } else {
-            ChannelHandler.getLog.info(String.format("Stream %s is live", this.channel))
-            if (this.isLive) {
-              this.streamStartTime = System.currentTimeMillis()
-            }
-            this.isLive = true
-          }
-        } else {
-          this.isLive = true
-          this.streamStartTime = -1
-        }
-      } catch {
-        case e: MalformedURLException => e.printStackTrace()
-        case e: IOException => e.printStackTrace()
-        case e: ParseException => e.printStackTrace()
-      }
-
-      //get game
-      try {
-        if(Memebot.isTwitchBot) {
-          val data = Memebot.readHttpRequest(this.channelInfoURL)
-
-          val parser = new JSONParser()
-          val obj = parser.parse(data).asInstanceOf[JSONObject]
-          this.currentGame = obj.get("game").asInstanceOf[String]
-          if (this.currentGame == null) {
-            this.currentGame = "Not Playing"
-          }
-        } else {
-          this.currentGame = ""
-        }
-      } catch {
-        case e: MalformedURLException => e.printStackTrace()
-        case e: IOException => e.printStackTrace()
-        case e: ParseException => e.printStackTrace()
-      }
-
-      //get follower list
-
+      //update channel api information
+      twitchChannelAPI.update(this)
 
       this.writeDBChannelData()
       this.writeHTML()

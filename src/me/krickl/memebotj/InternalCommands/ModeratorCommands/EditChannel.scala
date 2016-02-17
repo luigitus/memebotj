@@ -1,6 +1,8 @@
 package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.{CommandPower, Localisation}
+
 //remove if not needed
 
 class EditChannel(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,

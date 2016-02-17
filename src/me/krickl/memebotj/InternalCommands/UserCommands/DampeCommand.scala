@@ -4,6 +4,7 @@ import java.security.SecureRandom
 import java.util.Random
 
 import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.CommandPower
 
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {

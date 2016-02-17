@@ -1,15 +1,15 @@
-package me.krickl.memebotj
+package me.krickl.memebotj.ConnectionHandlers
 
-import java.io.BufferedReader
-import java.io.DataOutputStream
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.Socket
-import java.net.UnknownHostException
+import java.io.{BufferedReader, DataOutputStream, IOException, InputStreamReader}
+import java.net.{Socket, UnknownHostException}
 import java.util.Scanner
 import java.util.logging.Logger
-import scala.util.control.Breaks._
+
+import me.krickl.memebotj._
+import me.krickl.memebotj.Utility.{CommandPower, MessagePackage, Cooldown}
+
 import scala.collection.JavaConversions._
+import scala.util.control.Breaks._
 
 object IRCConnectionHandler {
   final var log: Logger = Logger.getLogger(IRCConnectionHandler.getClass.getName)
@@ -23,7 +23,7 @@ class IRCConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, 
 	var ircSocket: Socket = _
 	var inFromServer: BufferedReader = _
 	var outToServer: DataOutputStream = _
-  var debugMode: Boolean = false
+  var debugMode: Boolean =false
 
 	try {
 		this.ircSocket = new Socket(server, port)
