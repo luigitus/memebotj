@@ -393,19 +393,20 @@ object Memebot {
     }
 
     if(formattedOutput.isEmpty && !containsNone && Memebot.debug) {
-      formattedOutput = f"NO_OUTPUT_ERROR(sender = $sender, channelHandler = $channelHandler, commandHandler = $commandHandler)"
+      formattedOutput = f"NO_OUTPUT_ERR(sender = $sender, channelHandler = $channelHandler, commandHandler = $commandHandler)"
     }
 
 		formattedOutput
 	}
 
-  def readHttpRequest(urlstring: String): String = {
+  def readHttpRequest(urlstring: String, timeout: Int = 5000): String = {
     var url: URL = null
     var connection: HttpURLConnection = null
     var data = ""
     var in: BufferedReader = null
     try {
       url = new URL(urlstring)
+			connection.setConnectTimeout(timeout)
       connection = url.openConnection().asInstanceOf[HttpURLConnection]
       val isError = connection.getResponseCode >= 400
 

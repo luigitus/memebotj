@@ -72,6 +72,10 @@ class EditChannel(channel: String, command: String, dbprefix: String) extends Co
         } else {
           channelHandler.followAnnouncement = ""
         }
+      } else if(data(0) == "tax") {
+				channelHandler.pointsTax = data(1).asInstanceOf[Double]
+			} else if(data(0) == "maxname") {
+        channelHandler.maxAmountOfNameInList = data(1).asInstanceOf[Int]
       }
 			channelHandler.sendMessage(Memebot.formatText(channelHandler.localisation.localisedStringFor("EDIT_CHANNEL_OK"), channelHandler, sender, this, false, Array(sender.getUsername, data(0), data(1))), this.getChannelOrigin)
 			channelHandler.writeDBChannelData()

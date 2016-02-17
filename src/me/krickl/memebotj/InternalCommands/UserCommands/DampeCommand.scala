@@ -87,7 +87,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
 
     } else if (outcome <= 50) {
-      val price = 10 * (Math.sqrt(wage) * 5)
+      val price = 10 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
       if (sender.setPoints(sender.points + price + wage)) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_1", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
       } else {
@@ -96,7 +96,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 200) {
-      val price = 3 * (Math.sqrt(wage) * 5)
+      val price = 3 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
       if (sender.setPoints(sender.points + price + wage)) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_2", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
       } else {

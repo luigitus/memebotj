@@ -47,6 +47,13 @@ object CommandHandler {
 
     false
   }
+
+  def hasNeededParameters(data: Array[String], neededParams: Int): Int = {
+    if(data.length >= neededParams) {
+      return data.length
+    }
+    -1
+  }
 }
 
 /** *
@@ -313,17 +320,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         case e: ArrayIndexOutOfBoundsException =>
           e.printStackTrace()
         case e: NumberFormatException => e.printStackTrace()
-      }
-    } else if (this.cmdtype == "raffel") {
-      // todo guessing game - use list content to save guesses
-      if(data(1) == "start") {
-        // todo clear list add output
-      } else if(data(1) == "keyword") {
-        // todo set keyword
-      } else if (data(1) == "end") {
-        // todo add end conditions -> winner is first person to have said the keyword or a random user
-      } else {
-        // todo add username and keyword to the list
       }
     }
 

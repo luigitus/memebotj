@@ -45,7 +45,7 @@ class PointsCommand(channel: String, command: String, dbprefix: String) extends 
 						if(number < 1) {
 							return
 						}
-						val tax = number / 100 * 10
+						val tax = channelHandler.pointsTax // tax is currently 0
 						if (data(0) == "send") {
 							if (this.checkCost(sender, number + tax, channelHandler)) {
 								sender.setPoints(sender.points - (number + tax))

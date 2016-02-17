@@ -135,7 +135,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var currencyEmote = "points"
   var followAnnouncement = ""
   var maxScreenNameLen = 15
-  var maxAmountOfNameInList = 250
+  var maxAmountOfNameInList = 25
+  var pointsTax: Double = 0
 
   broadcasterHandler.isUserBroadcaster = true
 
@@ -215,6 +216,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   this.internalCommands.add(new RestartThreadCommand(this.channel, "!restartt", "#internal#"))
 
   this.internalCommands.add(new CategoryGeneratorCommand(this.channel, "!category", "#internal#"))
+
+  this.internalCommands.add(new LotteryCommand(this.channel, "!lottery", "#internal#"))
 
   @BeanProperty
   var spamPrevention = false
@@ -613,6 +616,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("followannouncement", this.followAnnouncement)
       .append("maxscreennamelen", this.maxScreenNameLen)
       .append("maxnameinlist", this.maxAmountOfNameInList)
+      .append("pointstax", this.pointsTax)
     try {
       if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
         null) {
@@ -626,210 +630,80 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  def handleMessage(rawircmsg: String) {
-    var senderName = ""
-    val ircTags = new java.util.HashMap[String, String]()
-    var msgContent: Array[String] = null
-    val ircmsgBuffer = rawircmsg.split(" ")
-    var messageType = "UNDEFINED"
-    var i = 0
-    i = 0
-    while (i < ircmsgBuffer.length) {
-      val msg = ircmsgBuffer(i)
-      if ((msg == "PRIVMSG" || msg == "MODE" || msg == "PART" || msg == "JOIN" || msg == "CLEARCHAT") && messageType == "UNDEFINED") {
-        messageType = msg
-      }
-      if (msg.charAt(0) == '@' && i == 0) {
-        val tagList = msg.split(";")
-        for (tag <- tagList) {
-          try {
-            ircTags.put(tag.split("=")(0), tag.split("=")(1))
-          } catch {
-            case e: ArrayIndexOutOfBoundsException =>
-          }
-        }
-      } else if (i == 0 || (i == 1 && senderName.isEmpty)) {
-        var exclaReached = false
-        breakable {
-          for (j <- 0 until msg.length) {
-            if (msg.charAt(j) == '!') {
-              exclaReached = true
-              break
-            }
-            if (msg.charAt(j) != ':') {
-              senderName = senderName + msg.charAt(j)
-            }
-          }
-        }
-        if (!exclaReached) {
-          senderName = "#internal#"
+  def handleMessage(rawmessage: String): Unit = {
+    val msgPackage = connection.handleMessage(rawmessage, this)
+
+    if(msgPackage == null) { return }
+
+    val msgContent = msgPackage.messageContent
+    val sender = msgPackage.sender
+    val msgType = msgPackage.messageType
+
+    if(msgType != "PRIVMSG") { return }
+
+    val msg = msgContent(0)
+    val data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length)
+    if(this.purgeURLS) {
+      for(username <- Memebot.globalBanList) {
+        if(sender.username == username && !sender.isModerator) {
+          this.sendMessage("/ban " + sender.username)
+          this.sendMessage(f"Banned ${sender.username} for being in the global ban list")
         }
       }
-      if (messageType == "PRIVMSG" && i > 3) {
-        if (i == 4) {
-          msgContent = Array.ofDim[String](ircmsgBuffer.length - 4)
-          msgContent(i - 4) = msg.substring(1)
-        } else {
-          msgContent(i - 4) = msg
+
+      for(message <- Memebot.urlBanList) {
+        if(rawmessage.contains(message)) {
+          this.sendMessage("/timeout " + sender.username + " 1")
         }
       }
-      i += 1
-    }
-    if(!this.userList.containsKey(senderName) && !senderName.isEmpty) {
-      val newUser = new UserHandler(senderName, this.channel)
-      this.userList.put(senderName, newUser)
+
+      for(message <- Memebot.phraseBanList) {
+        if(rawmessage.contains(message)) {
+          this.sendMessage("/timeout " + sender.username + " 1")
+        }
+      }
     }
 
-    val sender = this.userList.get(senderName)
-    //todo make sure sender is not removed
-    sender.shouldBeRemoved = false
+    //channel commands
+    var p = this.findCommand(msg)
+    if (p != -1) {
+      if (!this.channelCommands.get(p).getTexttrigger) {
+        this.channelCommands.get(p).executeCommand(sender, this, data, userList)
+      }
+    }
 
-    if (messageType != "PRIVMSG") {
-      val ircmsgList = rawircmsg.split(" ")
-      if (ircmsgList(1) == null) {
-        return
-      }
-      if (ircmsgList(1) == "MODE") {
-        var user: UserHandler = null
-        if (!this.userList.containsKey(ircmsgList(4))) {
-          user = new UserHandler(ircmsgList(4), this.channel)
-          this.userList.put(senderName, user)
-        } else {
-          user = this.userList.get(ircmsgList(4))
-        }
-        if (user != null) {
-          if (ircmsgList(3) == "+o") {
-            user.isModerator = true
-            if (!user.isUserBroadcaster) {
-              user.setCommandPower(CommandPower.modAbsolute)
-            }
-          } else {
-            user.isModerator = false
-            user.setCommandPower(CommandPower.viewer)
-          }
-        }
-      } else if (ircmsgList(1) == "PART") {
-        if (sender != null) {
-          //todo mark user for removal 5 minutes after part message
-          if (this.userList.containsKey(sender.getUsername)) {
-            //this.userList.get(sender.getUsername).writeDBUserData()
-            //this.userList.remove(sender.getUsername)
-            sender.shouldBeRemoved = true
-            sender.removeCooldown = new Cooldown(300)
-          }
-        }
-      } else if (ircmsgList(1) == "JOIN") {
-        if (sender != null) {
-          //send autogreet if the channel allows autogreets
-          if (this.allowAutogreet && sender.getAutogreet != "") {
-            sender.sendAutogreet(this)
-          }
-        }
-      } else if (ircmsgList(1) == "CLEARCHAT") {
-        try {
-          if (this.userList.containsKey(ircmsgList(3).replace(":", ""))) {
-            this.userList.get(ircmsgList(3).replace(":", "")).setTimeouts(this.userList.get(ircmsgList(3).replace(":",
-              "")).getTimeouts +
-              1)
-            this.userList.get(ircmsgList(3).replace(":", "")).writeDBUserData()
-          } else {
-            val uh = new UserHandler(ircmsgList(3).replace(":", ""), this.channel)
-            if (!uh.newUser) {
-              uh.setTimeouts(uh.getTimeouts + 1)
-              uh.writeDBUserData()
-            }
-          }
-        } catch {
-          case e: ArrayIndexOutOfBoundsException => e.printStackTrace()
-        }
-      }
-    } else {
-      if (ircTags.containsKey("user-type")) {
-        if (ircTags.get("user-type") == "mod" && !sender.isUserBroadcaster) {
-          sender.setIsModerator(true)
-          sender.setCommandPower(CommandPower.modAbsolute)
-        } else if (!sender.isUserBroadcaster) {
-          sender.setIsModerator(false)
-          sender.setCommandPower(CommandPower.viewerAbsolute)
-        }
-      } else {
-        sender.setIsModerator(false)
-        sender.setCommandPower(CommandPower.viewerAbsolute)
-      }
-      if (sender.getUsername.equalsIgnoreCase(this.broadcaster)) {
-        sender.setIsModerator(true)
-        sender.isUserBroadcaster = true
-        sender.setCommandPower(CommandPower.broadcasterAbsolute)
-      }
-      for (user <- Memebot.botAdmins) {
-        if (user.equalsIgnoreCase(sender.getUsername)) {
-          sender.setCommandPower(CommandPower.adminAbsolute)
-        }
-      }
-      val msg = msgContent(0)
-      val data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length)
-      if(this.purgeURLS) {
-        for(username <- Memebot.globalBanList) {
-          if(sender.username == username && !sender.isModerator) {
-            this.sendMessage("/ban " + sender.username)
-            this.sendMessage(f"Banned ${sender.username} for being in the global ban list")
-          }
-        }
+    //text triggers
+    for (s <- msgContent) {
+      p = this.findCommand(s)
 
-        for(message <- Memebot.urlBanList) {
-          if(rawircmsg.contains(message)) {
-            this.sendMessage("/timeout " + sender.username + " 1")
-          }
-        }
-
-        for(message <- Memebot.phraseBanList) {
-          if(rawircmsg.contains(message)) {
-            this.sendMessage("/timeout " + sender.username + " 1")
-          }
-        }
-      }
-
-      //channel commands
-      var p = this.findCommand(msg)
       if (p != -1) {
-        if (!this.channelCommands.get(p).getTexttrigger) {
-          this.channelCommands.get(p).executeCommand(sender, this, data, userList)
+        val ch = this.channelCommands.get(p)
+        if (ch.texttrigger) {
+          ch.executeCommand(sender, this, Array(""), userList)
         }
       }
-
-      //text triggers
-      for (s <- msgContent) {
-        p = this.findCommand(s)
-
-        if (p != -1) {
-          val ch = this.channelCommands.get(p)
-          if (ch.texttrigger) {
-            ch.executeCommand(sender, this, Array(""), userList)
-          }
-        }
-      }
-
-      //other channel's commands
-      for (ch <- Memebot.joinedChannels; och <- this.otherLoadedChannels) {
-        val channel = ch.getBroadcaster
-        if (ch.getChannel == och || ch.getBroadcaster == och) {
-          p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))
-          if (p != -1 && msg.contains(channel)) {
-            ch.getChannelCommands.get(p).executeCommand(readOnlyUser, this, data, userList)
-          }
-        }
-      }
-
-      //internal commands
-      p = this.findCommand(msg, this.internalCommands)
-      if (p != -1) {
-        val ch = this.internalCommands.get(p)
-        ch.executeCommand(sender, this, java.util.Arrays.copyOfRange(data, 1, data.length), userList)
-      }
-
-      //set user activity
-      sender.timeSinceActivity = System.currentTimeMillis()
     }
+
+    //other channel's commands
+    for (ch <- Memebot.joinedChannels; och <- this.otherLoadedChannels) {
+      val channel = ch.getBroadcaster
+      if (ch.getChannel == och || ch.getBroadcaster == och) {
+        p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))
+        if (p != -1 && msg.contains(channel)) {
+          ch.getChannelCommands.get(p).executeCommand(readOnlyUser, this, data, userList)
+        }
+      }
+    }
+
+    //internal commands
+    p = this.findCommand(msg, this.internalCommands)
+    if (p != -1) {
+      val ch = this.internalCommands.get(p)
+      ch.executeCommand(sender, this, java.util.Arrays.copyOfRange(data, 1, data.length), userList)
+    }
+
+    //set user activity
+    sender.timeSinceActivity = System.currentTimeMillis()
   }
 
   def sendMessage(msg: String, channel: String = this.channel, sender: UserHandler = new UserHandler("#internal#", this.channel)) {
@@ -939,6 +813,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.followAnnouncement = channelData.getOrDefault("followannouncement", this.followAnnouncement.asInstanceOf[Object]).toString
       this.maxScreenNameLen = channelData.getOrDefault("maxscreennamelen", this.maxScreenNameLen.asInstanceOf[Object]).asInstanceOf[Int]
       this.maxAmountOfNameInList = channelData.getOrDefault("maxnameinlist", this.maxScreenNameLen.asInstanceOf[Object]).asInstanceOf[Int]
+      this.pointsTax = channelData.getOrDefault("pointstax", this.pointsTax.asInstanceOf[Object]).asInstanceOf[Double]
     }
     val commandCollection = Memebot.db.getCollection(this.channel + "_commands")
     val comms = commandCollection.find()
