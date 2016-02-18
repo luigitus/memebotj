@@ -11,7 +11,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setHelptext(Memebot.formatText("DAMPE_SYNTAX", channelOriginHandler, null, this, true, Array()))
 
-  this.setUserCooldownLen(40)
+  this.setUserCooldownLen(90)
 
   this.setListContent(new java.util.ArrayList[String]())
 
@@ -74,9 +74,13 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     val ran = new SecureRandom()
     val range = 1000
     val outcome = ran.nextInt(range) //- wage.toInt / 4)
+    var offlineModifier = 1
+    if(!channelHandler.isLive) {
+      offlineModifier = 4
+    }
 
     //outcomes of dampe
-    if (outcome <= 5) {
+    if (outcome <= 3 && channelHandler.isLive) {
       if (sender.setPoints(sender.points + this.getJackpot + wage)) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
         this.setJackpot(0)
@@ -87,7 +91,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
 
-    } else if (outcome <= 50) {
+    } else if (outcome <= (40 / offlineModifier)) {
       val price = 10 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
       if (sender.setPoints(sender.points + price + wage)) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_1", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
@@ -96,7 +100,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
-    } else if (outcome <= 200) {
+    } else if (outcome <= (180 / offlineModifier)) {
       val price = 3 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
       if (sender.setPoints(sender.points + price + wage)) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_2", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
