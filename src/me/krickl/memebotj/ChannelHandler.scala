@@ -355,6 +355,10 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
+  /***
+    * @deprecated This function will soon be removed in favour of a fully fledged web UI as was originally planned
+    */
+  @Deprecated
   def writeHTML() {
     if (!Memebot.useWeb) {
       return

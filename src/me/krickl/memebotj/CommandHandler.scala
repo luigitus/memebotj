@@ -271,7 +271,17 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             }
           } catch {
             case e: NumberFormatException =>
-              formattedOutput = Memebot.formatText("NOFE", channelHandler, sender, this, true, Array())
+              //formattedOutput = Memebot.formatText("NOFE", channelHandler, sender, this, true, Array())
+              // find string in list content
+              formattedOutput = Memebot.formatText("QUERY_NOT_FOUND", channelHandler, sender, this, true, Array())
+              val query = util.Arrays.copyOfRange(data, 1, data.length).mkString(" ")
+              var number = 0
+              for(str <- listContent) {
+                if(str.contains(query)) {
+                  formattedOutput = this.quotePrefix.replace("{number}", number.toString) + str + this.quoteSuffix.replace("{number}", number.toString)
+                  number += 1
+                }
+              }
             case e: IndexOutOfBoundsException =>
               formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, Array(f"${Integer.toString(this.listContent.size())}"))
           }

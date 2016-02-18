@@ -217,6 +217,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
     result
 	}
 
+  @Deprecated
   def setCommandPower(commandPower: Int) = {
     this.commandPower_=(commandPower)
   }
@@ -226,6 +227,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
 		this._commandPower = commandPower + this.customCommandPower
 	}
 
+  @Deprecated
   def setAutoCommandPower(autoCommandPower: Int) = {
     this.autoCommandPower_=(autoCommandPower)
   }

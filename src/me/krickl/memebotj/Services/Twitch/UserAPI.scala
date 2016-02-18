@@ -11,7 +11,7 @@ import org.json.simple.parser.JSONParser
 class UserAPI(user: String) {
   def update(userHanlder: UserHandler, channelHandler: ChannelHandler = null): Unit = {
     //todo this causes issues
-    if (Memebot.isTwitchBot && !userHanlder.hasFollowed && userHanlder.username != "#internal#" && userHanlder.username != "#readonly#") {
+    if (Memebot.isTwitchBot && !userHanlder.hasFollowed && userHanlder.username != "#internal#" && userHanlder.username != "#readonly#" && Memebot.debug) {
       val data = Memebot.readHttpRequest(f"https://api.twitch.tv/kraken/users/${userHanlder.username}/follows/channels/${userHanlder.channelOrigin.replace("#", "")}", 1000)
       val parser = new JSONParser()
       val obj = parser.parse(data).asInstanceOf[JSONObject]
