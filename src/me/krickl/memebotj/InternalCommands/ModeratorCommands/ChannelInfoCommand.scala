@@ -2,19 +2,19 @@ package me.krickl.memebotj.InternalCommands.ModeratorCommands
 
 import java.io.IOException
 import java.nio.charset.Charset
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
 
-import me.krickl.memebotj._
 import me.krickl.memebotj.Utility.CommandPower
+import me.krickl.memebotj._
 
 class ChannelInfoCommand(channel: String, command: String, dbprefix: String)
-		extends CommandHandler(channel, command, dbprefix) {
+  extends CommandHandler(channel, command, dbprefix) {
 
-	this.setNeededCommandPower(CommandPower.adminAbsolute)
+  this.setNeededCommandPower(CommandPower.adminAbsolute)
 
-	override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
-		try {
-      if(data(0) == "reload") {
+  override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) {
+    try {
+      if (data(0) == "reload") {
         Memebot.urlBanList = Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
           Charset.defaultCharset()).asInstanceOf[java.util.ArrayList[String]]
 
@@ -34,5 +34,5 @@ class ChannelInfoCommand(channel: String, command: String, dbprefix: String)
         e.printStackTrace()
         channelHandler.sendMessage(e.toString)
     }
-	}
+  }
 }

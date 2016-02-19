@@ -5,8 +5,8 @@ import java.net.{Socket, UnknownHostException}
 import java.util.Scanner
 import java.util.logging.Logger
 
+import me.krickl.memebotj.Utility.{CommandPower, Cooldown, MessagePackage}
 import me.krickl.memebotj._
-import me.krickl.memebotj.Utility.{CommandPower, MessagePackage, Cooldown}
 
 import scala.collection.JavaConversions._
 import scala.util.control.Breaks._
@@ -16,84 +16,86 @@ object IRCConnectionHandler {
 }
 
 class IRCConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, passwordNew: String) extends ConnectionHandler() {
-	override val server: String = serverNew
+  override val server: String = serverNew
   override val botNick: String = botNickNew
   override val password: String = passwordNew
   override val port: Int = portNew
-	var ircSocket: Socket = _
-	var inFromServer: BufferedReader = _
-	var outToServer: DataOutputStream = _
-  var debugMode: Boolean =false
+  var ircSocket: Socket = _
+  var inFromServer: BufferedReader = _
+  var outToServer: DataOutputStream = _
+  var debugMode: Boolean = false
 
-	try {
-		this.ircSocket = new Socket(server, port)
-	} catch {
-	  case e: UnknownHostException =>
-		  e.printStackTrace()
-	}
-	if(ircSocket != null) {
-		this.inFromServer = new BufferedReader(new InputStreamReader(this.ircSocket.getInputStream, "UTF-8"))
+  try {
+    this.ircSocket = new Socket(server, port)
+  } catch {
+    case e: UnknownHostException =>
+      e.printStackTrace()
+  }
+  if (ircSocket != null) {
+    this.inFromServer = new BufferedReader(new InputStreamReader(this.ircSocket.getInputStream, "UTF-8"))
 
-	  this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream)
+    this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream)
 
-		IRCConnectionHandler.log.info(f"Connectiong to server $server with username $botNick on $port\n")
+    IRCConnectionHandler.log.info(f"Connectiong to server $server with username $botNick on $port\n")
 
-		this.outToServer.writeBytes("PASS " + this.password + "\n")
-		this.outToServer.writeBytes("NICK " + this.botNick + "\n")
+    this.outToServer.writeBytes("PASS " + this.password + "\n")
+    this.outToServer.writeBytes("NICK " + this.botNick + "\n")
     this.sendMessageBytes("CAP REQ :twitch.tv/membership\n")
     this.sendMessageBytes("CAP REQ :twitch.tv/commands\n")
     this.sendMessageBytes("CAP REQ :twitch.tv/tags\n")
 
-	} else {
-		debugMode = true
-	}
+  } else {
+    debugMode = true
+  }
 
-	@throws[IOException]()
-	override def ping() {
-		this.outToServer.writeBytes("PING :PONG\n")
-	}
+  @throws[IOException]()
+  override def ping() {
+    this.outToServer.writeBytes("PING :PONG\n")
+  }
 
-	@throws[IOException]()
+  @throws[IOException]()
   override def recvData(): Array[String] = {
-	  var ircmsg = ""
-		if(this.debugMode) {
-			val input = new Scanner(System.in)
-			ircmsg = input.nextLine()
-		} else {
-			ircmsg = this.inFromServer.readLine().replace("\n", "").replace("\r", "")
-		}
-		var channel = ""
-		val hashIndex = ircmsg.indexOf(" #")
+    var ircmsg = ""
+    if (this.debugMode) {
+      val input = new Scanner(System.in)
+      ircmsg = input.nextLine()
+    } else {
+      ircmsg = this.inFromServer.readLine().replace("\n", "").replace("\r", "")
+    }
+    var channel = ""
+    val hashIndex = ircmsg.indexOf(" #")
 
-		if (hashIndex > 0) {
-			breakable { for(i <- hashIndex + 1 to ircmsg.length() - 1) {
-				if (ircmsg.charAt(i) != ' ') {
-					channel = channel + ircmsg.charAt(i)
-				} else {
-					break()
-				}
-			} }
-		}
+    if (hashIndex > 0) {
+      breakable {
+        for (i <- hashIndex + 1 to ircmsg.length() - 1) {
+          if (ircmsg.charAt(i) != ' ') {
+            channel = channel + ircmsg.charAt(i)
+          } else {
+            break()
+          }
+        }
+      }
+    }
 
-		IRCConnectionHandler.log.info("<" + channel + "> " + ircmsg)
+    IRCConnectionHandler.log.info("<" + channel + "> " + ircmsg)
 
-		if (ircmsg.contains("PING :")) {
-			this.ping()
-		}
+    if (ircmsg.contains("PING :")) {
+      this.ping()
+    }
 
-		val returnArray: Array[String] = Array(channel, ircmsg)
-		returnArray
-	}
+    val returnArray: Array[String] = Array(channel, ircmsg)
+    returnArray
+  }
 
-  /***
+  /** *
     * This method handles the parsing of IRC messages. It is part of the connectionhandler to make
     * memebot adaptable to new protocols in the future
- *
+    *
     * @param rawircmsg
     * @param channelHandler
     * @return
     */
-	override def handleMessage(rawircmsg: String, channelHandler: ChannelHandler): MessagePackage = {
+  override def handleMessage(rawircmsg: String, channelHandler: ChannelHandler): MessagePackage = {
     var senderName = ""
     val ircTags = new java.util.HashMap[String, String]()
     var msgContent: Array[String] = null
@@ -142,7 +144,7 @@ class IRCConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, 
       }
       i += 1
     }
-    if(!channelHandler.userList.containsKey(senderName) && !senderName.isEmpty) {
+    if (!channelHandler.userList.containsKey(senderName) && !senderName.isEmpty) {
       val newUser = new UserHandler(senderName, channelHandler.channel)
       channelHandler.userList.put(senderName, newUser)
     }
@@ -234,20 +236,20 @@ class IRCConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, 
     }
 
     new MessagePackage(msgContent, sender, messageType)
-	}
+  }
 
-	override def close() = {
-		try {
-			this.outToServer.close()
-			this.inFromServer.close()
-			this.ircSocket.close()
-		} catch {
-			case  e: IOException =>
-				e.printStackTrace()
-		}
-	}
+  override def close() = {
+    try {
+      this.outToServer.close()
+      this.inFromServer.close()
+      this.ircSocket.close()
+    } catch {
+      case e: IOException =>
+        e.printStackTrace()
+    }
+  }
 
-	override def sendMessage(msg: String): Unit = {
+  override def sendMessage(msg: String): Unit = {
     outToServer.flush()
     outToServer.write(msg.getBytes("UTF-8"))
   }

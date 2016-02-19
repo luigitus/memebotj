@@ -1,81 +1,71 @@
 package me.krickl.memebotj
 
-import java.io.{FileNotFoundException, InputStreamReader, BufferedReader}
 import java.math.BigInteger
-import java.net.{HttpURLConnection, URL}
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
 import java.util
-import java.util.{Calendar, HashMap}
+import java.util.Calendar
 import java.util.logging.Logger
 
+import com.mongodb.client.{FindIterable, MongoCollection}
 import me.krickl.memebotj.Services.Twitch.UserAPI
 import me.krickl.memebotj.Utility.{CommandPower, Cooldown}
 import org.bson.Document
-
-import com.mongodb.client.FindIterable
-import com.mongodb.client.MongoCollection
-import org.json.simple.JSONObject
-import org.json.simple.parser.JSONParser
 
 import scala.beans.BeanProperty
 
 //remove if not needed
 import scala.collection.JavaConversions._
-import scala.util.control.Breaks._
 
 object UserHandler {
-	final var log = Logger.getLogger(UserHandler.getClass.getName)
+  final var log = Logger.getLogger(UserHandler.getClass.getName)
 }
 
 /**
- * This class handles users
+  * This class handles users
   *
   * @author unlink
- *
- */
-class UserHandler(usernameNew: String, channelNew: String) {
+  *
+  */
+class UserHandler(@BeanProperty var username: String, @BeanProperty var channelOrigin: String) {
   @BeanProperty
-	var isModerator: Boolean = false
+  var isModerator: Boolean = false
   @BeanProperty
-	var isUserBroadcaster: Boolean = false
-	//private boolean execCommands = true
+  var isUserBroadcaster: Boolean = false
+  //private boolean execCommands = true
   @BeanProperty
-	var newUser: Boolean = false
-	@BeanProperty
+  var newUser: Boolean = false
+  @BeanProperty
   var nickname = ""
-	var _commandPower : Int = CommandPower.viewerAbsolute
-	var _autoCommandPower : Int = CommandPower.viewerAbsolute
+  var _commandPower: Int = CommandPower.viewerAbsolute
+  var _autoCommandPower: Int = CommandPower.viewerAbsolute
   @BeanProperty
-	var customCommandPower: Int = 0
-  @BeanProperty
-  var username = usernameNew
-  @BeanProperty
-	var channelOrigin: String = channelNew
-	private var _points: Double = 0.0f
+  var customCommandPower: Int = 0
+  private var _points: Double = 0.0f
 
   def points = _points
-	// private boolean isJoined = false
+
+  // private boolean isJoined = false
   @BeanProperty
-	var userCooldown = new Cooldown(0)
+  var userCooldown = new Cooldown(0)
   @BeanProperty
-	var autogreet: String = ""
+  var autogreet: String = ""
   @BeanProperty
-	var timeouts: Int = 0
+  var timeouts: Int = 0
   @BeanProperty
-	var userCollection: MongoCollection[Document] = null
+  var userCollection: MongoCollection[Document] = null
   @BeanProperty
-	var userCommandCooldowns: java.util.HashMap[String, Cooldown] = new java.util.HashMap[String, Cooldown]()
+  var userCommandCooldowns: java.util.HashMap[String, Cooldown] = new java.util.HashMap[String, Cooldown]()
   @BeanProperty
-	var modNote: String = ""
+  var modNote: String = ""
   @BeanProperty
-	var random = new SecureRandom()
+  var random = new SecureRandom()
   @BeanProperty
-	var privateKey = new BigInteger(130, random).toString(32)
+  var privateKey = new BigInteger(130, random).toString(32)
 
   @BeanProperty
   var dateJoined = "null"
-	@BeanProperty
+  @BeanProperty
   var timeStampJoined = System.currentTimeMillis()
 
   @BeanProperty
@@ -83,9 +73,9 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
   //this will be used for spam prevention
   @BeanProperty
-	var lastMessages = Array.ofDim[String](10)
+  var lastMessages = Array.ofDim[String](10)
 
-	var timeSinceActivity = System.currentTimeMillis()
+  var timeSinceActivity = System.currentTimeMillis()
 
   var walletSize: Double = -1
 
@@ -99,71 +89,71 @@ class UserHandler(usernameNew: String, channelNew: String) {
 
   val twitchUserAPI = new UserAPI(this.username)
 
-	if (Memebot.useMongo) {
-		this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
-	}
+  if (Memebot.useMongo) {
+    this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users")
+  }
 
-	readDBUserData()
+  readDBUserData()
 
-  if(dateJoined == "null") {
-    val sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a")// dd/MM/yyyy
+  if (dateJoined == "null") {
+    val sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a") // dd/MM/yyyy
     val cal = Calendar.getInstance()
     this.dateJoined = sdfDate.format(cal.getTime)
   }
 
-	setCommandPower(this._autoCommandPower)
+  setCommandPower(this._autoCommandPower)
 
-	UserHandler.log.info(String.format("Private key for user %s is %s", this.username, this.privateKey))
+  UserHandler.log.info(String.format("Private key for user %s is %s", this.username, this.privateKey))
 
-	def writeDBUserData(): Unit = {
-		if (!Memebot.useMongo) {
-			return
-		}
+  def writeDBUserData(): Unit = {
+    if (!Memebot.useMongo) {
+      return
+    }
 
-		val channelQuery = new Document("_id", this.username)
+    val channelQuery = new Document("_id", this.username)
 
-		val channelData = new Document("_id", this.username).append("pointsf", this._points)
-				.append("mod", this.isModerator).append("autogreet", this.autogreet)
-				.append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
-				.append("timeouts", this.timeouts)
-				.append("privatekey", this.privateKey)
-        .append("enableautogreet", this.enableAutogreets)
-        .append("datejoined", this.dateJoined)
-        .append("timeStampJoined", this.timeStampJoined)
-        .append("nickname", this.nickname)
-        .append("wallet", this.walletSize)
-        .append("isfollowing", this.isFollowing)
-        .append("hasfollowed", this.hasFollowed)
+    val channelData = new Document("_id", this.username).append("pointsf", this._points)
+      .append("mod", this.isModerator).append("autogreet", this.autogreet)
+      .append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
+      .append("timeouts", this.timeouts)
+      .append("privatekey", this.privateKey)
+      .append("enableautogreet", this.enableAutogreets)
+      .append("datejoined", this.dateJoined)
+      .append("timeStampJoined", this.timeStampJoined)
+      .append("nickname", this.nickname)
+      .append("wallet", this.walletSize)
+      .append("isfollowing", this.isFollowing)
+      .append("hasfollowed", this.hasFollowed)
 
-		try {
-			if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
-				this.userCollection.insertOne(channelData)
-			}
-		} catch {
-			case e: Exception =>
-			e.printStackTrace()
-		}
-	}
+    try {
+      if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
+        this.userCollection.insertOne(channelData)
+      }
+    } catch {
+      case e: Exception =>
+        e.printStackTrace()
+    }
+  }
 
-	def readDBUserData(): Unit = {
-		if (!Memebot.useMongo) {
-			return
-		}
+  def readDBUserData(): Unit = {
+    if (!Memebot.useMongo) {
+      return
+    }
 
-		val channelQuery = new Document("_id", this.username)
-		val cursor: FindIterable[Document] = this.userCollection.find(channelQuery)
+    val channelQuery = new Document("_id", this.username)
+    val cursor: FindIterable[Document] = this.userCollection.find(channelQuery)
 
-		val channelData = cursor.first()
+    val channelData = cursor.first()
 
-		// read data
-		if (channelData != null) {
-			this.isModerator = channelData.getBoolean("mod", this.isModerator)
-			this._points = channelData.getOrDefault("pointsf", this._points.asInstanceOf[Object]).asInstanceOf[Double]
-			this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString
-			this.customCommandPower = channelData.getOrDefault("ccommandpower", this.customCommandPower.asInstanceOf[Object]).asInstanceOf[Int]
-			this.isUserBroadcaster = channelData.getOrDefault("broadcaster", this.isUserBroadcaster.asInstanceOf[Object]).asInstanceOf[Boolean]
-			this.timeouts = channelData.getOrDefault("timeouts", this.timeouts.asInstanceOf[Object]).asInstanceOf[Int]
-			this.privateKey = channelData.getOrDefault("privatekey", this.privateKey.asInstanceOf[Object]).asInstanceOf[String]
+    // read data
+    if (channelData != null) {
+      this.isModerator = channelData.getBoolean("mod", this.isModerator)
+      this._points = channelData.getOrDefault("pointsf", this._points.asInstanceOf[Object]).asInstanceOf[Double]
+      this.autogreet = channelData.getOrDefault("autogreet", this.autogreet).toString
+      this.customCommandPower = channelData.getOrDefault("ccommandpower", this.customCommandPower.asInstanceOf[Object]).asInstanceOf[Int]
+      this.isUserBroadcaster = channelData.getOrDefault("broadcaster", this.isUserBroadcaster.asInstanceOf[Object]).asInstanceOf[Boolean]
+      this.timeouts = channelData.getOrDefault("timeouts", this.timeouts.asInstanceOf[Object]).asInstanceOf[Int]
+      this.privateKey = channelData.getOrDefault("privatekey", this.privateKey.asInstanceOf[Object]).asInstanceOf[String]
       this.enableAutogreets = channelData.getOrDefault("enableautogreet", this.enableAutogreets.toString).toString.toBoolean
       this.dateJoined = channelData.getOrDefault("datejoined", this.dateJoined).toString
       this.timeStampJoined = channelData.getOrDefault("timeStampJoined", this.timeStampJoined.asInstanceOf[Object]).asInstanceOf[Long]
@@ -171,17 +161,17 @@ class UserHandler(usernameNew: String, channelNew: String) {
       this.walletSize = channelData.getOrDefault("wallet", this.walletSize.asInstanceOf[Object]).asInstanceOf[Double]
       this.isFollowing = channelData.getOrDefault("isfollowing", this.isFollowing.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.hasFollowed = channelData.getOrDefault("hasfollowed", this.hasFollowed.asInstanceOf[Object]).asInstanceOf[Boolean]
-		} else {
-			this.newUser = true
-		}
-	}
+    } else {
+      this.newUser = true
+    }
+  }
 
-	def update(channelHandler: ChannelHandler = null) = {
+  def update(channelHandler: ChannelHandler = null) = {
     twitchUserAPI.update(this, channelHandler)
-	}
+  }
 
   def sendAutogreet(channelHandler: ChannelHandler): Unit = {
-    if(!this.hasAutogreeted && this.enableAutogreets && channelHandler.allowAutogreet && this.autogreet != "") {
+    if (!this.hasAutogreeted && this.enableAutogreets && channelHandler.allowAutogreet && this.autogreet != "") {
       channelHandler.sendMessage(this.autogreet, sender = this)
       this.hasAutogreeted = true
     }
@@ -197,17 +187,17 @@ class UserHandler(usernameNew: String, channelNew: String) {
     this.points = f
   }
 
-	def points_=(f: Double): Boolean = {
-		var result = true
+  def points_=(f: Double): Boolean = {
+    var result = true
 
-		this._points = f
-    if(this._points < 0) {
+    this._points = f
+    if (this._points < 0) {
       this._points = 0
     }
 
-    for(ch <- Memebot.joinedChannels) {
+    for (ch <- Memebot.joinedChannels) {
       if (ch.channel == this.channelOrigin) {
-        if(this._points + f > ch.maxPoints || (this._points + f > this.walletSize && this.walletSize > 0)) {
+        if (this._points + f > ch.maxPoints || (this._points + f > this.walletSize && this.walletSize > 0)) {
           this._points = ch.maxPoints
           result = false
         }
@@ -215,29 +205,29 @@ class UserHandler(usernameNew: String, channelNew: String) {
     }
 
     result
-	}
+  }
 
   @Deprecated
   def setCommandPower(commandPower: Int) = {
     this.commandPower_=(commandPower)
   }
 
-	def commandPower_=(commandPower: Int) = {
-		this._autoCommandPower = commandPower
-		this._commandPower = commandPower + this.customCommandPower
-	}
+  def commandPower_=(commandPower: Int) = {
+    this._autoCommandPower = commandPower
+    this._commandPower = commandPower + this.customCommandPower
+  }
 
   @Deprecated
   def setAutoCommandPower(autoCommandPower: Int) = {
     this.autoCommandPower_=(autoCommandPower)
   }
 
-	def autoCommandPower_=(autoCommandPower: Int) = {
-		this._autoCommandPower = autoCommandPower
-	}
+  def autoCommandPower_=(autoCommandPower: Int) = {
+    this._autoCommandPower = autoCommandPower
+  }
 
   def screenName: String = {
-    if(!this.nickname.isEmpty && Memebot.debug) {
+    if (!this.nickname.isEmpty && Memebot.debug) {
       return nickname
     }
     this.username
@@ -253,7 +243,7 @@ class UserHandler(usernameNew: String, channelNew: String) {
     }
 
     //check if user has been marked for removal
-    if(this.shouldBeRemoved && this.removeCooldown.canContinue) {
+    if (this.shouldBeRemoved && this.removeCooldown.canContinue) {
       UserHandler.log.info(f"Removed user ${this.username}")
       return true
     }

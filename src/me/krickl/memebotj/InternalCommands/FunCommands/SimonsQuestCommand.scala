@@ -1,8 +1,8 @@
 package me.krickl.memebotj.InternalCommands.FunCommands
 
 /**
- * Created by unlink on 18/11/15.
- */
+  * Created by unlink on 18/11/15.
+  */
 class SimonsQuestCommand(channel: String, command: String = "null", dbprefix: String = "") extends me.krickl.memebotj.CommandHandler(channel, command, dbprefix) {
   this.setUserCooldownLen(60)
   this.setCmdtype("list")

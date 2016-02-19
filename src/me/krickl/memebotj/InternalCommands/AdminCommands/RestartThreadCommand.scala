@@ -4,8 +4,8 @@ import me.krickl.memebotj.Memebot
 import me.krickl.memebotj.Utility.CommandPower
 
 /**
- * Created by unlink on 21/11/15.
- */
+  * Created by unlink on 21/11/15.
+  */
 class RestartThreadCommand(channel: String, command: String = "null", dbprefix: String = "") extends me.krickl.memebotj.CommandHandler(channel, command, dbprefix) {
   this.setNeededCommandPower(CommandPower.adminAbsolute)
 

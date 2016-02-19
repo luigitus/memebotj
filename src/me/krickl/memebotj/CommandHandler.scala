@@ -1,17 +1,13 @@
 package me.krickl.memebotj
 
-import java.io.{BufferedReader, InputStreamReader}
-import java.net.{HttpURLConnection, URL, URLEncoder}
-import java.text.SimpleDateFormat
+import java.net.URLEncoder
 import java.util
+import java.util.Random
 import java.util.logging.Logger
-import java.util.{ArrayList, Calendar, HashMap, Random}
 
 import com.mongodb.client.{FindIterable, MongoCollection}
 import me.krickl.memebotj.Utility.{CommandPower, Cooldown}
 import org.bson.Document
-import org.json.simple.JSONObject
-import org.json.simple.parser.JSONParser
 
 import scala.beans.BeanProperty
 
@@ -50,7 +46,7 @@ object CommandHandler {
   }
 
   def hasNeededParameters(data: Array[String], neededParams: Int): Int = {
-    if(data.length >= neededParams) {
+    if (data.length >= neededParams) {
       return data.length
     }
     -1
@@ -144,8 +140,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   var channelOriginHandler: ChannelHandler = null
 
-  for(ch <- Memebot.joinedChannels) {
-    if(ch.channel == channelOrigin) {
+  for (ch <- Memebot.joinedChannels) {
+    if (ch.channel == channelOrigin) {
       channelOriginHandler = ch
     }
   }
@@ -173,7 +169,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     this.success = true
     var checkCooldown = true
 
-    if(formatData) {
+    if (formatData) {
       for (i <- data.indices) {
         data(i) = Memebot.formatText(data(i), channelHandler, sender, this)
       }
@@ -187,7 +183,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return "disabled"
     }
 
-    if(checkCooldown && this.checkCooldown(sender, channelHandler)) {
+    if (checkCooldown && this.checkCooldown(sender, channelHandler)) {
       return "cooldown"
     }
 
@@ -218,7 +214,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, Array())
             this.success = false
           }
-        } else if (data(1).equals("remove") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower )) {
+        } else if (data(1).equals("remove") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           try {
             this.listContent.remove(Integer.parseInt(data(2)))
             formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, Array())
@@ -227,7 +223,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
             case e: IndexOutOfBoundsException =>
               formattedOutput = e.toString
           }
-        } else if (data(1).equals("edit") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower )) {
+        } else if (data(1).equals("edit") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           var newEntry = ""
           for (i <- 3 to data.length - 1) {
             newEntry = newEntry + " " + data(i)
@@ -245,14 +241,14 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           this.listContent.clear()
           this.success = true
 
-        } else if (data(1).equals("import") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, channelHandler.getUserList,  this.neededCommandPower)) {
+        } else if (data(1).equals("import") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, channelHandler.getUserList, this.neededCommandPower)) {
           formattedOutput = Memebot.formatText("JSON_ERROR", channelHandler, sender, this, true, Array())
           try {
             val dataImport: String = Memebot.readHttpRequest(data(2))
 
             val lines = dataImport.split("\n")
 
-            for(line <- lines) {
+            for (line <- lines) {
               this.listContent.add(line)
             }
 
@@ -266,7 +262,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
         } else if (allowPicksFromList) {
           try {
             formattedOutput = this.quotePrefix.replace("{number}", data(1)) + this.listContent.get(Integer.parseInt(data(1))) + this.quoteSuffix.replace("{number}", data(1))
-            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, userList,  this.neededCommandPower)) {
+            if (this.removeFromListOnPickIfMod && CommandHandler.checkPermission(sender, CommandPower.broadcasterAbsolute, userList, this.neededCommandPower)) {
               this.listContent.remove(Integer.parseInt(data(1)))
             }
           } catch {
@@ -276,8 +272,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
               formattedOutput = Memebot.formatText("QUERY_NOT_FOUND", channelHandler, sender, this, true, Array())
               val query = util.Arrays.copyOfRange(data, 1, data.length).mkString(" ")
               var number = 0
-              for(str <- listContent) {
-                if(str.contains(query)) {
+              for (str <- listContent) {
+                if (str.contains(query)) {
                   formattedOutput = this.quotePrefix.replace("{number}", number.toString) + str + this.quoteSuffix.replace("{number}", number.toString)
                   number += 1
                 }
@@ -335,13 +331,13 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
 
     //format parameters
-    if(counterStart < this.param + 1) {
+    if (counterStart < this.param + 1) {
       formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.param + 1), this.helptext)
     }
     formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
     commandScript = Memebot.formatText(commandScript, channelHandler, sender, this)
 
-    if(formattedOutput != "null") {
+    if (formattedOutput != "null") {
       channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
       channelHandler.sendMessage(commandScript, this.channelOrigin, sender)
     }
@@ -417,7 +413,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     }
   }
 
-  /***
+  /** *
     * This method will always be called before the database load and can be used to init a class
     *
     * @param channelHandler
@@ -425,7 +421,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   protected def beforeDBLoad(channelHandler: ChannelHandler = null): Unit = {
   }
 
-  /***
+  /** *
     * This method will always be called after the Database has ben read
     * and can be used to override data saved in the Database.
     * This should be used instead of constructors for child classes
@@ -436,9 +432,9 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
   /**
     * This function is used to set new command variables from chat.
     *
-    * @param modType Modification type
-    * @param nv New Value as String
-    * @param sender Sender Object
+    * @param modType  Modification type
+    * @param nv       New Value as String
+    * @param sender   Sender Object
     * @param userList List of all Users
     * @return
     */
@@ -519,10 +515,10 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       } else if (modType == "case") {
         this.caseSensitive = newValue.toBoolean
         success = true
-      } else if(modType == "format") {
+      } else if (modType == "format") {
         this.formatData = newValue.toBoolean
         success = false
-      } else if(modType == "cooldownuse") {
+      } else if (modType == "cooldownuse") {
         cooldownAfterUse = newValue.toInt
       }
     } catch {

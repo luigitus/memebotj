@@ -5,7 +5,7 @@ import java.net.MalformedURLException
 
 import me.krickl.memebotj.{ChannelHandler, Memebot}
 import org.json.simple.JSONObject
-import org.json.simple.parser.{ParseException, JSONParser}
+import org.json.simple.parser.{JSONParser, ParseException}
 
 /**
   * This file is part of memebotj.
@@ -15,7 +15,7 @@ class ChannelAPI(channel: String) {
   def update(channelHandler: ChannelHandler): Unit = {
     //twitch update
     try {
-      if(Memebot.isTwitchBot) {
+      if (Memebot.isTwitchBot) {
         val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/streams/" + this.channel)
         val parser = new JSONParser()
         val obj = parser.parse(data).asInstanceOf[JSONObject]
@@ -43,7 +43,7 @@ class ChannelAPI(channel: String) {
 
     //get game
     try {
-      if(Memebot.isTwitchBot) {
+      if (Memebot.isTwitchBot) {
         val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/channels/" + this.channel)
 
         val parser = new JSONParser()

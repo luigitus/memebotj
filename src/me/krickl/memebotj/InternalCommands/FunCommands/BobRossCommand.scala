@@ -1,7 +1,5 @@
 package me.krickl.memebotj.InternalCommands.FunCommands
 
-import java.util.ArrayList
-
 import me.krickl.memebotj.CommandHandler
 import me.krickl.memebotj.Utility.CommandPower
 

@@ -2,11 +2,9 @@ package me.krickl.memebotj
 
 import java.io._
 import java.math.BigInteger
-import java.net.{HttpURLConnection, MalformedURLException, URL, URLEncoder}
+import java.net.URLEncoder
 import java.security.SecureRandom
-import java.util
 import java.util.logging.Logger
-import java.util.{ArrayList, Arrays, HashMap}
 
 import com.mongodb.Block
 import com.mongodb.client.MongoCollection
@@ -15,14 +13,12 @@ import me.krickl.memebotj.InternalCommands.AdminCommands._
 import me.krickl.memebotj.InternalCommands.FunCommands._
 import me.krickl.memebotj.InternalCommands.ModeratorCommands._
 import me.krickl.memebotj.InternalCommands.UserCommands._
-import me.krickl.memebotj.InternalCommands._
-import me.krickl.memebotj.Utility.{Localisation, Cooldown}
+import me.krickl.memebotj.Utility.{Cooldown, Localisation}
 import org.bson.Document
-import org.json.simple.JSONObject
-import org.json.simple.parser.{JSONParser, ParseException}
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.util.control.Breaks._
+
 //remove if not needed
 import scala.collection.JavaConversions._
 
@@ -239,7 +235,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   this.internalCommands.add(mrDestructoidCommand)*/
 
-  if(this.allowGreetMessage) {
+  if (this.allowGreetMessage) {
     this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null), this.channel)
   }
 
@@ -281,7 +277,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   override def run() {
     //let update loop run independently
-    if(Memebot.useUpdateThread) {
+    if (Memebot.useUpdateThread) {
       val updateThread = new Thread {
         override def run(): Unit = {
           while (isJoined) {
@@ -310,7 +306,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         case e: InterruptedException => e.printStackTrace()
       }
 
-      if(!Memebot.useUpdateThread) {
+      if (!Memebot.useUpdateThread) {
         this.update()
       }
     }
@@ -341,11 +337,11 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         }
         uh.writeDBUserData()
 
-        if(uh.canRemove) {
+        if (uh.canRemove) {
           removeUsers.add(key)
         }
       }
-      for(user <- removeUsers) {
+      for (user <- removeUsers) {
         this.userList.remove(user)
       }
 
@@ -355,7 +351,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     }
   }
 
-  /***
+  /** *
+    *
     * @deprecated This function will soon be removed in favour of a fully fledged web UI as was originally planned
     */
   @Deprecated
@@ -585,32 +582,36 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   def handleMessage(rawmessage: String): Unit = {
     val msgPackage = connection.handleMessage(rawmessage, this)
 
-    if(msgPackage == null) { return }
+    if (msgPackage == null) {
+      return
+    }
 
     val msgContent = msgPackage.messageContent
     val sender = msgPackage.sender
     val msgType = msgPackage.messageType
 
-    if(msgType != "PRIVMSG") { return }
+    if (msgType != "PRIVMSG") {
+      return
+    }
 
     val msg = msgContent(0)
     val data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length)
-    if(this.purgeURLS) {
-      for(username <- Memebot.globalBanList) {
-        if(sender.username == username && !sender.isModerator) {
+    if (this.purgeURLS) {
+      for (username <- Memebot.globalBanList) {
+        if (sender.username == username && !sender.isModerator) {
           this.sendMessage("/ban " + sender.username)
           this.sendMessage(f"Banned ${sender.username} for being in the global ban list")
         }
       }
 
-      for(message <- Memebot.urlBanList) {
-        if(rawmessage.contains(message)) {
+      for (message <- Memebot.urlBanList) {
+        if (rawmessage.contains(message)) {
           this.sendMessage("/timeout " + sender.username + " 1")
         }
       }
 
-      for(message <- Memebot.phraseBanList) {
-        if(rawmessage.contains(message)) {
+      for (message <- Memebot.phraseBanList) {
+        if (rawmessage.contains(message)) {
           this.sendMessage("/timeout " + sender.username + " 1")
         }
       }

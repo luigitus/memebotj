@@ -3,9 +3,7 @@ package me.krickl.memebotj.InternalCommands.FunCommands
 import java.security.SecureRandom
 
 import me.krickl.memebotj.Utility.Cooldown
-import me.krickl.memebotj.{UserHandler, ChannelHandler, CommandHandler}
-
-import scala.util.Random
+import me.krickl.memebotj.{ChannelHandler, CommandHandler, UserHandler}
 
 /**
   * Created by unlink on 29/12/15.
@@ -96,7 +94,7 @@ class CategoryGeneratorCommand(channel: String, command: String, dbprefix: Strin
         e.printStackTrace()
     }
 
-    for(i <- 0 until lenght) {
+    for (i <- 0 until lenght) {
       val ran = new SecureRandom()
       category = category + " " + this.listContent.get(ran.nextInt(this.listContent.size()))
     }

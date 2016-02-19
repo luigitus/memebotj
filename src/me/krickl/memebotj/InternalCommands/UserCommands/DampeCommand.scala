@@ -1,10 +1,9 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
 import java.security.SecureRandom
-import java.util.Random
 
-import me.krickl.memebotj._
 import me.krickl.memebotj.Utility.CommandPower
+import me.krickl.memebotj._
 
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
   command, dbprefix) {
@@ -21,11 +20,11 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setCmdtype("default")
 
-  if(!this.otherData.containsKey("jackpot")) {
+  if (!this.otherData.containsKey("jackpot")) {
     this.otherData.put("jackpot", "0")
   }
 
-  if(!this.otherData.containsKey("winner")) {
+  if (!this.otherData.containsKey("winner")) {
     this.otherData.put("winner", "null")
   }
 
@@ -44,7 +43,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         this.setJackpot(data(1).toDouble)
         channelHandler.sendMessage(Memebot.formatText("DAMPE_SETJACKPOT", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
         return
-      } else if(data(0) == "winner") {
+      } else if (data(0) == "winner") {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WINNER", channelHandler, sender, this, true, Array(this.otherData.get("winner"))), this.getChannelOrigin)
         return
       }
@@ -74,9 +73,9 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     val ran = new SecureRandom()
     val range = 1000
     val outcome = ran.nextInt(range) //- wage.toInt / 4)
-    var offlineModifier = 1
-    if(!channelHandler.isLive) {
-      offlineModifier = 4
+    var offlineModifier = 0
+    if (!channelHandler.isLive) {
+      offlineModifier = 5
     }
 
     //outcomes of dampe
@@ -91,7 +90,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
 
-    } else if (outcome <= (40 / offlineModifier)) {
+    } else if (outcome <= (40 - offlineModifier)) {
       val price = 10 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
       if (sender.setPoints(sender.points + price + wage)) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_1", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
@@ -100,7 +99,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         this.setJackpot(this.getJackpot + price)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
-    } else if (outcome <= (180 / offlineModifier)) {
+    } else if (outcome <= (180 - offlineModifier)) {
       val price = 3 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
       if (sender.setPoints(sender.points + price + wage)) {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_2", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
@@ -111,10 +110,11 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 450) {
       if (sender.setPoints(sender.points + wage / 2)) {
+        this.setJackpot(this.getJackpot + wage / 2)
         channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_1", channelHandler, sender, this, true, Array("%.2f".format(wage / 2))), this.getChannelOrigin)
       } else {
         channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_1_WALLET_FULL", channelHandler, sender, this, true, Array("%.2f".format(wage / 2))), this.getChannelOrigin)
-        this.setJackpot(this.getJackpot + wage / 2)
+        this.setJackpot(this.getJackpot + wage)
       }
       sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage / 2)

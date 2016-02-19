@@ -1,7 +1,7 @@
 package me.krickl.memebotj.InternalCommands.UserCommands
 
-import me.krickl.memebotj._
 import me.krickl.memebotj.Utility.CommandPower
+import me.krickl.memebotj._
 
 import scala.util.Random
 
@@ -11,7 +11,7 @@ import scala.util.Random
   */
 class LotteryCommand(channel: String, commandName: String = "null", dbprefix: String = null)
   extends CommandHandler(channel, commandName, dbprefix) {
-  /***
+  /** *
     * This method will always be called before the database load and can be used to init a class
     *
     * @param channelHandler
@@ -19,7 +19,7 @@ class LotteryCommand(channel: String, commandName: String = "null", dbprefix: St
   override def beforeDBLoad(channelHandler: ChannelHandler = null): Unit = {
   }
 
-  /***
+  /** *
     * This method will always be called after the Database has ben read
     * and can be used to override data saved in the Database.
     * This should be used instead of constructors for child classes
@@ -30,12 +30,12 @@ class LotteryCommand(channel: String, commandName: String = "null", dbprefix: St
   }
 
   override def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
-    if(CommandHandler.hasNeededParameters(data, 1) != -1) {
+    if (CommandHandler.hasNeededParameters(data, 1) != -1) {
 
       if (CommandHandler.checkPermission(sender, CommandPower.mod, channelHandler.userList)) {
         if (data(0) == "start") {
           //check if started
-          if(otherData.containsKey("#started#")) {
+          if (otherData.containsKey("#started#")) {
             channelHandler.sendMessage(Memebot.formatText("LOTTERY_START_ERROR", channelHandler, sender, this, true, Array()))
           } else {
             channelHandler.sendMessage(Memebot.formatText("LOTTERY_START", channelHandler, sender, this, true, Array()))
@@ -44,7 +44,7 @@ class LotteryCommand(channel: String, commandName: String = "null", dbprefix: St
             otherData.put("#started#", "0")
           }
         } else if (data(0) == "end") {
-          if(otherData.containsKey("#started#") && listContent.size() > 0) {
+          if (otherData.containsKey("#started#") && listContent.size() > 0) {
             val ran = new Random()
 
             val winner = new UserHandler(listContent.get(ran.nextInt(listContent.size())), this.channel)
@@ -59,13 +59,13 @@ class LotteryCommand(channel: String, commandName: String = "null", dbprefix: St
       }
 
       if (data(0) == "enter") {
-        if(!listContent.contains(sender.username)) {
+        if (!listContent.contains(sender.username)) {
           //is lottery started
-          if(!otherData.containsKey("#started#")) {
+          if (!otherData.containsKey("#started#")) {
             channelHandler.sendMessage(Memebot.formatText("LOTTERY_ENTER_NOT_STARTED", channelHandler, sender, this, true, Array()))
           } else {
             channelHandler.sendMessage(Memebot.formatText("LOTTERY_ENTER", channelHandler, sender, this, true, Array()))
-            if(this.checkCost(sender, 20, channelHandler)) {
+            if (this.checkCost(sender, 20, channelHandler)) {
               listContent.add(sender.username)
               sender.setPoints(sender.points - 20)
               //set points
