@@ -225,7 +225,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
           }
         } else if (data(1).equals("edit") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           var newEntry = ""
-          for (i <- 3 to data.length - 1) {
+          for (i <- 3 until data.length) {
             newEntry = newEntry + " " + data(i)
           }
 

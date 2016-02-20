@@ -124,7 +124,6 @@ class UserHandler(@BeanProperty var username: String, @BeanProperty var channelO
       .append("wallet", this.walletSize)
       .append("isfollowing", this.isFollowing)
       .append("hasfollowed", this.hasFollowed)
-
     try {
       if (this.userCollection.findOneAndReplace(channelQuery, channelData) == null) {
         this.userCollection.insertOne(channelData)
@@ -161,6 +160,7 @@ class UserHandler(@BeanProperty var username: String, @BeanProperty var channelO
       this.walletSize = channelData.getOrDefault("wallet", this.walletSize.asInstanceOf[Object]).asInstanceOf[Double]
       this.isFollowing = channelData.getOrDefault("isfollowing", this.isFollowing.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.hasFollowed = channelData.getOrDefault("hasfollowed", this.hasFollowed.asInstanceOf[Object]).asInstanceOf[Boolean]
+
     } else {
       this.newUser = true
     }

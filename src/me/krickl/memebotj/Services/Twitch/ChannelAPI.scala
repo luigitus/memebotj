@@ -16,7 +16,7 @@ class ChannelAPI(channel: String) {
     //twitch update
     try {
       if (Memebot.isTwitchBot) {
-        val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/streams/" + this.channel)
+        val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/streams/" + this.channel, 5000)
         val parser = new JSONParser()
         val obj = parser.parse(data).asInstanceOf[JSONObject]
         val isOnline = obj.get("stream")
@@ -44,7 +44,7 @@ class ChannelAPI(channel: String) {
     //get game
     try {
       if (Memebot.isTwitchBot) {
-        val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/channels/" + this.channel)
+        val data = Memebot.readHttpRequest("https://api.twitch.tv/kraken/channels/" + this.channel, 5000)
 
         val parser = new JSONParser()
         val obj = parser.parse(data).asInstanceOf[JSONObject]

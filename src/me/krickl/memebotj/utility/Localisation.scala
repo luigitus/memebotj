@@ -14,7 +14,7 @@ class Localisation(newLocal: String) {
   try {
     val localsURL = getClass.getResourceAsStream(f"/local/$local.properties")
 
-    if(localsURL != null) {
+    if (localsURL != null) {
       val reader = new InputStreamReader(localsURL, "UTF-8")
       config.load(reader)
       reader.close()
