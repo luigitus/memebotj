@@ -94,7 +94,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON_WALLET_FULL", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(this.getJackpot), channelHandler.currencyEmote)), this.getChannelOrigin)
         this.setJackpot(this.getJackpot)
       }
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
 
     } else if (outcome <= (40 - offlineModifier)) {
       val price = 10 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
@@ -104,7 +104,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_1_WALLET_FULL", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
         this.setJackpot(this.getJackpot + price)
       }
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= (180 - offlineModifier)) {
       val price = 3 * (Math.sqrt(wage) * 5) + ran.nextInt(wage.toInt)
       if (sender.setPoints(sender.points + price + wage)) {
@@ -113,7 +113,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(Memebot.formatText("DAMPE_WON_2_WALLET_FULL", channelHandler, sender, this, true, Array(sender.screenName, "%.2f".format(price), channelHandler.currencyEmote)), this.getChannelOrigin)
         this.setJackpot(this.getJackpot + price)
       }
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
     } else if (outcome <= 450) {
       if (sender.setPoints(sender.points + wage / 2)) {
         this.setJackpot(this.getJackpot + wage / 2)
@@ -122,30 +122,32 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_1_WALLET_FULL", channelHandler, sender, this, true, Array("%.2f".format(wage / 2))), this.getChannelOrigin)
         this.setJackpot(this.getJackpot + wage)
       }
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage / 2)
     } else if (outcome <= 650) {
       channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_2", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage)
     } else if (outcome <= 750) {
       channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_3", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage)
     } else if (outcome <= 850) {
       channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_4", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage)
     } else if (outcome <= 900) {
       channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_6", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       sender.points = sender.points - 10
       this.setJackpot(this.getJackpot + wage + 10)
     } else {
       channelHandler.sendMessage(Memebot.formatText("DAMPE_LOST_5", channelHandler, sender, this, true, Array()), this.getChannelOrigin)
-      sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
+      //sender.getUserCommandCooldowns.get(this.getCommand).startCooldown()
       this.setJackpot(this.getJackpot + wage)
     }
+
+    this.startCooldowns(sender)
   }
 
   def getJackpot: Double = {

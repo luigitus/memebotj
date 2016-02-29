@@ -115,6 +115,8 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
 
   var maxPoints: Double = 100000.0f
 
+  var startingPoints: Double = 50.0f
+
   //val mrDestructoidCommand = new CommandHandler(this.channel, "!noamidnightonthethirdday", "#internal#")
 
   var currencyName = "points"
@@ -536,7 +538,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     if (!Memebot.useMongo) {
       return
     }
-    ChannelHandler.getLog.info("Saving data in db for channel " + this.channel)
+    ChannelHandler.getLog.info("Saving data in db for channel " + this.channel + " on DB " + Memebot.db.getName)
     val channelQuery = new Document("_id", this.channel)
 
     val channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
@@ -561,9 +563,9 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       .append("maxscreennamelen", this.maxScreenNameLen)
       .append("maxnameinlist", this.maxAmountOfNameInList)
       .append("pointstax", this.pointsTax)
+      .append("startingpoints", this.startingPoints)
     try {
-      if (this.channelCollection.findOneAndReplace(channelQuery, channelData) ==
-        null) {
+      if (this.channelCollection.findOneAndReplace(channelQuery, channelData) == null) {
         this.channelCollection.insertOne(channelData)
       }
     } catch {
@@ -760,6 +762,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.maxScreenNameLen = channelData.getOrDefault("maxscreennamelen", this.maxScreenNameLen.asInstanceOf[Object]).asInstanceOf[Int]
       this.maxAmountOfNameInList = channelData.getOrDefault("maxnameinlist", this.maxScreenNameLen.asInstanceOf[Object]).asInstanceOf[Int]
       this.pointsTax = channelData.getOrDefault("pointstax", this.pointsTax.asInstanceOf[Object]).asInstanceOf[Double]
+      this.startingPoints = channelData.getOrDefault("startingpoints", this.startingPoints.asInstanceOf[Object]).asInstanceOf[Double]
     }
     val commandCollection = Memebot.db.getCollection(this.channel + "_commands")
     val comms = commandCollection.find()

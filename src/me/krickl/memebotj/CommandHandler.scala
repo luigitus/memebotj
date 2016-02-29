@@ -388,13 +388,20 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     false
   }
 
-  protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
+  def startCooldowns(sender: UserHandler): Unit = {
     if (this.success) {
       this.cooldown.startCooldown()
       sender.getUserCooldown.startCooldown()
+      if(!sender.getUserCommandCooldowns.containsKey(this.command)) {
+        sender.getUserCommandCooldowns.put(this.command, new Cooldown(this.userCooldownLen))
+      }
       sender.getUserCommandCooldowns.get(this.command).startCooldown()
       sender.setPoints(sender.points - this.pointCost)
     }
+  }
+
+  protected def commandScript(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String]) = {
+    this.startCooldowns(sender)
   }
 
   /** *
