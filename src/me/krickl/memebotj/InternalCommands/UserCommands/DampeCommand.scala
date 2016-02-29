@@ -20,6 +20,8 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setCmdtype("default")
 
+  this.checkDefaultCooldown = false
+
   if (!this.otherData.containsKey("jackpot")) {
     this.otherData.put("jackpot", "0")
   }
@@ -48,6 +50,10 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
         return
       }
 
+
+      if(!this.checkCooldown(sender, channelHandler)) {
+        return
+      }
 
       wage = data(0).toDouble
       if (wage < channelHandler.pointsPerUpdate * 50) {

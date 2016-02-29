@@ -48,10 +48,12 @@ class LotteryCommand(channel: String, commandName: String = "null", dbprefix: St
             val ran = new Random()
 
             val winner = new UserHandler(listContent.get(ran.nextInt(listContent.size())), this.channel)
+            val price = otherData.get("#started#").toInt
+            winner.setPoints(winner.points + price)
+
             otherData.clear()
             listContent.clear()
-            // todo number format exception
-            winner.setPoints(otherData.get("#started#").toInt)
+            channelHandler.sendMessage(Memebot.formatText("LOTTERY_END_WINNER", channelHandler, sender, this, true, Array(winner.username, price.toString)))
           } else {
             channelHandler.sendMessage(Memebot.formatText("LOTTERY_END_ERROR", channelHandler, sender, this, true, Array()))
           }

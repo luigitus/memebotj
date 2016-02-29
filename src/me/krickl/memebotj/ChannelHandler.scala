@@ -23,7 +23,6 @@ import scala.util.control.Breaks._
 import scala.collection.JavaConversions._
 
 object ChannelHandler {
-
   @BeanProperty
   val log = Logger.getLogger(classOf[ChannelHandler].getName)
 }
@@ -32,27 +31,25 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   extends Runnable {
 
   @BeanProperty
-  var broadcaster: String = this.channel.replace("#", "")
+  var broadcaster = this.channel.replace("#", "")
   @BeanProperty
-  var userList: java.util.HashMap[String, UserHandler] = new java.util.HashMap[String, UserHandler]()
+  var userList = new java.util.HashMap[String, UserHandler]()
   @BeanProperty
-  var updateCooldown: Cooldown = new Cooldown(600)
+  var updateCooldown = new Cooldown(600)
   @BeanProperty
-  var channelCommands: java.util.ArrayList[CommandHandler] = new java.util.ArrayList[CommandHandler]()
+  var channelCommands = new java.util.ArrayList[CommandHandler]()
   @BeanProperty
-  var internalCommands: java.util.ArrayList[CommandHandler] = new java.util.ArrayList[CommandHandler]()
+  var internalCommands = new java.util.ArrayList[CommandHandler]()
   @BeanProperty
-  var followerNotification: String = ""
+  var followerNotification = ""
   @BeanProperty
-  var raceBaseURL: String = "http://kadgar.net/live"
+  var raceBaseURL = "http://kadgar.net/live"
   @BeanProperty
-  var greetMessage: String = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz"
+  var greetMessage = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz"
   @BeanProperty
   var currentRaceURL: String = ""
   @BeanProperty
   var fileNameList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
-  //@BeanProperty
-  //var aliasList: ArrayList[String] = new ArrayList[String]()
 
   @BeanProperty
   var maxFileNameLen = 8
@@ -60,8 +57,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   var currentFileName: String = ""
   @BeanProperty
   var streamStartTime: Long = 0
-  //@BeanProperty @Deprecated
-  //var builtInStrings: java.util.HashMap[String, String] = new java.util.HashMap[String, String]()
 
   var local = "engb"
   @BeanProperty
@@ -384,123 +379,123 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       bw.write("</td>")
       bw.write("</tr>")
       for (ch <- this.internalCommands) {
-        if (ch.excludeFromCommandList) {
-          //continue
-        }
-        bw.write("<tr>")
-        bw.write("<td>")
-        if (ch.getCmdtype == "list") {
-          bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.command, "UTF-8") +
-            ".html\">" +
-            ch.getCommand +
-            "</a>")
-          val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + URLEncoder.encode(ch.command, "UTF-8") + ".html"))
-          bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>")
-          bwq.write("<html>")
-          bwq.write("<h1>")
-          bwq.write(ch.command)
-          bwq.write("</h1>")
-          bwq.write("<table style=\"width:100%\">")
-          bwq.write("<tr>")
-          bwq.write("<td>")
-          bwq.write("#")
-          bwq.write("</td>")
-          bwq.write("<td>")
-          bwq.write("Content")
-          bwq.write("</td>")
-          bwq.write("</tr>")
-          var c = 0
-          for (item <- ch.getListContent) {
+        if (!ch.excludeFromCommandList && ch.enable) {
+          bw.write("<tr>")
+          bw.write("<td>")
+          if (ch.getCmdtype == "list") {
+            bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.command, "UTF-8") +
+              ".html\">" +
+              ch.getCommand +
+              "</a>")
+            val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + URLEncoder.encode(ch.command, "UTF-8") + ".html"))
+            bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>")
+            bwq.write("<html>")
+            bwq.write("<h1>")
+            bwq.write(ch.command)
+            bwq.write("</h1>")
+            bwq.write("<table style=\"width:100%\">")
             bwq.write("<tr>")
             bwq.write("<td>")
-            bwq.write(java.lang.Integer.toString(c))
+            bwq.write("#")
             bwq.write("</td>")
             bwq.write("<td>")
-            bwq.write(item)
+            bwq.write("Content")
             bwq.write("</td>")
             bwq.write("</tr>")
-            c += 1
+            var c = 0
+            for (item <- ch.getListContent) {
+              bwq.write("<tr>")
+              bwq.write("<td>")
+              bwq.write(java.lang.Integer.toString(c))
+              bwq.write("</td>")
+              bwq.write("<td>")
+              bwq.write(item)
+              bwq.write("</td>")
+              bwq.write("</tr>")
+              c += 1
+            }
+            bwq.write("</table>")
+            bwq.write("</html>")
+            bwq.close()
+          } else {
+            bw.write(ch.getCommand)
           }
-          bwq.write("</table>")
-          bwq.write("</html>")
-          bwq.close()
-        } else {
-          bw.write(ch.getCommand)
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(ch.getHelptext)
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(ch.getUnformattedOutput)
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(java.lang.Integer.toString(ch.getNeededCommandPower))
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(ch.getCmdtype)
+          bw.write("</td>")
+          bw.write("</tr>")
         }
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(ch.getHelptext)
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(ch.getUnformattedOutput)
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(java.lang.Integer.toString(ch.getNeededCommandPower))
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(ch.getCmdtype)
-        bw.write("</td>")
-        bw.write("</tr>")
       }
+
       for (ch <- this.channelCommands) {
-        if (ch.getExcludeFromCommandList) {
-          //continue
-        }
-        bw.write("<tr>")
-        bw.write("<td>")
-        if (ch.getCmdtype == "list") {
-          bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.getCommand, "UTF-8") +
-            ".html\">" +
-            ch.getCommand +
-            "</a>")
-          val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + ch.getCommand + ".html"))
-          bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>")
-          bwq.write("<html>")
-          bwq.write("<h1>")
-          bwq.write(ch.getCommand)
-          bwq.write("</h1>")
-          bwq.write("<table style=\"width:100%\">")
-          bwq.write("<tr>")
-          bwq.write("<td>")
-          bwq.write("#")
-          bwq.write("</td>")
-          bwq.write("<td>")
-          bwq.write("Content")
-          bwq.write("</td>")
-          bwq.write("</tr>")
-          var c = 0
-          for (item <- ch.getListContent) {
+        if (!ch.getExcludeFromCommandList && ch.enable) {
+          bw.write("<tr>")
+          bw.write("<td>")
+          if (ch.getCmdtype == "list") {
+            bw.write("<a href=\"" + this.channelPageBaseURL + "/" + URLEncoder.encode(ch.getCommand, "UTF-8") +
+              ".html\">" +
+              ch.getCommand +
+              "</a>")
+            val bwq = new BufferedWriter(new FileWriter(this.htmlDir + "/" + ch.getCommand + ".html"))
+            bwq.write("<head><link rel=\"stylesheet\" type=\"text/css\" href=\"../style.css\"></head>")
+            bwq.write("<html>")
+            bwq.write("<h1>")
+            bwq.write(ch.getCommand)
+            bwq.write("</h1>")
+            bwq.write("<table style=\"width:100%\">")
             bwq.write("<tr>")
             bwq.write("<td>")
-            bwq.write(java.lang.Integer.toString(c))
+            bwq.write("#")
             bwq.write("</td>")
             bwq.write("<td>")
-            bwq.write(item)
+            bwq.write("Content")
             bwq.write("</td>")
             bwq.write("</tr>")
-            c += 1
+            var c = 0
+            for (item <- ch.getListContent) {
+              bwq.write("<tr>")
+              bwq.write("<td>")
+              bwq.write(java.lang.Integer.toString(c))
+              bwq.write("</td>")
+              bwq.write("<td>")
+              bwq.write(item)
+              bwq.write("</td>")
+              bwq.write("</tr>")
+              c += 1
+            }
+            bwq.write("</table>")
+            bwq.write("</html>")
+            bwq.close()
+          } else {
+            bw.write(ch.getCommand)
           }
-          bwq.write("</table>")
-          bwq.write("</html>")
-          bwq.close()
-        } else {
-          bw.write(ch.getCommand)
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(ch.getHelptext)
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(ch.getUnformattedOutput)
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(java.lang.Integer.toString(ch.getNeededCommandPower))
+          bw.write("</td>")
+          bw.write("<td>")
+          bw.write(ch.getCmdtype)
+          bw.write("</td>")
+          bw.write("</tr>")
         }
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(ch.getHelptext)
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(ch.getUnformattedOutput)
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(java.lang.Integer.toString(ch.getNeededCommandPower))
-        bw.write("</td>")
-        bw.write("<td>")
-        bw.write(ch.getCmdtype)
-        bw.write("</td>")
-        bw.write("</tr>")
       }
+
       bw.write("</table>")
       bw.write("</html>")
       bw.close()
@@ -621,7 +616,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     var p = this.findCommand(msg)
     if (p != -1) {
       if (!this.channelCommands.get(p).getTexttrigger) {
-        this.channelCommands.get(p).executeCommand(sender, this, data, userList)
+        ChannelHandler.log.info(f"${this.channelCommands.get(p).command} returned: ${this.channelCommands.get(p).executeCommand(sender, this, data, userList)}")
       }
     }
 
@@ -632,7 +627,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       if (p != -1) {
         val ch = this.channelCommands.get(p)
         if (ch.texttrigger) {
-          ch.executeCommand(sender, this, Array(""), userList)
+          ChannelHandler.log.info(f"${ch.command} returned: ${ch.executeCommand(sender, this, Array(""), userList)}")
         }
       }
     }
@@ -643,7 +638,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       if (ch.getChannel == och || ch.getBroadcaster == och) {
         p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""))
         if (p != -1 && msg.contains(channel)) {
-          ch.getChannelCommands.get(p).executeCommand(readOnlyUser, this, data, userList)
+          ChannelHandler.log.info(f"${ch.channel} returned: ${ch.getChannelCommands.get(p).executeCommand(readOnlyUser, this, data, userList)}")
         }
       }
     }
@@ -652,7 +647,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
     p = this.findCommand(msg, this.internalCommands)
     if (p != -1) {
       val ch = this.internalCommands.get(p)
-      ch.executeCommand(sender, this, java.util.Arrays.copyOfRange(data, 1, data.length), userList)
+      ChannelHandler.log.info(f"${ch.command} returned: ${ch.executeCommand(sender, this, java.util.Arrays.copyOfRange(data, 1, data.length), userList)}")
     }
 
     //set user activity
@@ -687,7 +682,7 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
   }
 
   def findCommand(command: String, commandList: java.util.ArrayList[CommandHandler]): Int = {
-    for (index <- 0 to commandList.size() - 1) {
+    for (index <- 0 until commandList.size()) {
       val cmd = commandList.get(index)
       if (cmd.getCommand == command) {
         return index
@@ -697,7 +692,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
         return index
       }
     }
-    //(0 until commandList.size).find(commandList.get(_).command == command).getOrElse(-1)
     -1
   }
 
@@ -753,7 +747,6 @@ class ChannelHandler(@BeanProperty var channel: String, @BeanProperty var connec
       this.privateKey = channelData.getOrDefault("privatekey", this.privateKey).asInstanceOf[String]
       this.linkTimeout = channelData.getOrDefault("linktimeout", this.linkTimeout.toString).toString.toInt
       this.purgeURLS = channelData.getOrDefault("purgelinks", this.purgeURLS.toString).toString.toBoolean
-      //val bultinStringsDoc = channelData.getOrDefault("builtinstrings", new Document()).asInstanceOf[Document]
       this.silentMode = channelData.getOrDefault("silent", this.silentMode.toString).toString.toBoolean
       this.spamPrevention = channelData.getOrDefault("preventspam", this.spamPrevention.toString).toString.toBoolean
       this.spamTimeout = channelData.getOrDefault("spamtimeout", this.spamTimeout.toString).toString.toInt

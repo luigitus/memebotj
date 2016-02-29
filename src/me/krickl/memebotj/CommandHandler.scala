@@ -140,6 +140,8 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   var channelOriginHandler: ChannelHandler = null
 
+  var checkDefaultCooldown = true
+
   for (ch <- Memebot.joinedChannels) {
     if (ch.channel == channelOrigin) {
       channelOriginHandler = ch
@@ -167,7 +169,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
 
   def executeCommand(sender: UserHandler, channelHandler: ChannelHandler, data: Array[String], userList: java.util.HashMap[String, UserHandler]): String = {
     this.success = true
-    var checkCooldown = true
 
     if (formatData) {
       for (i <- data.indices) {
@@ -183,7 +184,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       return "disabled"
     }
 
-    if (checkCooldown && this.checkCooldown(sender, channelHandler)) {
+    if (this.checkDefaultCooldown && this.checkCooldown(sender, channelHandler)) {
       return "cooldown"
     }
 
@@ -203,7 +204,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       try {
         if (data(1).equals("add") && CommandHandler.checkPermission(sender, CommandPower.modAbsolute, userList, this.neededCommandPower)) {
           var newEntry = ""
-          for (i <- 2 to data.length - 1) {
+          for (i <- 2 until data.length) {
             newEntry = newEntry + " " + data(i)
           }
           if (!newEntry.isEmpty) {
@@ -341,23 +342,6 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
       channelHandler.sendMessage(commandScript, this.channelOrigin, sender)
     }
-
-    /*formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this)
-
-    try {
-      for (i <- counterStart to this.param) {
-        formattedOutput = formattedOutput.replace("{param" + Integer.toString(i) + "}", data(i))
-      }
-      if (!formattedOutput.equals("null")) {
-        channelHandler.sendMessage(formattedOutput, this.channelOrigin, sender)
-      }
-    } catch {
-      case e: ArrayIndexOutOfBoundsException =>
-        if (!this.helptext.equals("null")) {
-          channelHandler.sendMessage(Memebot.formatText(this.helptext, channelHandler, sender, this), this.channelOrigin)
-        }
-        return "usage"
-    }*/
 
     this.commandScript(sender, channelHandler, data)
 
@@ -566,6 +550,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       .append("otherdata", otherDataDocument)
       .append("format", this.formatData)
       .append("cooldownuse", this.cooldownAfterUse)
+      .append("checkdefaultcooldown", this.checkDefaultCooldown)
 
     try {
       if (this.commandCollection.findOneAndReplace(channelQuery, channelData) == null) {
@@ -635,6 +620,7 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
       this.caseSensitive = channelData.getOrDefault("case", this.caseSensitive.toString).toString.toBoolean
       this.formatData = channelData.getOrDefault("format", this.formatData.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.cooldownAfterUse = channelData.getOrDefault("cooldownuse", this.cooldownAfterUse.asInstanceOf[Object]).asInstanceOf[Int]
+      this.checkDefaultCooldown = channelData.getOrDefault("checkdefaultcooldown", this.checkDefaultCooldown.asInstanceOf[Object]).asInstanceOf[Boolean]
       //other data are used to store data that are used for internal commands
       val otherDataDocument = channelData.getOrDefault("otherdata", new Document()).asInstanceOf[Document]
 

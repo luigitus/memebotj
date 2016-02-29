@@ -77,12 +77,10 @@ object Memebot {
   var useMongoAuth: Boolean = false
   var pid: Int = 0
   var channels: java.util.ArrayList[String] = new java.util.ArrayList[String]()
-  var guiMode = true
   var isTwitchBot = true
 
   // ConnectionHandler connection = null
   var joinedChannels: java.util.ArrayList[ChannelHandler] = new java.util.ArrayList[ChannelHandler]()
-  var youtubeAPIKey: String = ""
   var useMongo: Boolean = true
   // boolean updateToMongo = false
   var mongoClient: MongoClient = null
@@ -116,9 +114,7 @@ object Memebot {
 
     for (i <- args.indices) {
       val arg = args(i)
-      if (arg == "cli") {
-        guiMode = false
-      } else if (arg.contains("home=")) {
+      if (arg.contains("home=")) {
         Memebot.home = arg.replaceAll("home=", "")
         Memebot.memebotDir = Memebot.home + "/.memebot"
         Memebot.configFile = Memebot.memebotDir + "/memebot.cfg"
@@ -173,7 +169,6 @@ object Memebot {
     Memebot.clientID = config.getProperty("clientid", Memebot.clientID)
     Memebot.clientSecret = config.getProperty("clientsecret", Memebot.clientSecret)
     Memebot.htmlDir = config.getProperty("htmldir", Memebot.htmlDir)
-    Memebot.youtubeAPIKey = config.getProperty("ytapikey", Memebot.youtubeAPIKey)
     Memebot.mongoUser = config.getProperty("mongouser", Memebot.mongoUser)
     Memebot.mongoPassword = config.getProperty("mongopassword", Memebot.mongoPassword)
     Memebot.useMongoAuth = config.getProperty("mongoauth", Memebot.useMongoAuth.toString).toBoolean
@@ -259,11 +254,9 @@ object Memebot {
         Memebot.joinChannel(channel)
       }
 
-      initGUI()
-
       //auto rejoin if a thread crashes
       while (true) {
-        for (i <- 0 to Memebot.joinedChannels.size() - 1) {
+        for (i <- 0 until Memebot.joinedChannels.size()) {
           val ch: ChannelHandler = Memebot.joinedChannels.get(i)
           if (!ch.getT.isAlive) {
             val channel: String = ch.getChannel
@@ -431,12 +424,6 @@ object Memebot {
     }
 
     data
-  }
-
-  def initGUI(): Unit = {
-    if (!Memebot.guiMode) {
-      return
-    }
   }
 
 }

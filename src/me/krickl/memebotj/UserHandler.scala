@@ -60,8 +60,6 @@ class UserHandler(@BeanProperty var username: String, @BeanProperty var channelO
   var modNote: String = ""
   @BeanProperty
   var random = new SecureRandom()
-  @BeanProperty
-  var privateKey = new BigInteger(130, random).toString(32)
 
   @BeanProperty
   var dateJoined = "null"
@@ -103,8 +101,6 @@ class UserHandler(@BeanProperty var username: String, @BeanProperty var channelO
 
   setCommandPower(this._autoCommandPower)
 
-  UserHandler.log.info(String.format("Private key for user %s is %s", this.username, this.privateKey))
-
   def writeDBUserData(): Unit = {
     if (!Memebot.useMongo) {
       return
@@ -116,7 +112,6 @@ class UserHandler(@BeanProperty var username: String, @BeanProperty var channelO
       .append("mod", this.isModerator).append("autogreet", this.autogreet)
       .append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
       .append("timeouts", this.timeouts)
-      .append("privatekey", this.privateKey)
       .append("enableautogreet", this.enableAutogreets)
       .append("datejoined", this.dateJoined)
       .append("timeStampJoined", this.timeStampJoined)
@@ -152,7 +147,6 @@ class UserHandler(@BeanProperty var username: String, @BeanProperty var channelO
       this.customCommandPower = channelData.getOrDefault("ccommandpower", this.customCommandPower.asInstanceOf[Object]).asInstanceOf[Int]
       this.isUserBroadcaster = channelData.getOrDefault("broadcaster", this.isUserBroadcaster.asInstanceOf[Object]).asInstanceOf[Boolean]
       this.timeouts = channelData.getOrDefault("timeouts", this.timeouts.asInstanceOf[Object]).asInstanceOf[Int]
-      this.privateKey = channelData.getOrDefault("privatekey", this.privateKey.asInstanceOf[Object]).asInstanceOf[String]
       this.enableAutogreets = channelData.getOrDefault("enableautogreet", this.enableAutogreets.toString).toString.toBoolean
       this.dateJoined = channelData.getOrDefault("datejoined", this.dateJoined).toString
       this.timeStampJoined = channelData.getOrDefault("timeStampJoined", this.timeStampJoined.asInstanceOf[Object]).asInstanceOf[Long]
