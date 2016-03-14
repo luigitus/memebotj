@@ -101,7 +101,7 @@ class FilenameCommand(channel: String, command: String, dbprefix: String) extend
       var success = false
       if (data(0).length <= channelHandler.getMaxFileNameLen) {
         if (amountOfNamesInList + i > channelHandler.maxAmountOfNameInList) {
-          channelHandler.sendMessage(Memebot.formatText("NAME_ADD_TOO_MANY", channelHandler, sender, this, true, Array(f"${channelHandler.maxAmountOfNameInList}")), this.getChannelOrigin)
+          channelHandler.sendMessage(Memebot.formatText("NAME_ADD_TOO_MANY", channelHandler, sender, this, true, Array(f"${channelHandler.maxAmountOfNameInList}", f"$amountOfNamesInList")), this.getChannelOrigin)
           success = false
         }
         else if (!this.checkCost(sender, cost * i + channelHandler.pointsPerUpdate, channelHandler)) {

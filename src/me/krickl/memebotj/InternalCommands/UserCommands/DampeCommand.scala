@@ -2,7 +2,7 @@ package me.krickl.memebotj.InternalCommands.UserCommands
 
 import java.security.SecureRandom
 
-import me.krickl.memebotj.Utility.CommandPower
+import me.krickl.memebotj.Utility.{Cooldown, CommandPower}
 import me.krickl.memebotj._
 
 class DampeCommand(channel: String, command: String, dbprefix: String) extends CommandHandler(channel,
@@ -12,6 +12,11 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setUserCooldownLen(90)
 
+  //special case for mikami currently hard coded
+  if(this.channelOrigin == "mikamihero") {
+    this.setUserCooldownLen(300)
+  }
+
   this.setListContent(new java.util.ArrayList[String]())
 
   this.setPointCost(0)
@@ -20,7 +25,7 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
 
   this.setCmdtype("default")
 
-  this.checkDefaultCooldown = false
+  this.checkDefaultCooldown = true
 
   if (!this.otherData.containsKey("jackpot")) {
     this.otherData.put("jackpot", "0")
@@ -83,6 +88,10 @@ class DampeCommand(channel: String, command: String, dbprefix: String) extends C
     if (!channelHandler.isLive) {
       offlineModifier = 5
     }
+
+    /*if(!this.checkCooldown(sender, channelHandler)) {
+      return
+    }*/
 
     //outcomes of dampe
     if (outcome <= 3 && channelHandler.isLive) {

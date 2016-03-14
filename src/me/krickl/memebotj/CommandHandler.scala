@@ -1,5 +1,6 @@
 package me.krickl.memebotj
 
+import java.io.{FileWriter, BufferedWriter}
 import java.net.URLEncoder
 import java.util
 import java.util.Random
@@ -348,6 +349,16 @@ class CommandHandler(channel: String, commandName: String = "null", dbprefix: St
     // write changes to db
     if (!sender.getUsername.equals("#readonly#")) {
       this.writeDBCommand()
+    }
+
+    //write output to html
+    try {
+      val bw = new BufferedWriter(new FileWriter(channelHandler.htmlDir + "/_output_" + this.command + ".html"))
+      bw.write("<body bgcolor=\"#00FF00\">")
+      bw.write(formattedOutput)
+      bw.close()
+    } catch {
+      case e: Exception => e.printStackTrace()
     }
 
     this.execCounter = this.execCounter + 1

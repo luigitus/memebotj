@@ -36,7 +36,7 @@ class IRCConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, 
 
     this.outToServer = new DataOutputStream(this.ircSocket.getOutputStream)
 
-    IRCConnectionHandler.log.info(f"Connectiong to server $server with username $botNick on $port\n")
+    IRCConnectionHandler.log.info(f"Connecting to server $server with username $botNick on $port\n")
 
     this.outToServer.writeBytes("PASS " + this.password + "\n")
     this.outToServer.writeBytes("NICK " + this.botNick + "\n")
@@ -67,7 +67,7 @@ class IRCConnectionHandler(serverNew: String, portNew: Int, botNickNew: String, 
 
     if (hashIndex > 0) {
       breakable {
-        for (i <- hashIndex + 1 to ircmsg.length() - 1) {
+        for (i <- hashIndex + 1 until ircmsg.length()) {
           if (ircmsg.charAt(i) != ' ') {
             channel = channel + ircmsg.charAt(i)
           } else {

@@ -110,6 +110,10 @@ object Memebot {
 
   var phraseBanList = new util.ArrayList[String]()
 
+  var whisperServer = "52.223.240.152"
+  var whisperPort = 443
+  var whisperConnection: IRCConnectionHandler = _
+
   def main(args: Array[String]) {
 
     for (i <- args.indices) {
@@ -179,6 +183,8 @@ object Memebot {
     Memebot.mainChannel = config.getProperty("mainchannel", Memebot.mainChannel)
     Memebot.debug = config.getProperty("debug", Memebot.debug.toString).toBoolean
     Memebot.useUpdateThread = config.getProperty("updatethread", Memebot.useUpdateThread.toString).toBoolean
+    Memebot.whisperPort = config.getProperty("whisperport", Memebot.whisperPort.toString).toInt
+    Memebot.whisperServer = config.getProperty("whisperserver", Memebot.whisperServer).toString
 
     if (Memebot.isBotMode) {
       // shutdown hook
@@ -271,6 +277,12 @@ object Memebot {
           case e: InterruptedException =>
             e.printStackTrace()
         }
+
+        try {
+          whisperConnection.recvData()
+        } catch {
+          case e: IOException => Memebot.log.info(e.toString)
+        }
       }
     }
   }
@@ -292,6 +304,14 @@ object Memebot {
     } catch {
       case e: IOException =>
         e.printStackTrace()
+    }
+
+    //join whisper
+    try {
+      Memebot.whisperConnection = new IRCConnectionHandler(whisperServer, whisperPort, botNick, botPassword)
+    } catch {
+    case e: IOException =>
+      e.printStackTrace()
     }
   }
 
