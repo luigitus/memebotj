@@ -65,7 +65,7 @@ public class UserHandler {
         }
 
         readDB();
-        if (dateJoined == "null") {
+        if (dateJoined.equals("null")) {
             SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a"); // dd/MM/yyyy
             Calendar cal = Calendar.getInstance();
             this.dateJoined = sdfDate.format(cal.getTime());
@@ -87,7 +87,7 @@ public class UserHandler {
         // read data
         if (userData != null) {
             this.isModerator = userData.getBoolean("mod", this.isModerator);
-            this.points = (double)userData.getOrDefault("pointsf", (int)this.points);
+            this.points = (double)userData.getOrDefault("pointsf", this.points);
             this.autogreet = userData.getOrDefault("autogreet", this.autogreet).toString();
             this.customCommandPower = (int)userData.getOrDefault("ccommandpower", this.customCommandPower);
             this.isUserBroadcaster = (boolean) userData.getOrDefault("broadcaster", this.isUserBroadcaster);
@@ -96,7 +96,7 @@ public class UserHandler {
             this.dateJoined = userData.getOrDefault("datejoined", this.dateJoined).toString();
             this.timeStampJoined = (long)userData.getOrDefault("timeStampJoined", this.timeStampJoined);
             this.nickname = userData.getOrDefault("nickname", this.nickname).toString();
-            this.walletSize = (int)userData.getOrDefault("wallet", this.walletSize);
+            this.walletSize = (double)userData.getOrDefault("wallet", this.walletSize);
             this.isFollowing = (boolean)userData.getOrDefault("isfollowing", this.isFollowing);
             this.hasFollowed = (boolean)userData.getOrDefault("hasfollowed", this.hasFollowed);
 

@@ -4,6 +4,7 @@ import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Twitch.ChannelAPI;
 import me.krickl.memebotj.Utility.Cooldown;
@@ -82,7 +83,7 @@ public class ChannelHandler implements Runnable {
     private String followAnnouncement = "";
     private int maxScreenNameLen = 15;
     private int maxAmountOfNameInList = 25;
-    private int pointsTax = 0;
+    private double pointsTax = 0.0f;
     private ChannelAPI twitchChannelAPI = new ChannelAPI(this);
     private boolean silentMode = false;
     private Localisation localisation = new Localisation(this.local);
@@ -111,35 +112,30 @@ public class ChannelHandler implements Runnable {
         localisation = new Localisation(this.local);
 
         // todo add all internal commands
-        /*this.internalCommands.add(new AboutCommand(this.channel, "!about", "#internal#"))
-        this.internalCommands.add(new AutogreetCommand(this.channel, "!autogreet", "#internal#"))
-        this.internalCommands.add(new EditChannel(this.channel, "!channel", "#internal#"))
-        this.internalCommands.add(new CommandList(this.channel, "!commands", "#internal#"))
-        this.internalCommands.add(new HelpCommand(this.channel, "!help", "#internal#"))
-        this.internalCommands.add(new HugCommand(this.channel, "!mehug", "#internal#"))
-        this.internalCommands.add(new JoinCommand(this.channel, "!mejoin", "#internal#"))
-        this.internalCommands.add(new PartCommand(this.channel, "!mepart", "#internal#"))
-        this.internalCommands.add(new PointsCommand(this.channel, "!points", "#internal#"))
-        this.internalCommands.add(new QuitCommand(this.channel, "!mequit", "#internal#"))
-        this.internalCommands.add(new RaceCommand(this.channel, "!race", "#internal#"))
-        this.internalCommands.add(new SaveCommand(this.channel, "!mesave", "#internal#"))
-        this.internalCommands.add(new WhoisCommand(this.channel, "!whois", "#internal#"))
-        this.internalCommands.add(new FilenameCommand(this.channel, "!name", "#internal#"))
-        this.internalCommands.add(new SpeedrunCommand(this.channel, "!run", "#internal#"))
-        this.internalCommands.add(new EditUserCommand(this.channel, "!user", "#internal#"))
-        this.internalCommands.add(new SendMessageCommand(this.channel, "!sm", "#internal#"))
-        this.internalCommands.add(new DampeCommand(this.channel, "!dampe", "#internal#"))
-        this.internalCommands.add(new DebugCommand(this.channel, "!debug", "#debug#"))
-        this.internalCommands.add(new PyramidCommand(this.channel, "!pyramid", "#internal#"))
-        this.internalCommands.add(new CommandManager(this.channel, "!command", "#internal#"))
-        this.internalCommands.add(new ChannelInfoCommand(this.channel, "!ci", "#internal#"))
-        this.internalCommands.add(new UptimeCommand(this.channel, "!uptime", "#internal#"))
-        this.internalCommands.add(new BobRossCommand(this.channel, "!bobross", "#internal#"))
-        this.internalCommands.add(new BKTWVEAAAVBMOFSRCCommand(this.channel, "!BKTWVEAAAVBMOFSRC", "#internal#"))
-        this.internalCommands.add(new SimonsQuestCommand(this.channel, "!simonsquest", "#internal#"))
-        this.internalCommands.add(new RestartThreadCommand(this.channel, "!restartt", "#internal#"))
-        this.internalCommands.add(new CategoryGeneratorCommand(this.channel, "!category", "#internal#"))
-        this.internalCommands.add(new LotteryCommand(this.channel, "!lottery", "#internal#"))*/
+        this.internalCommands.add(new AboutCommand(this, "!about", "#internal#"));
+        this.internalCommands.add(new AutogreetCommand(this, "!autogreet", "#internal#"));
+        this.internalCommands.add(new EditChannel(this, "!channel", "#internal#"));
+        //this.internalCommands.add(new CommandList(this.channel, "!commands", "#internal#"))
+        this.internalCommands.add(new HelpCommand(this, "!help", "#internal#"));
+        this.internalCommands.add(new HugCommand(this, "!mehug", "#internal#"));
+        this.internalCommands.add(new JoinCommand(this, "!mejoin", "#internal#"));
+        this.internalCommands.add(new PartCommand(this, "!mepart", "#internal#"));
+        this.internalCommands.add(new PointsCommand(this, "!points", "#internal#"));
+        this.internalCommands.add(new QuitCommand(this, "!mequit", "#internal#"));
+        this.internalCommands.add(new RaceCommand(this, "!race", "#internal#"));
+        this.internalCommands.add(new SaveCommand(this, "!mesave", "#internal#"));
+        this.internalCommands.add(new WhoisCommand(this, "!whois", "#internal#"));
+        this.internalCommands.add(new FilenameCommand(this, "!name", "#internal#"));
+        this.internalCommands.add(new EdituserCommand(this, "!user", "#internal#"));
+        // todo implement this this. internalCommands.add(new SendMessageCommand(this, "!sm", "#internal#"));
+        this.internalCommands.add(new DampeCommand(this, "!dampe", "#internal#"));
+        this.internalCommands.add(new DebugCommand(this, "!debug", "#debug#"));
+        this.internalCommands.add(new PyramidCommand(this, "!pyramid", "#internal#"));
+        this.internalCommands.add(new CommandManager(this, "!command", "#internal#"));
+        this.internalCommands.add(new ChannelInfoCommand(this, "!ci", "#internal#"));
+        this.internalCommands.add(new BobRossCommand(this, "!bobross", "#internal#"));
+        this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
+        // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 
         CommandHandler issueCommand = new CommandHandler(this, "!issue", "#internal#");
         issueCommand.editCommand("output", "{sender}: Having issues? Write a bugreport at https://github.com/unlink2/memebotj/issues", new UserHandler("#internal#", this.channel));
@@ -365,11 +361,25 @@ public class ChannelHandler implements Runnable {
             }
         }
 
+        //internal text triggers
+        for (String s : msgContent) {
+            p = this.findCommand(s, this.internalCommands, 0);
+
+            if (p != -1) {
+                CommandHandler ch = this.internalCommands.get(p);
+                if (ch.isTextTrigger()) {
+                    ch.executeCommand(sender, new String[]{"", ""});
+                }
+            }
+        }
+
         //internal commands
         p = this.findCommand(msg, this.internalCommands, 0);
         if (p != -1) {
             CommandHandler ch = this.internalCommands.get(p);
-            ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
+            if(!ch.isTextTrigger()) {
+                ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
+            }
         }
 
         //set user activity
@@ -385,6 +395,10 @@ public class ChannelHandler implements Runnable {
     }
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender) {
+        sendMessage(mesgessage, channel, sender, false);
+    }
+
+    public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper) {
         String msg = mesgessage;
         if (!this.preventMessageCooldown.canContinue()) {
             return;
@@ -401,15 +415,23 @@ public class ChannelHandler implements Runnable {
         }
 
         this.currentMessageCount += 1;
-        if (sender.getUsername().equals("#readonly#")) {
-            this.connection.sendMessage(new String("PRIVMSG " + this.channel + " :" + msg + "\n"));
+        if(!whisper) {
+            if (sender.getUsername().equals("#readonly#")) {
+                this.connection.sendMessage(new String("PRIVMSG " + this.channel + " :" + msg + "\n"));
+            } else {
+                this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"));
+            }
         } else {
-            this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"));
+            if (sender.getUsername().equals("#readonly#")) {
+                this.connection.sendMessage(new String("PRIVMSG #jtv :/w" + sender.getUsername() + " " + msg + "\n"));
+            } else {
+                this.connection.sendMessage(new String("PRIVMSG #jtv :/w" + sender.getUsername() + " " + msg + "\n"));
+            }
         }
     }
 
     public int findCommand(String command) {
-        return this.findCommand(command, this.channelCommands, -1);
+        return findCommand(command, this.channelCommands, 0);
     }
 
     public int findCommand(String command, java.util.ArrayList<CommandHandler> commandList, int i) {
@@ -419,7 +441,7 @@ public class ChannelHandler implements Runnable {
                 return index;
             }
 
-            if (!cmd.isCaseSensitive() && cmd.getCommandName().toLowerCase() == command.toLowerCase()) {
+            if (!cmd.isCaseSensitive() && cmd.getCommandName().toLowerCase().equals(command.toLowerCase())) {
                 return index;
             }
         }
@@ -459,7 +481,7 @@ public class ChannelHandler implements Runnable {
             this.followAnnouncement = channelData.getOrDefault("followannouncement", this.followAnnouncement).toString();
             this.maxScreenNameLen = (int)channelData.getOrDefault("maxscreennamelen", this.maxScreenNameLen);
             this.maxAmountOfNameInList = (int)channelData.getOrDefault("maxnameinlist", this.maxScreenNameLen);
-            this.pointsTax = (int)channelData.getOrDefault("pointstax", this.pointsTax);
+            this.pointsTax = (double)channelData.getOrDefault("pointstax", this.pointsTax);
             this.startingPoints = (double)channelData.getOrDefault("startingpoints", this.startingPoints);
         }
         MongoCollection commandCollection = Memebot.db.getCollection(this.channel + "_commands");
@@ -884,11 +906,11 @@ public class ChannelHandler implements Runnable {
         this.maxAmountOfNameInList = maxAmountOfNameInList;
     }
 
-    public int getPointsTax() {
+    public double getPointsTax() {
         return pointsTax;
     }
 
-    public void setPointsTax(int pointsTax) {
+    public void setPointsTax(double pointsTax) {
         this.pointsTax = pointsTax;
     }
 

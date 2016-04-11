@@ -338,9 +338,9 @@ public class Memebot {
                 String str = params[i];
                 String original = formattedOutput;
                 if (str != null) {
-                    formattedOutput = formattedOutput.replace(String.format("%s", params[i + 1]), str);
+                    formattedOutput = formattedOutput.replace(String.format("{param%d}", i + 1), str);
 
-                    if (formattedOutput == original) {
+                    if (formattedOutput.equals(original)) {
                         formattedOutput = formattedOutput + " " + str;
                     }
                 } else if (alternativeText != null) {

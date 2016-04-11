@@ -1,0 +1,64 @@
+package me.krickl.memebotj.Commands.Internal;
+
+import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Memebot;
+import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.Utility.CommandPower;
+
+/**
+ * This file is part of memebotj.
+ * Created by unlink on 11/04/16.
+ */
+public class WhoisCommand extends CommandHandler {
+    public WhoisCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
+        super(channelHandler, commandName, dbprefix);
+    }
+
+    @Override
+    public void overrideDB() {
+        this.setHelptext(Memebot.formatText("WHOIS_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
+
+        this.setNeededCommandPower(CommandPower.modAbsolute);
+    }
+
+    @Override
+    public void commandScript(UserHandler sender, String[] data) {
+        try {
+            String user = data[0].toLowerCase();
+            UserHandler uh = null;
+            if (getChannelHandler().getUserList().containsKey(user)) {
+                uh = getChannelHandler().getUserList().get(user);
+            }
+            else {
+                uh = new UserHandler(user, this.getChannelHandler().getChannel());
+            }
+
+            if (uh.isNewUser()) {
+                getChannelHandler().sendMessage(Memebot.formatText("WHOIS_NEW_USER", getChannelHandler(), sender, this, true, new String[]{sender.screenName()}, ""), getChannelHandler().getChannel());
+            }
+
+            boolean isCat = false;
+            if (user.contains("cat")) {
+                isCat = true;
+            }
+            getChannelHandler().sendMessage(uh.getUsername() + " || Broadcaster: " + java.lang.Boolean.toString(uh.isUserBroadcaster()) +
+                    " || Mod: " +
+                    java.lang.Boolean.toString(uh.isModerator()) +
+                    " || Command Power: " +
+                    java.lang.Integer.toString(uh.getCommandPower()) +
+                    " || Timeouts: " +
+                    java.lang.Integer.toString(uh.getTimeouts()) +
+                    " || Is known user: " +
+                    java.lang.Boolean.toString(!uh.isNewUser()) +
+                    " || Date joined: " +
+                    uh.getDateJoined() +
+                    " || Screenname: " + uh.screenName() +
+                    "|| Weird Boolean: " + "Rip Weird Boolean" +
+                    " || Is user a cat: " +
+                    java.lang.Boolean.toString(isCat), this.getChannelHandler().getChannel());
+        } catch(ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+    }
+}
