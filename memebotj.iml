@@ -57,16 +57,5 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="scala-library-2.11.7.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/scala-library-2.11.7.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="scala-sdk-2.11.7" level="application" />
-    <orderEntry type="library" name="bson" level="project" />
   </component>
 </module>

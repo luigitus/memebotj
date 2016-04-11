@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 Class-Path: memebotj_lib/bson.jar memebotj_lib/json-simple.jar memebot
- j_lib/mongodb-driver.jar memebotj_lib/mongodb.jar memebotj_lib/scala-
- library-2.11.7.jar
+ j_lib/mongodb-driver.jar memebotj_lib/mongodb.jar
 Main-Class: me.krickl.memebotj.Memebot
 
