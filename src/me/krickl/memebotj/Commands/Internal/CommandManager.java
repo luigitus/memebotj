@@ -96,7 +96,7 @@ public class CommandManager extends CommandHandler {
                 }
             } else if (data[0].equals("list")) {
                 if (Memebot.useWeb) {
-                    getChannelHandler().sendMessage(Memebot.formatText("COMMAND_LIST", getChannelHandler(), sender, this, true, new String[]{getChannelHandler().getChannelPageBaseURL() + "/index.html"}, ""), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(Memebot.formatText("COMMAND_LIST", getChannelHandler(), sender, this, true, new String[]{getChannelHandler().getChannelPageBaseURL()}, ""), this.getChannelHandler().getChannel());
                 } else {
                     int index = 0;
                     String output = "";

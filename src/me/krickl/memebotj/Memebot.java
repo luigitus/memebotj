@@ -51,6 +51,7 @@ public class Memebot {
     public static boolean useMongoAuth = false;
     public static int pid = 0;
     public static ArrayList<String> channels = new java.util.ArrayList<String>();
+    public static ArrayList<String> channelsPrivate = new java.util.ArrayList<String>();
     public static boolean isTwitchBot = true;
     public static boolean jokeMode = false;
 
@@ -59,11 +60,12 @@ public class Memebot {
     public static boolean useMongo = true;
     // boolean updateToMongo = false
     public static MongoClient mongoClient = null;
+    public static MongoDatabase dbPrivate = null;
     public static MongoDatabase db = null;
 
     public static final int messageLimit = 19; // message limit per 30 seconds
 
-    public static MongoCollection<Document> internalCollection = null;
+    //public static MongoCollection<Document> internalCollection = null;
 
     public static String webBaseURL = "";
 
@@ -106,7 +108,7 @@ public class Memebot {
     public static void setupDirs() {
         // initial setup
         new File(home + "/.memebot").mkdir();
-        new File(home + "/.memebot/channels");
+        new File(home + "/.memebot/channels").mkdir();
         new File(home + "/.memebot/locals").mkdir();
 
         BuildInfo.loadBuildInfo();
@@ -123,15 +125,17 @@ public class Memebot {
                 } else {
                     Memebot.mongoClient = new MongoClient(Memebot.mongoHost, Memebot.mongoPort);
                 }
-                Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
-                Memebot.internalCollection = Memebot.db.getCollection("#internal#");
+                Memebot.dbPrivate = Memebot.mongoClient.getDatabase(Memebot.mongoDBName);
+                Memebot.db = Memebot.mongoClient.getDatabase(Memebot.mongoDBName + "_public");
+                //Memebot.internalCollection = Memebot.db.getCollection("#internal#");
             } else {
                 new File(Memebot.memebotDir + "/channeldata").mkdirs();
             }
 
             try {
-                channels = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),
-                        Charset.defaultCharset());
+                channels = Memebot.listDirectory(new File(home + "/.memebot/channels/"), 1);
+                //private channels on private database
+                channelsPrivate = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),Charset.defaultCharset());
 
                 urlBanList = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
                         Charset.defaultCharset());
@@ -310,7 +314,7 @@ public class Memebot {
             formattedOutput = formattedOutput.replace("{execcount}", Integer.toString(commandHandler.getExecCounter()));
         }
         if (channelHandler != null) {
-            formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageURL());
+            formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageBaseURL());
             if (channelHandler.getCurrentGame() != null) {
                 formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
             }

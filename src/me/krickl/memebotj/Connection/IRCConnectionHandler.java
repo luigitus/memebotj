@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -108,13 +109,13 @@ public class IRCConnectionHandler implements ConnectionInterface {
     public MessagePackage handleMessage(String rawircmsg, ChannelHandler channelHandler) {
         String senderName = "";
         HashMap<String, String> ircTags = new HashMap<String, String>();
-        String[] msgContent = null;
+        String[] msgContent = {""};
         String[] ircmsgBuffer = rawircmsg.split(" ");
         String messageType = "UNDEFINED";
         int i = 0;
         while (i < ircmsgBuffer.length) {
             String msg = ircmsgBuffer[i];
-            if ((msg.equals("PRIVMSG") || msg.equals("MODE") || msg.equals("PART") || msg.equals("JOIN") || msg.equals("CLEARCHAT")) && messageType.equals("UNDEFINED")) {
+            if ((msg.equals("PRIVMSG") || msg.equals("WHISPER") || msg.equals("MODE") || msg.equals("PART") || msg.equals("JOIN") || msg.equals("CLEARCHAT")) && messageType.equals("UNDEFINED")) {
                 messageType = msg;
             }
             if (msg.charAt(0) == '@' && i == 0) {
@@ -141,7 +142,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
                     senderName = "#internal#";
                 }
             }
-            if (messageType.equals("PRIVMSG") && i > 3) {
+            if ((messageType.equals("PRIVMSG") || messageType.equals("WHISPER")) && i > 3) {
                 if (i == 4) {
                     msgContent = new String[ircmsgBuffer.length - 4];
                     msgContent[i - 4] = msg.substring(1);
@@ -160,12 +161,12 @@ public class IRCConnectionHandler implements ConnectionInterface {
         //todo make sure sender is not removed
         sender.setShouldBeRemoved(false);
 
-        if (!messageType.equals("PRIVMSG")) {
+        if (!messageType.equals("PRIVMSG") || messageType.equals("WHISPER")) {
             String[] ircmsgList = rawircmsg.split(" ");
             if (ircmsgList[1] == null) {
                 return null;
             }
-            if (ircmsgList[1] == "MODE") {
+            if (ircmsgList[1].equals("MODE")) {
                 UserHandler user = null;
                 if (!channelHandler.getUserList().containsKey(ircmsgList[4])) {
                     user = new UserHandler(ircmsgList[4], channelHandler.getChannel());
@@ -174,7 +175,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
                     user = channelHandler.getUserList().get(ircmsgList[4]);
                 }
                 if (user != null) {
-                    if (ircmsgList[3] == "+o") {
+                    if (ircmsgList[3].equals("+o")) {
                         user.setModerator(true);
                         if (!user.isUserBroadcaster()) {
                             user.setCommandPower(CommandPower.modAbsolute);
@@ -241,6 +242,15 @@ public class IRCConnectionHandler implements ConnectionInterface {
                 }
             }
         }
+
+        /*if(messageType.equals("WHISPER")) {
+            try {
+                messageType = "WHISPER" + msgContent[0];
+                msgContent = Arrays.copyOfRange(msgContent, 1, msgContent.length);
+            } catch(ArrayIndexOutOfBoundsException e) {
+
+            }
+        }*/
 
         return new MessagePackage(msgContent, sender, messageType);
     }

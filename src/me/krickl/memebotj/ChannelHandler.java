@@ -49,7 +49,6 @@ public class ChannelHandler implements Runnable {
     private long streamStartTime = 0;
 
     private String local = "engb";
-    private String channelPageURL = Memebot.webBaseURL + this.broadcaster + "/index.html";
     private String channelPageBaseURL = Memebot.webBaseURL + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
@@ -91,6 +90,10 @@ public class ChannelHandler implements Runnable {
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
         this.connection = connection;
+        this.broadcaster = this.channel.replace("#", "");
+        broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
+        channelPageBaseURL = Memebot.webBaseURL + this.broadcaster;
+        htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
 
         broadcasterHandler.setUserBroadcaster(true);
@@ -105,7 +108,11 @@ public class ChannelHandler implements Runnable {
         this.joinChannel(this.channel);
 
         if (Memebot.useMongo) {
-            this.channelCollection = Memebot.db.getCollection(this.channel);
+            if(!Memebot.channelsPrivate.contains(this.channel)) {
+                this.channelCollection = Memebot.db.getCollection(this.channel);
+            } else {
+                this.channelCollection = Memebot.dbPrivate.getCollection(this.channel);
+            }
         }
 
         this.readDB();
@@ -115,7 +122,6 @@ public class ChannelHandler implements Runnable {
         this.internalCommands.add(new AboutCommand(this, "!about", "#internal#"));
         this.internalCommands.add(new AutogreetCommand(this, "!autogreet", "#internal#"));
         this.internalCommands.add(new EditChannel(this, "!channel", "#internal#"));
-        //this.internalCommands.add(new CommandList(this.channel, "!commands", "#internal#"))
         this.internalCommands.add(new HelpCommand(this, "!help", "#internal#"));
         this.internalCommands.add(new HugCommand(this, "!mehug", "#internal#"));
         this.internalCommands.add(new JoinCommand(this, "!mejoin", "#internal#"));
@@ -166,15 +172,8 @@ public class ChannelHandler implements Runnable {
 
         if (isInList && removeThisCH != null) {
             Memebot.joinedChannels.remove(removeThisCH);
-            try {
-                BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig));
-                for (ChannelHandler ch : Memebot.joinedChannels) {
-                    bw.write(ch.getChannel() + "\n");
-                }
-                bw.close();
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
+            new File(Memebot.home + "/.memebot/channels/" + channel).delete();
+
         }
         this.sendMessage("Leaving channel :(", this.channel);
         this.isJoined = false;
@@ -194,16 +193,11 @@ public class ChannelHandler implements Runnable {
             }
         }
 
-        if (!isInList) {
-            Memebot.joinedChannels.add(this);
+        if(!isInList) {
             try {
-                BufferedWriter bw = new BufferedWriter(new FileWriter(Memebot.channelConfig));
-                for (ChannelHandler ch : Memebot.joinedChannels) {
-                    bw.write(ch.getChannel() + "\n");
-                }
-                bw.close();
+                new File(Memebot.home + "/.memebot/channels/" + channel).createNewFile();
             } catch(IOException e) {
-                e.printStackTrace();
+                log.warning(e.toString());
             }
         }
         this.isJoined = true;
@@ -297,6 +291,10 @@ public class ChannelHandler implements Runnable {
         if (msgPackage == null) {
             return;
         }
+
+        /*if(msgPackage.messageType.equals("WHISPER" + this.channel)) {
+            msgPackage.messageType = "PRIVMSG";
+        }*/
 
         String[] msgContent = msgPackage.messageContent;
         UserHandler sender = msgPackage.sender;
@@ -417,15 +415,15 @@ public class ChannelHandler implements Runnable {
         this.currentMessageCount += 1;
         if(!whisper) {
             if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage(new String("PRIVMSG " + this.channel + " :" + msg + "\n"));
+                this.connection.sendMessage("PRIVMSG " + this.channel + " :" + msg + "\n");
             } else {
-                this.connection.sendMessage(new String("PRIVMSG " + this.channel + " : " + msg + "\n"));
+                this.connection.sendMessage("PRIVMSG " + this.channel + " : " + msg + "\n");
             }
         } else {
             if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage(new String("PRIVMSG #jtv :/w" + sender.getUsername() + " " + msg + "\n"));
+                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " " + msg + "\n");
             } else {
-                this.connection.sendMessage(new String("PRIVMSG #jtv :/w" + sender.getUsername() + " " + msg + "\n"));
+                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " " + msg + "\n");
             }
         }
     }
@@ -484,7 +482,12 @@ public class ChannelHandler implements Runnable {
             this.pointsTax = (double)channelData.getOrDefault("pointstax", this.pointsTax);
             this.startingPoints = (double)channelData.getOrDefault("startingpoints", this.startingPoints);
         }
-        MongoCollection commandCollection = Memebot.db.getCollection(this.channel + "_commands");
+        MongoCollection commandCollection = null;
+        if(!Memebot.channelsPrivate.contains(this.channel)) {
+            commandCollection = Memebot.db.getCollection(this.channel + "_commands");
+        } else {
+            commandCollection = Memebot.dbPrivate.getCollection(this.channel + "_commands");
+        }
         FindIterable comms = commandCollection.find();
         final ChannelHandler ch = this;
         //todo fix this important!
@@ -672,14 +675,6 @@ public class ChannelHandler implements Runnable {
 
     public void setLocal(String local) {
         this.local = local;
-    }
-
-    public String getChannelPageURL() {
-        return channelPageURL;
-    }
-
-    public void setChannelPageURL(String channelPageURL) {
-        this.channelPageURL = channelPageURL;
     }
 
     public String getChannelPageBaseURL() {

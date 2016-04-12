@@ -61,7 +61,11 @@ public class UserHandler {
         this.channelOrigin = channelOrigin;
 
         if (Memebot.useMongo) {
-            this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
+            if(!Memebot.channelsPrivate.contains(this.channelOrigin)) {
+                this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
+            } else {
+                this.userCollection = Memebot.dbPrivate.getCollection(this.channelOrigin + "_users");
+            }
         }
 
         readDB();

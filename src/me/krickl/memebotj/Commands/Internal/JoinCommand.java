@@ -25,17 +25,16 @@ public class JoinCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         try {
-            if (getChannelHandler().getChannel().equals(Memebot.mainChannel)) {
-                for (ChannelHandler channel : Memebot.joinedChannels) {
-                    if (channel.getChannel().equals("#" + sender.getUsername().toLowerCase())) {
-                        getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN_FAIL"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
-                        return;
-                    }
+            for (ChannelHandler channel : Memebot.joinedChannels) {
+                if (channel.getChannel().equals("#" + sender.getUsername().toLowerCase())) {
+                    getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN_FAIL"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
+                    return;
                 }
-                Memebot.joinChannel("#" + sender.getUsername());
-                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
             }
+            Memebot.joinChannel("#" + sender.getUsername());
+            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
         } catch(ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
         }
     }
 }

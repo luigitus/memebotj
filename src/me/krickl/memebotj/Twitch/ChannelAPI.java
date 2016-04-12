@@ -23,15 +23,13 @@ public class ChannelAPI {
         //twitch update
         try {
             if (Memebot.isTwitchBot) {
-                String data = Memebot.urlRequest("https://api.twitch.tv/kraken/streams/" + channelHandler.getChannel(), 5000, false);
+                String data = Memebot.urlRequest("https://api.twitch.tv/kraken/streams/" + channelHandler.getBroadcaster(), 5000, false);
                 JSONParser parser = new JSONParser();
                 JSONObject obj = (JSONObject)parser.parse(data);
-                Object isOnline = obj.get("stream");
+                JSONObject isOnline = (JSONObject)obj.get("stream");
                 if (isOnline == null) {
                     channelHandler.setLive(false);
                 } else {
-                    if (channelHandler.isLive()) {
-                    }
                     channelHandler.setLive(true);
                 }
             } else {
@@ -39,12 +37,14 @@ public class ChannelAPI {
             }
         } catch(ParseException e) {
             e.printStackTrace();
+            channelHandler.setLive(false);
         }
 
         //get game
         try {
             if (Memebot.isTwitchBot) {
-                String data = Memebot.urlRequest("https://api.twitch.tv/kraken/channels/" + channelHandler.getChannel(), 5000, false);
+                System.out.println("https://api.twitch.tv/kraken/channels/" + channelHandler.getChannel());
+                String data = Memebot.urlRequest("https://api.twitch.tv/kraken/channels/" + channelHandler.getBroadcaster(), 5000, false);
 
                 JSONParser parser = new JSONParser();
                 JSONObject obj = (JSONObject) parser.parse(data);
@@ -57,6 +57,7 @@ public class ChannelAPI {
             }
         } catch(ParseException e)  {
             e.printStackTrace();
+            channelHandler.setCurrentGame("");
         }
     }
 }

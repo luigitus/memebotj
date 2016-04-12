@@ -56,6 +56,7 @@ public class CommandHandler implements CommandInterface {
     private HashMap<String, String> otherData = new HashMap<>();
 
     private boolean success = false;
+    private boolean whisper = false;
 
     public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
         String senderName = senderObject.getUsername();
@@ -90,10 +91,18 @@ public class CommandHandler implements CommandInterface {
         this.commandName = commandName;
 
         if (Memebot.useMongo) {
-            if (dbprefix == null) {
-                this.commandCollection = Memebot.db.getCollection(this.channelHandler.getChannel() + "_commands");
+            if(!Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel())) {
+                if (dbprefix == null) {
+                    this.commandCollection = Memebot.db.getCollection(this.channelHandler.getChannel() + "_commands");
+                } else {
+                    this.commandCollection = Memebot.db.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
+                }
             } else {
-                this.commandCollection = Memebot.db.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
+                if (dbprefix == null) {
+                    this.commandCollection = Memebot.dbPrivate.getCollection(this.channelHandler.getChannel() + "_commands");
+                } else {
+                    this.commandCollection = Memebot.dbPrivate.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
+                }
             }
         }
 
@@ -344,7 +353,7 @@ public class CommandHandler implements CommandInterface {
                     }
                 } else if (data[1].equals("list")) {
                     try {
-                        formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + channelHandler.getBroadcaster() + "/" + URLEncoder.encode(this.commandName, "UTF-8") + ".html"}, "");
+                        formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/list/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
                         //success = true;
                     } catch (Exception e) {
                         log.warning(e.toString());
@@ -356,7 +365,7 @@ public class CommandHandler implements CommandInterface {
                         if(this.listContent.size() <= Integer.parseInt(data[1])) {
                             formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
                         } else {
-                            formattedOutput = this.quotePrefix.replace("{number}", data[1]) + this.listContent.get(Integer.parseInt(data[1])) + this.quoteSuffix.replace("{number}", data[1]);
+                            formattedOutput = this.quotePrefix.replace("{number}", data[1]) + " " + this.listContent.get(Integer.parseInt(data[1])) + " " + this.quoteSuffix.replace("{number}", data[1]);
                             success = true;
                         }
                     } catch (NumberFormatException e) {
@@ -376,7 +385,7 @@ public class CommandHandler implements CommandInterface {
                 try {
                     Random rand = new Random();
                     int i = rand.nextInt(this.listContent.size());
-                    formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + this.listContent.get(i) + this.quoteSuffix.replace("{number}", Integer.toString(i));
+                    formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i));
                     success = true;
                 } catch(IllegalArgumentException e1) {
                     log.warning(e1.toString());
@@ -767,5 +776,14 @@ public class CommandHandler implements CommandInterface {
 
     public void setSuccess(boolean success) {
         this.success = success;
+    }
+
+    public void setWhisper(boolean whisper) {
+        this.whisper = whisper;
+    }
+
+    public boolean isWhisper() {
+
+        return whisper;
     }
 }
