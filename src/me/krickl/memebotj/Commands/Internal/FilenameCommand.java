@@ -67,7 +67,7 @@ public class FilenameCommand extends CommandHandler {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_PICK", getChannelHandler(), sender, this, true, new String[]{getChannelHandler().getCurrentFileName().split("#")[0], getChannelHandler().getCurrentFileName().split("#")[1]}, ""), this.getChannelHandler().getChannel());
                     return;
                 } else if (data[0].equals("list")) {
-                    getChannelHandler().sendMessage(String.format("%s/filenames", getChannelHandler().getChannelPageBaseURL()), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(String.format("%sfiles/names/%s", Memebot.webBaseURL, getChannelHandler().getBroadcaster()), this.getChannelHandler().getChannel());
                     return;
                 } else if (data[0].equals("return") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
                     getChannelHandler().getFileNameList().add(getChannelHandler().getCurrentFileName());

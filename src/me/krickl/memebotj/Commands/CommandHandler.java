@@ -57,6 +57,7 @@ public class CommandHandler implements CommandInterface {
 
     private boolean success = false;
     private boolean whisper = false;
+    private boolean hideCommand = false;
 
     public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
         String senderName = senderObject.getUsername();
@@ -148,6 +149,7 @@ public class CommandHandler implements CommandInterface {
             this.caseSensitive = (boolean)commandObject.getOrDefault("case", this.caseSensitive);
             this.formatData = (boolean)commandObject.getOrDefault("format", this.formatData);
             this.checkDefaultCooldown = (boolean)commandObject.getOrDefault("checkdefaultcooldown", this.checkDefaultCooldown);
+            this.hideCommand = (boolean)commandObject.getOrDefault("hideCommand", this.hideCommand);
             //other data are used to store data that are used for internal commands
             Document otherDataDocument = (Document) commandObject.getOrDefault("otherdata", new Document());
 
@@ -198,7 +200,8 @@ public class CommandHandler implements CommandInterface {
                 .append("case", this.caseSensitive)
                 .append("otherdata", otherDataDocument)
                 .append("format", this.formatData)
-                .append("checkdefaultcooldown", this.checkDefaultCooldown);
+                .append("checkdefaultcooldown", this.checkDefaultCooldown)
+                .append("hideCommand", this.hideCommand);
 
         try {
             if (this.commandCollection.findOneAndReplace(commandQuery, channelData) == null) {
@@ -353,7 +356,7 @@ public class CommandHandler implements CommandInterface {
                     }
                 } else if (data[1].equals("list")) {
                     try {
-                        formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/list/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
+                        formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
                         //success = true;
                     } catch (Exception e) {
                         log.warning(e.toString());
@@ -529,6 +532,9 @@ public class CommandHandler implements CommandInterface {
             } else if (modType.equals("format")) {
                 this.setFormatData(Boolean.parseBoolean(newValue));
                 success = false;
+            } else if(modType.equals("hidden")) {
+                setHideCommand(Boolean.parseBoolean(newValue));
+                success = true;
             }
         } catch(NumberFormatException e) {
             log.warning(String.format("Screw you Luigitus: %s", e.toString()));
@@ -568,6 +574,14 @@ public class CommandHandler implements CommandInterface {
 
     public void setCommandCollection(MongoCollection<Document> commandCollection) {
         this.commandCollection = commandCollection;
+    }
+
+    public boolean isHideCommand() {
+        return hideCommand;
+    }
+
+    public void setHideCommand(boolean hideCommand) {
+        this.hideCommand = hideCommand;
     }
 
     public int getCooldownLength() {

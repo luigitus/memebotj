@@ -84,6 +84,8 @@ public class CommandManager extends CommandHandler {
                         ch.writeDB();
                     }
                 }
+            } else if(data[0].equals("removeinternal") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
+                new CommandHandler(this.getChannelHandler(), data[1], "#internal#").removeDB();
             } else if (data[0].equals("info") && checkPermissions(sender, CommandPower.broadcasterAbsolute,CommandPower.broadcasterAbsolute)) {
                 int j = getChannelHandler().findCommand(data[1]);
                 if (j != -1) {

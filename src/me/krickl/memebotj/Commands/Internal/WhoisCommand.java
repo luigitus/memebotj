@@ -39,7 +39,7 @@ public class WhoisCommand extends CommandHandler {
             }
 
             boolean isCat = false;
-            if (user.contains("cat") && user.contains("kitty")) {
+            if (user.contains("cat") || user.contains("kitty")) {
                 isCat = true;
             }
             getChannelHandler().sendMessage(uh.getUsername() + " || Broadcaster: " + java.lang.Boolean.toString(uh.isUserBroadcaster()) +
