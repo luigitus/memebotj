@@ -5,6 +5,7 @@ import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
+import me.krickl.memebotj.Utility.Cooldown;
 
 import java.security.SecureRandom;
 
@@ -21,6 +22,8 @@ public class DampeCommand extends CommandHandler {
     public void overrideDB() {
         this.setHelptext(Memebot.formatText("DAMPE_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
 
+        this.setCooldownLength(0);
+        this.setCooldown(new Cooldown(getCooldownLength()));
         this.setUserCooldownLength(90);
 
         //special case for mikami currently hard coded
@@ -167,7 +170,7 @@ public class DampeCommand extends CommandHandler {
             this.setJackpot(this.getJackpot() + wage + 10);
         } else if(outcome <= 910) {
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_SHITTY", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-            sender.setPoints(sender.getPoints() - 10);
+            sender.setPoints(sender.getPoints() - 20);
             this.setJackpot(this.getJackpot() + wage + 10);
         } else {
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_5", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());

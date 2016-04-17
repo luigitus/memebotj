@@ -260,24 +260,7 @@ public class Memebot {
                 @Override
                 public void run() {
                     Memebot.log.warning("Process received SIGTERM...");
-
-                    Iterator it = Memebot.joinedChannels.iterator();
-                    while (it.hasNext()) {
-                        ChannelHandler ch = (ChannelHandler)it.next();
-                        ch.writeDB();
-                        for(CommandHandler commandHandler : ch.getChannelCommands()) {
-                            commandHandler.writeDB();
-                        }
-
-                        for(CommandHandler commandHandler : ch.getInternalCommands()) {
-                            commandHandler.writeDB();
-                        }
-
-                        for(String userHandler : ch.getUserList().keySet()) {
-                            ch.getUserList().get(userHandler).writeDB();
-                        }
-                        ch.setJoined(false);
-                    }
+                    saveAll();
                 }
             });
         }
@@ -292,6 +275,26 @@ public class Memebot {
             bw.close();
         } catch(IOException e) {
             log.info(e.toString());
+        }
+    }
+
+    public static void saveAll() {
+        Iterator it = Memebot.joinedChannels.iterator();
+        while (it.hasNext()) {
+            ChannelHandler ch = (ChannelHandler)it.next();
+            ch.writeDB();
+            for(CommandHandler commandHandler : ch.getChannelCommands()) {
+                commandHandler.writeDB();
+            }
+
+            for(CommandHandler commandHandler : ch.getInternalCommands()) {
+                commandHandler.writeDB();
+            }
+
+            for(String userHandler : ch.getUserList().keySet()) {
+                ch.getUserList().get(userHandler).writeDB();
+            }
+            ch.setJoined(false);
         }
     }
 

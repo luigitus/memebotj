@@ -141,6 +141,7 @@ public class ChannelHandler implements Runnable {
         this.internalCommands.add(new CommandManager(this, "!command", "#internal#"));
         this.internalCommands.add(new ChannelInfoCommand(this, "!ci", "#internal#"));
         this.internalCommands.add(new BobRossCommand(this, "!bobross", "#internal#"));
+        this.internalCommands.add(new InvertedPyramidCommand(this, "!dimaryp", "#internal#"));
         this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 

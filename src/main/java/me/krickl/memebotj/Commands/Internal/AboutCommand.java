@@ -26,10 +26,6 @@ public class AboutCommand extends CommandHandler {
     public void commandScript(UserHandler sender, String[] data) {
         getChannelHandler().sendMessage(BuildInfo.appName + " version " + BuildInfo.version + ". Developed by " + BuildInfo.dev, this.getChannelHandler().getChannel());
         getChannelHandler().sendMessage("Fork me RitzMitz : https://github.com/unlink2/memebotj");
-        if (Memebot.isTwitchBot) {
-            getChannelHandler().sendMessage("Get me here: http://www.twitch.tv/" + Memebot.mainChannel.replace("#", "") + "/chat - just type !mejoin in chat! :)", this.getChannelHandler().getChannel());
-        } else {
-            getChannelHandler().sendMessage("Get me here: ${Memebot.mainChannel} - just type !mejoin in chat! :)", this.getChannelHandler().getChannel());
-        }
+        getChannelHandler().sendMessage("Just type !mejoin in chat to get me! :)", this.getChannelHandler().getChannel());
     }
 }
