@@ -50,6 +50,11 @@ public class DampeCommand extends CommandHandler {
 
     @Override
     public boolean executeCommand(UserHandler sender, String[] data) {
+        if(!this.isEnabled()) {
+            return false;
+        }
+        data = formatData(sender, data);
+
         commandScript(sender, data);
         // write changes to db
         if (!sender.getUsername().equals("#readonly#")) {
@@ -81,7 +86,7 @@ public class DampeCommand extends CommandHandler {
                 return;
             }
         } catch(NumberFormatException e) {
-            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_NFE", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_NFE", getChannelHandler(), sender, this, true, new String[]{data[0]}, ""), this.getChannelHandler().getChannel());
             return;
         } catch(ArrayIndexOutOfBoundsException e) {
 

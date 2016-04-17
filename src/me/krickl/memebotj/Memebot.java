@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
@@ -264,6 +265,17 @@ public class Memebot {
                     while (it.hasNext()) {
                         ChannelHandler ch = (ChannelHandler)it.next();
                         ch.writeDB();
+                        for(CommandHandler commandHandler : ch.getChannelCommands()) {
+                            commandHandler.writeDB();
+                        }
+
+                        for(CommandHandler commandHandler : ch.getInternalCommands()) {
+                            commandHandler.writeDB();
+                        }
+
+                        for(String userHandler : ch.getUserList().keySet()) {
+                            ch.getUserList().get(userHandler).writeDB();
+                        }
                         ch.setJoined(false);
                     }
                 }
@@ -293,6 +305,8 @@ public class Memebot {
         Calendar calTime = Calendar.getInstance();
         String strTime = sdfTime.format(calTime.getTime());
 
+        SecureRandom ran = new SecureRandom();
+
         boolean containsNone = false;
         if (formattedOutput.contains("{none}")) {
             containsNone = true;
@@ -307,6 +321,12 @@ public class Memebot {
             formattedOutput = formattedOutput.replace("{senderusername}", sender.getUsername());
             formattedOutput = formattedOutput.replace("{points}", String.format("%.2f", sender.getPoints()));
             formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
+            int newRan = new Double(sender.getPoints()).intValue();
+            if(newRan > 0) {
+                formattedOutput = formattedOutput.replace("{randompoints}", Integer.toString(Math.abs(ran.nextInt(newRan))));
+            } else {
+                formattedOutput = formattedOutput.replace("{randompoints}", Integer.toString(Math.abs(ran.nextInt(newRan + 1))));
+            }
         }
         if (commandHandler != null) {
             formattedOutput = formattedOutput.replace("{counter}", Integer.toString(commandHandler.getCounter()));
@@ -324,7 +344,27 @@ public class Memebot {
                     channelHandler.getCurrencyName());
             formattedOutput = formattedOutput.replace("{botnick}", channelHandler.getConnection().getBotNick());
 
-            formattedOutput = formattedOutput.replace("{randomuser}", "soon");
+            // random user as parameter
+            List<String> keys = new ArrayList<String>(channelHandler.getUserList().keySet());
+            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())), new UserHandler("#internal#", channelHandler.getChannel()));
+            formattedOutput = formattedOutput.replace("{randomuser}", randomUH.getUsername());
+
+            // todo add this later
+            /*// command output as parameter
+            for(CommandHandler ch : channelHandler.getChannelCommands()) {
+                if(formattedOutput.contains("{" + ch.getCommandName() + "}")) {
+                    ch.executeCommand(sender, new String[]{});
+                    formattedOutput = formattedOutput.replace("{" + ch.getCommandName() + "}", ch.getLastOutput());
+                }
+            }
+
+            // internal command output as parameter
+            for(CommandHandler ch : channelHandler.getInternalCommands()) {
+                if(formattedOutput.contains("{" + ch.getCommandName() + "}")) {
+                    ch.executeCommand(sender, new String[]{});
+                    formattedOutput = formattedOutput.replace("{" + ch.getCommandName() + "}", ch.getLastOutput());
+                }
+            }*/
         }
 
         formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
@@ -336,6 +376,7 @@ public class Memebot {
         formattedOutput = formattedOutput.replace("{time}", strTime);
         formattedOutput = formattedOutput.replace("{space}", " ");
         formattedOutput = formattedOutput.replace("{none}", "");
+        formattedOutput = formattedOutput.replace("{random}", Integer.toString(Math.abs(ran.nextInt())));
 
         if (params != null) {
             for (int i = 0; i < params.length; i++) {

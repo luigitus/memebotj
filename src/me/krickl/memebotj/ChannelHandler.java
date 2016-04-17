@@ -86,6 +86,7 @@ public class ChannelHandler implements Runnable {
     private ChannelAPI twitchChannelAPI = new ChannelAPI(this);
     private boolean silentMode = false;
     private Localisation localisation = new Localisation(this.local);
+    private String bgImage = "";
 
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
@@ -247,6 +248,7 @@ public class ChannelHandler implements Runnable {
             this.messageLimitCooldown.startCooldown();
             this.currentMessageCount = 0;
         }
+
         if (this.updateCooldown.canContinue()) {
             this.updateCooldown.startCooldown();
 
@@ -481,6 +483,7 @@ public class ChannelHandler implements Runnable {
             this.maxAmountOfNameInList = (int)channelData.getOrDefault("maxnameinlist", this.maxScreenNameLen);
             this.pointsTax = (double)channelData.getOrDefault("pointstax", this.pointsTax);
             this.startingPoints = (double)channelData.getOrDefault("startingpoints", this.startingPoints);
+            this.bgImage = channelData.getOrDefault("bgImage", this.bgImage).toString();
         }
         MongoCollection commandCollection = null;
         if(!Memebot.channelsPrivate.contains(this.channel)) {
@@ -526,7 +529,8 @@ public class ChannelHandler implements Runnable {
                 .append("maxscreennamelen", this.maxScreenNameLen)
                 .append("maxnameinlist", this.maxAmountOfNameInList)
                 .append("pointstax", this.pointsTax)
-                .append("startingpoints", this.startingPoints);
+                .append("startingpoints", this.startingPoints)
+                .append("bgImage", this.bgImage);
         try {
             if (this.channelCollection.findOneAndReplace(channelQuery, channelData) == null) {
                 this.channelCollection.insertOne(channelData);
@@ -603,6 +607,14 @@ public class ChannelHandler implements Runnable {
 
     public void setInternalCommands(ArrayList<CommandHandler> internalCommands) {
         this.internalCommands = internalCommands;
+    }
+
+    public String getBgImage() {
+        return bgImage;
+    }
+
+    public void setBgImage(String bgImage) {
+        this.bgImage = bgImage;
     }
 
     public String getFollowerNotification() {

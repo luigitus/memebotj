@@ -16,6 +16,7 @@ public class HugCommand extends CommandHandler {
 
     @Override
     public void overrideDB() {
+        this.setFormatData(true);
         this.setHelptext(Memebot.formatText("HUG_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
     }
 

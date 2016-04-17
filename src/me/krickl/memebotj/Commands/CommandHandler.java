@@ -58,6 +58,9 @@ public class CommandHandler implements CommandInterface {
     private boolean success = false;
     private boolean whisper = false;
     private boolean hideCommand = false;
+    private int state = 0;
+
+    private String lastOutput = "";
 
     public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
         String senderName = senderObject.getUsername();
@@ -150,6 +153,8 @@ public class CommandHandler implements CommandInterface {
             this.formatData = (boolean)commandObject.getOrDefault("format", this.formatData);
             this.checkDefaultCooldown = (boolean)commandObject.getOrDefault("checkdefaultcooldown", this.checkDefaultCooldown);
             this.hideCommand = (boolean)commandObject.getOrDefault("hideCommand", this.hideCommand);
+            this.lastOutput = commandObject.getOrDefault("lasoutput", this.lastOutput).toString();
+            this.state = (int)commandObject.getOrDefault("state", this.state);
             //other data are used to store data that are used for internal commands
             Document otherDataDocument = (Document) commandObject.getOrDefault("otherdata", new Document());
 
@@ -201,7 +206,9 @@ public class CommandHandler implements CommandInterface {
                 .append("otherdata", otherDataDocument)
                 .append("format", this.formatData)
                 .append("checkdefaultcooldown", this.checkDefaultCooldown)
-                .append("hideCommand", this.hideCommand);
+                .append("hideCommand", this.hideCommand)
+                .append("lastoutput", this.lastOutput)
+                .append("state", this.state);
 
         try {
             if (this.commandCollection.findOneAndReplace(commandQuery, channelData) == null) {
@@ -288,16 +295,22 @@ public class CommandHandler implements CommandInterface {
         return false;
     }
 
-    public boolean executeCommand(UserHandler sender, String[] data) {
-        this.success = false;
-
+    public String[] formatData(UserHandler sender, String[] data) {
         if(formatData) {
             for (int i = 0; i < data.length; i++) {
                 data[i] = Memebot.formatText(data[i], channelHandler, sender, this, false, new String[]{}, "");
             }
         }
 
-        if(this.overrideHandleMessage || !this.isEnabled) {
+        return data;
+    }
+
+    public boolean executeCommand(UserHandler sender, String[] data) {
+        this.success = false;
+
+        data = formatData(sender, data);
+
+        if(this.overrideHandleMessage) {
             return false;
         }
         if(this.checkDefaultCooldown && this.handleCooldown(sender)) {
@@ -309,6 +322,10 @@ public class CommandHandler implements CommandInterface {
         if (!this.checkCost(sender, this.cost)) {
             channelHandler.sendMessage(Memebot.formatText("POINTS_NOT_ENOUGH", channelHandler, sender, this,
                     true, new String[]{String.format("%f", (float)this.cost)}, ""), this.channelHandler.getChannel(), sender);
+            return false;
+        }
+
+        if(!this.isEnabled) {
             return false;
         }
 
@@ -428,11 +445,24 @@ public class CommandHandler implements CommandInterface {
         commandScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, new String[]{}, "");
 
         if(!formattedOutput.equals("null")) {
-            channelHandler.sendMessage(formattedOutput, this.channelHandler.getChannel(), sender);
+            if(commandType.equals("counter") || commandType.equals("list") || commandType.equals("default") || commandType.equals("timer")) {
+                channelHandler.sendMessage(formattedOutput, this.channelHandler.getChannel(), sender);
+                success = true;
+            }
 
             if(commandType.equals("default")) {
                 channelHandler.sendMessage(commandScript, this.channelHandler.getChannel(), sender);
                 success = true;
+            } else if(commandType.equals("state")) {
+                if(state == 0) {
+                    channelHandler.sendMessage(formattedOutput, this.channelHandler.getChannel(), sender);
+                    success = true;
+                    state = 1;
+                } else if(state == 1) {
+                    channelHandler.sendMessage(commandScript, this.channelHandler.getChannel(), sender);
+                    success = true;
+                    state = 0;
+                }
             }
         }
 
@@ -448,6 +478,8 @@ public class CommandHandler implements CommandInterface {
         if(success) {
             this.startCooldown(sender);
         }
+
+        lastOutput = formattedOutput;
 
         return true;
     }
@@ -546,6 +578,14 @@ public class CommandHandler implements CommandInterface {
 
     public static Logger getLog() {
         return log;
+    }
+
+    public String getLastOutput() {
+        return lastOutput;
+    }
+
+    public void setLastOutput(String lastOutput) {
+        this.lastOutput = lastOutput;
     }
 
     public static void setLog(Logger log) {

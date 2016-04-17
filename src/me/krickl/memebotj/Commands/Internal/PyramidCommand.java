@@ -16,7 +16,7 @@ public class PyramidCommand extends CommandHandler {
 
     @Override
     public void overrideDB() {
-        this.setNeededCommandPower(CommandPower.adminAbsolute);
+        this.setNeededCommandPower(CommandPower.broadcasterAbsolute);
     }
 
     @Override
