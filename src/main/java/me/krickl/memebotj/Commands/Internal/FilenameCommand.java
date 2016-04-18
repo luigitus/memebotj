@@ -18,6 +18,11 @@ public class FilenameCommand extends CommandHandler {
     }
 
     @Override
+    public void initCommand() {
+        this.getOtherData().put("namecost", "40");
+    }
+
+    @Override
     public void overrideDB() {
         this.setHelptext("Syntax: !name <filename> || !name get || !name current");
 
@@ -38,9 +43,9 @@ public class FilenameCommand extends CommandHandler {
                 }
             }
 
-            int cost = 40;
+            int cost = Integer.parseInt(getOtherData().get("namecost"));
 
-            if (data.length < 2) {
+            if (data.length >= 1) {
                 if (data[0].equals("get")) {
                     if (checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
                         int amount = 1;
@@ -91,6 +96,17 @@ public class FilenameCommand extends CommandHandler {
                     return;
                 } else if (data[0].equals("cost")) {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_COST", getChannelHandler(), sender, this, true, new String[]{Double.toString(cost)}, ""), this.getChannelHandler().getChannel());
+                    return;
+                } else if(data[0].equals("edit") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
+                    if(data[1].equals("cost")) {
+                        try {
+                            //check if number is integer
+                            cost = Integer.parseInt(data[2]);
+                            getOtherData().put("namecost", data[2]);
+                        } catch(NumberFormatException e) {
+                            log.info(e.toString());
+                        }
+                    }
                     return;
                 }
             }

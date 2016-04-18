@@ -194,9 +194,11 @@ public class Memebot {
 
                 ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0), loginInfo.get(1)));
                 newChannel.start();
+                joinedChannels.add(newChannel);
             } else {
                 ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword));
                 newChannel.start();
+                joinedChannels.add(newChannel);
             }
         } catch(IOException e) {
             log.warning(e.toString());
@@ -398,7 +400,7 @@ public class Memebot {
         }
 
         if (formattedOutput.isEmpty() && !containsNone && Memebot.debug) {
-            formattedOutput = "NO_OUTPUT_ERR()";
+            formattedOutput = "";//"NO_OUTPUT_ERR()";
         }
 
         return formattedOutput;

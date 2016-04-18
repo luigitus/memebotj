@@ -97,6 +97,7 @@ public class ChannelHandler implements Runnable {
         this.connection = connection;
         this.broadcaster = this.channel.replace("#", "");
         broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
+        readOnlyUser = new UserHandler("#readonly#", this.channel);
         channelPageBaseURL = Memebot.webBaseURL + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
@@ -106,6 +107,7 @@ public class ChannelHandler implements Runnable {
         broadcasterHandler.setModerator(true);
 
         this.userList.put(this.broadcaster, broadcasterHandler);
+        this.userList.put("#readonly#", readOnlyUser);
 
         if (!htmlDirF.exists()) {
             htmlDirF.mkdirs();
@@ -357,7 +359,7 @@ public class ChannelHandler implements Runnable {
             }
         }
 
-        //other channel's commands
+        //todo other channel's commands
         for (ChannelHandler ch : Memebot.joinedChannels) {
             for(String och : this.otherLoadedChannels) {
                 String channel = ch.getBroadcaster();
@@ -426,9 +428,9 @@ public class ChannelHandler implements Runnable {
         this.currentMessageCount += 1;
         if(!whisper) {
             if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage("PRIVMSG " + this.channel + " :" + msg + "\n");
+                this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " :" + msg + "\n");
             } else {
-                this.connection.sendMessage("PRIVMSG " + this.channel + " : " + msg + "\n");
+                this.connection.sendMessage("PRIVMSG " + channel + " : " + msg + "\n");
             }
         } else {
             if (sender.getUsername().equals("#readonly#")) {

@@ -39,8 +39,12 @@ public class WhoisCommand extends CommandHandler {
             }
 
             boolean isCat = false;
+            boolean swears = true;
             if (user.contains("cat") || user.contains("kitty")) {
                 isCat = true;
+            }
+            if(user.contains("95shade")) {
+                swears = false;
             }
             getChannelHandler().sendMessage(uh.getUsername() + " || Broadcaster: " + java.lang.Boolean.toString(uh.isUserBroadcaster()) +
                     " || Mod: " +
@@ -56,7 +60,9 @@ public class WhoisCommand extends CommandHandler {
                     " || Screenname: " + uh.screenName() +
                     "|| Weird Boolean: " + "Rip Weird Boolean" +
                     " || Is user a cat: " +
-                    java.lang.Boolean.toString(isCat), this.getChannelHandler().getChannel());
+                    java.lang.Boolean.toString(isCat)
+                    + "|| Is user a bad girl/boy: " + Boolean.toString(swears)
+                    + "|| Jackpot wins: " + Integer.toString(sender.getJackpotWins()), this.getChannelHandler().getChannel());
         } catch(ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }

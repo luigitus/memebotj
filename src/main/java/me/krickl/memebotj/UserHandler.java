@@ -60,6 +60,7 @@ public class UserHandler {
 
     Cooldown removeCooldown = new Cooldown(0);
     boolean shouldBeRemoved = false;
+    int jackpotWins = 0;
 
     public UserHandler(String username, String channelOrigin) {
         this.username = username;
@@ -113,6 +114,7 @@ public class UserHandler {
         this.walletSize = (double)mongoHandler.getDocument().getOrDefault("wallet", this.walletSize);
         this.isFollowing = (boolean)mongoHandler.getDocument().getOrDefault("isfollowing", this.isFollowing);
         this.hasFollowed = (boolean)mongoHandler.getDocument().getOrDefault("hasfollowed", this.hasFollowed);
+        this.jackpotWins = (int)mongoHandler.getDocument().getOrDefault("jackpotwins", this.jackpotWins);
 
         // todo old db code - remove soon
         //Document channelQuery = new Document("_id", this.username);
@@ -141,6 +143,7 @@ public class UserHandler {
         }*/
     }
 
+
     public void writeDB() {
         if (!Memebot.useMongo) {
             return;
@@ -156,7 +159,8 @@ public class UserHandler {
                 .append("nickname", this.nickname)
                 .append("wallet", this.walletSize)
                 .append("isfollowing", this.isFollowing)
-                .append("hasfollowed", this.hasFollowed);
+                .append("hasfollowed", this.hasFollowed)
+                .append("jackpotwins", this.jackpotWins);
 
         mongoHandler.setDocument(userData);
         mongoHandler.writeDatabase(this.username);
@@ -207,6 +211,30 @@ public class UserHandler {
             channelHandler.sendMessage(autogreet, this.channelOrigin, this);
             this.hasAutogreeted = true;
         }
+    }
+
+    public MongoHandler getMongoHandler() {
+        return mongoHandler;
+    }
+
+    public void setMongoHandler(MongoHandler mongoHandler) {
+        this.mongoHandler = mongoHandler;
+    }
+
+    public static Logger getLog() {
+        return log;
+    }
+
+    public static void setLog(Logger log) {
+        UserHandler.log = log;
+    }
+
+    public int getJackpotWins() {
+        return jackpotWins;
+    }
+
+    public void setJackpotWins(int jackpotWins) {
+        this.jackpotWins = jackpotWins;
     }
 
     public String getUsername() {
@@ -302,6 +330,8 @@ public class UserHandler {
                 }
             }
         }
+
+        this.writeDB();
 
         return result;
     }

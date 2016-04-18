@@ -25,7 +25,10 @@ public class DampeCommand extends CommandHandler {
         this.setCooldownLength(0);
         this.setCooldown(new Cooldown(getCooldownLength()));
         this.setUserCooldownLength(90);
+        this.setNeededCommandPower(10);
 
+        this.setUnformattedOutput("");
+        this.setCommandScript("");
         //special case for mikami currently hard coded
         if(this.getChannelHandler().getChannel().equals("mikamihero")) {
             this.setUserCooldownLength(300);
@@ -52,6 +55,12 @@ public class DampeCommand extends CommandHandler {
     }
 
     @Override
+    public void initCommand() {
+        this.getOtherData().put("minbet", "50.0");
+        this.getOtherData().put("jackpotchance2", "3");
+    }
+
+    @Override
     public boolean executeCommand(UserHandler sender, String[] data) {
         if(!this.isEnabled()) {
             return false;
@@ -69,7 +78,7 @@ public class DampeCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        double wage = 50.0f;
+        double wage = Double.parseDouble(getOtherData().get("minbet")); //50.0f;
         try {
             if (data[0].equals("jackpot")) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
@@ -81,10 +90,23 @@ public class DampeCommand extends CommandHandler {
             } else if (data[0].equals("winner")) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WINNER", getChannelHandler(), sender, this, true, new String[]{this.getOtherData().get("winner")}, ""), this.getChannelHandler().getChannel());
                 return;
+            } else if(data[0].equals("edit") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
+                try {
+                    if (data[1].equals("jackpotchance")) {
+                        Integer.parseInt(data[2]);
+                        getOtherData().put("jackpotchance2", data[2]);
+                    } else if (data[1].equals("minbet")) {
+                        wage = Double.parseDouble(getOtherData().get("minbet"));
+                        getOtherData().put("minbet", data[2]);
+                    }
+                } catch(NumberFormatException e) {
+                    log.warning(e.toString());
+                }
+                return;
             }
 
             wage = Double.parseDouble(data[0]);
-            if (wage < getChannelHandler().getPointsPerUpdate() * 50) {
+            if (wage < Double.parseDouble(getOtherData().get("minbet"))) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MIN", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", getChannelHandler().getPointsPerUpdate() * 50), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
                 return;
             }
@@ -113,7 +135,7 @@ public class DampeCommand extends CommandHandler {
         int range = 1000;
         int outcome = ran.nextInt(range); //- wage.toInt / 4)
         int offlineModifier = 0;
-        int jackpotChance = 3;
+        int jackpotChance = Integer.parseInt(getOtherData().get("jackpotchance2"));
 
         if (!getChannelHandler().isLive()) {
             offlineModifier = 5;
@@ -125,6 +147,7 @@ public class DampeCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
                 this.setJackpot(0);
                 this.getOtherData().put("winner", sender.getUsername());
+                sender.setJackpotWins(sender.getJackpotWins() + 1);
             } else {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON_WALLET_FULL", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f" ,this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
                 this.setJackpot(0);

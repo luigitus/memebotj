@@ -89,12 +89,12 @@ public class CommandManager extends CommandHandler {
             } else if (data[0].equals("info") && checkPermissions(sender, CommandPower.broadcasterAbsolute,CommandPower.broadcasterAbsolute)) {
                 int j = getChannelHandler().findCommand(data[1]);
                 if (j != -1) {
-                    getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("COMMAND_TIMES_EXECUTED"), getChannelHandler(), sender, this, false, new String[]{Integer.toString(getChannelHandler().getChannelCommands().get(j).getExecCounter())}, ""), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("COMMAND_TIMES_EXECUTED"), getChannelHandler(), sender, this, false, new String[]{Integer.toString(getChannelHandler().getChannelCommands().get(j).getExecCounter()), getChannelHandler().getChannelCommands().get(j).getOtherData().toString(), getChannelHandler().getChannelCommands().get(j).toString()}, ""), this.getChannelHandler().getChannel());
                 }
 
                 j = getChannelHandler().findCommand(data[1], getChannelHandler().getInternalCommands(), 1);
                 if (j != -1) {
-                    getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("COMMAND_TIMES_EXECUTED"), getChannelHandler(), sender, this, false, new String[]{Integer.toString(getChannelHandler().getChannelCommands().get(j).getExecCounter())}, ""), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("COMMAND_TIMES_EXECUTED"), getChannelHandler(), sender, this, false, new String[]{Integer.toString(getChannelHandler().getChannelCommands().get(j).getExecCounter()), getChannelHandler().getChannelCommands().get(j).getOtherData().toString(), getChannelHandler().getChannelCommands().get(j).toString()}, ""), this.getChannelHandler().getChannel());
                 }
             } else if (data[0].equals("list")) {
                 if (Memebot.useWeb) {

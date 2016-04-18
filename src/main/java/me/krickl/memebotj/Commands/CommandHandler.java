@@ -116,7 +116,7 @@ public class CommandHandler implements CommandInterface {
                 } else {
                     // todo old db code - remove soon
                     //this.commandCollection = Memebot.dbPrivate.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
-                    mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelHandler.getChannel() + "_commands");
+                    mongoHandler = new MongoHandler(Memebot.dbPrivate, dbprefix + this.channelHandler.getChannel() + "_commands");
                 }
             }
         }
@@ -348,6 +348,9 @@ public class CommandHandler implements CommandInterface {
     public boolean handleCooldown(UserHandler sender) {
         // check global cooldown
         if ((!this.cooldown.canContinue() || !sender.getUserCooldown().canContinue()) && !checkPermissions(sender, this.neededCooldownBypassPower, this.neededCooldownBypassPower)) {
+            if(Memebot.debug) {
+                channelHandler.sendMessage("Cooldown true");
+            }
             return true;
         }
 
@@ -361,6 +364,9 @@ public class CommandHandler implements CommandInterface {
         }
         System.out.println(sender.getUserCommandCooldowns().get(this.commandName).canContinue());
         if(!sender.getUserCommandCooldowns().get(this.commandName).canContinue() && !checkPermissions(sender, this.neededCooldownBypassPower, this.neededCooldownBypassPower)) {
+            if(Memebot.debug) {
+                channelHandler.sendMessage("Cooldown true " + this.toString());
+            }
             return true;
         }
 
@@ -377,6 +383,10 @@ public class CommandHandler implements CommandInterface {
             sender.getUserCommandCooldowns().get(this.commandName).startCooldown();
             sender.setPoints(sender.getPoints() - this.cost);
 
+            if(Memebot.debug) {
+                channelHandler.sendMessage("Cooldown started " + this.toString());
+            }
+
             return true;
         }
         return false;
@@ -384,11 +394,21 @@ public class CommandHandler implements CommandInterface {
 
     public boolean checkCost(UserHandler sender, double cost) {
         if (sender.getPoints() >= cost || checkPermissions(sender, CommandPower.adminAbsolute, 0)) {
+            if(Memebot.debug) {
+                channelHandler.sendMessage("Cost true " + this.toString());
+            }
             return true;
         }
 
         if(cost <= 0) {
+            if(Memebot.debug) {
+                channelHandler.sendMessage("Cost true " + this.toString());
+            }
             return true;
+        }
+
+        if(Memebot.debug) {
+            channelHandler.sendMessage("Cost false " + this.toString());
         }
 
         return false;
@@ -549,16 +569,18 @@ public class CommandHandler implements CommandInterface {
                 success = true;
             }
 
+            String channel = this.channelHandler.getChannel();
+
             if(commandType.equals("default")) {
-                channelHandler.sendMessage(commandScript, this.channelHandler.getChannel(), sender);
+                channelHandler.sendMessage(commandScript, channel, sender);
                 success = true;
             } else if(commandType.equals("state")) {
                 if(state == 0) {
-                    channelHandler.sendMessage(formattedOutput, this.channelHandler.getChannel(), sender);
+                    channelHandler.sendMessage(formattedOutput, channel, sender);
                     success = true;
                     state = 1;
                 } else if(state == 1) {
-                    channelHandler.sendMessage(commandScript, this.channelHandler.getChannel(), sender);
+                    channelHandler.sendMessage(commandScript, channel, sender);
                     success = true;
                     state = 0;
                 }
