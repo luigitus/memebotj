@@ -5,34 +5,37 @@ import com.mongodb.Block;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Memebot;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 17/04/16.
  * This class will eventually handle all db reads/writes to unify that
  */
-public class MongoHandler implements DatabaseInterface {
+public class MongoHandler implements DatabaseInterface<Document> {
+    public static Logger log = Logger.getLogger(MongoHandler.class.getName());
     private MongoCollection<Document> collection = null;
     Document document = new Document();
-    ArrayList<Document> contents = new ArrayList<>();
 
     public MongoHandler(MongoDatabase db, String collectionName) {
         collection = db.getCollection(collectionName);
     }
 
-    public boolean readDatabase(String id) {
-        contents.clear();
+    public boolean readDatabase(String id) throws DatabaseReadException {
         Document query = new Document("_id", id);
         FindIterable cursor = this.collection.find(query);
         document = (Document)cursor.first();
 
-        // todo implement the read - data are stored in contents
-        if (document != null) {
+        log.info("Reading db for id " + id);
 
+        // todo implement the read - data is stored in contents
+        if (document == null) {
+            throw new DatabaseReadException("Document cannot be null - Consider setting default values and writing to database");
         }
 
         return true;
@@ -42,13 +45,28 @@ public class MongoHandler implements DatabaseInterface {
     public boolean writeDatabase(String id) {
         Document query = new Document("_id", id);
 
+        log.info("Writing db for id " + id);
+
         try {
             if (this.collection.findOneAndReplace(query, document) == null) {
                 this.collection.insertOne(document);
             }
         } catch(Exception e) {
-            e.printStackTrace();
+            log.warning(e.toString());
         }
+        return true;
+    }
+
+    public boolean removeDatabase(String id) {
+        log.info("Removing db for id " + id);
+        try {
+            if(document != null) {
+                this.collection.deleteOne(document);
+            }
+        } catch(java.lang.IllegalArgumentException e) {
+            log.warning(e.toString());
+        }
+
         return true;
     }
 
@@ -81,13 +99,5 @@ public class MongoHandler implements DatabaseInterface {
 
     public void setDocument(Document document) {
         this.document = document;
-    }
-
-    public ArrayList<Document> getContents() {
-        return contents;
-    }
-
-    public void setContents(ArrayList<Document> contents) {
-        this.contents = contents;
     }
 }

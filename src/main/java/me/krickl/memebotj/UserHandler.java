@@ -3,6 +3,8 @@ package me.krickl.memebotj;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Database.MongoHandler;
+import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
@@ -20,6 +22,8 @@ import java.util.logging.Logger;
 public class UserHandler {
     public static Logger log = Logger.getLogger(UserHandler.class.getName());
 
+    MongoHandler mongoHandler = null;
+
     String username = "";
     String channelOrigin = "";
 
@@ -36,7 +40,8 @@ public class UserHandler {
     Cooldown userCooldown = new Cooldown(0);
     String autogreet = "";
     int timeouts = 0;
-    MongoCollection<Document> userCollection = null;
+    // todo old db code - remove soon
+    //MongoCollection<Document> userCollection = null;
     java.util.HashMap<String, Cooldown> userCommandCooldowns = new java.util.HashMap<String, Cooldown>();
     String modNote = "";
     SecureRandom random = new SecureRandom();
@@ -62,9 +67,13 @@ public class UserHandler {
 
         if (Memebot.useMongo) {
             if(!Memebot.channelsPrivate.contains(this.channelOrigin)) {
-                this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
+                // todo old db code - remove soon
+                //this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
+                mongoHandler = new MongoHandler(Memebot.db, this.channelOrigin + "_users");
             } else {
-                this.userCollection = Memebot.dbPrivate.getCollection(this.channelOrigin + "_users");
+                // todo old db code - remove soon
+                //this.userCollection = Memebot.dbPrivate.getCollection(this.channelOrigin + "_users");
+                mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelOrigin + "_users");
             }
         }
 
@@ -83,13 +92,36 @@ public class UserHandler {
             return;
         }
 
-        Document channelQuery = new Document("_id", this.username);
-        FindIterable<Document> cursor = this.userCollection.find(channelQuery);
+        try {
+            mongoHandler.readDatabase(this.username);
+        } catch(DatabaseReadException e) {
+            log.warning(e.toString());
+            this.newUser = true;
+            return;
+        }
 
-        Document userData = cursor.first();
+        this.isModerator = mongoHandler.getDocument().getBoolean("mod", this.isModerator);
+        this.points = (double)mongoHandler.getDocument().getOrDefault("pointsf", this.points);
+        this.autogreet = mongoHandler.getDocument().getOrDefault("autogreet", this.autogreet).toString();
+        this.customCommandPower = (int)mongoHandler.getDocument().getOrDefault("ccommandpower", this.customCommandPower);
+        this.isUserBroadcaster = (boolean) mongoHandler.getDocument().getOrDefault("broadcaster", this.isUserBroadcaster);
+        this.timeouts = (int)mongoHandler.getDocument().getOrDefault("timeouts", this.timeouts);
+        this.enableAutogreets = (boolean)mongoHandler.getDocument().getOrDefault("enableautogreet", this.enableAutogreets);
+        this.dateJoined = mongoHandler.getDocument().getOrDefault("datejoined", this.dateJoined).toString();
+        this.timeStampJoined = (long)mongoHandler.getDocument().getOrDefault("timeStampJoined", this.timeStampJoined);
+        this.nickname = mongoHandler.getDocument().getOrDefault("nickname", this.nickname).toString();
+        this.walletSize = (double)mongoHandler.getDocument().getOrDefault("wallet", this.walletSize);
+        this.isFollowing = (boolean)mongoHandler.getDocument().getOrDefault("isfollowing", this.isFollowing);
+        this.hasFollowed = (boolean)mongoHandler.getDocument().getOrDefault("hasfollowed", this.hasFollowed);
+
+        // todo old db code - remove soon
+        //Document channelQuery = new Document("_id", this.username);
+        //FindIterable<Document> cursor = this.userCollection.find(channelQuery);
+
+        //Document userData = cursor.first();
 
         // read data
-        if (userData != null) {
+        /*if (userData != null) {
             this.isModerator = userData.getBoolean("mod", this.isModerator);
             this.points = (double)userData.getOrDefault("pointsf", this.points);
             this.autogreet = userData.getOrDefault("autogreet", this.autogreet).toString();
@@ -106,7 +138,7 @@ public class UserHandler {
 
         } else {
             this.newUser = true;
-        }
+        }*/
     }
 
     public void writeDB() {
@@ -114,7 +146,23 @@ public class UserHandler {
             return;
         }
 
-        Document userQuery = new Document("_id", this.username);
+        Document userData = new Document("_id", this.username).append("pointsf", this.points)
+                .append("mod", this.isModerator).append("autogreet", this.autogreet)
+                .append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
+                .append("timeouts", this.timeouts)
+                .append("enableautogreet", this.enableAutogreets)
+                .append("datejoined", this.dateJoined)
+                .append("timeStampJoined", this.timeStampJoined)
+                .append("nickname", this.nickname)
+                .append("wallet", this.walletSize)
+                .append("isfollowing", this.isFollowing)
+                .append("hasfollowed", this.hasFollowed);
+
+        mongoHandler.setDocument(userData);
+        mongoHandler.writeDatabase(this.username);
+
+        // todo old db code - remove soon
+        /*Document userQuery = new Document("_id", this.username);
 
         Document userData = new Document("_id", this.username).append("pointsf", this.points)
                 .append("mod", this.isModerator).append("autogreet", this.autogreet)
@@ -133,7 +181,7 @@ public class UserHandler {
             }
         } catch(Exception e) {
             log.warning(e.toString());
-        }
+        }*/
     }
 
     public void update(ChannelHandler channelHandler) {
@@ -280,14 +328,6 @@ public class UserHandler {
 
     public void setTimeouts(int timeouts) {
         this.timeouts = timeouts;
-    }
-
-    public MongoCollection<Document> getUserCollection() {
-        return userCollection;
-    }
-
-    public void setUserCollection(MongoCollection<Document> userCollection) {
-        this.userCollection = userCollection;
     }
 
     public HashMap<String, Cooldown> getUserCommandCooldowns() {

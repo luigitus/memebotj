@@ -6,6 +6,8 @@ import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.Database.MongoHandler;
+import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Twitch.ChannelAPI;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
@@ -52,7 +54,9 @@ public class ChannelHandler implements Runnable {
     private String channelPageBaseURL = Memebot.webBaseURL + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
-    private MongoCollection<Document> channelCollection = null;
+    // todo old db code - remove soon
+    //private MongoCollection<Document> channelCollection = null;
+    MongoHandler mongoHandler = null;
     private double pointsPerUpdate = 1.0f;
     private Thread t = null;
     private boolean isJoined = true;
@@ -110,9 +114,13 @@ public class ChannelHandler implements Runnable {
 
         if (Memebot.useMongo) {
             if(!Memebot.channelsPrivate.contains(this.channel)) {
-                this.channelCollection = Memebot.db.getCollection(this.channel);
+                // todo old db code - remove soon
+                //this.channelCollection = Memebot.db.getCollection(this.channel);
+                mongoHandler = new MongoHandler(Memebot.db, this.channel);
             } else {
-                this.channelCollection = Memebot.dbPrivate.getCollection(this.channel);
+                // todo old db code - remove soon
+                //this.channelCollection = Memebot.dbPrivate.getCollection(this.channel);
+                mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channel);
             }
         }
 
@@ -460,7 +468,51 @@ public class ChannelHandler implements Runnable {
         if (!Memebot.useMongo) {
             return;
         }
-        Document channelQuery = new Document("_id", this.channel);
+
+        try {
+            mongoHandler.readDatabase(this.channel);
+        } catch(DatabaseReadException e) {
+            log.warning(e.toString());
+        }
+
+        if(mongoHandler.getDocument() != null) {
+            this.maxFileNameLen = (short)mongoHandler.getDocument().getInteger("maxfilenamelen", this.maxFileNameLen);
+            this.raceBaseURL = mongoHandler.getDocument().getOrDefault("raceurl", this.raceBaseURL).toString();
+            this.fileNameList = (java.util.ArrayList<String>)mongoHandler.getDocument().getOrDefault("fileanmelist", this.fileNameList);
+            this.otherLoadedChannels = (java.util.ArrayList<String>)mongoHandler.getDocument().getOrDefault("otherchannels", this.otherLoadedChannels);
+            this.pointsPerUpdate = (double)mongoHandler.getDocument().getOrDefault("pointsperupdate", this.pointsPerUpdate);
+            this.allowAutogreet = (boolean)mongoHandler.getDocument().getOrDefault("allowautogreet", this.allowAutogreet);
+            this.linkTimeout = (int)mongoHandler.getDocument().getOrDefault("linktimeout", this.linkTimeout);
+            this.purgeURLS = (boolean)mongoHandler.getDocument().getOrDefault("purgelinks", this.purgeURLS);
+            this.silentMode = (boolean)mongoHandler.getDocument().getOrDefault("silent", this.silentMode);
+            this.givePointsWhenOffline = (boolean)mongoHandler.getDocument().getOrDefault("pointswhenoffline", this.givePointsWhenOffline);
+            this.allowGreetMessage = (boolean)mongoHandler.getDocument().getOrDefault("allowgreetmessage", this.givePointsWhenOffline);
+            this.maxPoints = (double)mongoHandler.getDocument().getOrDefault("maxpoints", this.maxPoints);
+            this.local = mongoHandler.getDocument().getOrDefault("local", this.local).toString();
+            this.currencyName = mongoHandler.getDocument().getOrDefault("currname", this.currencyName).toString();
+            this.currencyEmote = mongoHandler.getDocument().getOrDefault("curremote", this.currencyEmote).toString();
+            this.followAnnouncement = mongoHandler.getDocument().getOrDefault("followannouncement", this.followAnnouncement).toString();
+            this.maxScreenNameLen = (int)mongoHandler.getDocument().getOrDefault("maxscreennamelen", this.maxScreenNameLen);
+            this.maxAmountOfNameInList = (int)mongoHandler.getDocument().getOrDefault("maxnameinlist", this.maxScreenNameLen);
+            this.pointsTax = (double)mongoHandler.getDocument().getOrDefault("pointstax", this.pointsTax);
+            this.startingPoints = (double)mongoHandler.getDocument().getOrDefault("startingpoints", this.startingPoints);
+            this.bgImage = mongoHandler.getDocument().getOrDefault("bgImage", this.bgImage).toString();
+        }
+
+        // read commands
+        MongoHandler mongoHandler = null;
+        if(!Memebot.channelsPrivate.contains(this.channel)) {
+            mongoHandler = new MongoHandler(Memebot.db, this.channel + "_commands");
+        } else {
+            mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channel + "_commands");
+        }
+
+        for(Document doc : mongoHandler.getDocuments()) {
+            channelCommands.add(new CommandHandler(this, doc.getString("command"), ""));
+        }
+
+        // todo old db code - remove soon
+        /*Document channelQuery = new Document("_id", this.channel);
         FindIterable cursor = this.channelCollection.find(channelQuery);
         Document channelData = (Document)cursor.first();
         if (channelData != null) {
@@ -501,14 +553,41 @@ public class ChannelHandler implements Runnable {
             public void apply(final Document doc) {
                 channelCommands.add(new CommandHandler(ch, doc.getString("command"), ""));
             }
-        });
+        });*/
     }
 
     public void writeDB() {
         if (!Memebot.useMongo) {
             return;
         }
-        ChannelHandler.log.info("Saving data in db for channel " + this.channel + " on DB " + Memebot.db.getName());
+
+        Document channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
+                .append("raceurl", this.raceBaseURL)
+                .append("fileanmelist", this.fileNameList)
+                .append("otherchannels", this.otherLoadedChannels)
+                .append("pointsperupdate", this.pointsPerUpdate)
+                .append("allowautogreet", this.allowAutogreet)
+                .append("purgelinks", this.purgeURLS)
+                .append("linktimeout", this.linkTimeout)
+                .append("silent", this.silentMode)
+                .append("pointswhenoffline", this.givePointsWhenOffline)
+                .append("allowgreetmessage", this.allowGreetMessage)
+                .append("maxpoints", this.maxPoints)
+                .append("local", this.local)
+                .append("currname", this.currencyName)
+                .append("curremote", this.currencyEmote)
+                .append("followannouncement", this.followAnnouncement)
+                .append("maxscreennamelen", this.maxScreenNameLen)
+                .append("maxnameinlist", this.maxAmountOfNameInList)
+                .append("pointstax", this.pointsTax)
+                .append("startingpoints", this.startingPoints)
+                .append("bgImage", this.bgImage);
+
+        mongoHandler.setDocument(channelData);
+        mongoHandler.writeDatabase(this.channel);
+
+        // todo old db code - remove soon
+        /*ChannelHandler.log.info("Saving data in db for channel " + this.channel + " on DB " + Memebot.db.getName());
         Document channelQuery = new Document("_id", this.channel);
 
         Document channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
@@ -541,7 +620,7 @@ public class ChannelHandler implements Runnable {
         }
         for (String key : this.userList.keySet()) {
             this.userList.get(key).writeDB();
-        }
+        }*/
     }
 
 
@@ -712,14 +791,6 @@ public class ChannelHandler implements Runnable {
 
     public void setOtherLoadedChannels(ArrayList<String> otherLoadedChannels) {
         this.otherLoadedChannels = otherLoadedChannels;
-    }
-
-    public MongoCollection<Document> getChannelCollection() {
-        return channelCollection;
-    }
-
-    public void setChannelCollection(MongoCollection<Document> channelCollection) {
-        this.channelCollection = channelCollection;
     }
 
     public double getPointsPerUpdate() {

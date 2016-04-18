@@ -3,6 +3,8 @@ package me.krickl.memebotj.Commands;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Database.MongoHandler;
+import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
@@ -25,7 +27,8 @@ public class CommandHandler implements CommandInterface {
 
     private ChannelHandler channelHandler = null;
     private String commandName = null;
-    private MongoCollection<Document> commandCollection;
+    MongoHandler mongoHandler = null;
+    //private MongoCollection<Document> commandCollection;
 
     private int cooldownLength = 0;
     private Cooldown cooldown = new Cooldown(cooldownLength);
@@ -97,15 +100,23 @@ public class CommandHandler implements CommandInterface {
         if (Memebot.useMongo) {
             if(!Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel())) {
                 if (dbprefix == null) {
-                    this.commandCollection = Memebot.db.getCollection(this.channelHandler.getChannel() + "_commands");
+                    // todo old db code - remove soon
+                    //this.commandCollection = Memebot.db.getCollection(this.channelHandler.getChannel() + "_commands");
+                    mongoHandler = new MongoHandler(Memebot.db, this.channelHandler.getChannel() + "_commands");
                 } else {
-                    this.commandCollection = Memebot.db.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
+                    // todo old db code - remove soon
+                    //this.commandCollection = Memebot.db.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
+                    mongoHandler = new MongoHandler(Memebot.db, dbprefix + this.channelHandler.getChannel() + "_commands");
                 }
             } else {
                 if (dbprefix == null) {
-                    this.commandCollection = Memebot.dbPrivate.getCollection(this.channelHandler.getChannel() + "_commands");
+                    // todo old db code - remove soon
+                    //this.commandCollection = Memebot.dbPrivate.getCollection(this.channelHandler.getChannel() + "_commands");
+                    mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelHandler.getChannel() + "_commands");
                 } else {
-                    this.commandCollection = Memebot.dbPrivate.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
+                    // todo old db code - remove soon
+                    //this.commandCollection = Memebot.dbPrivate.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
+                    mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelHandler.getChannel() + "_commands");
                 }
             }
         }
@@ -120,7 +131,51 @@ public class CommandHandler implements CommandInterface {
             return;
         }
 
-        log.info("Reading db for command " + commandName + " from db on channel " + channelHandler.getChannel());
+        try {
+            mongoHandler.readDatabase(this.commandName);
+        } catch(DatabaseReadException e) {
+            return;
+        }
+
+        this.commandName = mongoHandler.getDocument().getOrDefault("command", this.commandName).toString();
+        this.cooldownLength = (int)mongoHandler.getDocument().getOrDefault("cooldown", this.cooldownLength);
+        this.helptext = mongoHandler.getDocument().getOrDefault("helptext", this.helptext).toString();
+        this.parameters = (int)mongoHandler.getDocument().getOrDefault("param", this.parameters);
+        this.commandType = mongoHandler.getDocument().getOrDefault("cmdtype", this.commandType).toString();
+        this.unformattedOutput = mongoHandler.getDocument().getOrDefault("output", this.unformattedOutput).toString();
+        this.quoteSuffix = mongoHandler.getDocument().getOrDefault("qsuffix", this.quoteSuffix).toString();
+        this.quotePrefix = mongoHandler.getDocument().getOrDefault("qprefix", this.quotePrefix).toString();
+        this.cost = (double)mongoHandler.getDocument().getOrDefault("costf", this.cost);
+        this.counter = (int)mongoHandler.getDocument().getOrDefault("counter", this.counter);
+        this.listContent = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("listcontent", this.listContent);
+        this.locked = (boolean)mongoHandler.getDocument().getOrDefault("locked", this.locked);
+        this.isTextTrigger = (boolean)mongoHandler.getDocument().getOrDefault("texttrigger", this.isTextTrigger);
+        this.neededCommandPower = (int)mongoHandler.getDocument().getOrDefault("viewerpower", this.neededCommandPower);
+        this.userCooldownLength = (int)mongoHandler.getDocument().getOrDefault("usercooldown", this.userCooldownLength);
+        this.commandScript = mongoHandler.getDocument().getOrDefault("script", this.commandScript).toString();
+        this.isEnabled = (boolean)mongoHandler.getDocument().getOrDefault("enable", this.isEnabled);
+        this.neededCooldownBypassPower = (int)mongoHandler.getDocument().getOrDefault("cooldownbypass", this.neededCooldownBypassPower);
+        this.allowPicksFromList = (boolean)mongoHandler.getDocument().getOrDefault("allowpick", this.allowPicksFromList);
+        this.overrideHandleMessage = (boolean)mongoHandler.getDocument().getOrDefault("overridehandlemessage", this.overrideHandleMessage);
+        this.execCounter = (int)mongoHandler.getDocument().getOrDefault("execcounter", this.execCounter);
+        this.caseSensitive = (boolean)mongoHandler.getDocument().getOrDefault("case", this.caseSensitive);
+        this.formatData = (boolean)mongoHandler.getDocument().getOrDefault("format", this.formatData);
+        this.checkDefaultCooldown = (boolean)mongoHandler.getDocument().getOrDefault("checkdefaultcooldown", this.checkDefaultCooldown);
+        this.hideCommand = (boolean)mongoHandler.getDocument().getOrDefault("hideCommand", this.hideCommand);
+        this.lastOutput = mongoHandler.getDocument().getOrDefault("lasoutput", this.lastOutput).toString();
+        this.state = (int)mongoHandler.getDocument().getOrDefault("state", this.state);
+        //other data are used to store data that are used for internal commands
+        Document otherDataDocument = (Document)mongoHandler.getDocument().getOrDefault("otherdata", new Document());
+
+        for(String key : otherDataDocument.keySet()) {
+            this.otherData.put(key, otherDataDocument.getString(key));
+        }
+
+        cooldown = new Cooldown(cooldownLength);
+
+
+        // todo old db code - remove soon
+        /*log.info("Reading db for command " + commandName + " from db on channel " + channelHandler.getChannel());
 
         Document commandQuery = new Document("_id", this.commandName);
         FindIterable cursor = this.commandCollection.find(commandQuery);
@@ -163,12 +218,52 @@ public class CommandHandler implements CommandInterface {
             }
 
             cooldown = new Cooldown(cooldownLength);
-        }
+        }*/
     }
 
     public void writeDB() {
         if(!Memebot.useMongo) { return; }
-        log.info("Saving db entry for command " + commandName + " from db on channel " + channelHandler.getChannel());
+
+        Document otherDataDocument = new Document();
+        for(String key : this.otherData.keySet()) {
+            otherDataDocument.append(key, this.otherData.get(key));
+        }
+
+        Document channelData = new Document("_id", this.commandName)
+                .append("command", this.commandName)
+                .append("cooldown", new Integer(this.cooldownLength))
+                .append("helptext", this.helptext)
+                .append("param", new Integer(this.parameters))
+                .append("cmdtype", this.commandType)
+                .append("output", this.unformattedOutput)
+                .append("qsuffix", this.quoteSuffix)
+                .append("qprefix", this.quotePrefix)
+                .append("costf", this.cost)
+                .append("counter", this.counter)
+                .append("listcontent", this.listContent)
+                .append("locked", this.locked)
+                .append("texttrigger", this.isTextTrigger)
+                .append("viewerpower", this.neededCommandPower)
+                .append("usercooldown", this.userCooldownLength)
+                .append("script", this.commandScript)
+                .append("enable", this.isEnabled)
+                .append("cooldownbypasspower", this.neededCooldownBypassPower)
+                .append("allowpick", this.allowPicksFromList)
+                .append("overridehandlemessage", this.overrideHandleMessage)
+                .append("execcounter", this.execCounter)
+                .append("case", this.caseSensitive)
+                .append("otherdata", otherDataDocument)
+                .append("format", this.formatData)
+                .append("checkdefaultcooldown", this.checkDefaultCooldown)
+                .append("hideCommand", this.hideCommand)
+                .append("lastoutput", this.lastOutput)
+                .append("state", this.state);
+
+        mongoHandler.setDocument(channelData);
+        mongoHandler.writeDatabase(this.commandName);
+
+        // todo old db code - remove soon
+        /*log.info("Saving db entry for command " + commandName + " from db on channel " + channelHandler.getChannel());
 
         Document commandQuery = new Document("_id", this.commandName);
         FindIterable cursor = this.commandCollection.find(commandQuery);
@@ -216,14 +311,18 @@ public class CommandHandler implements CommandInterface {
             }
         } catch(Exception e) {
             log.warning(e.toString());
-        }
+        }*/
     }
 
     public void removeDB() {
         if(!Memebot.useMongo) {
             return;
         }
-        try {
+
+        mongoHandler.removeDatabase(this.commandName);
+
+        // todo old db code - remove soon
+        /*try {
             log.info("Removing db entry for command " + commandName + " from db on channel " + channelHandler.getChannel());
 
             Document commandQuery = new Document("_id", this.commandName);
@@ -235,7 +334,7 @@ public class CommandHandler implements CommandInterface {
             }
         } catch(java.lang.IllegalArgumentException e) {
             log.warning(e.toString());
-        }
+        }*/
     }
 
     public void overrideDB() {
@@ -606,14 +705,6 @@ public class CommandHandler implements CommandInterface {
 
     public void setCommandName(String commandName) {
         this.commandName = commandName;
-    }
-
-    public MongoCollection<Document> getCommandCollection() {
-        return commandCollection;
-    }
-
-    public void setCommandCollection(MongoCollection<Document> commandCollection) {
-        this.commandCollection = commandCollection;
     }
 
     public boolean isHideCommand() {
