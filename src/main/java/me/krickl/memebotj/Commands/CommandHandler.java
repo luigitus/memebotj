@@ -12,10 +12,8 @@ import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
+import java.security.SecureRandom;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -510,13 +508,22 @@ public class CommandHandler implements CommandInterface {
                     } catch (NumberFormatException e) {
                         // find string in list content
                         formattedOutput = Memebot.formatText("QUERY_NOT_FOUND", channelHandler, sender, this, true, new String[]{}, "");
-                        String query = java.util.Arrays.copyOfRange(data, 1, data.length).toString();
+                        String[] queryA = java.util.Arrays.copyOfRange(data, 1, data.length);
+                        String query = "";
+                        for(String s : queryA) { query = query + s + " "; }
                         int number = 0;
+                        // find all contents of list containing the required string
+                        ArrayList<String> tempList = new ArrayList<>();
                         for (String str : listContent) {
                             if (str.contains(query)) {
                                 formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(number)) + str + this.quoteSuffix.replace("{number}", Integer.toString(number));
                                 number += 1;
+                                tempList.add(formattedOutput);
                             }
+                        }
+                        if(tempList.size() > 0) {
+                            SecureRandom ran = new SecureRandom();
+                            formattedOutput = tempList.get(ran.nextInt(tempList.size()));
                         }
                     }
                 }

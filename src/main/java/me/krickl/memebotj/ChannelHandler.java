@@ -339,8 +339,30 @@ public class ChannelHandler implements Runnable {
             }
         }
 
+        int p = -1;
+        //internal text triggers
+        for (String s : msgContent) {
+            p = this.findCommand(s, this.internalCommands, 0);
+
+            if (p != -1) {
+                CommandHandler ch = this.internalCommands.get(p);
+                if (ch.isTextTrigger()) {
+                    ch.executeCommand(sender, new String[]{"", ""});
+                }
+            }
+        }
+
+        //internal commands
+        p = this.findCommand(msg, this.internalCommands, 0);
+        if (p != -1) {
+            CommandHandler ch = this.internalCommands.get(p);
+            if(!ch.isTextTrigger()) {
+                ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
+            }
+        }
+
         //channel commands
-        int p = this.findCommand(msg);
+        p = this.findCommand(msg);
         if (p != -1) {
             if (!this.channelCommands.get(p).isTextTrigger()) {
                 this.channelCommands.get(p).executeCommand(sender, data);
@@ -369,27 +391,6 @@ public class ChannelHandler implements Runnable {
                         ch.getChannelCommands().get(p).executeCommand(readOnlyUser, data);
                     }
                 }
-            }
-        }
-
-        //internal text triggers
-        for (String s : msgContent) {
-            p = this.findCommand(s, this.internalCommands, 0);
-
-            if (p != -1) {
-                CommandHandler ch = this.internalCommands.get(p);
-                if (ch.isTextTrigger()) {
-                    ch.executeCommand(sender, new String[]{"", ""});
-                }
-            }
-        }
-
-        //internal commands
-        p = this.findCommand(msg, this.internalCommands, 0);
-        if (p != -1) {
-            CommandHandler ch = this.internalCommands.get(p);
-            if(!ch.isTextTrigger()) {
-                ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
             }
         }
 
@@ -428,9 +429,9 @@ public class ChannelHandler implements Runnable {
         this.currentMessageCount += 1;
         if(!whisper) {
             if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " :" + msg + "\n");
+                this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
             } else {
-                this.connection.sendMessage("PRIVMSG " + channel + " : " + msg + "\n");
+                this.connection.sendMessage("PRIVMSG " + channel + " :" + msg + "\n");
             }
         } else {
             if (sender.getUsername().equals("#readonly#")) {

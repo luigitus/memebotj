@@ -43,7 +43,13 @@ public class FilenameCommand extends CommandHandler {
                 }
             }
 
-            int cost = Integer.parseInt(getOtherData().get("namecost"));
+            int cost = 40;
+            try {
+                cost = Integer.parseInt(getOtherData().get("namecost"));
+            } catch(NumberFormatException e) {
+                log.warning(e.toString());
+                getOtherData().put("namecost", "40");
+            }
 
             if (data.length >= 1) {
                 if (data[0].equals("get")) {
@@ -103,6 +109,7 @@ public class FilenameCommand extends CommandHandler {
                             //check if number is integer
                             cost = Integer.parseInt(data[2]);
                             getOtherData().put("namecost", data[2]);
+                            getChannelHandler().sendMessage(Memebot.formatText("NAME_EDIT_COST_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                         } catch(NumberFormatException e) {
                             log.info(e.toString());
                         }

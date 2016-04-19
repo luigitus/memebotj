@@ -382,6 +382,7 @@ public class Memebot {
         formattedOutput = formattedOutput.replace("{space}", " ");
         formattedOutput = formattedOutput.replace("{none}", "");
         formattedOutput = formattedOutput.replace("{random}", Integer.toString(Math.abs(ran.nextInt())));
+        formattedOutput = formattedOutput.replace("NO_OUTPUT_ERR()", "");
 
         if (params != null) {
             for (int i = 0; i < params.length; i++) {

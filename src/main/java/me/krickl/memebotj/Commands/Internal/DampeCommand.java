@@ -78,7 +78,13 @@ public class DampeCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        double wage = Double.parseDouble(getOtherData().get("minbet")); //50.0f;
+        double wage = 50;
+        try {
+            wage = Double.parseDouble(getOtherData().get("minbet")); //50.0f;
+        } catch(NumberFormatException e) {
+            log.warning(e.toString());
+            getOtherData().put("minbet", "50");
+        }
         try {
             if (data[0].equals("jackpot")) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
@@ -95,9 +101,11 @@ public class DampeCommand extends CommandHandler {
                     if (data[1].equals("jackpotchance")) {
                         Integer.parseInt(data[2]);
                         getOtherData().put("jackpotchance2", data[2]);
+                        getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_EDIT_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                     } else if (data[1].equals("minbet")) {
                         wage = Double.parseDouble(getOtherData().get("minbet"));
                         getOtherData().put("minbet", data[2]);
+                        getChannelHandler().sendMessage(Memebot.formatText("DAMPE_MINBET_EDIT_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                     }
                 } catch(NumberFormatException e) {
                     log.warning(e.toString());
@@ -135,7 +143,14 @@ public class DampeCommand extends CommandHandler {
         int range = 1000;
         int outcome = ran.nextInt(range); //- wage.toInt / 4)
         int offlineModifier = 0;
-        int jackpotChance = Integer.parseInt(getOtherData().get("jackpotchance2"));
+        int jackpotChance = 3;
+
+        try {
+            jackpotChance = Integer.parseInt(getOtherData().get("jackpotchance2"));
+        } catch(NumberFormatException e) {
+            log.warning(e.toString());
+            getOtherData().put("jackpotchance2", "3");
+        }
 
         if (!getChannelHandler().isLive()) {
             offlineModifier = 5;
