@@ -189,7 +189,7 @@ public class ChannelHandler implements Runnable {
 
         if (isInList && removeThisCH != null) {
             Memebot.joinedChannels.remove(removeThisCH);
-            new File(Memebot.home + "/.memebot/channels/" + channel).delete();
+            new File(Memebot.memebotDir + "/channels/" + channel).delete();
 
         }
         this.sendMessage("Leaving channel :(", this.channel);
@@ -212,7 +212,7 @@ public class ChannelHandler implements Runnable {
 
         if(!isInList) {
             try {
-                new File(Memebot.home + "/.memebot/channels/" + channel).createNewFile();
+                new File(Memebot.memebotDir + "/channels/" + channel).createNewFile();
             } catch(IOException e) {
                 log.warning(e.toString());
             }
@@ -456,6 +456,9 @@ public class ChannelHandler implements Runnable {
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper) {
         String msg = mesgessage;
+        if(msg.isEmpty()) {
+            return;
+        }
         if (!this.preventMessageCooldown.canContinue()) {
             return;
         }

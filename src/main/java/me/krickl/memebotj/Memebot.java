@@ -91,7 +91,7 @@ public class Memebot {
             String arg = args[i];
             if (arg.contains("home=")) {
                 Memebot.home = arg.replaceAll("home=", "");
-                Memebot.memebotDir = Memebot.home + "/.memebot";
+                Memebot.memebotDir = Memebot.home + "/config";
                 Memebot.configFile = Memebot.memebotDir + "/memebot.cfg";
                 Memebot.channelConfig = Memebot.memebotDir + "/channels.cfg";
                 log.info("Set home directory to " + Memebot.home);

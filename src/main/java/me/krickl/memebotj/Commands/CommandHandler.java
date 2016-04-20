@@ -467,9 +467,13 @@ public class CommandHandler implements CommandInterface {
                     }
                 } else if (data[1].equals("remove") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     try {
-                        this.listContent.remove(Integer.parseInt(data[2]));
-                        formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, new String[]{}, "");
-                        this.success = true;
+                        if(this.listContent.size() > Integer.parseInt(data[2])) {
+                            this.listContent.remove(Integer.parseInt(data[2]));
+                            formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, new String[]{}, "");
+                            this.success = true;
+                        } else {
+                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
+                        }
                     } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
                         formattedOutput = e.toString();
                         this.success = false;
@@ -480,9 +484,13 @@ public class CommandHandler implements CommandInterface {
                         newEntry = newEntry + data[i];
                     }
                     try {
-                        this.listContent.set(Integer.parseInt(data[2]), newEntry);
-                        formattedOutput = Memebot.formatText("EDITED", channelHandler, sender, this, true, new String[]{}, "");
-                        this.success = true;
+                        if(this.listContent.size() > Integer.parseInt(data[2])) {
+                            this.listContent.set(Integer.parseInt(data[2]), newEntry);
+                            formattedOutput = Memebot.formatText("EDITED", channelHandler, sender, this, true, new String[]{}, "");
+                            this.success = true;
+                        } else {
+                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
+                        }
                     } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
                         log.warning(e.toString());
                         this.success = false;

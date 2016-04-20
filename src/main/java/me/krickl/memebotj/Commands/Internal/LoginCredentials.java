@@ -23,7 +23,7 @@ public class LoginCredentials extends CommandHandler {
 
         this.setHelptext(Memebot.formatText("LOGIN_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
         this.setFormatData(false);
-        setEnabled(false);
+        setEnabled(true);
     }
 
     @Override
@@ -34,8 +34,6 @@ public class LoginCredentials extends CommandHandler {
                 fop.println(data[0] + "\n" + data[1]);
                 fop.close();
                 getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("LOGIN"), getChannelHandler(), sender, this, false, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-                Memebot.saveAll();
-                getChannelHandler().setJoined(false);
             } catch(IOException e) {
                 log.warning(e.toString());
             }
