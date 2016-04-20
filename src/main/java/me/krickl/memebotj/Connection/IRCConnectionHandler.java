@@ -113,6 +113,26 @@ public class IRCConnectionHandler implements ConnectionInterface {
         String[] ircmsgBuffer = rawircmsg.split(" ");
         String messageType = "UNDEFINED";
         int i = 0;
+
+        String channel = "";
+
+        //get channel name
+        // todo to this better
+        int hashIndex = rawircmsg.indexOf(" #");
+
+        if (hashIndex > 0) {
+            for (i = hashIndex + 1; i < rawircmsg.length(); i++) {
+                if (rawircmsg.charAt(i) != ' ') {
+                    channel = channel + rawircmsg.charAt(i);
+                } else {
+                    break;
+                }
+            }
+        }
+
+
+        i = 0;
+        // handle message
         while (i < ircmsgBuffer.length) {
             String msg = ircmsgBuffer[i];
             if ((msg.equals("PRIVMSG") || msg.equals("WHISPER") || msg.equals("MODE") || msg.equals("PART") || msg.equals("JOIN") || msg.equals("CLEARCHAT")) && messageType.equals("UNDEFINED")) {
@@ -243,16 +263,17 @@ public class IRCConnectionHandler implements ConnectionInterface {
             }
         }
 
-        /*if(messageType.equals("WHISPER")) {
+        if(messageType.equals("WHISPER")) {
             try {
-                messageType = "WHISPER" + msgContent[0];
+                messageType = "WHISPER";
+                channel = msgContent[0];
                 msgContent = Arrays.copyOfRange(msgContent, 1, msgContent.length);
             } catch(ArrayIndexOutOfBoundsException e) {
 
             }
-        }*/
+        }
 
-        return new MessagePackage(msgContent, sender, messageType);
+        return new MessagePackage(msgContent, sender, messageType, channel);
     }
 
     public void close() {
@@ -266,6 +287,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
     }
 
     public void sendMessage(String msg) {
+        System.out.println(msg);
         try {
             outToServer.flush();
             outToServer.write(msg.getBytes("UTF-8"));
@@ -275,6 +297,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
     }
 
     public void sendMessageBytes(String msg) {
+        System.out.println(msg);
         try {
             outToServer.flush();
             outToServer.writeBytes(msg);

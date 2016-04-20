@@ -470,7 +470,7 @@ public class CommandHandler implements CommandInterface {
                         this.listContent.remove(Integer.parseInt(data[2]));
                         formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, new String[]{}, "");
                         this.success = true;
-                    } catch (ArrayIndexOutOfBoundsException e) {
+                    } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
                         formattedOutput = e.toString();
                         this.success = false;
                     }

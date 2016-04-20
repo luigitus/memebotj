@@ -62,7 +62,7 @@ public class WhoisCommand extends CommandHandler {
                     " || Is user a cat: " +
                     java.lang.Boolean.toString(isCat)
                     + "|| Is user a bad girl/boy: " + Boolean.toString(swears)
-                    + "|| Jackpot wins: " + Integer.toString(sender.getJackpotWins()), this.getChannelHandler().getChannel());
+                    + "|| Jackpot wins: " + Integer.toString(sender.getJackpotWins()), this.getChannelHandler().getChannel(), sender);
         } catch(ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }

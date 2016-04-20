@@ -92,6 +92,8 @@ public class ChannelHandler implements Runnable {
     private Localisation localisation = new Localisation(this.local);
     private String bgImage = "";
 
+    private boolean useWhisper = false;
+
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
         this.connection = connection;
@@ -144,7 +146,7 @@ public class ChannelHandler implements Runnable {
         this.internalCommands.add(new WhoisCommand(this, "!whois", "#internal#"));
         this.internalCommands.add(new FilenameCommand(this, "!name", "#internal#"));
         this.internalCommands.add(new EdituserCommand(this, "!user", "#internal#"));
-        // todo implement this this. internalCommands.add(new SendMessageCommand(this, "!sm", "#internal#"));
+        this. internalCommands.add(new SendMessageCommand(this, "!sm", "#internal#"));
         this.internalCommands.add(new DampeCommand(this, "!dampe", "#internal#"));
         this.internalCommands.add(new DebugCommand(this, "!debug", "#debug#"));
         this.internalCommands.add(new PyramidCommand(this, "!pyramid", "#internal#"));
@@ -239,9 +241,9 @@ public class ChannelHandler implements Runnable {
             String[] ircmsg = new String[2];
             ircmsg = this.connection.recvData();
 
-            if (this.channel.equalsIgnoreCase(ircmsg[0])) {
-                this.handleMessage(ircmsg[1]);
-            }
+            //if (this.channel.equalsIgnoreCase(ircmsg[0])) {
+            this.handleMessage(ircmsg[1]);
+            //}
             try {
                 Thread.sleep(50);
             } catch(InterruptedException e) {
@@ -299,21 +301,30 @@ public class ChannelHandler implements Runnable {
     }
 
     public void handleMessage(String rawmessage) {
+        useWhisper = false;
         MessagePackage msgPackage = connection.handleMessage(rawmessage, this);
 
         if (msgPackage == null) {
             return;
         }
 
-        /*if(msgPackage.messageType.equals("WHISPER" + this.channel)) {
+        // if channel does not match ignore the message
+        if(!msgPackage.channel.equals(this.channel)) {
+            // todo send message to the right channel
+            return;
+        }
+
+        if(msgPackage.messageType.equals("WHISPER")) {
+            useWhisper = true;
             msgPackage.messageType = "PRIVMSG";
-        }*/
+        }
 
         String[] msgContent = msgPackage.messageContent;
         UserHandler sender = msgPackage.sender;
         String msgType = msgPackage.messageType;
 
         if (!msgType.equals("PRIVMSG")) {
+            useWhisper = false;
             return;
         }
 
@@ -396,16 +407,38 @@ public class ChannelHandler implements Runnable {
 
         //set user activity
         //sender.setTimeSinceActivity(System.currentTimeMillis())
+        useWhisper = false;
     }
 
+    /***
+     *
+     * @param mesgessage
+     * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
+     */
+    @Deprecated
     public void sendMessage(String mesgessage) {
-        sendMessage(mesgessage, this.channel, new UserHandler("#internal#", this.channel));
+        sendMessage(mesgessage, this.channel, readOnlyUser);
     }
 
+    /***
+     *
+     * @param mesgessage
+     * @param channel
+     * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
+     */
+    @Deprecated
     public void sendMessage(String mesgessage, String channel) {
-        sendMessage(mesgessage, channel, new UserHandler("#internal#", this.channel));
+        sendMessage(mesgessage, channel, readOnlyUser);
     }
 
+    /***
+     *
+     * @param mesgessage
+     * @param channel
+     * @param sender
+     * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
+     */
+    @Deprecated
     public void sendMessage(String mesgessage, String channel, UserHandler sender) {
         sendMessage(mesgessage, channel, sender, false);
     }
@@ -427,7 +460,7 @@ public class ChannelHandler implements Runnable {
         }
 
         this.currentMessageCount += 1;
-        if(!whisper) {
+        if(!whisper && !useWhisper) {
             if (sender.getUsername().equals("#readonly#")) {
                 this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
             } else {

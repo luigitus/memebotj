@@ -10,10 +10,12 @@ public class MessagePackage {
     public String[] messageContent = null;
     public UserHandler sender = null;
     public String messageType = null;
+    public String channel = null;
 
-    public MessagePackage(String[] content, UserHandler uh, String type) {
+    public MessagePackage(String[] content, UserHandler uh, String type, String channel) {
         messageContent = content;
         sender = uh;
         messageType = type;
+        this.channel = channel;
     }
 }
