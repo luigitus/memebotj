@@ -1,6 +1,7 @@
 package me.krickl.memebotj.Connection;
 
 import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Utility.MessagePackage;
 
 import java.io.IOException;
@@ -12,7 +13,7 @@ import java.io.IOException;
 public interface ConnectionInterface {
     void ping() throws IOException;
 
-    String[] recvData();
+    String recvData() throws LoginException;
 
     MessagePackage handleMessage(String rawircmsg, ChannelHandler channelHandler);
 

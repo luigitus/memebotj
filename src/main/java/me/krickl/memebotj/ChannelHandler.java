@@ -8,6 +8,7 @@ import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Twitch.ChannelAPI;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
@@ -93,6 +94,7 @@ public class ChannelHandler implements Runnable {
     private String bgImage = "";
 
     private boolean useWhisper = false;
+    private Cooldown reconnectCooldown = new Cooldown(40);
 
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
@@ -155,6 +157,7 @@ public class ChannelHandler implements Runnable {
         this.internalCommands.add(new BobRossCommand(this, "!bobross", "#internal#"));
         this.internalCommands.add(new InvertedPyramidCommand(this, "!dimaryp", "#internal#"));
         this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
+        this.internalCommands.add(new LoginCredentials(this, "!setlogin", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 
         CommandHandler issueCommand = new CommandHandler(this, "!issue", "#internal#");
@@ -238,20 +241,28 @@ public class ChannelHandler implements Runnable {
         }
 
         while (this.isJoined) {
-            String[] ircmsg = new String[2];
-            ircmsg = this.connection.recvData();
-
-            //if (this.channel.equalsIgnoreCase(ircmsg[0])) {
-            this.handleMessage(ircmsg[1]);
-            //}
             try {
-                Thread.sleep(50);
-            } catch(InterruptedException e) {
-                e.printStackTrace();
-            }
+                String ircmsg = this.connection.recvData();
 
-            if (!Memebot.useUpdateThread) {
-                this.update();
+                //if (this.channel.equalsIgnoreCase(ircmsg[0])) {
+                this.handleMessage(ircmsg);
+                //}
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (!Memebot.useUpdateThread) {
+                    this.update();
+                }
+            } catch(LoginException e) {
+                log.info(e.toString());
+                // fallback in case of login issues - try again
+                if(this.reconnectCooldown.canContinue()) {
+                    this.connection = new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword);
+                    reconnectCooldown.startCooldown();
+                }
             }
         }
     }
@@ -455,7 +466,8 @@ public class ChannelHandler implements Runnable {
             log.warning("Reached global message limit for 30 seconds. try again later");
             this.preventMessageCooldown.startCooldown();
         }
-        if(msg.contains("/ignore")) {
+        // ignore /ignore to avoid people being ignored by the bot
+        if(msg.startsWith("/ignore")) {
             return;
         }
 
@@ -468,9 +480,9 @@ public class ChannelHandler implements Runnable {
             }
         } else {
             if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " " + msg + "\n");
+                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " <" + sender.getChannelOrigin() + "> " + msg + "\n");
             } else {
-                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " " + msg + "\n");
+                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " <" + channel + "> " + msg + "\n");
             }
         }
     }

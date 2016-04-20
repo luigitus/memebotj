@@ -1,6 +1,7 @@
 package me.krickl.memebotj.Connection;
 
 import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
@@ -66,8 +67,11 @@ public class IRCConnectionHandler implements ConnectionInterface {
         this.outToServer.writeBytes("PING :PONG\n");
     }
 
-    public String[] recvData() {
+    public String recvData() throws LoginException {
         String ircmsg = "";
+        if(inFromServer == null) {
+            throw new LoginException("No input from server found");
+        }
         try {
             if (this.debugMode) {
                 Scanner input = new Scanner(System.in);
@@ -79,7 +83,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
             e.printStackTrace();
         }
 
-        String channel = "";
+        /*String channel = "";
         int hashIndex = ircmsg.indexOf(" #");
 
         if (hashIndex > 0) {
@@ -92,7 +96,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
             }
         }
 
-        System.out.println("<" + channel + "> " + ircmsg);
+        System.out.println("<" + channel + "> " + ircmsg);*/
 
         if (ircmsg.contains("PING :")) {
             try {
@@ -100,10 +104,11 @@ public class IRCConnectionHandler implements ConnectionInterface {
             } catch(IOException e) {
                 e.printStackTrace();
             }
+        } else if (ircmsg.contains(":tmi.twitch.tv NOTICE * :Error logging in")) {
+            throw new LoginException("Error logging in");
         }
 
-        String[] returnArray = {channel, ircmsg};
-        return returnArray;
+        return ircmsg;
     }
 
     public MessagePackage handleMessage(String rawircmsg, ChannelHandler channelHandler) {
@@ -117,7 +122,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
         String channel = "";
 
         //get channel name
-        // todo to this better
+        // todo do this better
         int hashIndex = rawircmsg.indexOf(" #");
 
         if (hashIndex > 0) {
@@ -129,6 +134,8 @@ public class IRCConnectionHandler implements ConnectionInterface {
                 }
             }
         }
+
+        System.out.println("<" + channel + ">" + rawircmsg);
 
 
         i = 0;
@@ -181,7 +188,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
         //todo make sure sender is not removed
         sender.setShouldBeRemoved(false);
 
-        if (!messageType.equals("PRIVMSG") || messageType.equals("WHISPER")) {
+        if (!messageType.equals("PRIVMSG") && !messageType.equals("WHISPER")) {
             String[] ircmsgList = rawircmsg.split(" ");
             if (ircmsgList[1] == null) {
                 return null;
@@ -288,6 +295,9 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public void sendMessage(String msg) {
         System.out.println(msg);
+        if(outToServer == null) {
+            return;
+        }
         try {
             outToServer.flush();
             outToServer.write(msg.getBytes("UTF-8"));
@@ -298,6 +308,9 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public void sendMessageBytes(String msg) {
         System.out.println(msg);
+        if(outToServer == null) {
+            return;
+        }
         try {
             outToServer.flush();
             outToServer.writeBytes(msg);

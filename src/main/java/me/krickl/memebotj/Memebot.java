@@ -38,7 +38,7 @@ public class Memebot {
     public static int mongoPort = 27017;
     public static String mongoDBName = "memebot";
     public static String home = System.getProperty("user.home");
-    public static String memebotDir = System.getProperty("user.home") + "/.memebot";
+    public static String memebotDir = "./config";
     public static String htmlDir = "";
     public static String configFile = memebotDir + "/memebot.cfg";
     public static String channelConfig = memebotDir + "/channels.cfg";
@@ -108,9 +108,9 @@ public class Memebot {
 
     public static void setupDirs() {
         // initial setup
-        new File(home + "/.memebot").mkdir();
-        new File(home + "/.memebot/channels").mkdir();
-        new File(home + "/.memebot/locals").mkdir();
+        new File(memebotDir).mkdir();
+        new File(memebotDir + "/channels").mkdir();
+        new File(memebotDir + "/locals").mkdir();
 
         BuildInfo.loadBuildInfo();
     }
@@ -134,7 +134,7 @@ public class Memebot {
             }
 
             try {
-                channels = Memebot.listDirectory(new File(home + "/.memebot/channels/"), 1);
+                channels = Memebot.listDirectory(new File(memebotDir + "/channels/"), 1);
                 //private channels on private database
                 channelsPrivate = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),Charset.defaultCharset());
 
@@ -192,7 +192,7 @@ public class Memebot {
 
                 Memebot.log.info("Found login file for channel " + channel);
 
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0), loginInfo.get(1)));
+                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", "")));
                 newChannel.start();
                 joinedChannels.add(newChannel);
             } else {

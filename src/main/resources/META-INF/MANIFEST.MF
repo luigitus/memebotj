@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Class-Path: memebotj_lib/bson.jar memebotj_lib/json-simple.jar memebot
- j_lib/mongodb-driver.jar memebotj_lib/mongodb.jar
+Class-Path: junit-4.10.jar mongo-java-driver-3.2.2.jar json-simple-1.1
+ .1.jar hamcrest-core-1.1.jar jython-2.7.0.jar
 Main-Class: me.krickl.memebotj.Memebot
 

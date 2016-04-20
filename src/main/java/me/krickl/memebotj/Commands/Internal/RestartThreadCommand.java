@@ -23,7 +23,7 @@ public class RestartThreadCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("RESTART"), getChannelHandler(), sender, this, false, new String[]{}, ""), this.getChannelHandler().getChannel());
-        getChannelHandler().writeDB();
+        Memebot.saveAll();
         getChannelHandler().setJoined(false);
     }
 }
