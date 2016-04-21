@@ -95,7 +95,7 @@ public class UserHandler {
 
         try {
             mongoHandler.readDatabase(this.username);
-        } catch(DatabaseReadException e) {
+        } catch(DatabaseReadException | IllegalArgumentException e) {
             log.warning(e.toString());
             this.newUser = true;
             return;

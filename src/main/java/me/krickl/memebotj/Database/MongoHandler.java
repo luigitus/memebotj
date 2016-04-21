@@ -9,6 +9,7 @@ import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
 import org.bson.Document;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 

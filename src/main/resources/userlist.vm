@@ -1,0 +1,24 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Commands for ${channel.channel}</title>
+</head>
+
+<body>
+#parse("include.vm")
+<div id="content">
+    <table style="width:100%" class="users">
+        <tr>
+            <td>Name</td>
+        </tr>
+        #foreach($name in $channel.userList)
+            <tr>
+                <td><a href="${web}/commands/users/list/names/${channel.broadcaster}/${name.username}">${name.username}</a></td>
+            </tr>
+        #end
+    </table>
+</div>
+#parse("footer.vm")
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Commands for ${channel.channel}</title>
+</head>
+
+<body>
+#parse("include.vm")
+<div id="content">
+    <table style="width:100%" class="filenames">
+        <tr>
+            <td>Name</td>
+            <td>Suggested by</td>
+        </tr>
+        #foreach($name in $channel.fileNameList)
+            <tr>
+                <td>${name.split("#")[0]}</td>
+                <td>${name.split("#")[1]}</td>
+            </tr>
+        #end
+    </table>
+</div>
+#parse("footer.vm")
+</body>
+
+</html>

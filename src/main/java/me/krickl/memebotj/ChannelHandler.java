@@ -52,7 +52,7 @@ public class ChannelHandler implements Runnable {
     private long streamStartTime = 0;
 
     private String local = "engb";
-    private String channelPageBaseURL = Memebot.webBaseURL + this.broadcaster;
+    private String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
     // todo old db code - remove soon
@@ -102,7 +102,7 @@ public class ChannelHandler implements Runnable {
         this.broadcaster = this.channel.replace("#", "");
         broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
         readOnlyUser = new UserHandler("#readonly#", this.channel);
-        channelPageBaseURL = Memebot.webBaseURL + this.broadcaster;
+        channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
 
@@ -148,7 +148,7 @@ public class ChannelHandler implements Runnable {
         this.internalCommands.add(new WhoisCommand(this, "!whois", "#internal#"));
         this.internalCommands.add(new FilenameCommand(this, "!name", "#internal#"));
         this.internalCommands.add(new EdituserCommand(this, "!user", "#internal#"));
-        this. internalCommands.add(new SendMessageCommand(this, "!sm", "#internal#"));
+        this.internalCommands.add(new SendMessageCommand(this, "!sm", "#internal#"));
         this.internalCommands.add(new DampeCommand(this, "!dampe", "#internal#"));
         this.internalCommands.add(new DebugCommand(this, "!debug", "#debug#"));
         this.internalCommands.add(new PyramidCommand(this, "!pyramid", "#internal#"));
@@ -158,6 +158,7 @@ public class ChannelHandler implements Runnable {
         this.internalCommands.add(new InvertedPyramidCommand(this, "!dimaryp", "#internal#"));
         this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
         this.internalCommands.add(new LoginCredentials(this, "!setlogin", "#internal#"));
+        this.internalCommands.add(new SongRequestCommand(this, "!songrequest", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 
         CommandHandler issueCommand = new CommandHandler(this, "!issue", "#internal#");

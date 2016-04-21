@@ -1,0 +1,47 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Commands for ${channel.channel}</title>
+</head>
+
+<body>
+#parse("include.vm")
+<div id="content">
+    <table style="width:100%" class="commands">
+        <tr>
+            <td>Cooldown</td>
+            <td>${command.cooldownLength}</td>
+        </tr>
+        <tr>
+            <td>Is Text Trigger</td>
+            <td>${command.isTextTrigger}</td>
+        </tr>
+        <tr>
+            <td>User Cooldown</td>
+            <td>${command.userCooldownLength}</td>
+        </tr>
+        <tr>
+            <td>Hidden</td>
+            <td>${command.hideCommand}</td>
+        </tr>
+    </table>
+
+    </br></br>
+
+    <table style="width:100%">
+        <tr>
+            <td>#</td>
+            <td>List Content</td>
+        </tr>
+        #foreach( $item in $command.listContent )
+            <tr>
+                <td>${foreach.count}</td>
+                <td>${item}</td>
+            </tr>
+        #end
+    </table>
+</div>
+#parse("footer.vm")
+</body>
+
+</html>

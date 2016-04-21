@@ -1,0 +1,32 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Commands for ${channel.channel}</title>
+</head>
+
+<body>
+    #parse("include.vm")
+<div id="content">
+    <table style="width:100%">
+        <tr>
+            <td>Name</td>
+            <td>${user.username}</td>
+        </tr>
+        <tr>
+            <td>Timeouts</td>
+            <td>${user.timeouts}</td>
+        </tr>
+        <tr>
+            <td>Points</td>
+            <td>${user.points}</td>
+        </tr>
+        <tr>
+            <td>Additional Command Power</td>
+            <td>${user.commandPower}</td>
+        </tr>
+    </table>
+</div>
+    #parse("footer.vm")
+</body>
+
+</html>

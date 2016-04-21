@@ -1,0 +1,26 @@
+#parse("style.vm")
+
+<body background="${channel.bgimage}"></body>
+
+<div id="header">
+    <h1>Commands for channel ${channel.channel}</h1>
+</div>
+<div id="nav">
+    <ul>
+        <li>
+            <a href="${web}/commands/${channel.broadcaster}">Commands</a>
+        </li>
+        <li>
+            <a href="${web}/commands/list/internals/${channel.broadcaster}">Internal Commands</a>
+        </li>
+        <li>
+            <a href="${web}/commands/files/names/${channel.broadcaster}">Filenames</a>
+        </li>
+        <li>
+            <a href="${web}/commands/users/list/names/${channel.broadcaster}">User list</a>
+        </li>
+        <li>
+            <a href="${web}/commands/songs/${channel.broadcaster}/player">Song Requests Player (WIP))</a>
+        </li>
+    </ul>
+</div>

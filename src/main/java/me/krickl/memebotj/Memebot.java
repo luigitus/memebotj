@@ -9,6 +9,7 @@ import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.web.WebHandler;
 import org.bson.Document;
 
 import java.io.*;
@@ -102,6 +103,7 @@ public class Memebot {
         readConfig();
         shutDownHook();
         setupDB();
+        WebHandler.webHandler();
         setupConnection();
         mainLoop();
     }
