@@ -21,17 +21,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class ChannelHandler implements Runnable {
+public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
 
     private String channel = "";
@@ -675,7 +672,10 @@ public class ChannelHandler implements Runnable {
         }*/
     }
 
-
+    @Override
+    public int compareTo(ChannelHandler another) {
+        return channel.compareTo(another.getChannel());
+    }
 
     public static Logger getLog() {
         return log;

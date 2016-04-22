@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 06/04/16.
  */
-public class UserHandler {
+public class UserHandler implements Comparable<UserHandler> {
     public static Logger log = Logger.getLogger(UserHandler.class.getName());
 
     MongoHandler mongoHandler = null;
@@ -211,6 +211,11 @@ public class UserHandler {
             channelHandler.sendMessage(autogreet, this.channelOrigin, this);
             this.hasAutogreeted = true;
         }
+    }
+
+    @Override
+    public int compareTo(UserHandler another) {
+        return username.compareTo(another.getUsername());
     }
 
     public MongoHandler getMongoHandler() {

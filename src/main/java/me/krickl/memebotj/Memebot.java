@@ -2,15 +2,11 @@ package me.krickl.memebotj;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
-import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.web.WebHandler;
-import org.bson.Document;
+import me.krickl.memebotj.Web.WebHandler;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;

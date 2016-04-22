@@ -295,6 +295,9 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public void sendMessage(String msg) {
         System.out.println(msg);
+        if(outToServer == null) {
+            return;
+        }
         try {
             outToServer.flush();
             outToServer.write(msg.getBytes("UTF-8"));
@@ -305,6 +308,9 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public void sendMessageBytes(String msg) {
         System.out.println(msg);
+        if(outToServer == null) {
+            return;
+        }
         try {
             outToServer.flush();
             outToServer.writeBytes(msg);

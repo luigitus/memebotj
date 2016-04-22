@@ -40,6 +40,19 @@
             </tr>
         #end
     </table>
+
+    <table style="width:100%">
+        <tr>
+            <td>#</td>
+            <td>Suggested List Content</td>
+        </tr>
+        #foreach( $item in $command.suggestedList )
+            <tr>
+                <td>${foreach.count}</td>
+                <td>${item}</td>
+            </tr>
+        #end
+    </table>
 </div>
 #parse("footer.vm")
 </body>

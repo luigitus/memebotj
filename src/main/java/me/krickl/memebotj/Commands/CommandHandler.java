@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 03/04/16.
  */
-public class CommandHandler implements CommandInterface {
+public class CommandHandler implements CommandInterface, Comparable<CommandHandler> {
     public static Logger log = Logger.getLogger(CommandHandler.class.getName());
 
     private ChannelHandler channelHandler = null;
@@ -760,6 +760,11 @@ public class CommandHandler implements CommandInterface {
         this.writeDB();
 
         return success;
+    }
+
+    @Override
+    public int compareTo(CommandHandler another) {
+        return commandName.compareTo(another.getCommandName());
     }
 
     public static Logger getLog() {

@@ -11,9 +11,9 @@
         <tr>
             <td>Name</td>
         </tr>
-        #foreach($name in $channel.userList)
+        #foreach($name in $userlist)
             <tr>
-                <td><a href="${web}/commands/users/list/names/${channel.broadcaster}/${name.username}">${name.username}</a></td>
+                <td><a href="${web}/commands/users/list/names/${channel.broadcaster}/${name}">${name}</a></td>
             </tr>
         #end
     </table>
