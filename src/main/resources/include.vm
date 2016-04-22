@@ -14,13 +14,13 @@
             <a href="${web}/commands/list/internals/${channel.broadcaster}">Internal Commands</a>
         </li>
         <li>
-            <a href="${web}/commands/files/names/${channel.broadcaster}">Filenames</a>
+            <a href="${web}/filesnames/${channel.broadcaster}">Filenames</a>
         </li>
         <li>
-            <a href="${web}/commands/users/list/names/${channel.broadcaster}">User list</a>
+            <a href="${web}/users/listnames/${channel.broadcaster}">User list</a>
         </li>
         <li>
-            <a href="${web}/commands/songs/${channel.broadcaster}/player">Song Requests Player (WIP))</a>
+            <a href="${web}/songs/${channel.broadcaster}/player">Song Requests Player (WIP))</a>
         </li>
     </ul>
 </div>

@@ -23,6 +23,7 @@ import static spark.Spark.*;
 public class WebHandler {
     public static void webHandler() {
         externalStaticFileLocation("./public");
+        port(Memebot.webPort);
 
         get("/channels", (req, res) -> {
             return "Coming soon(tm)";
@@ -113,7 +114,7 @@ public class WebHandler {
             return new ModelAndView(model, "internalcommand.vm");
         }, new VelocityTemplateEngine());
 
-        get("/commands/songs/:channel/player", (req, res) -> {
+        get("/songs/:channel/player", (req, res) -> {
             String channel = "#" + req.params(":channel");
 
             ChannelHandler channelHandler = null;
@@ -130,7 +131,7 @@ public class WebHandler {
             return new ModelAndView(model, "songrequest.vm");
         }, new VelocityTemplateEngine());
 
-        get("/commands/files/names/:channel", (req, res) -> {
+        get("/filesnames/:channel", (req, res) -> {
             String channel = "#" + req.params(":channel");
 
             ChannelHandler channelHandler = null;
@@ -148,7 +149,7 @@ public class WebHandler {
             return new ModelAndView(model, "filenames.vm");
         }, new VelocityTemplateEngine());
 
-        get("/commands/users/list/names/:channel", (req, res) -> {
+        get("/users/listnames/:channel", (req, res) -> {
             String channel = "#" + req.params(":channel");
 
             ChannelHandler channelHandler = null;
@@ -178,7 +179,7 @@ public class WebHandler {
             return new ModelAndView(model, "userlist.vm");
         }, new VelocityTemplateEngine());
 
-        get("/commands/users/list/names/:channel/:user", (req, res) -> {
+        get("/users/listnames/:channel/:user", (req, res) -> {
             String channel = "#" + req.params(":channel");
             String user = req.params(":user");
             ChannelHandler channelHandler = null;

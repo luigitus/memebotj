@@ -1,14 +1,14 @@
 Manifest-Version: 1.0
-Class-Path: jetty-servlet-9.3.2.v20150730.jar velocity-1.7.jar jetty-s
- ecurity-9.3.2.v20150730.jar jetty-server-9.3.2.v20150730.jar jetty-we
- bapp-9.3.2.v20150730.jar slf4j-api-1.7.12.jar spark-core-2.3.jar jett
- y-http-9.3.2.v20150730.jar javax.servlet-api-3.1.0.jar slf4j-simple-1
- .7.12.jar jetty-xml-9.3.2.v20150730.jar mongo-java-driver-3.2.2.jar w
- ebsocket-client-9.3.2.v20150730.jar spark-template-velocity-2.3.jar w
- ebsocket-server-9.3.2.v20150730.jar jetty-io-9.3.2.v20150730.jar jett
- y-util-9.3.2.v20150730.jar junit-4.10.jar websocket-api-9.3.2.v201507
- 30.jar websocket-servlet-9.3.2.v20150730.jar json-simple-1.1.1.jar co
- mmons-lang-2.4.jar commons-collections-3.2.1.jar websocket-common-9.3
- .2.v20150730.jar hamcrest-core-1.1.jar
+Class-Path: websocket-client-9.3.2.v20150730.jar jetty-server-9.3.2.v2
+ 0150730.jar jetty-servlet-9.3.2.v20150730.jar jetty-io-9.3.2.v2015073
+ 0.jar jetty-http-9.3.2.v20150730.jar hamcrest-core-1.1.jar slf4j-api-
+ 1.7.12.jar websocket-server-9.3.2.v20150730.jar spark-core-2.3.jar sp
+ ark-template-velocity-2.3.jar jetty-util-9.3.2.v20150730.jar junit-4.
+ 10.jar jetty-webapp-9.3.2.v20150730.jar commons-lang-2.4.jar javax.se
+ rvlet-api-3.1.0.jar slf4j-simple-1.7.12.jar websocket-servlet-9.3.2.v
+ 20150730.jar websocket-api-9.3.2.v20150730.jar mongo-java-driver-3.2.
+ 2.jar velocity-1.7.jar jetty-security-9.3.2.v20150730.jar websocket-c
+ ommon-9.3.2.v20150730.jar json-simple-1.1.1.jar commons-collections-3
+ .2.1.jar jython-2.7.0.jar jetty-xml-9.3.2.v20150730.jar
 Main-Class: me.krickl.memebotj.Memebot
 

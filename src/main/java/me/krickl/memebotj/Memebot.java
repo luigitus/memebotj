@@ -61,6 +61,8 @@ public class Memebot {
     public static MongoDatabase dbPrivate = null;
     public static MongoDatabase db = null;
 
+    public static int webPort = 4567;
+
     public static final int messageLimit = 19; // message limit per 30 seconds
 
     //public static MongoCollection<Document> internalCollection = null;
@@ -251,6 +253,7 @@ public class Memebot {
         Memebot.debug = Boolean.parseBoolean(config.getProperty("debug", Boolean.toString(Memebot.debug)));
         Memebot.useUpdateThread = Boolean.parseBoolean(config.getProperty("updatethread", Boolean.toString(Memebot.useUpdateThread)));
         Memebot.jokeMode = Boolean.parseBoolean(config.getProperty("joke", Boolean.toString(Memebot.jokeMode)));
+        Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
     }
 
     public static void shutDownHook() {

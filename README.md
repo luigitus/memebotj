@@ -3,12 +3,7 @@
 
 #Compilation
 
-To compile memebot you will need the following libraries:
-
-- bson
-- mongodb-driver
-- mongodb
-- json-simple
+All dependencies are managed using maven.
 
 ##Basic commands:
 

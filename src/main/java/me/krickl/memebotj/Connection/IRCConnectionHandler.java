@@ -246,6 +246,9 @@ public class IRCConnectionHandler implements ConnectionInterface {
                 }
             }
         } else {
+            if(ircTags.containsKey("display-name")) {
+                sender.setNickname(ircTags.get("display-name"));
+            }
             if (ircTags.containsKey("user-type")) {
                 if (ircTags.get("user-type").equals("mod") && !sender.isUserBroadcaster()) {
                     sender.setModerator(true);
