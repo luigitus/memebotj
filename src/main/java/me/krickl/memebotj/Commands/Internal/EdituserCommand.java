@@ -58,6 +58,8 @@ public class EdituserCommand extends CommandHandler {
                     getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_UP", getChannelHandler(), sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
                 }
 
+            } else if(data[0].equals("save") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
+                sender.writeDB();
             }
         } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
             e.printStackTrace();

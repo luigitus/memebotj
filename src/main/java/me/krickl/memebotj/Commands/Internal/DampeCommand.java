@@ -156,6 +156,13 @@ public class DampeCommand extends CommandHandler {
             offlineModifier = 5;
         }
 
+        int itemIndex = sender.getUserInventory().isUsing("dekustick");
+        if(itemIndex != -1) {
+            jackpotChance = jackpotChance + 10 * sender.getUserInventory().getItems().get(itemIndex).getUsing();
+            System.out.println(sender.getUserInventory().getItems().get(itemIndex).getUsing());
+            sender.getUserInventory().getItems().get(itemIndex).setUsing(0);
+        }
+
         //outcomes of dampe
         if (outcome <= jackpotChance && getChannelHandler().isLive()) {
             if (sender.setPoints(sender.getPoints() + this.getJackpot() + wage)) {

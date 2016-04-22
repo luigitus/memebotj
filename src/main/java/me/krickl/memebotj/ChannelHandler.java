@@ -156,6 +156,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
         this.internalCommands.add(new LoginCredentials(this, "!setlogin", "#internal#"));
         this.internalCommands.add(new SongRequestCommand(this, "!songrequest", "#internal#"));
+        this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
+        this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 
         CommandHandler issueCommand = new CommandHandler(this, "!issue", "#internal#");

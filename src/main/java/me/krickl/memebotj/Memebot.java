@@ -6,6 +6,7 @@ import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
 
 import java.io.*;
@@ -84,6 +85,8 @@ public class Memebot {
     public static ArrayList<String> globalBanList = new java.util.ArrayList<String>();
 
     public static ArrayList<String> phraseBanList = new ArrayList<String>();
+
+    public static Localisation defaultLocal = new Localisation("engb");
 
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {

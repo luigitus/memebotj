@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Inventory.Inventory;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
@@ -62,9 +63,12 @@ public class UserHandler implements Comparable<UserHandler> {
     boolean shouldBeRemoved = false;
     int jackpotWins = 0;
 
+    private Inventory userInventory;
+
     public UserHandler(String username, String channelOrigin) {
         this.username = username;
         this.channelOrigin = channelOrigin;
+        userInventory = new Inventory(username, channelOrigin);
 
         if (Memebot.useMongo) {
             if(!Memebot.channelsPrivate.contains(this.channelOrigin)) {
@@ -116,6 +120,8 @@ public class UserHandler implements Comparable<UserHandler> {
         this.hasFollowed = (boolean)mongoHandler.getDocument().getOrDefault("hasfollowed", this.hasFollowed);
         this.jackpotWins = (int)mongoHandler.getDocument().getOrDefault("jackpotwins", this.jackpotWins);
 
+        userInventory.readDB();
+
         // todo old db code - remove soon
         //Document channelQuery = new Document("_id", this.username);
         //FindIterable<Document> cursor = this.userCollection.find(channelQuery);
@@ -164,6 +170,8 @@ public class UserHandler implements Comparable<UserHandler> {
 
         mongoHandler.setDocument(userData);
         mongoHandler.writeDatabase(this.username);
+
+        userInventory.writeDB();
 
         // todo old db code - remove soon
         /*Document userQuery = new Document("_id", this.username);
@@ -461,9 +469,16 @@ public class UserHandler implements Comparable<UserHandler> {
         this.shouldBeRemoved = shouldBeRemoved;
     }
 
+    public Inventory getUserInventory() {
+        return userInventory;
+    }
+
+    public void setUserInventory(Inventory userInventory) {
+        this.userInventory = userInventory;
+    }
 
     public String screenName() {
-        if (!this.nickname.isEmpty() && Memebot.debug) {
+        if (!this.nickname.isEmpty()) {
             return nickname;
         }
         return this.username;
