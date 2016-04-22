@@ -32,7 +32,7 @@ public class AutogreetCommand extends CommandHandler {
             } else {
                 user = new UserHandler(nameToModify, getChannelHandler().getChannel());
             }
-            if ((data[0].equals("add") || data[0].equals("edit") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute))) {
+            if (((data[0].equals("add") || data[0].equals("edit")) && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute))) {
                 String newValue = data[2];
                 for (int x = 3; x < data.length; x++) {
                     newValue = newValue + " " + data[x];

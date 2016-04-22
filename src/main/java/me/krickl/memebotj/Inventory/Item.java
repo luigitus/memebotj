@@ -18,6 +18,8 @@ public class Item {
     private int maxAmount = 10;
     private Properties itemConfig = new Properties();
     private int using = -1;
+    private int value = 10;
+    private int dropChance = 10;
 
     public Item(String name, int amount) {
         itemname = name;
@@ -28,8 +30,11 @@ public class Item {
             e.printStackTrace();
         }
 
+
         this.description = itemConfig.getOrDefault("description", "No description available").toString();
-        this.maxAmount = (int)itemConfig.getOrDefault("maxAmount", 10);
+        this.maxAmount = Integer.parseInt(itemConfig.getOrDefault("maxamount", maxAmount).toString());
+        this.value = Integer.parseInt(itemConfig.getOrDefault("value", value).toString());
+        this.dropChance = Integer.parseInt(itemConfig.getOrDefault("dropchance", dropChance).toString());
         this.setAmount(amount);
     }
 
@@ -58,10 +63,13 @@ public class Item {
         if(this.amount > maxAmount) {
             this.amount = maxAmount;
         }
+        if(this.amount < 0) {
+            amount = 0;
+        }
     }
 
     public String toString() {
-        return itemname + " || " + Integer.toString(amount);
+        return itemname + ": " + Integer.toString(amount);
     }
 
     public int getMaxAmount() {
@@ -85,9 +93,28 @@ public class Item {
     }
 
     public void setUsing(int using) {
-        if(using == 0) {
+        /*if(using == 0) {
             this.setAmount(this.getAmount() - this.using);
-        }
+        }*/
         this.using = using;
+        if(using < 0) {
+            using = 0;
+        }
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    public int getDropChance() {
+        return dropChance;
+    }
+
+    public void setDropChance(int dropChance) {
+        this.dropChance = dropChance;
     }
 }

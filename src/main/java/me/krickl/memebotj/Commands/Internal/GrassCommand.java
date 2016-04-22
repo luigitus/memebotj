@@ -2,10 +2,14 @@ package me.krickl.memebotj.Commands.Internal;
 
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Inventory.Item;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 
+import java.io.File;
+import java.lang.reflect.Array;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 
 /**
  * The memes live on
@@ -32,25 +36,35 @@ public class GrassCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         SecureRandom random = new SecureRandom();
+        ArrayList<String> itemsDirList = Memebot.listDirectory(new File(Memebot.memebotDir + "/items"), 1);
 
-        int outcome = random.nextInt(100);
-        if (outcome <= 10) {
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_STICK_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-            sender.getUserInventory().addItem("dekustick", 1);
-        } else if(outcome <= 20) {
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_BOMB_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-            sender.getUserInventory().addItem("bomb", 1);
-        } else if(outcome <= 30) {
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_ARROW_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-            sender.getUserInventory().addItem("arrow", 5);
-        }  else if(outcome <= 40) {
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_BOMBCHUS_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-            sender.getUserInventory().addItem("bombchu", 1);
-        } else if(outcome <= 50) {
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_FAIRY_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-            sender.getUserInventory().addItem("fairy", 1);
-        } else {
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_FOUND_NOTHING", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+        ArrayList<Item> itemList = new ArrayList<>();
+
+        for(String item : itemsDirList) {
+            itemList.add(new Item(item.replace(".cfg", ""), 0));
+        }
+
+        int outcome = random.nextInt(10000);
+
+        ArrayList<Item> canDrop = new ArrayList<>();
+
+        for(Item item : itemList) {
+            if(outcome <= item.getDropChance()) {
+                canDrop.add(item);
+            }
+        }
+
+        try {
+            int drop = random.nextInt(canDrop.size());
+            Item droppedItem = canDrop.get(drop);
+
+            getChannelHandler().sendMessage(Memebot.formatText("GRASS_" + droppedItem.getItemname().toUpperCase() + "_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+            if(!droppedItem.getItemname().equals("nothing")) {
+                sender.getUserInventory().addItem(droppedItem.getItemname(), 1);
+            }
+        } catch(IllegalArgumentException e) {
+            getChannelHandler().sendMessage(Memebot.formatText("GRASS_NOTHING_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+            e.printStackTrace();
         }
     }
 }
