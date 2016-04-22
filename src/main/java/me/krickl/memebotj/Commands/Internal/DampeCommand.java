@@ -159,8 +159,12 @@ public class DampeCommand extends CommandHandler {
         int itemIndex = sender.getUserInventory().isUsing("dekustick");
         if(itemIndex != -1) {
             jackpotChance = jackpotChance + 10 * sender.getUserInventory().getItems().get(itemIndex).getUsing();
-            System.out.println(sender.getUserInventory().getItems().get(itemIndex).getUsing());
             sender.getUserInventory().getItems().get(itemIndex).setUsing(0);
+        }
+        itemIndex = sender.getUserInventory().isUsing("fairy");
+        if(itemIndex != -1) {
+            sender.getUserInventory().getItems().get(itemIndex).setUsing(0);
+            sender.setPoints(sender.getPoints() + wage);
         }
 
         //outcomes of dampe

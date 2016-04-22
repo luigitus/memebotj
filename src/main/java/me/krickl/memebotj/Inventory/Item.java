@@ -17,7 +17,7 @@ public class Item {
     private int amount = 0;
     private int maxAmount = 10;
     private Properties itemConfig = new Properties();
-    private int using = -1;
+    private int using = 0;
     private int value = 10;
     private int dropChance = 10;
 
@@ -69,7 +69,7 @@ public class Item {
     }
 
     public String toString() {
-        return itemname + ": " + Integer.toString(amount);
+        return itemname + ": " + Integer.toString(amount) + "/" + Integer.toString(using);
     }
 
     public int getMaxAmount() {

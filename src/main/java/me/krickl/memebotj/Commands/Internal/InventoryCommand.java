@@ -28,7 +28,7 @@ public class InventoryCommand extends CommandHandler {
     public void commandScript(UserHandler sender, String[] data) {
         try {
             if(data[0].equals("info")) {
-                getChannelHandler().sendMessage(new Item(data[1], 0).getDescription(), getChannelHandler().getChannel(), sender, isWhisper());
+                getChannelHandler().sendMessage(Memebot.formatText(new Item(data[1], 0).getDescription(), getChannelHandler(), sender, this, false, new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
             } else if(data[0].equals("add") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
                 sender.getUserInventory().addItem(data[1], Integer.parseInt(data[2]));
             } else if(data[0].equals("use")) {
@@ -38,7 +38,7 @@ public class InventoryCommand extends CommandHandler {
                     sender.getUserInventory().getItems().get(i).setAmount(sender.getUserInventory().getItems().get(i).getAmount() - Integer.parseInt(data[2]));
                     getChannelHandler().sendMessage(Memebot.formatText(data[1].toUpperCase(), getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                 } else {
-                    getChannelHandler().sendMessage(Memebot.formatText(data[1].toUpperCase() + "_FAIL", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(Memebot.formatText("NO_ITEM_FAIL", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                 }
             } else if(data[0].equals("sell")) {
                 int i = sender.getUserInventory().hasItems(data[1], Integer.parseInt(data[2]));

@@ -116,7 +116,7 @@ public class Inventory {
     public int isUsing(String name) {
         for(int i = 0; i < items.size(); i++) {
             Item item = items.get(i);
-            if(item.getItemname().equals(name) && item.getUsing() != -1) {
+            if(item.getItemname().equals(name) && item.getUsing() > 0) {
                 return i;
             }
         }

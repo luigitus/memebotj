@@ -28,7 +28,7 @@ public class GrassCommand extends CommandHandler {
 
     @Override
     public void overrideDB() {
-        this.setCost(50);
+        this.setCost(5);
         this.setUserCooldownLength(90);
         this.setEnabled(true);
     }
