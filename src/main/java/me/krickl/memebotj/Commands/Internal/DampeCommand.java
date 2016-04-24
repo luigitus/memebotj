@@ -156,15 +156,8 @@ public class DampeCommand extends CommandHandler {
             offlineModifier = 5;
         }
 
-        int itemIndex = sender.getUserInventory().isUsing("dekustick");
-        if(itemIndex != -1) {
-            jackpotChance = jackpotChance + 10 * sender.getUserInventory().getItems().get(itemIndex).getUsing();
-            sender.getUserInventory().getItems().get(itemIndex).setUsing(0);
-        }
-        itemIndex = sender.getUserInventory().isUsing("fairy");
-        if(itemIndex != -1) {
-            sender.getUserInventory().getItems().get(itemIndex).setUsing(0);
-            sender.setPoints(sender.getPoints() + wage);
+        if(sender.getUserInventory().hasBuff("dekustick")) {
+            jackpotChance = jackpotChance + 2;
         }
 
         //outcomes of dampe
@@ -209,6 +202,7 @@ public class DampeCommand extends CommandHandler {
             this.setJackpot(this.getJackpot() + wage);
         } else if (outcome <= 750) {
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_3", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+            sender.getUserInventory().addItem("heartpiece", 1);
             this.setJackpot(this.getJackpot() + wage);
         } else if (outcome <= 850) {
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_4", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());

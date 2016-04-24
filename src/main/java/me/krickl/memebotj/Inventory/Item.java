@@ -5,6 +5,10 @@ import me.krickl.memebotj.Utility.Localisation;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -17,15 +21,24 @@ public class Item {
     private int amount = 0;
     private int maxAmount = 10;
     private Properties itemConfig = new Properties();
-    private int using = 0;
     private int value = 10;
     private int dropChance = 10;
+    private HashMap<String, Integer> statGain = new HashMap<>();
+    private HashMap<String, Integer> statGainTemp = new HashMap<>();
+    private int buffTime = 0;
+
+    // todo implement stat gain/buff effects for items
 
     public Item(String name, int amount) {
         itemname = name;
 
         try {
-            itemConfig.load(new FileReader(Memebot.memebotDir + "/items/" + itemname + ".cfg"));
+            InputStream itemURL = getClass().getResourceAsStream("/items/" + name + ".cfg");
+            if(itemURL != null) {
+                InputStreamReader reader = new InputStreamReader(itemURL, "UTF-8");
+                itemConfig.load(reader);
+                reader.close();
+            }
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -35,6 +48,26 @@ public class Item {
         this.maxAmount = Integer.parseInt(itemConfig.getOrDefault("maxamount", maxAmount).toString());
         this.value = Integer.parseInt(itemConfig.getOrDefault("value", value).toString());
         this.dropChance = Integer.parseInt(itemConfig.getOrDefault("dropchance", dropChance).toString());
+        this.buffTime = Integer.parseInt(itemConfig.getOrDefault("bufftime", buffTime).toString());
+
+        String[] statTemp = itemConfig.getOrDefault("statGainPermanent", "").toString().split(";");
+        try {
+            for (String str : statTemp) {
+                statGain.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
+            }
+        } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        statTemp = itemConfig.getOrDefault("statGainTemp", "").toString().split(";");
+        try {
+            for (String str : statTemp) {
+                statGain.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
+            }
+        } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
         this.setAmount(amount);
     }
 
@@ -68,8 +101,12 @@ public class Item {
         }
     }
 
+    public void useItem(int amount) {
+        setAmount(this.amount - amount);
+    }
+
     public String toString() {
-        return itemname + ": " + Integer.toString(amount) + "/" + Integer.toString(using);
+        return itemname + ": " + Integer.toString(amount);
     }
 
     public int getMaxAmount() {
@@ -88,20 +125,6 @@ public class Item {
         this.itemConfig = itemConfig;
     }
 
-    public int getUsing() {
-        return using;
-    }
-
-    public void setUsing(int using) {
-        /*if(using == 0) {
-            this.setAmount(this.getAmount() - this.using);
-        }*/
-        this.using = using;
-        if(using < 0) {
-            using = 0;
-        }
-    }
-
     public int getValue() {
         return value;
     }
@@ -116,5 +139,29 @@ public class Item {
 
     public void setDropChance(int dropChance) {
         this.dropChance = dropChance;
+    }
+
+    public HashMap<String, Integer> getStatGain() {
+        return statGain;
+    }
+
+    public void setStatGain(HashMap<String, Integer> statGain) {
+        this.statGain = statGain;
+    }
+
+    public HashMap<String, Integer> getStatGainTemp() {
+        return statGainTemp;
+    }
+
+    public void setStatGainTemp(HashMap<String, Integer> statGainTemp) {
+        this.statGainTemp = statGainTemp;
+    }
+
+    public int getBuffTime() {
+        return buffTime;
+    }
+
+    public void setBuffTime(int buffTime) {
+        this.buffTime = buffTime;
     }
 }

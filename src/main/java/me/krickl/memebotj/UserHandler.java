@@ -197,7 +197,7 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public void update(ChannelHandler channelHandler) {
-
+        userInventory.update();
     }
 
     public boolean canRemove() {

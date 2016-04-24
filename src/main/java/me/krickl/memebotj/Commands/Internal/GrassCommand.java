@@ -31,6 +31,7 @@ public class GrassCommand extends CommandHandler {
         this.setCost(5);
         this.setUserCooldownLength(90);
         this.setEnabled(true);
+        setWhisper(true);
     }
 
     @Override
@@ -58,12 +59,12 @@ public class GrassCommand extends CommandHandler {
             int drop = random.nextInt(canDrop.size());
             Item droppedItem = canDrop.get(drop);
 
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_" + droppedItem.getItemname().toUpperCase() + "_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText("GRASS_" + droppedItem.getItemname().toUpperCase() + "_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             if(!droppedItem.getItemname().equals("nothing")) {
                 sender.getUserInventory().addItem(droppedItem.getItemname(), 1);
             }
         } catch(IllegalArgumentException e) {
-            getChannelHandler().sendMessage(Memebot.formatText("GRASS_NOTHING_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText("GRASS_NOTHING_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             e.printStackTrace();
         }
     }
