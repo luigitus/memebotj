@@ -50,6 +50,7 @@ public class Inventory {
         setDefault("str", 1);
         setDefault("str", 1);
         setDefault("int", 1);
+        setDefault("luck", 1);
         setDefault("armour", 1);
         setDefault("agility", 1);
 
@@ -155,7 +156,7 @@ public class Inventory {
     }
 
     public String toString() {
-        return String.format("Health: %f", getStat("str") / 4);
+        return String.format("Health: %d", getStat("str") * 4);
     }
 
     public int hasItems(String name, int amount) {

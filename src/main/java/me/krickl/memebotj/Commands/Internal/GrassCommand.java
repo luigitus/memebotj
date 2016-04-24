@@ -6,10 +6,14 @@ import me.krickl.memebotj.Inventory.Item;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * The memes live on
@@ -37,7 +41,17 @@ public class GrassCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         SecureRandom random = new SecureRandom();
-        ArrayList<String> itemsDirList = Memebot.listDirectory(new File(Memebot.memebotDir + "/items"), 1);
+        List<String> itemsDirList = new ArrayList<>();
+        try {
+            InputStream itemURL = getClass().getResourceAsStream("/items/items.cfg");
+            if(itemURL != null) {
+                InputStreamReader reader = new InputStreamReader(itemURL, "UTF-8");
+                itemsDirList = new BufferedReader(reader).lines().collect(Collectors.toList());
+                reader.close();
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
 
         ArrayList<Item> itemList = new ArrayList<>();
 
@@ -50,7 +64,7 @@ public class GrassCommand extends CommandHandler {
         ArrayList<Item> canDrop = new ArrayList<>();
 
         for(Item item : itemList) {
-            if(outcome <= item.getDropChance()) {
+            if(outcome <= item.getDropChance() && item.isDrops() && getChannelHandler().getItemDrops().contains(item.getCollection() + ";")) {
                 canDrop.add(item);
             }
         }

@@ -19,7 +19,7 @@ public class LoginCredentials extends CommandHandler {
 
     @Override
     public void overrideDB() {
-        this.setNeededCommandPower(CommandPower.broadcasterAbsolute);
+        this.setNeededCommandPower(CommandPower.adminAbsolute);
 
         this.setHelptext(Memebot.formatText("LOGIN_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
         this.setFormatData(false);
@@ -30,7 +30,7 @@ public class LoginCredentials extends CommandHandler {
     public void commandScript(UserHandler sender, String[] data) {
         try {
             try {
-                PrintWriter fop = new PrintWriter(new File(Memebot.memebotDir + "/" + getChannelHandler().getChannel() + ".login"));
+                PrintWriter fop = new PrintWriter(new File(Memebot.memebotDir + "/" + "#" + sender.getUsername() + ".login"));
                 fop.println(data[0] + "\n" + data[1]);
                 fop.close();
                 getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("LOGIN"), getChannelHandler(), sender, this, false, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());

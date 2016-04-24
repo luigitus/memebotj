@@ -26,6 +26,8 @@ public class Item {
     private HashMap<String, Integer> statGain = new HashMap<>();
     private HashMap<String, Integer> statGainTemp = new HashMap<>();
     private int buffTime = 0;
+    private boolean drops = true;
+    private String collection = "mm";
 
     // todo implement stat gain/buff effects for items
 
@@ -49,6 +51,8 @@ public class Item {
         this.value = Integer.parseInt(itemConfig.getOrDefault("value", value).toString());
         this.dropChance = Integer.parseInt(itemConfig.getOrDefault("dropchance", dropChance).toString());
         this.buffTime = Integer.parseInt(itemConfig.getOrDefault("bufftime", buffTime).toString());
+        this.drops = Boolean.parseBoolean(itemConfig.getOrDefault("drops", drops).toString());
+        this.collection = itemConfig.getOrDefault("collection", collection).toString();
 
         String[] statTemp = itemConfig.getOrDefault("statGainPermanent", "").toString().split(";");
         try {
@@ -163,5 +167,21 @@ public class Item {
 
     public void setBuffTime(int buffTime) {
         this.buffTime = buffTime;
+    }
+
+    public boolean isDrops() {
+        return drops;
+    }
+
+    public void setDrops(boolean drops) {
+        this.drops = drops;
+    }
+
+    public String getCollection() {
+        return collection;
+    }
+
+    public void setCollection(String collection) {
+        this.collection = collection;
     }
 }

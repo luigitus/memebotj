@@ -82,6 +82,8 @@ public class EditChannel extends CommandHandler {
                 getChannelHandler().setMaxAmountOfNameInList(Integer.parseInt(data[1]));
             } else if(data[0].equals("background")) {
                 getChannelHandler().setBgImage(data[1]);
+            } else if(data[0].equals("itemDrops")) {
+                getChannelHandler().setItemDrops(data[1]);
             }
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]}, getChannelHandler().getChannel()));
             getChannelHandler().writeDB();

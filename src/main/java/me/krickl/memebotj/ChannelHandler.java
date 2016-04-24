@@ -92,6 +92,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
 
     private boolean useWhisper = false;
     private Cooldown reconnectCooldown = new Cooldown(40);
+    private String itemDrops = "mm";
 
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
@@ -548,6 +549,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
             this.pointsTax = (double)mongoHandler.getDocument().getOrDefault("pointstax", this.pointsTax);
             this.startingPoints = (double)mongoHandler.getDocument().getOrDefault("startingpoints", this.startingPoints);
             this.bgImage = mongoHandler.getDocument().getOrDefault("bgImage", this.bgImage).toString();
+            itemDrops = mongoHandler.getDocument().getOrDefault("itemDrops", this.itemDrops).toString();
         }
 
         // read commands
@@ -632,7 +634,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
                 .append("maxnameinlist", this.maxAmountOfNameInList)
                 .append("pointstax", this.pointsTax)
                 .append("startingpoints", this.startingPoints)
-                .append("bgImage", this.bgImage);
+                .append("bgImage", this.bgImage)
+                .append("itemDrops", this.itemDrops);
 
         mongoHandler.setDocument(channelData);
         mongoHandler.writeDatabase(this.channel);
@@ -1069,5 +1072,37 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
 
     public void setLocalisation(Localisation localisation) {
         this.localisation = localisation;
+    }
+
+    public MongoHandler getMongoHandler() {
+        return mongoHandler;
+    }
+
+    public void setMongoHandler(MongoHandler mongoHandler) {
+        this.mongoHandler = mongoHandler;
+    }
+
+    public boolean isUseWhisper() {
+        return useWhisper;
+    }
+
+    public void setUseWhisper(boolean useWhisper) {
+        this.useWhisper = useWhisper;
+    }
+
+    public Cooldown getReconnectCooldown() {
+        return reconnectCooldown;
+    }
+
+    public void setReconnectCooldown(Cooldown reconnectCooldown) {
+        this.reconnectCooldown = reconnectCooldown;
+    }
+
+    public String getItemDrops() {
+        return itemDrops;
+    }
+
+    public void setItemDrops(String itemDrops) {
+        this.itemDrops = itemDrops;
     }
 }
