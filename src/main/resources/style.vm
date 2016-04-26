@@ -21,7 +21,7 @@
     Main Table w/ Customization
     -------------------*/
     table {
-        width:800px;
+        width:1000px;
         border-collapse:collapse;
         border-spacing:0;
         word-wrap:break-word;

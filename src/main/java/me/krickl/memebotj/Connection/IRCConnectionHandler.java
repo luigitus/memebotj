@@ -137,7 +137,6 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
         System.out.println("<" + channel + ">" + rawircmsg);
 
-
         i = 0;
         // handle message
         while (i < ircmsgBuffer.length) {

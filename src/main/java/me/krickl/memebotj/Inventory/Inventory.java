@@ -16,14 +16,14 @@ import java.util.HashMap;
  * Created by unlink on 22/04/16.
  */
 public class Inventory {
-    MongoHandler mongoHandler;
-    String username = "";
-    ArrayList<Item> items = new ArrayList<>();
-    Document stats = new Document();
+    private MongoHandler mongoHandler;
+    private String username = "";
+    private ArrayList<Item> items = new ArrayList<>();
+    private Document stats = new Document();
 
     private HashMap<String, Buff> buffList = new HashMap<>();
 
-    UserHandler sender = null;
+    private UserHandler sender = null;
 
     public Inventory(String username, String channelOrigin, UserHandler sender) {
         this.username = username;

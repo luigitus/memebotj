@@ -114,6 +114,7 @@ public class Memebot {
         new File(memebotDir).mkdir();
         new File(memebotDir + "/channels").mkdir();
         new File(memebotDir + "/locals").mkdir();
+        new File(memebotDir + "/logs").mkdir();
 
         BuildInfo.loadBuildInfo();
     }
@@ -257,6 +258,19 @@ public class Memebot {
         Memebot.useUpdateThread = Boolean.parseBoolean(config.getProperty("updatethread", Boolean.toString(Memebot.useUpdateThread)));
         Memebot.jokeMode = Boolean.parseBoolean(config.getProperty("joke", Boolean.toString(Memebot.jokeMode)));
         Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
+
+        if(!Memebot.debug) {
+            try {
+                File f = new File(Memebot.memebotDir + "/logs/#bot#.log");
+                if (!f.exists())
+                    f.createNewFile();
+                PrintStream writer = new PrintStream(new FileOutputStream(f), true);
+                System.setOut(writer);
+                System.setErr(writer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void shutDownHook() {

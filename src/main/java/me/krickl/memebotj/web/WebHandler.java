@@ -10,6 +10,7 @@ import spark.ModelAndView;
 import spark.template.velocity.VelocityTemplateEngine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,10 @@ public class WebHandler {
                 }
             }
 
+            if(channelHandler != null) {
+                Collections.sort(channelHandler.getChannelCommands());
+            }
+
             Map<String, Object> model = new HashMap<>();
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
@@ -52,6 +57,9 @@ public class WebHandler {
                 if(ch.getChannel().equals(channel)) {
                     channelHandler = ch;
                 }
+            }
+            if(channelHandler != null) {
+                Collections.sort(channelHandler.getInternalCommands());
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -157,6 +165,10 @@ public class WebHandler {
                 if(ch.getChannel().equals(channel)) {
                     channelHandler = ch;
                 }
+            }
+
+            if(channelHandler != null) {
+                //Collections.sort(channelHandler.getUserList());
             }
 
             Map<String, Object> model = new HashMap<>();
