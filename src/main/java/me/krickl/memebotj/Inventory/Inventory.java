@@ -3,6 +3,7 @@ package me.krickl.memebotj.Inventory;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
+import me.krickl.memebotj.UserHandler;
 import org.bson.Document;
 import org.bson.codecs.IntegerCodec;
 
@@ -22,8 +23,11 @@ public class Inventory {
 
     private HashMap<String, Buff> buffList = new HashMap<>();
 
-    public Inventory(String username, String channelOrigin) {
+    UserHandler sender = null;
+
+    public Inventory(String username, String channelOrigin, UserHandler sender) {
         this.username = username;
+        this.sender = sender;
         update();
 
         if (Memebot.useMongo) {
@@ -47,7 +51,6 @@ public class Inventory {
 
     public void update() {
         // set default values if not presetn
-        setDefault("str", 1);
         setDefault("str", 1);
         setDefault("int", 1);
         setDefault("luck", 1);
@@ -156,7 +159,8 @@ public class Inventory {
     }
 
     public String toString() {
-        return String.format("Health: %d", getStat("str") * 4);
+        return String.format("Health: %d - Strength: %d - Agility: %d - Intelligence: %d - Luck: %d", getStat("str") * 4,
+                getStat("str"), getStat("agility"), getStat("int"), getStat("luck"));
     }
 
     public int hasItems(String name, int amount) {
@@ -171,7 +175,7 @@ public class Inventory {
     }
 
     public void addBuff(Item item) {
-        buffList.put(item.getItemname(), new Buff(item.getBuffTime(), item));
+        buffList.put(item.getItemname(), new Buff(item.getBuffTime(), sender, item));
 
         for(String key : item.getStatGain().keySet()) {
             setStat(key, item.getStatGain().get(key) + getStat(key));

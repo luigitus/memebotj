@@ -27,6 +27,7 @@ public class Item {
     private HashMap<String, Integer> statGainTemp = new HashMap<>();
     private int buffTime = 0;
     private boolean drops = true;
+    private boolean canBuy = false;
     private String collection = "mm";
 
     // todo implement stat gain/buff effects for items
@@ -53,6 +54,7 @@ public class Item {
         this.buffTime = Integer.parseInt(itemConfig.getOrDefault("bufftime", buffTime).toString());
         this.drops = Boolean.parseBoolean(itemConfig.getOrDefault("drops", drops).toString());
         this.collection = itemConfig.getOrDefault("collection", collection).toString();
+        this.canBuy = Boolean.parseBoolean(itemConfig.getOrDefault("canbuy", canBuy).toString());
 
         String[] statTemp = itemConfig.getOrDefault("statGainPermanent", "").toString().split(";");
         try {
@@ -66,7 +68,7 @@ public class Item {
         statTemp = itemConfig.getOrDefault("statGainTemp", "").toString().split(";");
         try {
             for (String str : statTemp) {
-                statGain.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
+                statGainTemp.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
         } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
             e.printStackTrace();
@@ -179,6 +181,14 @@ public class Item {
 
     public String getCollection() {
         return collection;
+    }
+
+    public boolean canBuy() {
+        return canBuy;
+    }
+
+    public void setCanBuy(boolean canBuy) {
+        this.canBuy = canBuy;
     }
 
     public void setCollection(String collection) {

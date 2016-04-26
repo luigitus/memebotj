@@ -68,7 +68,7 @@ public class UserHandler implements Comparable<UserHandler> {
     public UserHandler(String username, String channelOrigin) {
         this.username = username;
         this.channelOrigin = channelOrigin;
-        userInventory = new Inventory(username, channelOrigin);
+        userInventory = new Inventory(username, channelOrigin, this);
 
         if (Memebot.useMongo) {
             if(!Memebot.channelsPrivate.contains(this.channelOrigin)) {
@@ -338,8 +338,12 @@ public class UserHandler implements Comparable<UserHandler> {
         for (ChannelHandler ch : Memebot.joinedChannels) {
             if (ch.getChannel().equals(this.channelOrigin)) {
                 if (this.points + f > ch.getMaxPoints() || (this.points + f > this.walletSize && this.walletSize > 0)) {
-                    this.points = ch.getMaxPoints();
-                    result = false;
+                    if(Memebot.debug) {
+                        this.points = ch.getMaxPoints();
+                        result = false;
+                    } else {
+                        result = true;
+                    }
                 }
             }
         }

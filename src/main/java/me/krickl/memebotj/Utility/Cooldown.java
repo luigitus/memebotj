@@ -1,5 +1,7 @@
 package me.krickl.memebotj.Utility;
 
+import me.krickl.memebotj.UserHandler;
+
 /**
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.

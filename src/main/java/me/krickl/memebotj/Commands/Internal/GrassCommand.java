@@ -64,7 +64,7 @@ public class GrassCommand extends CommandHandler {
         ArrayList<Item> canDrop = new ArrayList<>();
 
         for(Item item : itemList) {
-            if(outcome <= item.getDropChance() && item.isDrops() && getChannelHandler().getItemDrops().contains(item.getCollection() + ";")) {
+            if(outcome <= item.getDropChance() && item.isDrops() && getChannelHandler().getItemDrops().contains(item.getCollection())) {
                 canDrop.add(item);
             }
         }

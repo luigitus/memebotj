@@ -1,178 +1,170 @@
 <link rel="stylesheet" type="text/css" href="${web}/style.css">
 <style type="text/css">
-    /*This is the new CSS file for the Memebot webpage, v1.0. Be sure to run this with the HTML file or it
-WILL NOT WORK PROPERLY!! Things that I have commented out were either optional or testing components.
-As long as you pay attention, you can modify the directories without hassle. For any revisions,
-contact me via Twitter (@JYNxYoshii) or through email (gr3nadier351@hotmail.com). Have fun!
---Josh Jarvis (Jynx)*/
-
-
     /*--------------------
     Document Customization
     --------------------*/
     html {
-        background:#bbbbbb;
-        background-image:url(${channel.bgImage});
+        background:#ababab;
+        background-image:url(${channel.bgImage})
+        );
         background-repeat:no-repeat;
         background-attachment:fixed;
         background-position:center;
+        font-family:Helvetica,Arial,sans-serif;
+        height:100%;
+        padding:0;
+    }
+    body {
+        margin:0;
     }
     /*-------------------
     Main Table w/ Customization
     -------------------*/
     table {
-        color:rgba(255,255,255,0.5);
-        font-family:Helvetica,Arial,sans-serif;
-        width:640px;
+        width:800px;
         border-collapse:collapse;
         border-spacing:0;
-        align-self: baseline;
+        word-wrap:break-word;
+        table-layout:fixed;
     }
     tr, td {
         border:1px solid transparent;
         height:30px;
         transition:all 0.3s;
-        color: black;
     }
     th {
-        background:#0f6d84;
+        background:rgba(231,231,231,1.0);
         font-weight:bold;
-        color: darkblue;
     }
     td {
-        background:rgba(200,229,242,0.7);
         text-align:center;
+        text-decoration:none;
     }
     tr:nth-child(even) td {
-        background:rgba(124,203,223,0.7);
+        background:rgba(65,65,65,0.7);
     }
     tr:nth-child(odd) td {
-        background:rgba(145,215,232,0.6);
+        background:rgba(95,95,95,0.9);
     }
     tr td:hover {
-        background:rgba(43,201,240,0.8);
-        color:black;
+        background:rgba(231,231,231,1.0);
+    }
+    tr:hover a {
+        color:rgb(90,90,90);
     }
     /*---------------------
     General Text Customization
     ---------------------*/
     a:link {
-        color:rgb(0,0,0);
+        color:rgb(231,231,231);
+        text-decoration:none;
     }
     a:visited {
-        color:purple;
+        color:rgb(131,131,131);
     }
     /*-------------------
     Sidepanel Nav Buttons
     -------------------*/
     #nav {
+        background-color:rgba(0,0,0,0.6);
         float:left;
-        padding:5px;
+        margin-left:2em;
+        margin-top:2em;
+        height:15em;
+        position:fixed;
+        width:14em;
+        padding:1em;
+        display:flex;
+        justify-content:center;
+        border-radius:2.5px 12.5px;
     }
-    #nav a:link {
-        color:#23BADF;
-    }
-    .commands {
-        transition-duration:0.4s;
-        /*background-color:#0f6d84;*/
-        border:1px solid #23BADF;
-        color:white;
-        padding:15px 32px;
+    #main_nav {
+        width:14em;
         text-align:center;
+        padding:0;
+        align-self:center;
+    }
+    .commands_link {
+        width:14em;
+        padding:10px 0px;
         text-decoration:none;
-        display:inline-block;
+        display:block;
         font-size:16px;
-        font-family:Helvetica,Arial,sans-serif;
-        margin-bottom:10px;
-    }
-    .commands:hover {
-        background-color:#0f6d84;
-        color:white;
-    }
-    .i_commands {
+        margin-bottom:5px;
         transition-duration:0.4s;
-        /*background-color:#0f6d84;*/
-        border:1px solid #23BADF;
-        color:white;
-        padding:15px 32px;
-        text-align:center;
+    }
+    .commands_link:hover {
+        background-color:rgb(231,231,231);
+        color:rgb(90,90,90);
+    }
+    .i_commands_link {
+        width:14em;
+        padding:10px 0px;
         text-decoration:none;
-        display:inline-block;
+        display:block;
         font-size:16px;
-        font-family:Helvetica,Arial,sans-serif;
-        margin-bottom:10px;
-    }
-    .i_commands:hover {
-        background-color:#0f6d84;
-        color:white;
-    }
-    .filenames {
+        margin-bottom:5px;
         transition-duration:0.4s;
-        /*background-color:#0f6d84;*/
-        border:1px solid #23BADF;
-        color:white;
-        padding:15px 32px;
-        text-align:center;
+    }
+    .i_commands_link:hover {
+        background-color:rgb(231,231,231);
+        color:rgb(90,90,90);
+    }
+    .filenames_link {
+        width:14em;
+        padding:10px 0px;
         text-decoration:none;
-        display:inline-block;
+        display:block;
         font-size:16px;
-        font-family:Helvetica,Arial,sans-serif;
-        margin-bottom:10px;
-    }
-    .filenames:hover {
-        background-color:#0f6d84;
-        color:white;
-    }
-    .users {
+        margin-bottom:5px;
         transition-duration:0.4s;
-        /*background-color:#0f6d84;*/
-        border:1px solid #23BADF;
-        color:white;
-        padding:15px 32px;
-        text-align:center;
+    }
+    .filenames_link:hover {
+        background-color:rgb(231,231,231);
+        color:rgb(90,90,90);
+    }
+    .users_link {
+        width:14em;
+        padding:10px 0px;
         text-decoration:none;
-        display:inline-block;
+        display:block;
         font-size:16px;
-        font-family:Helvetica,Arial,sans-serif;
-        margin-bottom:10px;
-    }
-    .users:hover {
-        background-color:#0f6d84;
-        color:white;
-    }
-    .s_requests {
+        margin-bottom:5px;
         transition-duration:0.4s;
-        /*background-color:#0f6d84;*/
-        border:1px solid #23BADF;
-        color:white;
-        padding:15px 32px;
-        text-align:center;
-        text-decoration:none;
-        display:inline-block;
-        font-size:16px;
-        font-family:Helvetica,Arial,sans-serif;
-        margin-bottom:10px;
     }
-    .s_requests:hover {
-        background-color:#0f6d84;
-        color:white;
+    .users_link:hover {
+        background-color:rgb(231,231,231);
+        color:rgb(90,90,90);
+    }
+    .s_requests_link {
+        width:14em;
+        padding:10px 0px;
+        text-decoration:none;
+        display:block;
+        font-size:16px;
+        margin-bottom:5px;
+        transition-duration:0.4s;
+    }
+    .s_requests_link:hover {
+        background-color:rgb(231,231,231);
+        color:rgb(90,90,90);
     }
     /*---------------------
     Basic Groups
     ---------------------*/
-
     #header {
         background-color:rgba(0,0,0,0.5);
         color:white;
         text-align:center;
-        font-family:Helvetica,Arial,sans-serif;
         padding:5px;
+        width:45em;
+        margin:auto;
     }
     #content {
-        width:30em;
+        width:25em;
         margin-left:auto;
         margin-right:auto;
-        float:left;
+        float:center;
         padding:10px;
     }
     #footer {
@@ -180,15 +172,7 @@ contact me via Twitter (@JYNxYoshii) or through email (gr3nadier351@hotmail.com)
         color:white;
         clear:both;
         text-align:center;
-        font-family:Helvetica,Arial,sans-serif;
         padding:5px;
-    }
-
-    #footer a:visited {
-        color: white;
-    }
-
-    #footer a:link {
-        color: lightblue;
+        margin-bottom:10px;
     }
 </style>
