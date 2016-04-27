@@ -1023,4 +1023,28 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
         return whisper;
     }
+
+    public MongoHandler getMongoHandler() {
+        return mongoHandler;
+    }
+
+    public void setMongoHandler(MongoHandler mongoHandler) {
+        this.mongoHandler = mongoHandler;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public ArrayList<String> getSuggestedList() {
+        return suggestedList;
+    }
+
+    public void setSuggestedList(ArrayList<String> suggestedList) {
+        this.suggestedList = suggestedList;
+    }
 }
