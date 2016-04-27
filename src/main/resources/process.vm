@@ -1,0 +1,15 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Commands for ${channel.channel}</title>
+</head>
+
+<body>
+    #parse("include.vm")
+<div id="content">
+    <h1>${login}</h1>
+</div>
+    #parse("footer.vm")
+</body>
+
+</html>

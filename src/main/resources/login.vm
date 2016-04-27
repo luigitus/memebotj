@@ -1,0 +1,22 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Commands for ${channel.channel}</title>
+</head>
+
+<body>
+    #parse("include.vm")
+<div id="content">
+    <p>Warning: Don't use please!</p>
+    <form action="${web}/login/${channel.broadcaster}/process" method="post">
+        Username</br>
+        <input type="text" id="username" name="username"></br>
+        Password</br>
+        <input type="password" id="password" name="password"></br></br>
+        <input type="submit">
+    </form>
+</div>
+    #parse("footer.vm")
+</body>
+
+</html>

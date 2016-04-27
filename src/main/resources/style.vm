@@ -5,7 +5,7 @@
     --------------------*/
     html {
         background:#ababab;
-        background-image:url(${channel.bgImage})
+        background-image:url("${channel.bgImage}")
         );
         background-repeat:no-repeat;
         background-attachment:fixed;
@@ -22,8 +22,6 @@
     -------------------*/
     table {
         width:800px;
-        min-width:80%;
-        max-width: 80%;
         border-collapse:collapse;
         border-spacing:0;
         word-wrap:break-word;
@@ -44,7 +42,6 @@
         text-decoration:none;
         overflow: hidden;
         word-wrap: normal;
-        display: block;
         width: 100px;
     }
     tr:nth-child(even) td {

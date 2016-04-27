@@ -8,6 +8,7 @@ import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Inventory.Inventory;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
+import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
 
 import java.security.SecureRandom;
@@ -59,9 +60,11 @@ public class UserHandler implements Comparable<UserHandler> {
 
     boolean hasAutogreeted = false;
 
-    Cooldown removeCooldown = new Cooldown(0);
+    private Cooldown removeCooldown = new Cooldown(0);
     boolean shouldBeRemoved = false;
-    int jackpotWins = 0;
+    private int jackpotWins = 0;
+
+    private String oauth = "";
 
     private Inventory userInventory;
 
@@ -119,6 +122,7 @@ public class UserHandler implements Comparable<UserHandler> {
         this.isFollowing = (boolean)mongoHandler.getDocument().getOrDefault("isfollowing", this.isFollowing);
         this.hasFollowed = (boolean)mongoHandler.getDocument().getOrDefault("hasfollowed", this.hasFollowed);
         this.jackpotWins = (int)mongoHandler.getDocument().getOrDefault("jackpotwins", this.jackpotWins);
+        this.oauth = mongoHandler.getDocument().getOrDefault("oauth", resetOAuth()).toString();
 
         userInventory.readDB();
 
@@ -166,7 +170,8 @@ public class UserHandler implements Comparable<UserHandler> {
                 .append("wallet", this.walletSize)
                 .append("isfollowing", this.isFollowing)
                 .append("hasfollowed", this.hasFollowed)
-                .append("jackpotwins", this.jackpotWins);
+                .append("jackpotwins", this.jackpotWins)
+                .append("oauth", this.oauth);
 
         mongoHandler.setDocument(userData);
         mongoHandler.writeDatabase(this.username);
@@ -219,6 +224,12 @@ public class UserHandler implements Comparable<UserHandler> {
             channelHandler.sendMessage(autogreet, this.channelOrigin, this);
             this.hasAutogreeted = true;
         }
+    }
+
+    public String resetOAuth() {
+        String keySource = username + Long.toString(timeStampJoined) + Integer.toHexString(new SecureRandom().nextInt());
+        this.oauth = Base64.encodeBase64String(keySource.getBytes());
+        return this.oauth;
     }
 
     @Override
@@ -486,5 +497,13 @@ public class UserHandler implements Comparable<UserHandler> {
             return nickname;
         }
         return this.username;
+    }
+
+    public String getOauth() {
+        return oauth;
+    }
+
+    public void setOauth(String oauth) {
+        this.oauth = oauth;
     }
 }

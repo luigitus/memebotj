@@ -31,6 +31,7 @@ public class Item {
     private boolean canBuy = false;
     private String collection = "mm";
     private boolean canEquip = false;
+    private int maxEquip = 1;
 
     // todo implement stat gain/buff effects for items
 
@@ -51,6 +52,7 @@ public class Item {
 
         this.description = itemConfig.getOrDefault("description", "No description available").toString();
         this.maxAmount = Integer.parseInt(itemConfig.getOrDefault("maxamount", maxAmount).toString());
+        this.maxEquip = Integer.parseInt(itemConfig.getOrDefault("maxEquip", maxEquip).toString());
         this.value = Integer.parseInt(itemConfig.getOrDefault("value", value).toString());
         this.dropChance = Integer.parseInt(itemConfig.getOrDefault("dropchance", dropChance).toString());
         this.buffTime = Integer.parseInt(itemConfig.getOrDefault("bufftime", buffTime).toString());
@@ -65,7 +67,7 @@ public class Item {
                 statGain.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
         } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         statTemp = itemConfig.getOrDefault("statGainTemp", "").toString().split(";");
@@ -74,7 +76,7 @@ public class Item {
                 statGainTemp.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
         } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         statTemp = itemConfig.getOrDefault("statGainEquip", "").toString().split(";");
@@ -83,7 +85,7 @@ public class Item {
                 statGainEquip.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
         } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         this.setAmount(amount);
@@ -225,5 +227,21 @@ public class Item {
 
     public void setStatGainEquip(HashMap<String, Integer> statGainEquip) {
         this.statGainEquip = statGainEquip;
+    }
+
+    public int getMaxEquip() {
+        return maxEquip;
+    }
+
+    public void setMaxEquip(int maxEquip) {
+        this.maxEquip = maxEquip;
+    }
+
+    public int getTempStat(String key) {
+        return statGainTemp.getOrDefault(key, 0);
+    }
+
+    public int getEquipStat(String key) {
+        return statGainEquip.getOrDefault(key, 0);
     }
 }

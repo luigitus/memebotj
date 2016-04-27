@@ -9,6 +9,7 @@ import org.bson.codecs.IntegerCodec;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.jar.Pack200;
 
 /**
  * This class will contain items of users that are shared accross channels
@@ -22,6 +23,10 @@ public class Inventory {
     private Document stats = new Document();
 
     private HashMap<String, Buff> buffList = new HashMap<>();
+    private ArrayList<String> equips = new ArrayList<>();
+
+    int maxEquips = 8;
+    int currentHealth = 1;
 
     private UserHandler sender = null;
 
@@ -84,13 +89,41 @@ public class Inventory {
 
             for(String buffKey : buffList.keySet()) {
                 Buff buff = buffList.get(buffKey);
-                stat = stat + buff.getBaseItem().getStatGainTemp().getOrDefault(key, 0);
+                stat = stat + buff.getBaseItem().getTempStat(key);
+            }
+
+            for(String equipKey : equips) {
+                Item equip = new Item(equipKey, 1);
+                stat = stat + equip.getEquipStat(key);
             }
 
             return stat;
         }
 
         return 0;
+    }
+
+    public boolean equip(String key) {
+        Item item = new Item(key, 1);
+        // todo implement this - equip list and max equip items
+        // check if item can still be equipped
+        // check cause item can have a max amount if same equips
+        int i = hasItems(key, 1);
+        if((i >= 0) && !equips.contains(key) && item.isCanEquip() && this.equips.size() <= this.maxEquips) {
+            equips.add(key);
+            items.get(i).setAmount(items.get(i).getAmount() - 1);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean unequip(String key) {
+        if(equips.contains(key)) {
+            addItem(key, 1);
+            equips.remove(key);
+        }
+        return false;
     }
 
     public void readDB() {
@@ -107,6 +140,8 @@ public class Inventory {
         ArrayList<String> itemNames = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("itemnames", new ArrayList<String>());
         ArrayList<Integer> itemCount = (ArrayList<Integer>)mongoHandler.getDocument().getOrDefault("itemcount", new ArrayList<Integer>());
         stats = (Document)mongoHandler.getDocument().getOrDefault("stats", stats);
+        equips = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("equips", new ArrayList<String>());
+        currentHealth = (int)mongoHandler.getDocument().getOrDefault("currhp", currentHealth);
 
         for(int i = 0; i < itemNames.size(); i++) {
             items.add(new Item(itemNames.get(i), itemCount.get(i)));
@@ -128,7 +163,8 @@ public class Inventory {
         Document userData = new Document().append("_id", username)
                 .append("itemnames", itemNames)
                 .append("itemcount", itemCount)
-                .append("stats", stats);
+                .append("stats", stats)
+                .append("equips", equips).append("currhp", currentHealth);
 
         mongoHandler.setDocument(userData);
         mongoHandler.writeDatabase(this.username);
@@ -159,7 +195,7 @@ public class Inventory {
     }
 
     public String toString() {
-        return String.format("Health: %d - Strength: %d - Agility: %d - Intelligence: %d - Luck: %d", getStat("str") * 4,
+        return String.format("Health: %d/%d - Strength: %d - Agility: %d - Intelligence: %d - Luck: %d", currentHealth, getStat("str") * 4,
                 getStat("str"), getStat("agility"), getStat("int"), getStat("luck"));
     }
 
@@ -200,4 +236,47 @@ public class Inventory {
         this.stats = stats;
     }
 
+    public HashMap<String, Buff> getBuffList() {
+        return buffList;
+    }
+
+    public void setBuffList(HashMap<String, Buff> buffList) {
+        this.buffList = buffList;
+    }
+
+    public ArrayList<String> getEquips() {
+        return equips;
+    }
+
+    public void setEquips(ArrayList<String> equips) {
+        this.equips = equips;
+    }
+
+    public int getMaxEquips() {
+        return maxEquips;
+    }
+
+    public void setMaxEquips(int maxEquips) {
+        this.maxEquips = maxEquips;
+    }
+
+    public UserHandler getSender() {
+        return sender;
+    }
+
+    public void setSender(UserHandler sender) {
+        this.sender = sender;
+    }
+
+    public void setHP(int offset) {
+        if((currentHealth + offset) <= getStat("str") * 4) {
+            currentHealth = offset + currentHealth;
+        } else {
+            currentHealth = getStat("str") * 4;
+        }
+
+        if(currentHealth < 0) {
+            currentHealth = 0;
+        }
+    }
 }
