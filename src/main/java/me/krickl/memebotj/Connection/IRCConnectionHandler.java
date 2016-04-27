@@ -70,6 +70,11 @@ public class IRCConnectionHandler implements ConnectionInterface {
     public String recvData() throws LoginException {
         String ircmsg = "";
         if(inFromServer == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             throw new LoginException("No input from server found");
         }
         try {

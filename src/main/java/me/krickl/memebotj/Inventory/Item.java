@@ -25,10 +25,12 @@ public class Item {
     private int dropChance = 10;
     private HashMap<String, Integer> statGain = new HashMap<>();
     private HashMap<String, Integer> statGainTemp = new HashMap<>();
+    private HashMap<String, Integer> statGainEquip = new HashMap<>();
     private int buffTime = 0;
     private boolean drops = true;
     private boolean canBuy = false;
     private String collection = "mm";
+    private boolean canEquip = false;
 
     // todo implement stat gain/buff effects for items
 
@@ -55,6 +57,7 @@ public class Item {
         this.drops = Boolean.parseBoolean(itemConfig.getOrDefault("drops", drops).toString());
         this.collection = itemConfig.getOrDefault("collection", collection).toString();
         this.canBuy = Boolean.parseBoolean(itemConfig.getOrDefault("canbuy", canBuy).toString());
+        this.canEquip = Boolean.parseBoolean(itemConfig.getOrDefault("canequip", canEquip).toString());
 
         String[] statTemp = itemConfig.getOrDefault("statGainPermanent", "").toString().split(";");
         try {
@@ -69,6 +72,15 @@ public class Item {
         try {
             for (String str : statTemp) {
                 statGainTemp.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
+            }
+        } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        statTemp = itemConfig.getOrDefault("statGainEquip", "").toString().split(";");
+        try {
+            for (String str : statTemp) {
+                statGainEquip.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
         } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
             e.printStackTrace();
@@ -193,5 +205,25 @@ public class Item {
 
     public void setCollection(String collection) {
         this.collection = collection;
+    }
+
+    public boolean isCanBuy() {
+        return canBuy;
+    }
+
+    public boolean isCanEquip() {
+        return canEquip;
+    }
+
+    public void setCanEquip(boolean canEquip) {
+        this.canEquip = canEquip;
+    }
+
+    public HashMap<String, Integer> getStatGainEquip() {
+        return statGainEquip;
+    }
+
+    public void setStatGainEquip(HashMap<String, Integer> statGainEquip) {
+        this.statGainEquip = statGainEquip;
     }
 }

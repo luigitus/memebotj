@@ -9,7 +9,9 @@ import org.bson.Document;
 import spark.ModelAndView;
 import spark.template.velocity.VelocityTemplateEngine;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +40,10 @@ public class WebHandler {
                 }
             }
 
+            if(channelHandler != null) {
+                Collections.sort(channelHandler.getChannelCommands());
+            }
+
             Map<String, Object> model = new HashMap<>();
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
@@ -52,6 +58,9 @@ public class WebHandler {
                 if(ch.getChannel().equals(channel)) {
                     channelHandler = ch;
                 }
+            }
+            if(channelHandler != null) {
+                Collections.sort(channelHandler.getInternalCommands());
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -111,7 +120,7 @@ public class WebHandler {
             model.put("command", commandHandler);
             model.put("web", Memebot.webBaseURL);
 
-            return new ModelAndView(model, "internalcommand.vm");
+            return new ModelAndView(model, "command.vm");
         }, new VelocityTemplateEngine());
 
         get("/songs/:channel/player", (req, res) -> {
@@ -131,8 +140,11 @@ public class WebHandler {
             return new ModelAndView(model, "songrequest.vm");
         }, new VelocityTemplateEngine());
 
-        get("/filesnames/:channel", (req, res) -> {
+        get("/filesnames/:channel/:page", (req, res) -> {
             String channel = "#" + req.params(":channel");
+            int page = Integer.parseInt(req.params(":page"));
+            String next = Integer.toString(page + 1);
+            String previous = Integer.toString(page - 1);
 
             ChannelHandler channelHandler = null;
             for(ChannelHandler ch : Memebot.joinedChannels) {
@@ -141,22 +153,43 @@ public class WebHandler {
                 }
             }
 
+            ArrayList<String> displayList = new ArrayList<String>();
+
+            if(channelHandler != null) {
+                // decide what name to list
+                for (int i = page * 10; i < channelHandler.getFileNameList().size(); i++) {
+                    if (i <= page * 10 + 25) {
+                        displayList.add(channelHandler.getFileNameList().get(i));
+                    }
+                }
+            }
+
             Map<String, Object> model = new HashMap<>();
 
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
+            model.put("next", next);
+            model.put("previous", previous);
+            model.put("names", displayList);
 
             return new ModelAndView(model, "filenames.vm");
         }, new VelocityTemplateEngine());
 
-        get("/users/listnames/:channel", (req, res) -> {
+        get("/users/listnames/:channel/:page", (req, res) -> {
             String channel = "#" + req.params(":channel");
+            int page = Integer.parseInt(req.params(":page"));
+            String next = Integer.toString(page + 1);
+            String previous = Integer.toString(page - 1);
 
             ChannelHandler channelHandler = null;
             for(ChannelHandler ch : Memebot.joinedChannels) {
                 if(ch.getChannel().equals(channel)) {
                     channelHandler = ch;
                 }
+            }
+
+            if(channelHandler != null) {
+                //Collections.sort(channelHandler.getUserList());
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -168,18 +201,32 @@ public class WebHandler {
             }
 
             ArrayList<String> userList = new ArrayList<String>();
+            int counter = 0;
             for(Document doc : mh.getDocuments()) {
                 userList.add(doc.getOrDefault("_id", "#error#").toString());
             }
 
+            Collections.sort(userList);
+
+            ArrayList<String> displayList = new ArrayList<String>();
+
+            // decide what user to list
+            for(int i = page * 10; i < userList.size(); i++) {
+                if(i <= page * 10 + 25) {
+                    displayList.add(userList.get(i));
+                }
+            }
+
             model.put("channel", channelHandler);
-            model.put("userlist", userList);
+            model.put("userlist", displayList);
             model.put("web", Memebot.webBaseURL);
+            model.put("next", next);
+            model.put("previous", previous);
 
             return new ModelAndView(model, "userlist.vm");
         }, new VelocityTemplateEngine());
 
-        get("/users/listnames/:channel/:user", (req, res) -> {
+        get("/users/user/:channel/:user", (req, res) -> {
             String channel = "#" + req.params(":channel");
             String user = req.params(":user");
             ChannelHandler channelHandler = null;

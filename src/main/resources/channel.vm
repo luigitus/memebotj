@@ -7,18 +7,18 @@
 <body>
 #parse("include.vm")
 <div id="content">
-    <table style="width:100%">
+    <table>
         <tr>
             <td>Command Name</td>
             <td>Syntax</td>
-            <td>Output</td>
+            <!--<<td>Output</td>-->
             <td>Access</td>
         </tr>
         #foreach( $command in $channel.channelCommands )
             <tr>
                 <td><a href="${web}/commands/${channel.broadcaster}/${command.commandName}">${command.commandName}</a></td>
                 <td>${command.helptext}</td>
-                <td>${command.unformattedOutput}</td>
+                <!--<<td>${command.unformattedOutput}</td>-->
                 <td>${command.neededCommandPower}</td>
             </tr>
         #end

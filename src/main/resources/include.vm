@@ -6,21 +6,21 @@
     <h1>Commands for channel ${channel.channel}</h1>
 </div>
 <div id="nav">
-    <ul>
+    <ul id="main_nav" style="list-style-type:none">
         <li>
-            <a href="${web}/commands/${channel.broadcaster}">Commands</a>
+            <a class="commands_link" href="${web}/commands/${channel.broadcaster}">Commands</a>
         </li>
         <li>
-            <a href="${web}/commands/list/internals/${channel.broadcaster}">Internal Commands</a>
+            <a class="i_commands_link" href="${web}/commands/list/internals/${channel.broadcaster}">Internal Commands</a>
         </li>
         <li>
-            <a href="${web}/filesnames/${channel.broadcaster}">Filenames</a>
+            <a class="filenames_link" href="${web}/filesnames/${channel.broadcaster}/0">Filenames</a>
         </li>
         <li>
-            <a href="${web}/users/listnames/${channel.broadcaster}">User list</a>
+            <a class="users_link" href="${web}/users/listnames/${channel.broadcaster}/0">User list</a>
         </li>
         <li>
-            <a href="${web}/songs/${channel.broadcaster}/player">Song Requests Player (WIP))</a>
+            <a class="s_requests_link" href="${web}/songs/${channel.broadcaster}/player">Song Requests Player (WIP))</a>
         </li>
     </ul>
 </div>
