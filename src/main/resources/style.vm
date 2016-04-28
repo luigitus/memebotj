@@ -5,7 +5,7 @@
     --------------------*/
     html {
         background:#ababab;
-        background-image:url(${channel.bgImage})
+        background-image:url("${channel.bgImage}")
         );
         background-repeat:no-repeat;
         background-attachment:fixed;
@@ -25,11 +25,12 @@
         border-collapse:collapse;
         border-spacing:0;
         word-wrap:break-word;
+        overflow: scroll;
         table-layout:fixed;
     }
     tr, td {
         border:1px solid transparent;
-        height:30px;
+        height:40px;
         transition:all 0.3s;
     }
     th {
@@ -39,6 +40,9 @@
     td {
         text-align:center;
         text-decoration:none;
+        overflow: hidden;
+        word-wrap: normal;
+        width: 100px;
     }
     tr:nth-child(even) td {
         background:rgba(65,65,65,0.7);
@@ -157,7 +161,7 @@
         color:white;
         text-align:center;
         padding:5px;
-        width:45em;
+        width:100%;
         margin:auto;
     }
     #content {
@@ -166,6 +170,7 @@
         margin-right:auto;
         float:center;
         padding:10px;
+        min-height:50%;
     }
     #footer {
         background-color:rgba(0,0,0,0.6);

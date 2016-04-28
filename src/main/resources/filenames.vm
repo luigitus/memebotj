@@ -7,18 +7,21 @@
 <body>
 #parse("include.vm")
 <div id="content">
-    <table style="width:100%" class="filenames">
+    <table class="filenames">
         <tr>
             <td>Name</td>
             <td>Suggested by</td>
         </tr>
-        #foreach($name in $channel.fileNameList)
+        #foreach($name in ${names})
             <tr>
                 <td>${name.split("#")[0]}</td>
                 <td>${name.split("#")[1]}</td>
             </tr>
         #end
     </table>
+
+    <a href="${web}/filesnames/${channel.broadcaster}/${previous}">Previous</a>
+    <a href="${web}/filesnames/${channel.broadcaster}/${next}">Next</a>
 </div>
 #parse("footer.vm")
 </body>

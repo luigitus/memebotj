@@ -10,6 +10,7 @@ import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 
 import java.net.URLEncoder;
 import java.security.SecureRandom;
@@ -1022,5 +1023,35 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public boolean isWhisper() {
 
         return whisper;
+    }
+
+    public MongoHandler getMongoHandler() {
+        return mongoHandler;
+    }
+
+    public void setMongoHandler(MongoHandler mongoHandler) {
+        this.mongoHandler = mongoHandler;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public ArrayList<String> getSuggestedList() {
+        return suggestedList;
+    }
+
+    public void setSuggestedList(ArrayList<String> suggestedList) {
+        this.suggestedList = suggestedList;
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        return jsonObject.toJSONString();
     }
 }

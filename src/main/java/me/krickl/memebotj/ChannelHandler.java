@@ -9,16 +9,15 @@ import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
+import me.krickl.memebotj.Inventory.Buff;
 import me.krickl.memebotj.Twitch.ChannelAPI;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Utility.MessagePackage;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.*;
@@ -30,6 +29,8 @@ import java.util.logging.Logger;
  */
 public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
+
+    private BufferedWriter writer = null;
 
     private String channel = "";
     private IRCConnectionHandler connection = null;
@@ -104,6 +105,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
+        try {
+            File f = new File(Memebot.memebotDir + "/logs/" + channel + ".log");
+            if(!f.exists())
+                f.createNewFile();
+            writer = new BufferedWriter(new FileWriter(f, true));
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
 
         broadcasterHandler.setUserBroadcaster(true);
 
@@ -269,6 +278,12 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
                 }
             }
         }
+
+        try {
+            writer.close();
+        } catch(IOException e) {
+
+        }
     }
 
     public void update() {
@@ -342,6 +357,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
             useWhisper = false;
             return;
         }
+
+        //log chat content
+        String messageString = "";
+        for(String msg : msgContent) {
+            messageString = messageString + msg + " ";
+        }
+        System.out.println("<" + channel + ">" + sender.getUsername() + ": " + messageString);
 
         String msg = msgContent[0];
         String[] data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length);
@@ -479,6 +501,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         }
 
         this.currentMessageCount += 1;
+        //log to file
+        System.out.println("<" + channel + ">" + msg);
+
         if(!whisper && !useWhisper) {
             if (sender.getUsername().equals("#readonly#")) {
                 this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
@@ -1115,5 +1140,19 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
 
     public void setItemDrops(String itemDrops) {
         this.itemDrops = itemDrops;
+    }
+
+    public BufferedWriter getWriter() {
+        return writer;
+    }
+
+    public void setWriter(BufferedWriter writer) {
+        this.writer = writer;
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        return jsonObject.toJSONString();
     }
 }

@@ -64,6 +64,18 @@ public class InventoryCommand extends CommandHandler {
                 }
             } else if (data[0].equals("buy")) {
                 // todo implement shop
+            } else if(data[0].equals("equip")) {
+                if(sender.getUserInventory().equip(data[1])) {
+                    getChannelHandler().sendMessage(Memebot.formatText("EQUIP_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+                } else {
+                    getChannelHandler().sendMessage(Memebot.formatText("EQUIP_FAIL", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+                }
+            } else if(data[0].equals("unequip")){
+                if(sender.getUserInventory().unequip(data[1])) {
+                    getChannelHandler().sendMessage(Memebot.formatText("UNEQUIP_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+                } else {
+                    getChannelHandler().sendMessage(Memebot.formatText("UNEQUIP_FAIL", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+                }
             } else if(data[0].equals("value")) {
                 getChannelHandler().sendMessage(Memebot.formatText(String.format("%s: %d", data[1], new Item(data[1], 0).getValue()), getChannelHandler(), sender, this, false, new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
             } else if(data[0].equals("stats")) {
@@ -73,6 +85,12 @@ public class InventoryCommand extends CommandHandler {
             String msg = "";
             for(Item i : sender.getUserInventory().getItems()) {
                 msg = msg + i.toString() + " - ";
+            }
+
+
+            msg = msg + "Equips: ";
+            for(String s : sender.getUserInventory().getEquips()) {
+                msg = msg + s + " - ";
             }
             getChannelHandler().sendMessage(msg, getChannelHandler().getChannel(), sender, isWhisper());
             log.info(e.toString());

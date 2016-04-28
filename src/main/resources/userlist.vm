@@ -7,16 +7,19 @@
 <body>
 #parse("include.vm")
 <div id="content">
-    <table style="width:100%" class="users">
+    <table class="users">
         <tr>
             <td>Name</td>
         </tr>
         #foreach($name in $userlist)
             <tr>
-                <td><a href="${web}/users/listnames/${channel.broadcaster}/${name}">${name}</a></td>
+                <td><a href="${web}/users/user/${channel.broadcaster}/${name}">${name}</a></td>
             </tr>
         #end
     </table>
+
+    <a href="${web}/users/listnames/${channel.broadcaster}/${previous}">Previous</a>
+    <a href="${web}/users/listnames/${channel.broadcaster}/${next}">Next</a>
 </div>
 #parse("footer.vm")
 </body>

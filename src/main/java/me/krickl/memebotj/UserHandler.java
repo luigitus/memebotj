@@ -8,7 +8,9 @@ import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Inventory.Inventory;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
+import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
@@ -59,9 +61,9 @@ public class UserHandler implements Comparable<UserHandler> {
 
     boolean hasAutogreeted = false;
 
-    Cooldown removeCooldown = new Cooldown(0);
+    private Cooldown removeCooldown = new Cooldown(0);
     boolean shouldBeRemoved = false;
-    int jackpotWins = 0;
+    private int jackpotWins = 0;
 
     private Inventory userInventory;
 
@@ -219,6 +221,12 @@ public class UserHandler implements Comparable<UserHandler> {
             channelHandler.sendMessage(autogreet, this.channelOrigin, this);
             this.hasAutogreeted = true;
         }
+    }
+
+    public String resetOAuth() {
+        String keySource = username + Long.toString(timeStampJoined) + Integer.toHexString(new SecureRandom().nextInt());
+        String oauth = Base64.encodeBase64String(keySource.getBytes());
+        return oauth;
     }
 
     @Override
@@ -486,5 +494,40 @@ public class UserHandler implements Comparable<UserHandler> {
             return nickname;
         }
         return this.username;
+    }
+
+    public String getOauth() {
+        String oauth = resetOAuth();
+        MongoHandler mongoHandler = new MongoHandler(Memebot.db, "#oauth#");
+        try {
+            mongoHandler.readDatabase(username);
+        } catch (DatabaseReadException e) {
+            log.info(e.toString());
+            setOauth(oauth);
+            return oauth;
+        }
+
+        String dbOauth = mongoHandler.getDocument().getOrDefault("oauth", oauth).toString();
+
+        if(oauth.equals(dbOauth)) {
+            setOauth(dbOauth);
+        }
+
+        return dbOauth;
+    }
+
+    public void setOauth(String oauth) {
+        MongoHandler mongoHandler = new MongoHandler(Memebot.db, "#oauth#");
+
+        Document document = new Document();
+        document.append("oauth", oauth).append("_id", username);
+        mongoHandler.setDocument(document);
+        mongoHandler.writeDatabase(username);
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        return jsonObject.toJSONString();
     }
 }

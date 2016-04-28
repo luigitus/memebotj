@@ -7,7 +7,7 @@
 <body>
     #parse("include.vm")
 <div id="content">
-    <table style="width:100%">
+    <table>
         <tr>
             <td>Name</td>
             <td>${user.username}</td>
