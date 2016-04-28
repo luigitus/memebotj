@@ -436,17 +436,21 @@ public class Memebot {
             url = new URL(urlString);
             connection = (HttpURLConnection)url.openConnection();
             connection.setConnectTimeout(timeout);
-            connection.setDoOutput(true);
             connection.setRequestMethod(requestMethod);
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            if (requestMethod.equals("POST") || requestMethod.equals("PUT")) {
+                connection.setDoOutput(true);
+                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                connection.setRequestProperty("Content-Length", Integer.toString(sendLen));
+            }
             connection.setRequestProperty("charset", "utf-8");
-            connection.setRequestProperty("Content-Length", Integer.toString(sendLen));
             connection.setUseCaches(false);
 
-            try(DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
-                wr.write(sendData);
-                wr.flush();
-                wr.close();
+            if (requestMethod.equals("POST") || requestMethod.equals("PUT")) {
+                try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+                    wr.write(sendData);
+                    wr.flush();
+                    wr.close();
+                }
             }
 
             boolean isError = connection.getResponseCode() >= 400;
