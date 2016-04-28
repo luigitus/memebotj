@@ -63,6 +63,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
     private int currentMessageCount = 0;
     private Cooldown messageLimitCooldown = new Cooldown(30);
     private Cooldown preventMessageCooldown = new Cooldown(30);
+    private String streamTitle = "";
     private String currentGame = "Not Playing";
     private SecureRandom random = new SecureRandom();
     private boolean purgeURLS = false;
@@ -159,6 +160,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         this.internalCommands.add(new SongRequestCommand(this, "!songrequest", "#internal#"));
         this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
         this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
+
+        //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 
         CommandHandler issueCommand = new CommandHandler(this, "!issue", "#internal#");
@@ -912,6 +915,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
 
     public void setPreventMessageCooldown(Cooldown preventMessageCooldown) {
         this.preventMessageCooldown = preventMessageCooldown;
+    }
+
+    public String getStreamTitle() {
+        return streamTitle;
+    }
+
+    public void setStreamTitle(String streamTitle) {
+        this.streamTitle = streamTitle;
     }
 
     public String getCurrentGame() {
