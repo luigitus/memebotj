@@ -10,6 +10,7 @@ import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 
 import java.net.URLEncoder;
 import java.security.SecureRandom;
@@ -1046,5 +1047,11 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     public void setSuggestedList(ArrayList<String> suggestedList) {
         this.suggestedList = suggestedList;
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        return jsonObject.toJSONString();
     }
 }

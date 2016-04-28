@@ -38,6 +38,12 @@ public class SendMessageCommand extends CommandHandler {
                 for(ChannelHandler channelHandler : Memebot.joinedChannels) {
                     channelHandler.sendMessage(message, channelHandler.getChannel() ,sender);
                 }
+            } else if(sendToChannel.equals("#live#")) {
+                for(ChannelHandler channelHandler : Memebot.joinedChannels) {
+                    if(channelHandler.isLive()) {
+                        channelHandler.sendMessage(message, channelHandler.getChannel(), sender);
+                    }
+                }
             } else {
                 getChannelHandler().sendMessage(message, sendToChannel, sender);
             }

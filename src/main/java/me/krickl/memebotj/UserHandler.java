@@ -10,6 +10,7 @@ import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
@@ -63,8 +64,6 @@ public class UserHandler implements Comparable<UserHandler> {
     private Cooldown removeCooldown = new Cooldown(0);
     boolean shouldBeRemoved = false;
     private int jackpotWins = 0;
-
-    private String oauth = "";
 
     private Inventory userInventory;
 
@@ -122,7 +121,6 @@ public class UserHandler implements Comparable<UserHandler> {
         this.isFollowing = (boolean)mongoHandler.getDocument().getOrDefault("isfollowing", this.isFollowing);
         this.hasFollowed = (boolean)mongoHandler.getDocument().getOrDefault("hasfollowed", this.hasFollowed);
         this.jackpotWins = (int)mongoHandler.getDocument().getOrDefault("jackpotwins", this.jackpotWins);
-        this.oauth = mongoHandler.getDocument().getOrDefault("oauth", resetOAuth()).toString();
 
         userInventory.readDB();
 
@@ -170,8 +168,7 @@ public class UserHandler implements Comparable<UserHandler> {
                 .append("wallet", this.walletSize)
                 .append("isfollowing", this.isFollowing)
                 .append("hasfollowed", this.hasFollowed)
-                .append("jackpotwins", this.jackpotWins)
-                .append("oauth", this.oauth);
+                .append("jackpotwins", this.jackpotWins);
 
         mongoHandler.setDocument(userData);
         mongoHandler.writeDatabase(this.username);
@@ -228,8 +225,8 @@ public class UserHandler implements Comparable<UserHandler> {
 
     public String resetOAuth() {
         String keySource = username + Long.toString(timeStampJoined) + Integer.toHexString(new SecureRandom().nextInt());
-        this.oauth = Base64.encodeBase64String(keySource.getBytes());
-        return this.oauth;
+        String oauth = Base64.encodeBase64String(keySource.getBytes());
+        return oauth;
     }
 
     @Override
@@ -500,10 +497,37 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public String getOauth() {
-        return oauth;
+        String oauth = resetOAuth();
+        MongoHandler mongoHandler = new MongoHandler(Memebot.db, "#oauth#");
+        try {
+            mongoHandler.readDatabase(username);
+        } catch (DatabaseReadException e) {
+            log.info(e.toString());
+            setOauth(oauth);
+            return oauth;
+        }
+
+        String dbOauth = mongoHandler.getDocument().getOrDefault("oauth", oauth).toString();
+
+        if(oauth.equals(dbOauth)) {
+            setOauth(dbOauth);
+        }
+
+        return dbOauth;
     }
 
     public void setOauth(String oauth) {
-        this.oauth = oauth;
+        MongoHandler mongoHandler = new MongoHandler(Memebot.db, "#oauth#");
+
+        Document document = new Document();
+        document.append("oauth", oauth).append("_id", username);
+        mongoHandler.setDocument(document);
+        mongoHandler.writeDatabase(username);
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        return jsonObject.toJSONString();
     }
 }

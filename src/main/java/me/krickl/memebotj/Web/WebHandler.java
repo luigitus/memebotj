@@ -5,6 +5,7 @@ import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.bson.Document;
 import spark.ModelAndView;
 import spark.Request;
@@ -49,7 +50,7 @@ public class WebHandler {
             Map<String, Object> model = new HashMap<>();
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "channel.vm");
         }, new VelocityTemplateEngine());
@@ -69,7 +70,7 @@ public class WebHandler {
             Map<String, Object> model = new HashMap<>();
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "internals.vm");
         }, new VelocityTemplateEngine());
@@ -96,7 +97,7 @@ public class WebHandler {
             model.put("channel", channelHandler);
             model.put("command", commandHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "command.vm");
         }, new VelocityTemplateEngine());
@@ -124,7 +125,7 @@ public class WebHandler {
             model.put("channel", channelHandler);
             model.put("command", commandHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "command.vm");
         }, new VelocityTemplateEngine());
@@ -142,7 +143,7 @@ public class WebHandler {
             Map<String, Object> model = new HashMap<>();
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "songrequest.vm");
         }, new VelocityTemplateEngine());
@@ -178,7 +179,7 @@ public class WebHandler {
             model.put("next", next);
             model.put("previous", previous);
             model.put("names", displayList);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "filenames.vm");
         }, new VelocityTemplateEngine());
@@ -230,7 +231,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("next", next);
             model.put("previous", previous);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "userlist.vm");
         }, new VelocityTemplateEngine());
@@ -251,7 +252,7 @@ public class WebHandler {
             model.put("channel", channelHandler);
             model.put("user", userHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "userdetail.vm");
         }, new VelocityTemplateEngine());
@@ -269,7 +270,7 @@ public class WebHandler {
 
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "login.vm");
         }, new VelocityTemplateEngine());
@@ -287,7 +288,7 @@ public class WebHandler {
 
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "badbrowser.vm");
         }, new VelocityTemplateEngine());
@@ -307,8 +308,8 @@ public class WebHandler {
 
             if(oauth.equals(user.getOauth())) {
                 response = "Login OK";
-                res.cookie("/", "login_" + req.params(":channel") + "_name", user.getUsername(), 604800, false);
-                res.cookie("/", "login_" + req.params(":channel") + "_oauth", user.getOauth(), 604800, false);
+                res.cookie("/", "login_name", user.getUsername(), 604800, false);
+                res.cookie("/", "login_oauth", sha1HexString(user.getOauth()), 604800, false);
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -316,22 +317,22 @@ public class WebHandler {
             model.put("channel", channelHandler);
             model.put("web", Memebot.webBaseURL);
             model.put("login", response);
-            model.put("uh", getLoginUserHandler(req, req.cookie("login_" + req.params(":channel") + "_name"), channel));
+            model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
             return new ModelAndView(model, "process.vm");
         }, new VelocityTemplateEngine());
     }
 
     public static boolean checkLogin(Request req, String username, String channel) {
-        String storedName = req.cookie("login_" + req.params(":channel") + "_name");
-        String storedOauth = req.cookie("login_" + req.params(":channel") + "_oauth");
+        String storedName = req.cookie("login_name");
+        String storedOauth = req.cookie("login_oauth");
         UserHandler user = new UserHandler(username, channel);
 
         if(storedName == null || storedOauth == null) {
             return false;
         }
 
-        if(user.getUsername().equals(storedName) && user.getOauth().equals(storedOauth)) {
+        if(user.getUsername().equals(storedName) && sha1HexString(user.getOauth()).equals(storedOauth)) {
             return true;
         }
 
@@ -344,5 +345,9 @@ public class WebHandler {
         }
 
         return new UserHandler("#readonly#", channel);
+    }
+
+    public static String sha1HexString(String toDigest) {
+        return DigestUtils.sha1Hex(toDigest);
     }
 }

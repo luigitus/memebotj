@@ -15,6 +15,7 @@ import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Utility.MessagePackage;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -1136,5 +1137,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
 
     public void setWriter(BufferedWriter writer) {
         this.writer = writer;
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        return jsonObject.toJSONString();
     }
 }
