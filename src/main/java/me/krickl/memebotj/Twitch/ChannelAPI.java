@@ -40,24 +40,30 @@ public class ChannelAPI {
             channelHandler.setLive(false);
         }
 
-        //get game
+        //get game | and stream title for getting the current category from the title (for pb command)
         try {
             if (Memebot.isTwitchBot) {
-                System.out.println("https://api.twitch.tv/kraken/channels/" + channelHandler.getChannel());
+                System.out.println("https://api.twitch.tv/kraken/channels/" + channelHandler.getBroadcaster());
                 String data = Memebot.urlRequest("https://api.twitch.tv/kraken/channels/" + channelHandler.getBroadcaster(), 5000, false);
 
                 JSONParser parser = new JSONParser();
                 JSONObject obj = (JSONObject) parser.parse(data);
                 channelHandler.setCurrentGame((String)obj.get("game"));
+                channelHandler.setStreamTitle((String)obj.get("status"));
                 if (channelHandler.getCurrentGame() == null) {
                     channelHandler.setCurrentGame("Not Playing");
                 }
+                if (channelHandler.getStreamTitle() == null) {
+                    channelHandler.setStreamTitle("");
+                }
             } else {
                 channelHandler.setCurrentGame("");
+                channelHandler.setStreamTitle("");
             }
         } catch(ParseException e)  {
             e.printStackTrace();
             channelHandler.setCurrentGame("");
+            channelHandler.setStreamTitle("");
         }
     }
 }
