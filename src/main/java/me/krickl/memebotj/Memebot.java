@@ -361,6 +361,9 @@ public class Memebot {
             if (channelHandler.getCurrentGame() != null) {
                 formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
             }
+            if(channelHandler.getStreamTitle() != null) {
+                formattedOutput = formattedOutput.replace("{title}", channelHandler.getStreamTitle());
+            }
             formattedOutput = formattedOutput.replace("{curremote}",
                     channelHandler.getCurrencyEmote());
             formattedOutput = formattedOutput.replace("{currname}",

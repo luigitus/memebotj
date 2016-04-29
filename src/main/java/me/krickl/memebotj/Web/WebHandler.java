@@ -255,6 +255,7 @@ public class WebHandler {
                 response = "Login OK";
                 res.cookie("/", "login_name", user.getUsername(), 604800, false);
                 res.cookie("/", "login_oauth", sha1HexString(user.getOauth()), 604800, false);
+                res.cookie("/", "login_apikey", user.getAPIKey(), 604800, false);
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -277,6 +278,23 @@ public class WebHandler {
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             return channelHandler.toJSON();
         });
+
+        get("/api/users/:channel", (req, res) ->  {
+            return "todo return userlist";
+        });
+
+        get("/api/users/:channel/:user", (req, res) ->  {
+            UserHandler userHandler = new UserHandler(req.params(":user"), "#" + req.params(":channel"));
+            return  userHandler.toJSON();
+        });
+
+        get("/api/commands/:channel", (req, res) ->  {
+            return  "todo output command list";
+        });
+
+        get("/api/commands/:channel/:command", (req, res) ->  {
+            return  "todo output command json";
+        });
     }
 
 
@@ -297,18 +315,23 @@ public class WebHandler {
     }
 
     public static UserHandler getLoginUserHandler(Request req, String username, String channel) {
-        ChannelHandler channelHandler = getChannelForName(channel);
-        if(checkLogin(req, username, channel)) {
-            if(channelHandler.getUserList().containsKey(username)) {
-                return channelHandler.getUserList().get(username);
-            }
-            UserHandler userHandler = new UserHandler(username, channel);
 
-            channelHandler.getUserList().put(username, userHandler);
-            return userHandler;
+        if(checkLogin(req, username, channel)) {
+            return getUserHandlerForName(channel, username);
         }
 
         return new UserHandler("#readonly#", channel);
+    }
+
+    public static UserHandler getUserHandlerForName(String channel, String username) {
+        ChannelHandler channelHandler = getChannelForName(channel);
+        if(channelHandler.getUserList().containsKey(username)) {
+            return channelHandler.getUserList().get(username);
+        }
+        UserHandler userHandler = new UserHandler(username, channel);
+
+        channelHandler.getUserList().put(username, userHandler);
+        return userHandler;
     }
 
     public static ChannelHandler getChannelForName(String channel) {

@@ -2,6 +2,7 @@ package me.krickl.memebotj.Inventory;
 
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Utility.Localisation;
+import org.json.simple.JSONObject;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -243,5 +244,13 @@ public class Item {
 
     public int getEquipStat(String key) {
         return statGainEquip.getOrDefault(key, 0);
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("_id", itemname);
+
+        return jsonObject.toJSONString();
     }
 }

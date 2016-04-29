@@ -1052,6 +1052,18 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public String toJSON() {
         JSONObject jsonObject = new JSONObject();
 
+        jsonObject.put("_id", commandName);
+        jsonObject.put("_channel", channelHandler.getChannel());
+        jsonObject.put("execcounter", execCounter);
+        jsonObject.put("listcontent", listContent);
+        jsonObject.put("suggestedlist", suggestedList);
+        jsonObject.put("counter", counter);
+        jsonObject.put("output", unformattedOutput);
+        jsonObject.put("helptext", helptext);
+        jsonObject.put("neededpower", neededCommandPower);
+        jsonObject.put("qprefix", quotePrefix);
+        jsonObject.put("qsuffix", quoteSuffix);
+
         return jsonObject.toJSONString();
     }
 }

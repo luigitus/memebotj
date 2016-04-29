@@ -525,8 +525,45 @@ public class UserHandler implements Comparable<UserHandler> {
         mongoHandler.writeDatabase(username);
     }
 
+    public String getAPIKey() {
+        String apikey = resetOAuth();
+        MongoHandler mongoHandler = new MongoHandler(Memebot.db, "#apikey#");
+        try {
+            mongoHandler.readDatabase(username);
+        } catch (DatabaseReadException e) {
+            log.info(e.toString());
+            setAPIKey(apikey);
+            return apikey;
+        }
+
+        String dbkey = mongoHandler.getDocument().getOrDefault("apikey", apikey).toString();
+
+        if(apikey.equals(dbkey)) {
+            setOauth(dbkey);
+        }
+
+        return dbkey;
+    }
+
+    public void setAPIKey(String key) {
+        MongoHandler mongoHandler = new MongoHandler(Memebot.db, "#apikey#");
+
+        Document document = new Document();
+        document.append("apikey", key).append("_id", username);
+        mongoHandler.setDocument(document);
+        mongoHandler.writeDatabase(username);
+    }
+
     public String toJSON() {
         JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("points", points);
+        jsonObject.put("timeouts", timeouts);
+        jsonObject.put("_id", username);
+        jsonObject.put("_channel", channelOrigin);
+        jsonObject.put("joinded_t", timeStampJoined);
+        jsonObject.put("joined_str", dateJoined);
+        jsonObject.put("inventory", userInventory.toJSON());
 
         return jsonObject.toJSONString();
     }

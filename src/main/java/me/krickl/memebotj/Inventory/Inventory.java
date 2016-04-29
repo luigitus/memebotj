@@ -6,6 +6,7 @@ import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import org.bson.Document;
 import org.bson.codecs.IntegerCodec;
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -278,5 +279,13 @@ public class Inventory {
         if(currentHealth < 0) {
             currentHealth = 0;
         }
+    }
+
+    public String toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("_id", username);
+
+        return jsonObject.toJSONString();
     }
 }

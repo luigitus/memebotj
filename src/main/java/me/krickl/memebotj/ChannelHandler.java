@@ -1168,6 +1168,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         jsonObject.put("_id", channel);
         jsonObject.put("commands", channelCommandsObject);
         jsonObject.put("internals", internalCommandsObject);
+        jsonObject.put("filenames", fileNameList);
 
         return jsonObject.toJSONString();
     }

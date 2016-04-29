@@ -64,7 +64,9 @@ public class EdituserCommand extends CommandHandler {
                 getChannelHandler().sendMessage(sender.getOauth(), this.getChannelHandler().getChannel(), sender, true);
             } else if(data[0].equals("restlogin")) {
                 getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_RESETLOGIN", getChannelHandler(), sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
-                sender.resetOAuth();
+
+                sender.setOauth(sender.resetOAuth());
+                sender.setAPIKey(sender.resetOAuth());
             }
         } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
             e.printStackTrace();
