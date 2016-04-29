@@ -274,7 +274,7 @@ public class WebHandler {
             JSONObject channelsObject = new JSONObject();
 
             for(ChannelHandler channelHandler : Memebot.joinedChannels) {
-                channelsObject.put(channelHandler.getChannel(), channelHandler.toJSONObject());
+                channelsObject.put(channelHandler.getChannel(), Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster());
             }
 
             return channelsObject.toJSONString();
@@ -306,7 +306,7 @@ public class WebHandler {
             JSONObject usersObject = new JSONObject();
 
             for(String user : userList) {
-                usersObject.put(user, user);
+                usersObject.put(user, Memebot.webBaseURL + "/api/users/" + channel.replace("#", "") + "/" + user);
             }
 
             return usersObject.toJSONString();

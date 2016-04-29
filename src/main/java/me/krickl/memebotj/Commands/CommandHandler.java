@@ -1054,6 +1054,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
         jsonObject.put("_id", commandName);
         jsonObject.put("_channel", channelHandler.getChannel());
+        jsonObject.put("_self", Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandName);
         jsonObject.put("execcounter", execCounter);
         jsonObject.put("listcontent", listContent);
         jsonObject.put("suggestedlist", suggestedList);

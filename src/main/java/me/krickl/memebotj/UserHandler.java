@@ -561,6 +561,7 @@ public class UserHandler implements Comparable<UserHandler> {
         jsonObject.put("timeouts", timeouts);
         jsonObject.put("_id", username);
         jsonObject.put("_channel", channelOrigin);
+        jsonObject.put("_self", Memebot.webBaseURL + "/api/users/" + channelOrigin.replace("#", "") + "/" + username);
         jsonObject.put("joinded_t", timeStampJoined);
         jsonObject.put("joined_str", dateJoined);
         jsonObject.put("inventory", userInventory.toJSON());
