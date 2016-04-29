@@ -269,6 +269,27 @@ public class WebHandler {
             return new ModelAndView(model, "process.vm");
         }, new VelocityTemplateEngine());
 
+        post("/login", (req, res) ->  {
+            JSONObject loginObject = new JSONObject();
+
+            String channel = "#" + req.params(":channel");
+            UserHandler user = new UserHandler(java.net.URLDecoder.decode(req.queryParams("username"), "UTF-8"), channel);
+            String oauth = java.net.URLDecoder.decode(req.queryParams("password"), "UTF-8");
+            ChannelHandler channelHandler = getChannelForName(channel);
+
+            loginObject.put("_status", "Login Failed");
+            loginObject.put("_self", Memebot.webBaseURL + "/login");
+
+            if(oauth.equals(user.getOauth())) {
+                loginObject.put("_status", "Login OK");
+                res.cookie("/", "login_name", user.getUsername(), 604800, false);
+                res.cookie("/", "login_oauth", sha1HexString(user.getOauth()), 604800, false);
+                res.cookie("/", "login_apikey", user.getAPIKey(), 604800, false);
+            }
+
+            return loginObject.toJSONString();
+        });
+
 
         get("/api/channels", (req, res) ->  {
             JSONObject channelsObject = new JSONObject();
