@@ -36,12 +36,7 @@ public class WebHandler {
         get("/commands/:channel", (req, res) -> {
             String loginUserName = "Guest";
             String channel = "#" + req.params(":channel");
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
 
             if(channelHandler != null) {
                 Collections.sort(channelHandler.getChannelCommands());
@@ -57,12 +52,7 @@ public class WebHandler {
 
         get("/commands/list/internals/:channel", (req, res) -> {
             String channel = "#" + req.params(":channel");
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
             if(channelHandler != null) {
                 Collections.sort(channelHandler.getInternalCommands());
             }
@@ -78,12 +68,7 @@ public class WebHandler {
         get("/commands/:channel/:command", (req, res) -> {
             String channel = "#" + req.params(":channel");
             String command = req.params(":command");
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
             int i = -1;
             if(channelHandler != null) {
                 i = channelHandler.findCommand(command);
@@ -106,12 +91,7 @@ public class WebHandler {
             String channel = "#" + req.params(":channel");
             String command = req.params(":command");
 
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
             int i = -1;
             if(channelHandler != null) {
                 i = channelHandler.findCommand(command, channelHandler.getInternalCommands(), 1);
@@ -133,12 +113,7 @@ public class WebHandler {
         get("/songs/:channel/player", (req, res) -> {
             String channel = "#" + req.params(":channel");
 
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
 
             Map<String, Object> model = new HashMap<>();
             model.put("channel", channelHandler);
@@ -154,12 +129,7 @@ public class WebHandler {
             String next = Integer.toString(page + 1);
             String previous = Integer.toString(page - 1);
 
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
 
             ArrayList<String> displayList = new ArrayList<String>();
 
@@ -190,12 +160,7 @@ public class WebHandler {
             String next = Integer.toString(page + 1);
             String previous = Integer.toString(page - 1);
 
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
 
             if(channelHandler != null) {
                 //Collections.sort(channelHandler.getUserList());
@@ -239,12 +204,7 @@ public class WebHandler {
         get("/users/user/:channel/:user", (req, res) -> {
             String channel = "#" + req.params(":channel");
             String user = req.params(":user");
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
             UserHandler userHandler = new UserHandler(user, channel);
 
             Map<String, Object> model = new HashMap<>();
@@ -259,12 +219,7 @@ public class WebHandler {
 
         get("/login/:channel", (req, res) -> {
             String channel = "#" + req.params(":channel");
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
 
             Map<String, Object> model = new HashMap<>();
 
@@ -277,12 +232,7 @@ public class WebHandler {
 
         get("/badbrowser", (req, res) -> {
             String channel = "#" + req.params(":channel");
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
 
             Map<String, Object> model = new HashMap<>();
 
@@ -297,12 +247,7 @@ public class WebHandler {
             String channel = "#" + req.params(":channel");
             UserHandler user = new UserHandler(java.net.URLDecoder.decode(req.queryParams("username"), "UTF-8"), channel);
             String oauth = java.net.URLDecoder.decode(req.queryParams("password"), "UTF-8");
-            ChannelHandler channelHandler = null;
-            for(ChannelHandler ch : Memebot.joinedChannels) {
-                if(ch.getChannel().equals(channel)) {
-                    channelHandler = ch;
-                }
-            }
+            ChannelHandler channelHandler = getChannelForName(channel);
 
             String response = "Failed to login!";
 
@@ -321,7 +266,19 @@ public class WebHandler {
 
             return new ModelAndView(model, "process.vm");
         }, new VelocityTemplateEngine());
+
+
+        get("/api/channels", (req, res) ->  {
+
+            return "todo return all channels as JSON";
+        });
+
+        get("/api/channels/:channel", (req, res) ->  {
+            ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
+            return channelHandler.toJSON();
+        });
     }
+
 
     public static boolean checkLogin(Request req, String username, String channel) {
         String storedName = req.cookie("login_name");
@@ -340,11 +297,28 @@ public class WebHandler {
     }
 
     public static UserHandler getLoginUserHandler(Request req, String username, String channel) {
+        ChannelHandler channelHandler = getChannelForName(channel);
         if(checkLogin(req, username, channel)) {
-            return new UserHandler(username, channel);
+            if(channelHandler.getUserList().containsKey(username)) {
+                return channelHandler.getUserList().get(username);
+            }
+            UserHandler userHandler = new UserHandler(username, channel);
+
+            channelHandler.getUserList().put(username, userHandler);
+            return userHandler;
         }
 
         return new UserHandler("#readonly#", channel);
+    }
+
+    public static ChannelHandler getChannelForName(String channel) {
+        ChannelHandler channelHandler = null;
+        for(ChannelHandler ch : Memebot.joinedChannels) {
+            if(ch.getChannel().equals(channel)) {
+                channelHandler = ch;
+            }
+        }
+        return channelHandler;
     }
 
     public static String sha1HexString(String toDigest) {

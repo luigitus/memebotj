@@ -15,6 +15,7 @@ import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Utility.MessagePackage;
 import org.bson.Document;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.*;
@@ -1152,6 +1153,21 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
 
     public String toJSON() {
         JSONObject jsonObject = new JSONObject();
+
+        JSONObject channelCommandsObject = new JSONObject();
+        JSONObject internalCommandsObject = new JSONObject();
+
+        for(CommandHandler commandHandler : this.channelCommands) {
+            channelCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSON());
+        }
+
+        for(CommandHandler commandHandler : this.internalCommands) {
+            internalCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSON());
+        }
+
+        jsonObject.put("_id", channel);
+        jsonObject.put("commands", channelCommandsObject);
+        jsonObject.put("internals", internalCommandsObject);
 
         return jsonObject.toJSONString();
     }
