@@ -246,11 +246,15 @@ public class Item {
         return statGainEquip.getOrDefault(key, 0);
     }
 
-    public String toJSON() {
+    public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("_id", itemname);
 
-        return jsonObject.toJSONString();
+        return jsonObject;
+    }
+
+    public String toJSON() {
+        return toJSONObject().toJSONString();
     }
 }

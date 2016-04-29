@@ -554,7 +554,7 @@ public class UserHandler implements Comparable<UserHandler> {
         mongoHandler.writeDatabase(username);
     }
 
-    public String toJSON() {
+    public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("points", points);
@@ -565,6 +565,10 @@ public class UserHandler implements Comparable<UserHandler> {
         jsonObject.put("joined_str", dateJoined);
         jsonObject.put("inventory", userInventory.toJSON());
 
-        return jsonObject.toJSONString();
+        return jsonObject;
+    }
+
+    public String toJSON() {
+        return toJSONObject().toJSONString();
     }
 }

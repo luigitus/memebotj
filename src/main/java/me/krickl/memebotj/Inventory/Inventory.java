@@ -281,11 +281,17 @@ public class Inventory {
         }
     }
 
-    public String toJSON() {
+
+    public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("_id", username);
 
-        return jsonObject.toJSONString();
+        return jsonObject;
+    }
+
+
+    public String toJSON() {
+        return toJSONObject().toJSONString();
     }
 }

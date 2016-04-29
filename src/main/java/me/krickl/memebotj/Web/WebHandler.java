@@ -7,6 +7,7 @@ import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 import spark.ModelAndView;
 import spark.Request;
 import spark.template.velocity.VelocityTemplateEngine;
@@ -270,8 +271,13 @@ public class WebHandler {
 
 
         get("/api/channels", (req, res) ->  {
+            JSONObject channelsObject = new JSONObject();
 
-            return "todo return all channels as JSON";
+            for(ChannelHandler channelHandler : Memebot.joinedChannels) {
+                channelsObject.put(channelHandler.getChannel(), channelHandler.toJSONObject());
+            }
+
+            return channelsObject.toJSONString();
         });
 
         get("/api/channels/:channel", (req, res) ->  {
@@ -280,7 +286,30 @@ public class WebHandler {
         });
 
         get("/api/users/:channel", (req, res) ->  {
-            return "todo return userlist";
+            String channel = "#" + req.params(":channel");
+
+            ChannelHandler channelHandler = getChannelForName(channel);
+
+            MongoHandler mh = null;
+            if(Memebot.channelsPrivate.contains(channel)) {
+                mh = new MongoHandler(Memebot.dbPrivate, channel + "_users");
+            } else {
+                mh = new MongoHandler(Memebot.db, channel + "_users");
+            }
+
+            ArrayList<String> userList = new ArrayList<String>();
+            int counter = 0;
+            for(Document doc : mh.getDocuments()) {
+                userList.add(doc.getOrDefault("_id", "#error#").toString());
+            }
+
+            JSONObject usersObject = new JSONObject();
+
+            for(String user : userList) {
+                usersObject.put(user, user);
+            }
+
+            return usersObject.toJSONString();
         });
 
         get("/api/users/:channel/:user", (req, res) ->  {
@@ -289,11 +318,39 @@ public class WebHandler {
         });
 
         get("/api/commands/:channel", (req, res) ->  {
-            return  "todo output command list";
+            JSONObject commandsObject = new JSONObject();
+            ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
+            for(CommandHandler commandHandler : channelHandler.getChannelCommands()) {
+                commandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
+            }
+            return  commandsObject.toJSONString();
         });
 
         get("/api/commands/:channel/:command", (req, res) ->  {
-            return  "todo output command json";
+            ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
+            CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getChannelCommands());
+            if(commandHandler != null) {
+                return commandHandler.toJSON();
+            }
+            return  "{}";
+        });
+
+        get("/api/internals/:channel", (req, res) ->  {
+            JSONObject commandsObject = new JSONObject();
+            ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
+            for(CommandHandler commandHandler : channelHandler.getInternalCommands()) {
+                commandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
+            }
+            return  commandsObject.toJSONString();
+        });
+
+        get("/api/internals/:channel/:command", (req, res) ->  {
+            ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
+            CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getInternalCommands());
+            if(commandHandler != null) {
+                return commandHandler.toJSON();
+            }
+            return  "{}";
         });
     }
 

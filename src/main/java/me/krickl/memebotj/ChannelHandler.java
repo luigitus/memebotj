@@ -520,10 +520,12 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         }
     }
 
+    @Deprecated
     public int findCommand(String command) {
         return findCommand(command, this.channelCommands, 0);
     }
 
+    @Deprecated
     public int findCommand(String command, java.util.ArrayList<CommandHandler> commandList, int i) {
         for (int index = 0; index < commandList.size(); index++) {
             CommandHandler cmd = commandList.get(index);
@@ -536,6 +538,15 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
             }
         }
         return -1;
+    }
+
+    public CommandHandler findCommandForString(String command, ArrayList<CommandHandler> commands) {
+        for(CommandHandler commandHandler : commands) {
+            if(commandHandler.getCommandName().equals(command)) {
+                return commandHandler;
+            }
+        }
+        return null;
     }
 
     public void start() {
@@ -1151,18 +1162,18 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         this.writer = writer;
     }
 
-    public String toJSON() {
+    public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
 
         JSONObject channelCommandsObject = new JSONObject();
         JSONObject internalCommandsObject = new JSONObject();
 
         for(CommandHandler commandHandler : this.channelCommands) {
-            channelCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSON());
+            channelCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
         }
 
         for(CommandHandler commandHandler : this.internalCommands) {
-            internalCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSON());
+            internalCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
         }
 
         jsonObject.put("_id", channel);
@@ -1170,6 +1181,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         jsonObject.put("internals", internalCommandsObject);
         jsonObject.put("filenames", fileNameList);
 
-        return jsonObject.toJSONString();
+        return jsonObject;
+    }
+
+    public String toJSON() {
+        return toJSONObject().toJSONString();
     }
 }

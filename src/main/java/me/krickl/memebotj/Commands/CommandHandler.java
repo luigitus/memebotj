@@ -1049,7 +1049,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         this.suggestedList = suggestedList;
     }
 
-    public String toJSON() {
+    public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("_id", commandName);
@@ -1064,6 +1064,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         jsonObject.put("qprefix", quotePrefix);
         jsonObject.put("qsuffix", quoteSuffix);
 
-        return jsonObject.toJSONString();
+        return jsonObject;
+    }
+
+    public String toJSON() {
+        return toJSONObject().toJSONString();
     }
 }
