@@ -412,6 +412,7 @@ public class WebHandler {
         return userHandler;
     }
 
+    
     public static ChannelHandler getChannelForName(String channel) {
         ChannelHandler channelHandler = null;
         for(ChannelHandler ch : Memebot.joinedChannels) {
