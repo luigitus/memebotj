@@ -96,6 +96,30 @@ public class DampeCommand extends CommandHandler {
     }
 
 
+    @Override
+    public boolean editCommand(String modType, String newValue, UserHandler sender) {
+        if (!checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+        }
+
+        setSuccess(super.editCommand(modType, newValue, sender));
+
+        try {
+            if (modType.equals("jackpotchance")) {
+                jackpotchance = Integer.parseInt(newValue);
+                setSuccess(true);
+            } else if (modType.equals("minbet")) {
+                minbet = Double.parseDouble(newValue);
+                setSuccess(true);
+            }
+        } catch(NumberFormatException e) {
+            log.warning(e.toString());
+        }
+
+        this.writeDB();
+
+        return isSuccess();
+    }
+
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
@@ -111,19 +135,6 @@ public class DampeCommand extends CommandHandler {
                 return;
             } else if (data[0].equals("winner")) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WINNER", getChannelHandler(), sender, this, true, new String[]{winner}, ""), this.getChannelHandler().getChannel());
-                return;
-            } else if(data[0].equals("edit") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
-                try {
-                    if (data[1].equals("jackpotchance")) {
-                        jackpotchance = Integer.parseInt(data[2]);
-                        getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_EDIT_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-                    } else if (data[1].equals("minbet")) {
-                        minbet = Double.parseDouble(data[2]);
-                        getChannelHandler().sendMessage(Memebot.formatText("DAMPE_MINBET_EDIT_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-                    }
-                } catch(NumberFormatException e) {
-                    log.warning(e.toString());
-                }
                 return;
             }
 

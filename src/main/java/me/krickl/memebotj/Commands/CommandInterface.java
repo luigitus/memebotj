@@ -19,5 +19,7 @@ public interface CommandInterface {
     void commandScript(UserHandler sender, String[] data);
     boolean executeCommand(UserHandler sender, String[] data);
 
+    boolean editCommand(String modType, String newValue, UserHandler sender);
+
     void update();
 }

@@ -51,6 +51,28 @@ public class FilenameCommand extends CommandHandler {
     }
 
     @Override
+    public boolean editCommand(String modType, String newValue, UserHandler sender) {
+        if (!checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+        }
+
+        setSuccess(super.editCommand(modType, newValue, sender));
+
+        if(modType.equals("cost")) {
+            try {
+                //check if number is integer
+                namecost = Integer.parseInt(newValue);
+                setSuccess(true);
+            } catch(NumberFormatException e) {
+                log.info(e.toString());
+            }
+        }
+
+        this.writeDB();
+
+        return isSuccess();
+    }
+
+    @Override
     public void commandScript(UserHandler sender, String[] data) {
         try {
             // count how many names a user has in the list
@@ -113,17 +135,6 @@ public class FilenameCommand extends CommandHandler {
                     return;
                 } else if (data[0].equals("cost")) {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_COST", getChannelHandler(), sender, this, true, new String[]{Double.toString(namecost)}, ""), this.getChannelHandler().getChannel());
-                    return;
-                } else if(data[0].equals("edit") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
-                    if(data[1].equals("cost")) {
-                        try {
-                            //check if number is integer
-                            namecost = Integer.parseInt(data[2]);
-                            getChannelHandler().sendMessage(Memebot.formatText("NAME_EDIT_COST_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
-                        } catch(NumberFormatException e) {
-                            log.info(e.toString());
-                        }
-                    }
                     return;
                 }
             }
