@@ -11,3 +11,6 @@ out/
 .cache-main
 memebotj.iml
 workingdir/
+target/
+config/
+*.iml

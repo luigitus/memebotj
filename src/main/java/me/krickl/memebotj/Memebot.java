@@ -357,6 +357,7 @@ public class Memebot {
             formattedOutput = formattedOutput.replace("{execcount}", Integer.toString(commandHandler.getExecCounter()));
         }
         if (channelHandler != null) {
+            formattedOutput = formattedOutput.replace("{broadcaster}", channelHandler.getBroadcaster());
             formattedOutput = formattedOutput.replace("{channelweb}", channelHandler.getChannelPageBaseURL());
             if (channelHandler.getCurrentGame() != null) {
                 formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
@@ -429,19 +430,24 @@ public class Memebot {
     }
 
 
+    //todo replace urlRequest with Retrofit calls, so we can easily call API endpoints
     /***
      * Reads from URL
      * @param urlString The URL
      * @return String of content
+     * @deprecated
      */
+    @Deprecated
     public static String urlRequest(String urlString) {
         return urlRequest(urlString, 5000, false, "GET", "");
     }
 
+    @Deprecated
     public static String urlRequest(String urlString, int timeout, boolean appendLineFeed) {
         return urlRequest(urlString, timeout, appendLineFeed, "GET", "");
     }
 
+    @Deprecated
     public static String urlRequest(String urlString, int timeout, boolean appendLineFeed, String requestMethod, String urlParameters) {
         URL url;
         HttpURLConnection connection  = null;

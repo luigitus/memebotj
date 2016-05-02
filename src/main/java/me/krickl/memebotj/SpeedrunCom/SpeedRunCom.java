@@ -1,0 +1,28 @@
+package me.krickl.memebotj.SpeedrunCom;
+
+import me.krickl.memebotj.SpeedrunCom.Model.*;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
+
+/**
+ * This file is part of memebotj.
+ * Created by Luigitus on 01/05/16.
+ */
+public interface SpeedRunCom {
+    @GET("users")
+    Call<UsersLookup> lookupUser(@Query("lookup") String lookup);
+
+    @GET("users/{userID}")
+    Call<UserLookup> getUser(@Path("userID") String userID);
+
+    @GET("games")
+    Call<Games> lookupGame(@Query("name") String name, @Query("embed") String embed);
+
+    @GET("users/{id}/personal-bests")
+    Call<PBLookup> getPersonalBests(@Path("id") String id, @Query("game") String game);
+
+    @GET("leaderboards/{gameID}/category/{category}?top=1")
+    Call<WRLookup> getWorldRecord(@Path("gameID") String gameID, @Path("category") String category);
+}

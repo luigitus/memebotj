@@ -10,7 +10,9 @@ import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Inventory.Buff;
+import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.ChannelAPI;
+import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Utility.MessagePackage;
@@ -88,7 +90,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
     private int maxScreenNameLen = 15;
     private int maxAmountOfNameInList = 25;
     private double pointsTax = 0.0f;
-    private ChannelAPI twitchChannelAPI = new ChannelAPI(this);
+    private TwitchAPI twitchChannelAPI = new TwitchAPI(this);
+    private SpeedRunComAPI speedRunComAPI = new SpeedRunComAPI(this);
     private boolean silentMode = false;
     private Localisation localisation = new Localisation(this.local);
     private String bgImage = "";
@@ -170,6 +173,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         this.internalCommands.add(new SongRequestCommand(this, "!songrequest", "#internal#"));
         this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
         this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
+        this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
+        this.internalCommands.add(new WorldRecordCommand(this, "!wr", "#internal#"));
 
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
@@ -298,6 +303,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
 
             //update channel api information
             twitchChannelAPI.update();
+            speedRunComAPI.update();
 
             this.writeDB();
             this.writeHTML();
@@ -1098,12 +1104,16 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         this.pointsTax = pointsTax;
     }
 
-    public ChannelAPI getTwitchChannelAPI() {
+    public TwitchAPI getTwitchChannelAPI() {
         return twitchChannelAPI;
     }
 
-    public void setTwitchChannelAPI(ChannelAPI twitchChannelAPI) {
+    public void setTwitchChannelAPI(TwitchAPI twitchChannelAPI) {
         this.twitchChannelAPI = twitchChannelAPI;
+    }
+
+    public SpeedRunComAPI getSpeedRunComAPI() {
+        return speedRunComAPI;
     }
 
     public boolean isSilentMode() {

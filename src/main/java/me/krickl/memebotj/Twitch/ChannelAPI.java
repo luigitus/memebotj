@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
  * This file is part of memebotj.
  * Created by unlink on 09/04/16.
  */
+@Deprecated
 public class ChannelAPI {
     ChannelHandler channelHandler = null;
     public ChannelAPI(ChannelHandler ch) {
