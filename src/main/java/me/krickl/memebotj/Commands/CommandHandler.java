@@ -64,6 +64,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     private ArrayList<String> suggestedList = new ArrayList<>();
 
     private String lastOutput = "";
+    private int uses = 0;
 
     public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
         String senderName = senderObject.getUsername();
@@ -165,6 +166,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         this.lastOutput = mongoHandler.getDocument().getOrDefault("lasoutput", this.lastOutput).toString();
         this.state = (int)mongoHandler.getDocument().getOrDefault("state", this.state);
         this.suggestedList = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("suggestedList", suggestedList);
+        uses = (int)mongoHandler.getDocument().getOrDefault("uses", uses);
         //other data are used to store data that are used for internal commands
         Document otherDataDocument = (Document)mongoHandler.getDocument().getOrDefault("otherdata", new Document());
 
@@ -172,7 +174,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             this.otherData.put(key, otherDataDocument.getString(key));
         }
 
-        cooldown = new Cooldown(cooldownLength);
+        cooldown = new Cooldown(cooldownLength, uses);
 
 
         // todo old db code - remove soon
@@ -259,6 +261,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 .append("hideCommand", this.hideCommand)
                 .append("lastoutput", this.lastOutput)
                 .append("state", this.state)
+                .append("uses", this.uses)
                 .append("suggestedList" ,suggestedList);
 
         mongoHandler.setDocument(channelData);
@@ -358,7 +361,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
         // check user cooldown
         if (!sender.getUserCommandCooldowns().containsKey(this.commandName)) {
-            sender.getUserCommandCooldowns().put(this.commandName, new Cooldown(this.userCooldownLength));
+            sender.getUserCommandCooldowns().put(this.commandName, new Cooldown(this.userCooldownLength, this.uses));
         } else {
             if (sender.getUserCommandCooldowns().get(this.commandName).getCooldownLength() != this.userCooldownLength) {
                 sender.getUserCommandCooldowns().get(this.commandName).setCooldownLength(this.userCooldownLength);
@@ -380,7 +383,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             this.cooldown.startCooldown();
             sender.getUserCooldown().startCooldown();
             if(!sender.getUserCommandCooldowns().containsKey(this.commandName)) {
-                sender.getUserCommandCooldowns().put(this.commandName, new Cooldown(this.userCooldownLength));
+                sender.getUserCommandCooldowns().put(this.commandName, new Cooldown(this.userCooldownLength, uses));
             }
             sender.getUserCommandCooldowns().get(this.commandName).startCooldown();
             sender.setPoints(sender.getPoints() - this.cost);
@@ -707,7 +710,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 success = true;
             } else if (modType.equals("cooldown")) {
                 this.setCooldownLength(Integer.parseInt(newValue));
-                this.setCooldown(new Cooldown(Integer.parseInt(newValue)));
+                this.setCooldown(new Cooldown(Integer.parseInt(newValue), uses));
                 success = true;
             } else if (modType.equals("cmdtype")) {
                 this.setCommandType(newValue);
@@ -753,6 +756,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 success = false;
             } else if(modType.equals("hidden")) {
                 setHideCommand(Boolean.parseBoolean(newValue));
+                success = true;
+            } else if(modType.equals("uses")) {
+                setUses(Integer.parseInt(newValue));
                 success = true;
             }
         } catch(NumberFormatException e) {
@@ -998,6 +1004,14 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     public void setCheckDefaultCooldown(boolean checkDefaultCooldown) {
         this.checkDefaultCooldown = checkDefaultCooldown;
+    }
+
+    public int getUses() {
+        return uses;
+    }
+
+    public void setUses(int uses) {
+        this.uses = uses;
     }
 
     public HashMap<String, String> getOtherData() {

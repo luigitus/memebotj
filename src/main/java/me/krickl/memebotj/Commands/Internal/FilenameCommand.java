@@ -29,6 +29,8 @@ public class FilenameCommand extends CommandHandler {
         //this.setListregex("/^[一-龠ぁ-ゔァ-ヴーa-zA-Z0-9_,.-々〆〤]{1,8}$/u");
 
         this.setCost(0);
+        this.setUserCooldownLength(20);
+        this.setUses(2);
     }
 
     @Override
