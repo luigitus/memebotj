@@ -3,8 +3,8 @@ package me.krickl.memebotj.SpeedrunCom;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.SpeedrunCom.Model.Game;
 import me.krickl.memebotj.SpeedrunCom.Model.Games;
-import me.krickl.memebotj.SpeedrunCom.Model.UserLookup;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
+import me.krickl.memebotj.SpeedrunCom.Model.UsersLookup;
 import me.krickl.memebotj.Utility.BuildInfo;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -57,7 +57,7 @@ public class SpeedRunComAPI {
     }
 
     public void updateUser() {
-        Call<UserLookup> userLookup = service.lookupUser(channelHandler.getBroadcaster());
+        Call<UsersLookup> userLookup = service.lookupUser(channelHandler.getBroadcaster());
         try {
             user = userLookup.execute().body().getData().get(0);
         } catch (IOException e) {

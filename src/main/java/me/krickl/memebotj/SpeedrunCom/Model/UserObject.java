@@ -47,4 +47,12 @@ public class UserObject {
         this.weblink = weblink;
     }
 
+    @Override
+    public String toString() {
+        return "UserObject{" +
+                "id='" + id + '\'' +
+                ", names=" + names +
+                ", weblink='" + weblink + '\'' +
+                '}';
+    }
 }

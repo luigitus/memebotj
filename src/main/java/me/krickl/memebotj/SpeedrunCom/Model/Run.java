@@ -89,4 +89,16 @@ public class Run {
         this.times = times;
     }
 
+    @Override
+    public String toString() {
+        return "Run{" +
+                "id='" + id + '\'' +
+                ", weblink='" + weblink + '\'' +
+                ", game='" + game + '\'' +
+                ", level='" + level + '\'' +
+                ", category='" + category + '\'' +
+                ", players=" + players +
+                ", times=" + times +
+                '}';
+    }
 }

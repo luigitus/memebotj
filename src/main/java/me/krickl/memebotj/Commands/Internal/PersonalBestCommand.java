@@ -39,7 +39,8 @@ public class PersonalBestCommand extends CommandHandler {
                         new String[]{category.getName(), time}, "");
             }
         }
-        return "Found nothing [ERROR_PB_WELP]";
+        return Memebot.formatText("PB_NO_CATEGORY_SET", getChannelHandler(), sender, this, true,
+                new String[]{}, "");
     }
 
     private String getPB(String userID, String gameID, String categoryID) {

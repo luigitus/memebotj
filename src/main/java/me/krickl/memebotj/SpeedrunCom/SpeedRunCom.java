@@ -1,8 +1,6 @@
 package me.krickl.memebotj.SpeedrunCom;
 
-import me.krickl.memebotj.SpeedrunCom.Model.Games;
-import me.krickl.memebotj.SpeedrunCom.Model.PBLookup;
-import me.krickl.memebotj.SpeedrunCom.Model.UserLookup;
+import me.krickl.memebotj.SpeedrunCom.Model.*;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -14,11 +12,17 @@ import retrofit2.http.Query;
  */
 public interface SpeedRunCom {
     @GET("users")
-    Call<UserLookup> lookupUser(@Query("lookup") String lookup);
+    Call<UsersLookup> lookupUser(@Query("lookup") String lookup);
+
+    @GET("users/{userID}")
+    Call<UserLookup> getUser(@Path("userID") String userID);
 
     @GET("games")
     Call<Games> lookupGame(@Query("name") String name, @Query("embed") String embed);
 
     @GET("users/{id}/personal-bests")
     Call<PBLookup> getPersonalBests(@Path("id") String id);
+
+    @GET("games/{gameID}/records?top=1")
+    Call<WRLookup> getWorldRecords(@Path("gameID") String gameID);
 }
