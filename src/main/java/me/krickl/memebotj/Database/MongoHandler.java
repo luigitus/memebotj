@@ -36,6 +36,7 @@ public class MongoHandler implements DatabaseInterface<Document> {
 
         // todo implement the read - data is stored in contents
         if (document == null) {
+            document = new Document();
             throw new DatabaseReadException("Document cannot be null - Consider setting default values and writing to database");
         }
 
@@ -60,6 +61,7 @@ public class MongoHandler implements DatabaseInterface<Document> {
 
     public void updateDocument(String key, Object object) {
         if(document == null) {
+            log.info("Warning: Document is null");
             document = new Document();
         }
         if(document.containsKey(key)) {
