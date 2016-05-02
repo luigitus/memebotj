@@ -11,14 +11,26 @@ public class Cooldown {
     int cooldownLength = 0;
     int cooldownStart = 0;
     int cooldownEnd = 0;
+    int cooldownAfterUses = 0;
+    int uses = 0;
+
+    public Cooldown(int length, int uses) {
+        cooldownLength = length;
+        cooldownAfterUses = uses;
+    }
 
     public Cooldown(int length) {
         cooldownLength = length;
     }
 
     public void startCooldown() {
-        this.cooldownStart = (int)(System.currentTimeMillis() / 1000);
-        this.cooldownEnd = (int)(System.currentTimeMillis() / 1000L) + this.cooldownLength;
+        if(uses == cooldownAfterUses) {
+            this.cooldownStart = (int)(System.currentTimeMillis() / 1000);
+            this.cooldownEnd = (int)(System.currentTimeMillis() / 1000L) + this.cooldownLength;
+            uses = 0;
+        } else {
+            cooldownAfterUses = cooldownAfterUses + 1;
+        }
     }
 
     public boolean canContinue() {

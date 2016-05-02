@@ -9,6 +9,12 @@ import me.krickl.memebotj.UserHandler;
  */
 public class PersistentCooldown extends Cooldown {
     UserHandler sender = null;
+
+    public PersistentCooldown(int length, int uses, UserHandler sender) {
+        super(length);
+        this.sender = sender;
+    }
+
     public PersistentCooldown(int lenght, UserHandler sender) {
         super(lenght);
         this.sender = sender;

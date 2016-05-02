@@ -107,48 +107,43 @@ public class UserHandler implements Comparable<UserHandler> {
             return;
         }
 
-        this.isModerator = mongoHandler.getDocument().getBoolean("mod", this.isModerator);
-        this.points = (double)mongoHandler.getDocument().getOrDefault("pointsf", this.points);
-        this.autogreet = mongoHandler.getDocument().getOrDefault("autogreet", this.autogreet).toString();
-        this.customCommandPower = (int)mongoHandler.getDocument().getOrDefault("ccommandpower", this.customCommandPower);
-        this.isUserBroadcaster = (boolean) mongoHandler.getDocument().getOrDefault("broadcaster", this.isUserBroadcaster);
-        this.timeouts = (int)mongoHandler.getDocument().getOrDefault("timeouts", this.timeouts);
-        this.enableAutogreets = (boolean)mongoHandler.getDocument().getOrDefault("enableautogreet", this.enableAutogreets);
-        this.dateJoined = mongoHandler.getDocument().getOrDefault("datejoined", this.dateJoined).toString();
-        this.timeStampJoined = (long)mongoHandler.getDocument().getOrDefault("timeStampJoined", this.timeStampJoined);
-        this.nickname = mongoHandler.getDocument().getOrDefault("nickname", this.nickname).toString();
-        this.walletSize = (double)mongoHandler.getDocument().getOrDefault("wallet", this.walletSize);
-        this.isFollowing = (boolean)mongoHandler.getDocument().getOrDefault("isfollowing", this.isFollowing);
-        this.hasFollowed = (boolean)mongoHandler.getDocument().getOrDefault("hasfollowed", this.hasFollowed);
-        this.jackpotWins = (int)mongoHandler.getDocument().getOrDefault("jackpotwins", this.jackpotWins);
+        this.isModerator = (boolean)mongoHandler.getObject("mod", this.isModerator);
+        this.points = (double)mongoHandler.getObject("pointsf", this.points);
+        this.autogreet = mongoHandler.getObject("autogreet", this.autogreet).toString();
+        this.customCommandPower = (int)mongoHandler.getObject("ccommandpower", this.customCommandPower);
+        this.isUserBroadcaster = (boolean) mongoHandler.getObject("broadcaster", this.isUserBroadcaster);
+        this.timeouts = (int)mongoHandler.getObject("timeouts", this.timeouts);
+        this.enableAutogreets = (boolean)mongoHandler.getObject("enableautogreet", this.enableAutogreets);
+        this.dateJoined = mongoHandler.getObject("datejoined", this.dateJoined).toString();
+        this.timeStampJoined = (long)mongoHandler.getObject("timeStampJoined", this.timeStampJoined);
+        this.nickname = mongoHandler.getObject("nickname", this.nickname).toString();
+        this.walletSize = (double)mongoHandler.getObject("wallet", this.walletSize);
+        this.isFollowing = (boolean)mongoHandler.getObject("isfollowing", this.isFollowing);
+        this.hasFollowed = (boolean)mongoHandler.getObject("hasfollowed", this.hasFollowed);
+        this.jackpotWins = (int)mongoHandler.getObject("jackpotwins", this.jackpotWins);
 
         userInventory.readDB();
+    }
 
-        // todo old db code - remove soon
-        //Document channelQuery = new Document("_id", this.username);
-        //FindIterable<Document> cursor = this.userCollection.find(channelQuery);
+    public void setDB() {
+        Document userData = mongoHandler.getDocument();
+        mongoHandler.updateDocument("_id", this.username);
+        mongoHandler.updateDocument("pointsf", this.points);
+        mongoHandler.updateDocument("mod", this.isModerator);
+        mongoHandler.updateDocument("autogreet", this.autogreet);
+        mongoHandler.updateDocument("ccommandpower", this.customCommandPower);
+        mongoHandler.updateDocument("broadcaster", this.isUserBroadcaster);
+        mongoHandler.updateDocument("timeouts", this.timeouts);
+        mongoHandler.updateDocument("enableautogreet", this.enableAutogreets);
+        mongoHandler.updateDocument("datejoined", this.dateJoined);
+        mongoHandler.updateDocument("timeStampJoined", this.timeStampJoined);
+        mongoHandler.updateDocument("nickname", this.nickname);
+        mongoHandler.updateDocument("wallet", this.walletSize);
+        mongoHandler.updateDocument("isfollowing", this.isFollowing);
+        mongoHandler.updateDocument("hasfollowed", this.hasFollowed);
+        mongoHandler.updateDocument("jackpotwins", this.jackpotWins);
 
-        //Document userData = cursor.first();
-
-        // read data
-        /*if (userData != null) {
-            this.isModerator = userData.getBoolean("mod", this.isModerator);
-            this.points = (double)userData.getOrDefault("pointsf", this.points);
-            this.autogreet = userData.getOrDefault("autogreet", this.autogreet).toString();
-            this.customCommandPower = (int)userData.getOrDefault("ccommandpower", this.customCommandPower);
-            this.isUserBroadcaster = (boolean) userData.getOrDefault("broadcaster", this.isUserBroadcaster);
-            this.timeouts = (int)userData.getOrDefault("timeouts", this.timeouts);
-            this.enableAutogreets = (boolean)userData.getOrDefault("enableautogreet", this.enableAutogreets);
-            this.dateJoined = userData.getOrDefault("datejoined", this.dateJoined).toString();
-            this.timeStampJoined = (long)userData.getOrDefault("timeStampJoined", this.timeStampJoined);
-            this.nickname = userData.getOrDefault("nickname", this.nickname).toString();
-            this.walletSize = (double)userData.getOrDefault("wallet", this.walletSize);
-            this.isFollowing = (boolean)userData.getOrDefault("isfollowing", this.isFollowing);
-            this.hasFollowed = (boolean)userData.getOrDefault("hasfollowed", this.hasFollowed);
-
-        } else {
-            this.newUser = true;
-        }*/
+        //mongoHandler.setDocument(userData);
     }
 
 
@@ -156,46 +151,11 @@ public class UserHandler implements Comparable<UserHandler> {
         if (!Memebot.useMongo) {
             return;
         }
+        setDB();
 
-        Document userData = new Document("_id", this.username).append("pointsf", this.points)
-                .append("mod", this.isModerator).append("autogreet", this.autogreet)
-                .append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
-                .append("timeouts", this.timeouts)
-                .append("enableautogreet", this.enableAutogreets)
-                .append("datejoined", this.dateJoined)
-                .append("timeStampJoined", this.timeStampJoined)
-                .append("nickname", this.nickname)
-                .append("wallet", this.walletSize)
-                .append("isfollowing", this.isFollowing)
-                .append("hasfollowed", this.hasFollowed)
-                .append("jackpotwins", this.jackpotWins);
-
-        mongoHandler.setDocument(userData);
         mongoHandler.writeDatabase(this.username);
 
         userInventory.writeDB();
-
-        // todo old db code - remove soon
-        /*Document userQuery = new Document("_id", this.username);
-
-        Document userData = new Document("_id", this.username).append("pointsf", this.points)
-                .append("mod", this.isModerator).append("autogreet", this.autogreet)
-                .append("ccommandpower", this.customCommandPower).append("broadcaster", this.isUserBroadcaster)
-                .append("timeouts", this.timeouts)
-                .append("enableautogreet", this.enableAutogreets)
-                .append("datejoined", this.dateJoined)
-                .append("timeStampJoined", this.timeStampJoined)
-                .append("nickname", this.nickname)
-                .append("wallet", this.walletSize)
-                .append("isfollowing", this.isFollowing)
-                .append("hasfollowed", this.hasFollowed);
-        try {
-            if (this.userCollection.findOneAndReplace(userQuery, userData) == null) {
-                this.userCollection.insertOne(userData);
-            }
-        } catch(Exception e) {
-            log.warning(e.toString());
-        }*/
     }
 
     public void update(ChannelHandler channelHandler) {

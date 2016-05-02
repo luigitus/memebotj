@@ -14,6 +14,11 @@ import java.security.SecureRandom;
  * Created by unlink on 11/04/16.
  */
 public class DampeCommand extends CommandHandler {
+    private double jackpot = 0.0;
+    private int jackpotchance = 3;
+    private double minbet = 50.0;
+    private String winner = "";
+
     public DampeCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
     }
@@ -44,20 +49,10 @@ public class DampeCommand extends CommandHandler {
         this.setCommandType("default");
 
         this.setCheckDefaultCooldown(true);
-
-        if (!this.getOtherData().containsKey("jackpot")) {
-            this.getOtherData().put("jackpot", "0");
-        }
-
-        if (!this.getOtherData().containsKey("winner")) {
-            this.getOtherData().put("winner", "null");
-        }
     }
 
     @Override
     public void initCommand() {
-        this.getOtherData().put("minbet", "50.0");
-        this.getOtherData().put("jackpotchance2", "3");
     }
 
     @Override
@@ -77,14 +72,35 @@ public class DampeCommand extends CommandHandler {
     }
 
     @Override
-    public void commandScript(UserHandler sender, String[] data) {
-        double wage = 50;
-        try {
-            wage = Double.parseDouble(getOtherData().get("minbet")); //50.0f;
-        } catch(NumberFormatException e) {
-            log.warning(e.toString());
-            getOtherData().put("minbet", "50");
+    public void setDB() {
+        super.setDB();
+        getMongoHandler().updateDocument("jackpot", jackpot);
+        getMongoHandler().updateDocument("jackpotchance", jackpotchance);
+        getMongoHandler().updateDocument("minbet", minbet);
+        getMongoHandler().updateDocument("winner", winner);
+    }
+
+    @Override
+    public void readDB() {
+        if(!Memebot.useMongo) {return;}
+
+        super.readDB();
+
+        jackpot = (double)getMongoHandler().getObject("jackpot", jackpot);
+        jackpotchance = (int)getMongoHandler().getObject("jackpotchance", jackpotchance);
+        minbet = (double)getMongoHandler().getObject("minbet", minbet);
+        if(getMongoHandler().getObject("winner", winner) != null) {
+            winner = getMongoHandler().getObject("winner", winner).toString();
         }
+    }
+
+
+
+    @Override
+    public void commandScript(UserHandler sender, String[] data) {
+        double wage = minbet;
+
+
         try {
             if (data[0].equals("jackpot")) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
@@ -94,17 +110,15 @@ public class DampeCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_SETJACKPOT", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                 return;
             } else if (data[0].equals("winner")) {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WINNER", getChannelHandler(), sender, this, true, new String[]{this.getOtherData().get("winner")}, ""), this.getChannelHandler().getChannel());
+                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WINNER", getChannelHandler(), sender, this, true, new String[]{winner}, ""), this.getChannelHandler().getChannel());
                 return;
             } else if(data[0].equals("edit") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
                 try {
                     if (data[1].equals("jackpotchance")) {
-                        Integer.parseInt(data[2]);
-                        getOtherData().put("jackpotchance2", data[2]);
+                        jackpotchance = Integer.parseInt(data[2]);
                         getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_EDIT_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                     } else if (data[1].equals("minbet")) {
-                        wage = Double.parseDouble(getOtherData().get("minbet"));
-                        getOtherData().put("minbet", data[2]);
+                        minbet = Double.parseDouble(data[2]);
                         getChannelHandler().sendMessage(Memebot.formatText("DAMPE_MINBET_EDIT_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                     }
                 } catch(NumberFormatException e) {
@@ -114,7 +128,7 @@ public class DampeCommand extends CommandHandler {
             }
 
             wage = Double.parseDouble(data[0]);
-            if (wage < Double.parseDouble(getOtherData().get("minbet"))) {
+            if (wage < minbet) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WAGE_FAIL_MIN", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", getChannelHandler().getPointsPerUpdate() * 50), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
                 return;
             }
@@ -143,29 +157,21 @@ public class DampeCommand extends CommandHandler {
         int range = 1000;
         int outcome = ran.nextInt(range); //- wage.toInt / 4)
         int offlineModifier = 0;
-        int jackpotChance = 3;
-
-        try {
-            jackpotChance = Integer.parseInt(getOtherData().get("jackpotchance2"));
-        } catch(NumberFormatException e) {
-            log.warning(e.toString());
-            getOtherData().put("jackpotchance2", "3");
-        }
 
         if (!getChannelHandler().isLive()) {
             offlineModifier = 5;
         }
 
         if(sender.getUserInventory().hasBuff("dekustick")) {
-            jackpotChance = jackpotChance + 2;
+            jackpotchance = jackpotchance + 2;
         }
 
         //outcomes of dampe
-        if (outcome <= jackpotChance && getChannelHandler().isLive()) {
+        if (outcome <= jackpotchance && getChannelHandler().isLive()) {
             if (sender.setPoints(sender.getPoints() + this.getJackpot() + wage)) {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
                 this.setJackpot(0);
-                this.getOtherData().put("winner", sender.getUsername());
+                this.winner = sender.getUsername();
                 sender.setJackpotWins(sender.getJackpotWins() + 1);
             } else {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON_WALLET_FULL", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f" ,this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
@@ -226,10 +232,10 @@ public class DampeCommand extends CommandHandler {
     }
 
     public double getJackpot() {
-        return Double.parseDouble(this.getOtherData().get("jackpot"));
+        return jackpot;
     }
 
     public void setJackpot(double newJackpot) {
-        this.getOtherData().put("jackpot", Double.toString(newJackpot));
+        jackpot = newJackpot;
     }
 }
