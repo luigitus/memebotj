@@ -13,13 +13,14 @@ import java.util.Random;
  * Created by unlink on 11/04/16.
  */
 public class FilenameCommand extends CommandHandler {
+    private double namecost = 40;
+
     public FilenameCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
     }
 
     @Override
     public void initCommand() {
-        this.getOtherData().put("namecost", "40");
     }
 
     @Override
@@ -34,6 +35,21 @@ public class FilenameCommand extends CommandHandler {
     }
 
     @Override
+    public void readDB() {
+        if(Memebot.useMongo) {return;}
+        super.readDB();
+
+        namecost = (double)getMongoHandler().getObject("namecost", 40);
+    }
+
+    @Override
+    public void setDB() {
+        super.setDB();
+
+        getMongoHandler().updateDocument("namecost", namecost);
+    }
+
+    @Override
     public void commandScript(UserHandler sender, String[] data) {
         try {
             // count how many names a user has in the list
@@ -43,14 +59,6 @@ public class FilenameCommand extends CommandHandler {
                 if (name.contains(String.format("%s#%s", data[0], sender.getUsername()))) {
                     amountOfNamesInList = amountOfNamesInList + 1;
                 }
-            }
-
-            int cost = 40;
-            try {
-                cost = Integer.parseInt(getOtherData().get("namecost"));
-            } catch(NumberFormatException e) {
-                log.warning(e.toString());
-                getOtherData().put("namecost", "40");
             }
 
             if (data.length >= 1) {
@@ -103,14 +111,13 @@ public class FilenameCommand extends CommandHandler {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_COUNT", getChannelHandler(), sender, this, true, new String[]{Integer.toString(getChannelHandler().getFileNameList().size())}, ""), this.getChannelHandler().getChannel());
                     return;
                 } else if (data[0].equals("cost")) {
-                    getChannelHandler().sendMessage(Memebot.formatText("NAME_COST", getChannelHandler(), sender, this, true, new String[]{Double.toString(cost)}, ""), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(Memebot.formatText("NAME_COST", getChannelHandler(), sender, this, true, new String[]{Double.toString(namecost)}, ""), this.getChannelHandler().getChannel());
                     return;
                 } else if(data[0].equals("edit") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
                     if(data[1].equals("cost")) {
                         try {
                             //check if number is integer
-                            cost = Integer.parseInt(data[2]);
-                            getOtherData().put("namecost", data[2]);
+                            namecost = Integer.parseInt(data[2]);
                             getChannelHandler().sendMessage(Memebot.formatText("NAME_EDIT_COST_OK", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                         } catch(NumberFormatException e) {
                             log.info(e.toString());
@@ -135,8 +142,8 @@ public class FilenameCommand extends CommandHandler {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_ADD_TOO_MANY", getChannelHandler(), sender, this, true, new String[]{Integer.toString(getChannelHandler().getMaxAmountOfNameInList()), Integer.toString(amountOfNamesInList)}, ""), this.getChannelHandler().getChannel());
                     success = false;
                 }
-                else if (!this.checkCost(sender, cost * i + getChannelHandler().getPointsPerUpdate())) {
-                    getChannelHandler().sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", getChannelHandler(), sender, this, true, new String[]{Double.toString(cost * i)}, ""), this.getChannelHandler().getChannel());
+                else if (!this.checkCost(sender, namecost * i + getChannelHandler().getPointsPerUpdate())) {
+                    getChannelHandler().sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", getChannelHandler(), sender, this, true, new String[]{Double.toString(namecost * i)}, ""), this.getChannelHandler().getChannel());
                 } else {
                     if (i > 1) {
                         getChannelHandler().sendMessage(Memebot.formatText("NAME_ADD_MANY", getChannelHandler(), sender, this, true, new String[]{data[0], data[1]}, ""), this.getChannelHandler().getChannel());
@@ -144,7 +151,7 @@ public class FilenameCommand extends CommandHandler {
                     else {
                         getChannelHandler().sendMessage(Memebot.formatText("NAME_ADD", getChannelHandler(), sender, this, true, new String[]{data[0]}, ""), this.getChannelHandler().getChannel());
                     }
-                    sender.setPoints(sender.getPoints() - (cost * i));
+                    sender.setPoints(sender.getPoints() - (namecost * i));
                     success = true;
                 }
             } else {

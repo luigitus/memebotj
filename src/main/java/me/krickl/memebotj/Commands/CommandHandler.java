@@ -3,6 +3,7 @@ package me.krickl.memebotj.Commands;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 03/04/16.
  */
-public class CommandHandler implements CommandInterface, Comparable<CommandHandler> {
+public class CommandHandler implements CommandInterface, Comparable<CommandHandler>, DatabaseObjectInterface {
     public static Logger log = Logger.getLogger(CommandHandler.class.getName());
 
     private ChannelHandler channelHandler = null;
@@ -55,7 +56,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     private boolean formatData = false;
     private boolean checkDefaultCooldown = true;
 
-    private HashMap<String, String> otherData = new HashMap<>();
+    //private HashMap<String, String> otherData = new HashMap<>();
 
     private boolean success = false;
     private boolean whisper = false;
@@ -138,185 +139,92 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             return;
         }
 
-        this.commandName = mongoHandler.getDocument().getOrDefault("command", this.commandName).toString();
-        this.cooldownLength = (int)mongoHandler.getDocument().getOrDefault("cooldown", this.cooldownLength);
-        this.helptext = mongoHandler.getDocument().getOrDefault("helptext", this.helptext).toString();
-        this.parameters = (int)mongoHandler.getDocument().getOrDefault("param", this.parameters);
-        this.commandType = mongoHandler.getDocument().getOrDefault("cmdtype", this.commandType).toString();
-        this.unformattedOutput = mongoHandler.getDocument().getOrDefault("output", this.unformattedOutput).toString();
-        this.quoteSuffix = mongoHandler.getDocument().getOrDefault("qsuffix", this.quoteSuffix).toString();
-        this.quotePrefix = mongoHandler.getDocument().getOrDefault("qprefix", this.quotePrefix).toString();
-        this.cost = (double)mongoHandler.getDocument().getOrDefault("costf", this.cost);
-        this.counter = (int)mongoHandler.getDocument().getOrDefault("counter", this.counter);
-        this.listContent = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("listcontent", this.listContent);
-        this.locked = (boolean)mongoHandler.getDocument().getOrDefault("locked", this.locked);
-        this.isTextTrigger = (boolean)mongoHandler.getDocument().getOrDefault("texttrigger", this.isTextTrigger);
-        this.neededCommandPower = (int)mongoHandler.getDocument().getOrDefault("viewerpower", this.neededCommandPower);
-        this.userCooldownLength = (int)mongoHandler.getDocument().getOrDefault("usercooldown", this.userCooldownLength);
-        this.commandScript = mongoHandler.getDocument().getOrDefault("script", this.commandScript).toString();
-        this.isEnabled = (boolean)mongoHandler.getDocument().getOrDefault("enable", this.isEnabled);
-        this.neededCooldownBypassPower = (int)mongoHandler.getDocument().getOrDefault("cooldownbypass", this.neededCooldownBypassPower);
-        this.allowPicksFromList = (boolean)mongoHandler.getDocument().getOrDefault("allowpick", this.allowPicksFromList);
-        this.overrideHandleMessage = (boolean)mongoHandler.getDocument().getOrDefault("overridehandlemessage", this.overrideHandleMessage);
-        this.execCounter = (int)mongoHandler.getDocument().getOrDefault("execcounter", this.execCounter);
-        this.caseSensitive = (boolean)mongoHandler.getDocument().getOrDefault("case", this.caseSensitive);
-        this.formatData = (boolean)mongoHandler.getDocument().getOrDefault("format", this.formatData);
-        this.checkDefaultCooldown = (boolean)mongoHandler.getDocument().getOrDefault("checkdefaultcooldown", this.checkDefaultCooldown);
-        this.hideCommand = (boolean)mongoHandler.getDocument().getOrDefault("hideCommand", this.hideCommand);
-        this.lastOutput = mongoHandler.getDocument().getOrDefault("lasoutput", this.lastOutput).toString();
-        this.state = (int)mongoHandler.getDocument().getOrDefault("state", this.state);
-        this.suggestedList = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("suggestedList", suggestedList);
-        uses = (int)mongoHandler.getDocument().getOrDefault("uses", uses);
+        this.commandName = mongoHandler.getObject("command", this.commandName).toString();
+        this.cooldownLength = (int)mongoHandler.getObject("cooldown", this.cooldownLength);
+        this.helptext = mongoHandler.getObject("helptext", this.helptext).toString();
+        this.parameters = (int)mongoHandler.getObject("param", this.parameters);
+        this.commandType = mongoHandler.getObject("cmdtype", this.commandType).toString();
+        this.unformattedOutput = mongoHandler.getObject("output", this.unformattedOutput).toString();
+        this.quoteSuffix = mongoHandler.getObject("qsuffix", this.quoteSuffix).toString();
+        this.quotePrefix = mongoHandler.getObject("qprefix", this.quotePrefix).toString();
+        this.cost = (double)mongoHandler.getObject("costf", this.cost);
+        this.counter = (int)mongoHandler.getObject("counter", this.counter);
+        this.listContent = (ArrayList<String>)mongoHandler.getObject("listcontent", this.listContent);
+        this.locked = (boolean)mongoHandler.getObject("locked", this.locked);
+        this.isTextTrigger = (boolean)mongoHandler.getObject("texttrigger", this.isTextTrigger);
+        this.neededCommandPower = (int)mongoHandler.getObject("viewerpower", this.neededCommandPower);
+        this.userCooldownLength = (int)mongoHandler.getObject("usercooldown", this.userCooldownLength);
+        this.commandScript = mongoHandler.getObject("script", this.commandScript).toString();
+        this.isEnabled = (boolean)mongoHandler.getObject("enable", this.isEnabled);
+        this.neededCooldownBypassPower = (int)mongoHandler.getObject("cooldownbypass", this.neededCooldownBypassPower);
+        this.allowPicksFromList = (boolean)mongoHandler.getObject("allowpick", this.allowPicksFromList);
+        this.overrideHandleMessage = (boolean)mongoHandler.getObject("overridehandlemessage", this.overrideHandleMessage);
+        this.execCounter = (int)mongoHandler.getObject("execcounter", this.execCounter);
+        this.caseSensitive = (boolean)mongoHandler.getObject("case", this.caseSensitive);
+        this.formatData = (boolean)mongoHandler.getObject("format", this.formatData);
+        this.checkDefaultCooldown = (boolean)mongoHandler.getObject("checkdefaultcooldown", this.checkDefaultCooldown);
+        this.hideCommand = (boolean)mongoHandler.getObject("hideCommand", this.hideCommand);
+        this.lastOutput = mongoHandler.getObject("lasoutput", this.lastOutput).toString();
+        this.state = (int)mongoHandler.getObject("state", this.state);
+        this.suggestedList = (ArrayList<String>)mongoHandler.getObject("suggestedList", suggestedList);
+        uses = (int)mongoHandler.getObject("uses", uses);
         //other data are used to store data that are used for internal commands
-        Document otherDataDocument = (Document)mongoHandler.getDocument().getOrDefault("otherdata", new Document());
+        /*Document otherDataDocument = (Document)mongoHandler.getObject("otherdata", new Document());
 
         for(String key : otherDataDocument.keySet()) {
             this.otherData.put(key, otherDataDocument.getString(key));
-        }
+        }*/
 
         cooldown = new Cooldown(cooldownLength, uses);
+    }
 
-
-        // todo old db code - remove soon
-        /*log.info("Reading db for command " + commandName + " from db on channel " + channelHandler.getChannel());
-
-        Document commandQuery = new Document("_id", this.commandName);
-        FindIterable cursor = this.commandCollection.find(commandQuery);
-
-        Document commandObject = (Document)cursor.first();
-
-        if(commandObject != null) {
-            this.commandName = commandObject.getOrDefault("command", this.commandName).toString();
-            this.cooldownLength = (int)commandObject.getOrDefault("cooldown", this.cooldownLength);
-            this.helptext = commandObject.getOrDefault("helptext", this.helptext).toString();
-            this.parameters = (int)commandObject.getOrDefault("param", this.parameters);
-            this.commandType = commandObject.getOrDefault("cmdtype", this.commandType).toString();
-            this.unformattedOutput = commandObject.getOrDefault("output", this.unformattedOutput).toString();
-            this.quoteSuffix = commandObject.getOrDefault("qsuffix", this.quoteSuffix).toString();
-            this.quotePrefix = commandObject.getOrDefault("qprefix", this.quotePrefix).toString();
-            this.cost = (double)commandObject.getOrDefault("costf", this.cost);
-            this.counter = (int)commandObject.getOrDefault("counter", this.counter);
-            this.listContent = (ArrayList<String>)commandObject.getOrDefault("listcontent", this.listContent);
-            this.locked = (boolean)commandObject.getOrDefault("locked", this.locked);
-            this.isTextTrigger = (boolean)commandObject.getOrDefault("texttrigger", this.isTextTrigger);
-            this.neededCommandPower = (int)commandObject.getOrDefault("viewerpower", this.neededCommandPower);
-            this.userCooldownLength = (int)commandObject.getOrDefault("usercooldown", this.userCooldownLength);
-            this.commandScript = commandObject.getOrDefault("script", this.commandScript).toString();
-            this.isEnabled = (boolean)commandObject.getOrDefault("enable", this.isEnabled);
-            this.neededCooldownBypassPower = (int)commandObject.getOrDefault("cooldownbypass", this.neededCooldownBypassPower);
-            this.allowPicksFromList = (boolean)commandObject.getOrDefault("allowpick", this.allowPicksFromList);
-            this.overrideHandleMessage = (boolean)commandObject.getOrDefault("overridehandlemessage", this.overrideHandleMessage);
-            this.execCounter = (int)commandObject.getOrDefault("execcounter", this.execCounter);
-            this.caseSensitive = (boolean)commandObject.getOrDefault("case", this.caseSensitive);
-            this.formatData = (boolean)commandObject.getOrDefault("format", this.formatData);
-            this.checkDefaultCooldown = (boolean)commandObject.getOrDefault("checkdefaultcooldown", this.checkDefaultCooldown);
-            this.hideCommand = (boolean)commandObject.getOrDefault("hideCommand", this.hideCommand);
-            this.lastOutput = commandObject.getOrDefault("lasoutput", this.lastOutput).toString();
-            this.state = (int)commandObject.getOrDefault("state", this.state);
-            //other data are used to store data that are used for internal commands
-            Document otherDataDocument = (Document) commandObject.getOrDefault("otherdata", new Document());
-
-            for(String key : otherDataDocument.keySet()) {
-                this.otherData.put(key, otherDataDocument.getString(key));
-            }
-
-            cooldown = new Cooldown(cooldownLength);
+    public void setDB() {
+        /*Document otherDataDocument = new Document();
+        for(String key : this.otherData.keySet()) {
+            otherDataDocument.append(key, this.otherData.get(key));
         }*/
+
+        mongoHandler.updateDocument("_id", this.commandName);
+        mongoHandler.updateDocument("command", this.commandName);
+        mongoHandler.updateDocument("cooldown", new Integer(this.cooldownLength));
+        mongoHandler.updateDocument("helptext", this.helptext);
+        mongoHandler.updateDocument("param", new Integer(this.parameters));
+        mongoHandler.updateDocument("cmdtype", this.commandType);
+        mongoHandler.updateDocument("output", this.unformattedOutput);
+        mongoHandler.updateDocument("qsuffix", this.quoteSuffix);
+        mongoHandler.updateDocument("qprefix", this.quotePrefix);
+        mongoHandler.updateDocument("costf", this.cost);
+        mongoHandler.updateDocument("counter", this.counter);
+        mongoHandler.updateDocument("listcontent", this.listContent);
+        mongoHandler.updateDocument("locked", this.locked);
+        mongoHandler.updateDocument("texttrigger", this.isTextTrigger);
+        mongoHandler.updateDocument("viewerpower", this.neededCommandPower);
+        mongoHandler.updateDocument("usercooldown", this.userCooldownLength);
+        mongoHandler.updateDocument("script", this.commandScript);
+        mongoHandler.updateDocument("enable", this.isEnabled);
+        mongoHandler.updateDocument("cooldownbypasspower", this.neededCooldownBypassPower);
+        mongoHandler.updateDocument("allowpick", this.allowPicksFromList);
+        mongoHandler.updateDocument("overridehandlemessage", this.overrideHandleMessage);
+        mongoHandler.updateDocument("execcounter", this.execCounter);
+        mongoHandler.updateDocument("case", this.caseSensitive);
+        //mongoHandler.updateDocument("otherdata", otherDataDocument);
+        mongoHandler.updateDocument("format", this.formatData);
+        mongoHandler.updateDocument("checkdefaultcooldown", this.checkDefaultCooldown);
+        mongoHandler.updateDocument("hideCommand", this.hideCommand);
+        mongoHandler.updateDocument("lastoutput", this.lastOutput);
+        mongoHandler.updateDocument("state", this.state);
+        mongoHandler.updateDocument("uses", this.uses);
+        mongoHandler.updateDocument("suggestedList" ,suggestedList);
+
+        //mongoHandler.setDocument(channelData);
     }
 
     public void writeDB() {
         if(!Memebot.useMongo) { return; }
 
-        Document otherDataDocument = new Document();
-        for(String key : this.otherData.keySet()) {
-            otherDataDocument.append(key, this.otherData.get(key));
-        }
+        setDB();
 
-        Document channelData = new Document("_id", this.commandName)
-                .append("command", this.commandName)
-                .append("cooldown", new Integer(this.cooldownLength))
-                .append("helptext", this.helptext)
-                .append("param", new Integer(this.parameters))
-                .append("cmdtype", this.commandType)
-                .append("output", this.unformattedOutput)
-                .append("qsuffix", this.quoteSuffix)
-                .append("qprefix", this.quotePrefix)
-                .append("costf", this.cost)
-                .append("counter", this.counter)
-                .append("listcontent", this.listContent)
-                .append("locked", this.locked)
-                .append("texttrigger", this.isTextTrigger)
-                .append("viewerpower", this.neededCommandPower)
-                .append("usercooldown", this.userCooldownLength)
-                .append("script", this.commandScript)
-                .append("enable", this.isEnabled)
-                .append("cooldownbypasspower", this.neededCooldownBypassPower)
-                .append("allowpick", this.allowPicksFromList)
-                .append("overridehandlemessage", this.overrideHandleMessage)
-                .append("execcounter", this.execCounter)
-                .append("case", this.caseSensitive)
-                .append("otherdata", otherDataDocument)
-                .append("format", this.formatData)
-                .append("checkdefaultcooldown", this.checkDefaultCooldown)
-                .append("hideCommand", this.hideCommand)
-                .append("lastoutput", this.lastOutput)
-                .append("state", this.state)
-                .append("uses", this.uses)
-                .append("suggestedList" ,suggestedList);
-
-        mongoHandler.setDocument(channelData);
         mongoHandler.writeDatabase(this.commandName);
-
-        // todo old db code - remove soon
-        /*log.info("Saving db entry for command " + commandName + " from db on channel " + channelHandler.getChannel());
-
-        Document commandQuery = new Document("_id", this.commandName);
-        FindIterable cursor = this.commandCollection.find(commandQuery);
-
-        Document commandObject = (Document)cursor.first();
-
-        Document otherDataDocument = new Document();
-        for(String key : this.otherData.keySet()) {
-            otherDataDocument.append(key, this.otherData.get(key));
-        }
-
-        Document channelData = new Document("_id", this.commandName)
-                .append("command", this.commandName)
-                .append("cooldown", new Integer(this.cooldownLength))
-                .append("helptext", this.helptext)
-                .append("param", new Integer(this.parameters))
-                .append("cmdtype", this.commandType)
-                .append("output", this.unformattedOutput)
-                .append("qsuffix", this.quoteSuffix)
-                .append("qprefix", this.quotePrefix)
-                .append("costf", this.cost)
-                .append("counter", this.counter)
-                .append("listcontent", this.listContent)
-                .append("locked", this.locked)
-                .append("texttrigger", this.isTextTrigger)
-                .append("viewerpower", this.neededCommandPower)
-                .append("usercooldown", this.userCooldownLength)
-                .append("script", this.commandScript)
-                .append("enable", this.isEnabled)
-                .append("cooldownbypasspower", this.neededCooldownBypassPower)
-                .append("allowpick", this.allowPicksFromList)
-                .append("overridehandlemessage", this.overrideHandleMessage)
-                .append("execcounter", this.execCounter)
-                .append("case", this.caseSensitive)
-                .append("otherdata", otherDataDocument)
-                .append("format", this.formatData)
-                .append("checkdefaultcooldown", this.checkDefaultCooldown)
-                .append("hideCommand", this.hideCommand)
-                .append("lastoutput", this.lastOutput)
-                .append("state", this.state);
-
-        try {
-            if (this.commandCollection.findOneAndReplace(commandQuery, channelData) == null) {
-                this.commandCollection.insertOne(channelData);
-            }
-        } catch(Exception e) {
-            log.warning(e.toString());
-        }*/
     }
 
     public void removeDB() {
@@ -325,21 +233,6 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         }
 
         mongoHandler.removeDatabase(this.commandName);
-
-        // todo old db code - remove soon
-        /*try {
-            log.info("Removing db entry for command " + commandName + " from db on channel " + channelHandler.getChannel());
-
-            Document commandQuery = new Document("_id", this.commandName);
-            FindIterable cursor = this.commandCollection.find(commandQuery);
-
-            Document commandObject = (Document)cursor.first();
-            if(commandObject != null) {
-                this.commandCollection.deleteOne(commandObject);
-            }
-        } catch(java.lang.IllegalArgumentException e) {
-            log.warning(e.toString());
-        }*/
     }
 
     public void overrideDB() {
@@ -1012,14 +905,6 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     public void setUses(int uses) {
         this.uses = uses;
-    }
-
-    public HashMap<String, String> getOtherData() {
-        return otherData;
-    }
-
-    public void setOtherData(HashMap<String, String> otherData) {
-        this.otherData = otherData;
     }
 
     public boolean isSuccess() {

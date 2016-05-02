@@ -58,6 +58,27 @@ public class MongoHandler implements DatabaseInterface<Document> {
         return true;
     }
 
+    public void updateDocument(String key, Object object) {
+        if(document == null) {
+            document = new Document();
+        }
+        if(document.containsKey(key)) {
+            document.replace(key, object);
+        } else {
+            document.append(key, object);
+        }
+    }
+
+    public Object getObject(String key, Object defaultValue) {
+        return document.getOrDefault(key, defaultValue);
+    }
+
+    public void removeFromDocument(String key) {
+        if(document.containsKey(key)) {
+            document.remove(key);
+        }
+    }
+
     public boolean removeDatabase(String id) {
         log.info("Removing db for id " + id);
         try {

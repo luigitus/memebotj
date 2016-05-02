@@ -18,5 +18,11 @@ public interface DatabaseInterface<T> {
 
     boolean removeDatabase(String id);
 
+    void updateDocument(String key, Object value);
+
+    void removeFromDocument(String key);
+
+    Object getObject(String key, Object defaultValue);
+
     ArrayList<T> getDocuments();
 }
