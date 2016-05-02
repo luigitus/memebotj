@@ -21,6 +21,7 @@ public class DampeCommand extends CommandHandler {
 
     public DampeCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
+        this.readDB();
     }
 
     @Override
@@ -74,10 +75,10 @@ public class DampeCommand extends CommandHandler {
     @Override
     public void setDB() {
         super.setDB();
-        getMongoHandler().updateDocument("jackpot", this.jackpot);
-        getMongoHandler().updateDocument("jackpotchance", this.jackpotchance);
-        getMongoHandler().updateDocument("minbet", this.minbet);
-        getMongoHandler().updateDocument("winner", this.winner);
+        mongoHandler.updateDocument("jackpot", this.jackpot);
+        mongoHandler.updateDocument("jackpotchance", this.jackpotchance);
+        mongoHandler.updateDocument("minbet", this.minbet);
+        mongoHandler.updateDocument("winner", this.winner);
     }
 
     @Override
@@ -86,11 +87,11 @@ public class DampeCommand extends CommandHandler {
 
         super.readDB();
 
-        this.setJackpot((double)getMongoHandler().getObject("jackpot", jackpot));
-        this.jackpotchance = (int)getMongoHandler().getObject("jackpotchance", jackpotchance);
-        this.minbet = (double)getMongoHandler().getObject("minbet", minbet);
-        if(getMongoHandler().getObject("winner", winner) != null) {
-            this.winner = getMongoHandler().getObject("winner", winner).toString();
+        this.setJackpot((double)mongoHandler.getObject("jackpot", jackpot));
+        this.jackpotchance = (int)mongoHandler.getObject("jackpotchance", jackpotchance);
+        this.minbet = (double)mongoHandler.getObject("minbet", minbet);
+        if(mongoHandler.getObject("winner", winner) != null) {
+            this.winner = mongoHandler.getObject("winner", winner).toString();
         }
     }
 

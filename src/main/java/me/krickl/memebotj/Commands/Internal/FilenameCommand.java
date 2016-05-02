@@ -17,6 +17,7 @@ public class FilenameCommand extends CommandHandler {
 
     public FilenameCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
+        this.readDB();
     }
 
     @Override
@@ -39,14 +40,14 @@ public class FilenameCommand extends CommandHandler {
         if(!Memebot.useMongo) {return;}
         super.readDB();
 
-        namecost = (double)getMongoHandler().getObject("namecost", 40);
+        namecost = (double)mongoHandler.getObject("namecost", 40);
     }
 
     @Override
     public void setDB() {
         super.setDB();
 
-        getMongoHandler().updateDocument("namecost", namecost);
+        mongoHandler.updateDocument("namecost", namecost);
     }
 
     @Override

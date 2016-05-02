@@ -27,7 +27,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     private ChannelHandler channelHandler = null;
     private String commandName = null;
-    MongoHandler mongoHandler = null;
+    protected MongoHandler mongoHandler = null;
     //private MongoCollection<Document> commandCollection;
 
     private int cooldownLength = 0;
