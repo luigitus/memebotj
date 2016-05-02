@@ -74,10 +74,10 @@ public class DampeCommand extends CommandHandler {
     @Override
     public void setDB() {
         super.setDB();
-        getMongoHandler().updateDocument("jackpot", jackpot);
-        getMongoHandler().updateDocument("jackpotchance", jackpotchance);
-        getMongoHandler().updateDocument("minbet", minbet);
-        getMongoHandler().updateDocument("winner", winner);
+        getMongoHandler().updateDocument("jackpot", this.jackpot);
+        getMongoHandler().updateDocument("jackpotchance", this.jackpotchance);
+        getMongoHandler().updateDocument("minbet", this.minbet);
+        getMongoHandler().updateDocument("winner", this.winner);
     }
 
     @Override
@@ -86,11 +86,11 @@ public class DampeCommand extends CommandHandler {
 
         super.readDB();
 
-        jackpot = (double)getMongoHandler().getObject("jackpot", jackpot);
-        jackpotchance = (int)getMongoHandler().getObject("jackpotchance", jackpotchance);
-        minbet = (double)getMongoHandler().getObject("minbet", minbet);
+        this.setJackpot((double)getMongoHandler().getObject("jackpot", jackpot));
+        this.jackpotchance = (int)getMongoHandler().getObject("jackpotchance", jackpotchance);
+        this.minbet = (double)getMongoHandler().getObject("minbet", minbet);
         if(getMongoHandler().getObject("winner", winner) != null) {
-            winner = getMongoHandler().getObject("winner", winner).toString();
+            this.winner = getMongoHandler().getObject("winner", winner).toString();
         }
     }
 
@@ -99,7 +99,6 @@ public class DampeCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         double wage = minbet;
-
 
         try {
             if (data[0].equals("jackpot")) {
@@ -199,7 +198,7 @@ public class DampeCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_1", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", wage / 2)}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             } else {
                 getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_1_WALLET_FULL", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", wage / 2)}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-                this.setJackpot(this.getJackpot() + wage);
+                this.setJackpot(this.getJackpot() + wage / 2);
             }
 
             this.setJackpot(this.getJackpot() + wage / 2);

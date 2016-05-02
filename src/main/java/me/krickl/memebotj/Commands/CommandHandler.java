@@ -66,6 +66,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     private String lastOutput = "";
     private int uses = 0;
+    protected boolean canBeEdited = true;
 
     public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
         String senderName = senderObject.getUsername();
@@ -580,6 +581,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     public boolean editCommand(String modType, String newValue, UserHandler sender) {
         if (!checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+            return false;
+        }
+
+        if(!canBeEdited) {
             return false;
         }
 

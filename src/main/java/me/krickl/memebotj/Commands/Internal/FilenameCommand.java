@@ -36,7 +36,7 @@ public class FilenameCommand extends CommandHandler {
 
     @Override
     public void readDB() {
-        if(Memebot.useMongo) {return;}
+        if(!Memebot.useMongo) {return;}
         super.readDB();
 
         namecost = (double)getMongoHandler().getObject("namecost", 40);
