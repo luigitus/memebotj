@@ -46,14 +46,12 @@ public class PersonalBestCommand extends CommandHandler {
     private String getPB(String userID, String gameID, String categoryID) {
         try {
             SpeedRunCom service = getChannelHandler().getSpeedRunComAPI().getService();
-            Call<PBLookup> pbs = service.getPersonalBests(userID);
+            Call<PBLookup> pbs = service.getPersonalBests(userID, gameID);
             ArrayList<RunObject> runs = pbs.execute().body().getData();
             for (RunObject run1 : runs) {
                 Run run = run1.getRun();
-                if (run.getGame().equals(gameID)) {
-                    if (run.getCategory().equals(categoryID)) {
-                        return parseTime(run.getTimes().getPrimaryT());
-                    }
+                if (run.getCategory().equals(categoryID)) {
+                    return parseTime(run.getTimes().getPrimaryT());
                 }
             }
         } catch (IOException e) {

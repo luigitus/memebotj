@@ -45,23 +45,12 @@ public class WorldRecordCommand extends CommandHandler {
     private String[] getWR(String gameID, String categoryID) {
         try {
             SpeedRunCom service = getChannelHandler().getSpeedRunComAPI().getService();
-            Call<WRLookup> wrs = service.getWorldRecords(gameID);
-            ArrayList<RecordObject> runs = wrs.execute().body().getData();
-            for (RecordObject run1 : runs) {
-                if (!run1.getRuns().isEmpty()) {
-                    if (run1.getLevel() == null) {
-                        Run tmpRun = run1.getRuns().get(0).getRun();
-                        if (run1.getGame().equals(gameID)) {
-                            if (run1.getCategory().equals(categoryID)) {
-                                String userID = tmpRun.getPlayers().get(0).getId();
-                                Call<UserLookup> user = service.getUser(userID);
-                                String wrHolder = user.execute().body().getData().getName();
-                                return new String[]{parseTime(tmpRun.getTimes().getPrimaryT()), wrHolder};
-                            }
-                        }
-                    }
-                }
-            }
+            Call<WRLookup> wrs = service.getWorldRecord(gameID, categoryID);
+            Run runs = wrs.execute().body().getData().getRuns().get(0).getRun();
+            String userID = runs.getPlayers().get(0).getId();
+            Call<UserLookup> user = service.getUser(userID);
+            String wrHolder = user.execute().body().getData().getName();
+            return new String[]{parseTime(runs.getTimes().getPrimaryT()), wrHolder};
         } catch (IOException e) {
             e.printStackTrace();
         }

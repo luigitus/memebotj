@@ -1,6 +1,7 @@
 package me.krickl.memebotj.SpeedrunCom;
 
 import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.Game;
 import me.krickl.memebotj.SpeedrunCom.Model.Games;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
@@ -10,11 +11,13 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * This file is part of memebotj.
@@ -41,6 +44,11 @@ public class SpeedRunComAPI {
                 return chain.proceed(request);
             }
         });
+        if (Memebot.debug) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+            httpClient.addInterceptor(logging);
+        }
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://www.speedrun.com/api/v1/")
                 .client(httpClient.build())

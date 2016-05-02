@@ -5,7 +5,12 @@ import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Twitch.Model.Channel;
 import me.krickl.memebotj.Twitch.Model.Stream;
 import me.krickl.memebotj.Twitch.Model.Streams;
+import me.krickl.memebotj.Utility.BuildInfo;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -23,18 +28,24 @@ public class TwitchAPI {
     public TwitchAPI(ChannelHandler ch) {
         this.channelHandler = ch;
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-       /* httpClient.addInterceptor(new Interceptor() {
+        httpClient.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Request original = chain.request();
                 Request request = original.newBuilder()
+                        .header("Accept", "application/vnd.twitchtv.3+json")
                         .header("User-Agent", BuildInfo.appName + "/" + BuildInfo.version)
+                        .header("Client-ID", Memebot.clientID)
                         .method(original.method(), original.body())
                         .build();
                 return chain.proceed(request);
             }
         });
-        */
+        if (Memebot.debug) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+            httpClient.addInterceptor(logging);
+        }
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.twitch.tv/kraken/")
                 .client(httpClient.build())

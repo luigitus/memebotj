@@ -21,8 +21,8 @@ public interface SpeedRunCom {
     Call<Games> lookupGame(@Query("name") String name, @Query("embed") String embed);
 
     @GET("users/{id}/personal-bests")
-    Call<PBLookup> getPersonalBests(@Path("id") String id);
+    Call<PBLookup> getPersonalBests(@Path("id") String id, @Query("game") String game);
 
-    @GET("games/{gameID}/records?top=1")
-    Call<WRLookup> getWorldRecords(@Path("gameID") String gameID);
+    @GET("leaderboards/{gameID}/category/{category}?top=1")
+    Call<WRLookup> getWorldRecord(@Path("gameID") String gameID, @Path("category") String category);
 }

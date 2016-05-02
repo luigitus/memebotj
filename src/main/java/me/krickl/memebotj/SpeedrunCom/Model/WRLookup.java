@@ -12,13 +12,13 @@ public class WRLookup {
 
     @SerializedName("data")
     @Expose
-    private ArrayList<RecordObject> data = new ArrayList<RecordObject>();
+    private RecordObject data;
 
-    public ArrayList<RecordObject> getData() {
+    public RecordObject getData() {
         return data;
     }
 
-    public void setData(ArrayList<RecordObject> data) {
+    public void setData(RecordObject data) {
         this.data = data;
     }
 
