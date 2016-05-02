@@ -74,7 +74,8 @@ public class TwitchAPI {
                 channelHandler.setCurrentGame("");
                 channelHandler.setStreamTitle("");
             }
-        } catch (IOException e) {
+        } catch (IOException | NumberFormatException | com.google.gson.JsonSyntaxException e) {
+            // todo find out what causes com.google.gson.JsonSyntaxException and fix it
             channelHandler.setCurrentGame("");
             channelHandler.setStreamTitle("");
         }

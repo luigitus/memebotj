@@ -40,7 +40,7 @@ public class FilenameCommand extends CommandHandler {
         if(!Memebot.useMongo) {return;}
         super.readDB();
 
-        namecost = (double)mongoHandler.getObject("namecost", 40);
+        namecost = (double)mongoHandler.getObject("namecost", namecost);
     }
 
     @Override

@@ -68,7 +68,7 @@ public class SpeedRunComAPI {
         Call<UsersLookup> userLookup = service.lookupUser(channelHandler.getBroadcaster());
         try {
             user = userLookup.execute().body().getData().get(0);
-        } catch (IOException e) {
+        } catch (IOException | ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
     }

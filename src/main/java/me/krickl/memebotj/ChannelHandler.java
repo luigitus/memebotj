@@ -6,6 +6,7 @@ import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
+public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, DatabaseObjectInterface {
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
 
     private BufferedWriter writer = null;
@@ -48,7 +49,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
     private String currentRaceURL = "";
     private ArrayList<String> fileNameList = new ArrayList<>();
 
-    private short maxFileNameLen = 8;
+    private int maxFileNameLen = 8;
     private String currentFileName = "";
     private long streamStartTime = 0;
 
@@ -562,7 +563,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         }
     }
 
-    private void readDB() {
+    public void readDB() {
         if (!Memebot.useMongo) {
             return;
         }
@@ -574,28 +575,28 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         }
 
         if(mongoHandler.getDocument() != null) {
-            this.maxFileNameLen = (short)mongoHandler.getDocument().getInteger("maxfilenamelen", this.maxFileNameLen);
-            this.raceBaseURL = mongoHandler.getDocument().getOrDefault("raceurl", this.raceBaseURL).toString();
-            this.fileNameList = (java.util.ArrayList<String>)mongoHandler.getDocument().getOrDefault("fileanmelist", this.fileNameList);
-            this.otherLoadedChannels = (java.util.ArrayList<String>)mongoHandler.getDocument().getOrDefault("otherchannels", this.otherLoadedChannels);
-            this.pointsPerUpdate = (double)mongoHandler.getDocument().getOrDefault("pointsperupdate", this.pointsPerUpdate);
-            this.allowAutogreet = (boolean)mongoHandler.getDocument().getOrDefault("allowautogreet", this.allowAutogreet);
-            this.linkTimeout = (int)mongoHandler.getDocument().getOrDefault("linktimeout", this.linkTimeout);
-            this.purgeURLS = (boolean)mongoHandler.getDocument().getOrDefault("purgelinks", this.purgeURLS);
-            this.silentMode = (boolean)mongoHandler.getDocument().getOrDefault("silent", this.silentMode);
-            this.givePointsWhenOffline = (boolean)mongoHandler.getDocument().getOrDefault("pointswhenoffline", this.givePointsWhenOffline);
-            this.allowGreetMessage = (boolean)mongoHandler.getDocument().getOrDefault("allowgreetmessage", this.givePointsWhenOffline);
-            this.maxPoints = (double)mongoHandler.getDocument().getOrDefault("maxpoints", this.maxPoints);
-            this.local = mongoHandler.getDocument().getOrDefault("local", this.local).toString();
-            this.currencyName = mongoHandler.getDocument().getOrDefault("currname", this.currencyName).toString();
-            this.currencyEmote = mongoHandler.getDocument().getOrDefault("curremote", this.currencyEmote).toString();
-            this.followAnnouncement = mongoHandler.getDocument().getOrDefault("followannouncement", this.followAnnouncement).toString();
-            this.maxScreenNameLen = (int)mongoHandler.getDocument().getOrDefault("maxscreennamelen", this.maxScreenNameLen);
-            this.maxAmountOfNameInList = (int)mongoHandler.getDocument().getOrDefault("maxnameinlist", this.maxScreenNameLen);
-            this.pointsTax = (double)mongoHandler.getDocument().getOrDefault("pointstax", this.pointsTax);
-            this.startingPoints = (double)mongoHandler.getDocument().getOrDefault("startingpoints", this.startingPoints);
-            this.bgImage = mongoHandler.getDocument().getOrDefault("bgImage", this.bgImage).toString();
-            itemDrops = mongoHandler.getDocument().getOrDefault("itemDrops", this.itemDrops).toString();
+            this.maxFileNameLen = (int)mongoHandler.getObject("maxfilenamelen", this.maxFileNameLen);
+            this.raceBaseURL = mongoHandler.getObject("raceurl", this.raceBaseURL).toString();
+            this.fileNameList = (java.util.ArrayList<String>)mongoHandler.getObject("fileanmelist", this.fileNameList);
+            this.otherLoadedChannels = (java.util.ArrayList<String>)mongoHandler.getObject("otherchannels", this.otherLoadedChannels);
+            this.pointsPerUpdate = (double)mongoHandler.getObject("pointsperupdate", this.pointsPerUpdate);
+            this.allowAutogreet = (boolean)mongoHandler.getObject("allowautogreet", this.allowAutogreet);
+            this.linkTimeout = (int)mongoHandler.getObject("linktimeout", this.linkTimeout);
+            this.purgeURLS = (boolean)mongoHandler.getObject("purgelinks", this.purgeURLS);
+            this.silentMode = (boolean)mongoHandler.getObject("silent", this.silentMode);
+            this.givePointsWhenOffline = (boolean)mongoHandler.getObject("pointswhenoffline", this.givePointsWhenOffline);
+            this.allowGreetMessage = (boolean)mongoHandler.getObject("allowgreetmessage", this.givePointsWhenOffline);
+            this.maxPoints = (double)mongoHandler.getObject("maxpoints", this.maxPoints);
+            this.local = mongoHandler.getObject("local", this.local).toString();
+            this.currencyName = mongoHandler.getObject("currname", this.currencyName).toString();
+            this.currencyEmote = mongoHandler.getObject("curremote", this.currencyEmote).toString();
+            this.followAnnouncement = mongoHandler.getObject("followannouncement", this.followAnnouncement).toString();
+            this.maxScreenNameLen = (int)mongoHandler.getObject("maxscreennamelen", this.maxScreenNameLen);
+            this.maxAmountOfNameInList = (int)mongoHandler.getObject("maxnameinlist", this.maxScreenNameLen);
+            this.pointsTax = (double)mongoHandler.getObject("pointstax", this.pointsTax);
+            this.startingPoints = (double)mongoHandler.getObject("startingpoints", this.startingPoints);
+            this.bgImage = mongoHandler.getObject("bgImage", this.bgImage).toString();
+            itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
         }
 
         // read commands
@@ -609,50 +610,38 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         for(Document doc : mongoHandler.getDocuments()) {
             channelCommands.add(new CommandHandler(this, doc.getString("command"), ""));
         }
+    }
 
-        // todo old db code - remove soon
-        /*Document channelQuery = new Document("_id", this.channel);
-        FindIterable cursor = this.channelCollection.find(channelQuery);
-        Document channelData = (Document)cursor.first();
-        if (channelData != null) {
-            this.maxFileNameLen = (short)channelData.getInteger("maxfilenamelen", this.maxFileNameLen);
-            this.raceBaseURL = channelData.getOrDefault("raceurl", this.raceBaseURL).toString();
-            this.fileNameList = (java.util.ArrayList<String>)channelData.getOrDefault("fileanmelist", this.fileNameList);
-            this.otherLoadedChannels = (java.util.ArrayList<String>)channelData.getOrDefault("otherchannels", this.otherLoadedChannels);
-            this.pointsPerUpdate = (double)channelData.getOrDefault("pointsperupdate", this.pointsPerUpdate);
-            this.allowAutogreet = (boolean)channelData.getOrDefault("allowautogreet", this.allowAutogreet);
-            this.linkTimeout = (int)channelData.getOrDefault("linktimeout", this.linkTimeout);
-            this.purgeURLS = (boolean)channelData.getOrDefault("purgelinks", this.purgeURLS);
-            this.silentMode = (boolean)channelData.getOrDefault("silent", this.silentMode);
-            this.givePointsWhenOffline = (boolean)channelData.getOrDefault("pointswhenoffline", this.givePointsWhenOffline);
-            this.allowGreetMessage = (boolean)channelData.getOrDefault("allowgreetmessage", this.givePointsWhenOffline);
-            this.maxPoints = (double)channelData.getOrDefault("maxpoints", this.maxPoints);
-            this.local = channelData.getOrDefault("local", this.local).toString();
-            this.currencyName = channelData.getOrDefault("currname", this.currencyName).toString();
-            this.currencyEmote = channelData.getOrDefault("curremote", this.currencyEmote).toString();
-            this.followAnnouncement = channelData.getOrDefault("followannouncement", this.followAnnouncement).toString();
-            this.maxScreenNameLen = (int)channelData.getOrDefault("maxscreennamelen", this.maxScreenNameLen);
-            this.maxAmountOfNameInList = (int)channelData.getOrDefault("maxnameinlist", this.maxScreenNameLen);
-            this.pointsTax = (double)channelData.getOrDefault("pointstax", this.pointsTax);
-            this.startingPoints = (double)channelData.getOrDefault("startingpoints", this.startingPoints);
-            this.bgImage = channelData.getOrDefault("bgImage", this.bgImage).toString();
-        }
-        MongoCollection commandCollection = null;
-        if(!Memebot.channelsPrivate.contains(this.channel)) {
-            commandCollection = Memebot.db.getCollection(this.channel + "_commands");
-        } else {
-            commandCollection = Memebot.dbPrivate.getCollection(this.channel + "_commands");
-        }
-        FindIterable comms = commandCollection.find();
-        final ChannelHandler ch = this;
-        //todo fix this important!
-        comms.forEach(new Block<org.bson.Document>(){
+    public void setDB() {
+        mongoHandler.updateDocument("_id", this.channel);
+        mongoHandler.updateDocument("maxfilenamelen", this.maxFileNameLen);
+        mongoHandler.updateDocument("raceurl", this.raceBaseURL);
+        mongoHandler.updateDocument("fileanmelist", this.fileNameList);
+        mongoHandler.updateDocument("otherchannels", this.otherLoadedChannels);
+        mongoHandler.updateDocument("pointsperupdate", this.pointsPerUpdate);
+        mongoHandler.updateDocument("allowautogreet", this.allowAutogreet);
+        mongoHandler.updateDocument("purgelinks", this.purgeURLS);
+        mongoHandler.updateDocument("linktimeout", this.linkTimeout);
+        mongoHandler.updateDocument("silent", this.silentMode);
+        mongoHandler.updateDocument("pointswhenoffline", this.givePointsWhenOffline);
+        mongoHandler.updateDocument("allowgreetmessage", this.allowGreetMessage);
+        mongoHandler.updateDocument("maxpoints", this.maxPoints);
+        mongoHandler.updateDocument("local", this.local);
+        mongoHandler.updateDocument("currname", this.currencyName);
+        mongoHandler.updateDocument("curremote", this.currencyEmote);
+        mongoHandler.updateDocument("followannouncement", this.followAnnouncement);
+        mongoHandler.updateDocument("maxscreennamelen", this.maxScreenNameLen);
+        mongoHandler.updateDocument("maxnameinlist", this.maxAmountOfNameInList);
+        mongoHandler.updateDocument("pointstax", this.pointsTax);
+        mongoHandler.updateDocument("startingpoints", this.startingPoints);
+        mongoHandler.updateDocument("bgImage", this.bgImage);
+        mongoHandler.updateDocument("itemDrops", this.itemDrops);
 
-            @Override
-            public void apply(final Document doc) {
-                channelCommands.add(new CommandHandler(ch, doc.getString("command"), ""));
-            }
-        });*/
+        //mongoHandler.setDocument(channelData);
+    }
+
+    public void removeDB() {
+
     }
 
     public void writeDB() {
@@ -660,67 +649,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
             return;
         }
 
-        Document channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
-                .append("raceurl", this.raceBaseURL)
-                .append("fileanmelist", this.fileNameList)
-                .append("otherchannels", this.otherLoadedChannels)
-                .append("pointsperupdate", this.pointsPerUpdate)
-                .append("allowautogreet", this.allowAutogreet)
-                .append("purgelinks", this.purgeURLS)
-                .append("linktimeout", this.linkTimeout)
-                .append("silent", this.silentMode)
-                .append("pointswhenoffline", this.givePointsWhenOffline)
-                .append("allowgreetmessage", this.allowGreetMessage)
-                .append("maxpoints", this.maxPoints)
-                .append("local", this.local)
-                .append("currname", this.currencyName)
-                .append("curremote", this.currencyEmote)
-                .append("followannouncement", this.followAnnouncement)
-                .append("maxscreennamelen", this.maxScreenNameLen)
-                .append("maxnameinlist", this.maxAmountOfNameInList)
-                .append("pointstax", this.pointsTax)
-                .append("startingpoints", this.startingPoints)
-                .append("bgImage", this.bgImage)
-                .append("itemDrops", this.itemDrops);
+        setDB();
 
-        mongoHandler.setDocument(channelData);
         mongoHandler.writeDatabase(this.channel);
-
-        // todo old db code - remove soon
-        /*ChannelHandler.log.info("Saving data in db for channel " + this.channel + " on DB " + Memebot.db.getName());
-        Document channelQuery = new Document("_id", this.channel);
-
-        Document channelData = new Document("_id", this.channel).append("maxfilenamelen", this.maxFileNameLen)
-                .append("raceurl", this.raceBaseURL)
-                .append("fileanmelist", this.fileNameList)
-                .append("otherchannels", this.otherLoadedChannels)
-                .append("pointsperupdate", this.pointsPerUpdate)
-                .append("allowautogreet", this.allowAutogreet)
-                .append("purgelinks", this.purgeURLS)
-                .append("linktimeout", this.linkTimeout)
-                .append("silent", this.silentMode)
-                .append("pointswhenoffline", this.givePointsWhenOffline)
-                .append("allowgreetmessage", this.allowGreetMessage)
-                .append("maxpoints", this.maxPoints)
-                .append("local", this.local)
-                .append("currname", this.currencyName)
-                .append("curremote", this.currencyEmote)
-                .append("followannouncement", this.followAnnouncement)
-                .append("maxscreennamelen", this.maxScreenNameLen)
-                .append("maxnameinlist", this.maxAmountOfNameInList)
-                .append("pointstax", this.pointsTax)
-                .append("startingpoints", this.startingPoints)
-                .append("bgImage", this.bgImage);
-        try {
-            if (this.channelCollection.findOneAndReplace(channelQuery, channelData) == null) {
-                this.channelCollection.insertOne(channelData);
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        for (String key : this.userList.keySet()) {
-            this.userList.get(key).writeDB();
-        }*/
     }
 
     @Override
@@ -840,11 +771,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler> {
         this.fileNameList = fileNameList;
     }
 
-    public short getMaxFileNameLen() {
+    public int getMaxFileNameLen() {
         return maxFileNameLen;
     }
 
-    public void setMaxFileNameLen(short maxFileNameLen) {
+    public void setMaxFileNameLen(int maxFileNameLen) {
         this.maxFileNameLen = maxFileNameLen;
     }
 
