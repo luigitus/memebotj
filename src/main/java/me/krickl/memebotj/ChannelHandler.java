@@ -12,7 +12,6 @@ import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Inventory.Buff;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
-import me.krickl.memebotj.Twitch.ChannelAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
@@ -489,6 +488,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper) {
+        sendMessage(mesgessage, channel, sender, whisper, false);
+    }
+
+    public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat) {
         String msg = mesgessage;
         if(msg.isEmpty()) {
             return;
@@ -511,6 +514,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.currentMessageCount += 1;
         //log to file
         System.out.println("<" + channel + ">" + msg);
+
+        if(forcechat) {
+            if (sender.getUsername().equals("#readonly#")) {
+                this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
+            } else {
+                this.connection.sendMessage("PRIVMSG " + channel + " :" + msg + "\n");
+            }
+        }
 
         if(!whisper && !useWhisper) {
             if (sender.getUsername().equals("#readonly#")) {

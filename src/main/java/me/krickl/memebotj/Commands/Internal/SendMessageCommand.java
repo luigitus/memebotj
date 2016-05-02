@@ -36,16 +36,16 @@ public class SendMessageCommand extends CommandHandler {
 
             if(sendToChannel.equals("#all#")) {
                 for(ChannelHandler channelHandler : Memebot.joinedChannels) {
-                    channelHandler.sendMessage(message, channelHandler.getChannel() ,sender);
+                    channelHandler.sendMessage(message, channelHandler.getChannel() ,sender, false, true);
                 }
             } else if(sendToChannel.equals("#live#")) {
                 for(ChannelHandler channelHandler : Memebot.joinedChannels) {
                     if(channelHandler.isLive()) {
-                        channelHandler.sendMessage(message, channelHandler.getChannel(), sender);
+                        channelHandler.sendMessage(message, channelHandler.getChannel(), sender, false, true);
                     }
                 }
             } else {
-                getChannelHandler().sendMessage(message, sendToChannel, sender);
+                getChannelHandler().sendMessage(message, sendToChannel, sender, false, true);
             }
         } catch(ArrayIndexOutOfBoundsException e) {
             log.warning(e.toString());
