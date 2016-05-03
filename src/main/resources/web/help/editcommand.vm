@@ -1,0 +1,131 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Memebot help</title>
+</head>
+
+<body>
+    #parse("style.vm")
+
+<body background="${channel.bgimage}"></body>
+
+<script type="text/javascript">
+    function msieversion() {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+
+        if (msie > 0) { // If Internet Explorer, return version number
+            console.log("Bad Browser detected");
+            window.location = "${web}/badbrowser";
+        }
+        else { // If another browser, return 0
+            console.log("Good Browser detected");
+            //window.location = "${web}/badbrowser";
+        }
+
+        return false;
+    }
+
+    msieversion();
+</script>
+
+<div id="header">
+    <h1>Memebot help page</h1>
+</div>
+<div id="nav">
+    <ul id="main_nav" style="list-style-type:none">
+        <li>
+            <a class="s_requests_link" href="${web}/help">Help</a>
+        </li>
+    </ul>
+</div>
+<div id="content">
+    <p>There are many options available that allow you to customise commands. The generic command is: </p>
+
+    <code>
+        !command edit {command name} {option} {new value}
+    </code>
+
+    <p>For example:</p>
+
+    <code>
+        !command edit !category output The next category I will be running is All Masks.
+    </code>
+
+    <p>
+        A full list of all available options together with the needed value can be found here:
+    </p>
+
+    <h4 id="name">name</h4>
+    <p>description: changes the name of a command<br/> possible values: any string of text</p>
+    <h4 id="param">param</h4>
+    <p>description: changes the amount of parameters a command has<br/> possible values: positive integer</p>
+    <h4 id="helptext">helptext</h4>
+    <p>description: The description of a command<br/> possible values: any string of text</p>
+    <h4 id="output">output</h4>
+    <p>description: a commands output<br/> possible values: any string of text</p>
+    <h4 id="cooldown">cooldown</h4>
+    <p>description: global cooldown affecting every user of the command<br/> possible values: positive integer</p>
+    <h4 id="cmdtype">cmdtype</h4>
+    <p>description: the type of command<br/> possible values: default, list, counter, timer</p>
+    <h4 id="qprefix">qprefix</h4>
+    <p>description: Prefix string for quotes<br/> possible values: any string of text</p>
+    <h4 id="qsuffix">qsuffix</h4>
+    <p>description: suffix for quotes<br/> possible values: any string of text</p>
+    <h4 id="cost">cost</h4>
+    <p>description: points cost of a command<br/> possible values: any integer</p>
+    <h4 id="lock-broadcaster-only">lock (broadcaster only)</h4>
+    <p>description: Lock a command so only the broadcaster can delete it<br/> possible values: true/false</p>
+    <h4 id="texttrigger">texttrigger</h4>
+    <p>description: make a command a texttrigger (note: this disables parameters)<br/> possible values: true/false</p>
+    <h4 id="access">access</h4>
+    <p>description: the needed command power level for a command<br/> possible values: any integer</p>
+    <h4 id="usercooldown">usercooldown</h4>
+    <p>description: individual cooldown per user<br/> possible values: positive integer</p>
+    <h4 id="enable">enable</h4>
+    <p>description: enable or disable a command<br/> possible values: true/false</p>
+    <h4 id="allowpick">allowpick</h4>
+    <p>description: allow picking an index from a list<br/> possible values: true/false</p>
+    <h4 id="case">case</h4>
+    <p>description: make a command case sensitive<br/> possible values: true/false</p>
+
+    <p>
+        <h2>List commands</h2>
+
+        If you set cmdtype to list there are commands available that allow to add items to the list.
+        For example:
+    </p>
+
+    <code>
+        !quote add "Funny quote" - unlink2 2015</br>
+        !quote edit 0 "New Funny quote" - unlink2 2015</br>
+        !quote remove 0</br>
+        !quote list</br>
+        !quote suggest "This is a quote suggested by a non-moderator. These quotes can be accepted/denied" - unlink2 2016</br>
+        !quote accept 0 </br>
+        !quote deny 0</br>
+        !quote deny all</br>
+    </code>
+
+    <p>
+    <h2>Counter commands</h2>
+
+    If you set cmdtype to counter there are commands available.
+    For example:
+    </p>
+
+    <code>
+        !counter add</br>
+        !counter add 2</br>
+        !counter set 5</br>
+        !counter sub</br>
+        !counter sub 2</br>
+    </code>
+    </br>
+
+    <a href="${web}/help/deletecommand">Next Article</a>
+</div>
+    #parse("footer.vm")
+</body>
+
+</html>

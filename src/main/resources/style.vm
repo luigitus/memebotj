@@ -74,7 +74,7 @@
         float:left;
         margin-left:2em;
         margin-top:2em;
-        height:15em;
+        height:18em;
         position:fixed;
         width:14em;
         padding:1em;

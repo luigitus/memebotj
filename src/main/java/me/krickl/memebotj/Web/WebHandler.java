@@ -48,7 +48,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "channel.vm");
+            return new ModelAndView(model, "web/channel.vm");
         }, new VelocityTemplateEngine());
 
         get("/commands/list/internals/:channel", (req, res) -> {
@@ -63,7 +63,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "internals.vm");
+            return new ModelAndView(model, "web/internals.vm");
         }, new VelocityTemplateEngine());
 
         get("/commands/:channel/:command", (req, res) -> {
@@ -85,7 +85,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "command.vm");
+            return new ModelAndView(model, "web/command.vm");
         }, new VelocityTemplateEngine());
 
         get("/commands/internals/:channel/:command", (req, res) -> {
@@ -108,7 +108,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "command.vm");
+            return new ModelAndView(model, "web/command.vm");
         }, new VelocityTemplateEngine());
 
         get("/songs/:channel/player", (req, res) -> {
@@ -121,7 +121,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "songrequest.vm");
+            return new ModelAndView(model, "web/songrequest.vm");
         }, new VelocityTemplateEngine());
 
         get("/filesnames/:channel/:page", (req, res) -> {
@@ -152,7 +152,7 @@ public class WebHandler {
             model.put("names", displayList);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "filenames.vm");
+            return new ModelAndView(model, "web/filenames.vm");
         }, new VelocityTemplateEngine());
 
         get("/users/listnames/:channel/:page", (req, res) -> {
@@ -199,7 +199,7 @@ public class WebHandler {
             model.put("previous", previous);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "userlist.vm");
+            return new ModelAndView(model, "web/userlist.vm");
         }, new VelocityTemplateEngine());
 
         get("/users/user/:channel/:user", (req, res) -> {
@@ -215,7 +215,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "userdetail.vm");
+            return new ModelAndView(model, "web/userdetail.vm");
         }, new VelocityTemplateEngine());
 
         get("/login/:channel", (req, res) -> {
@@ -228,7 +228,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "login.vm");
+            return new ModelAndView(model, "web/login.vm");
         }, new VelocityTemplateEngine());
 
         get("/badbrowser", (req, res) -> {
@@ -241,7 +241,7 @@ public class WebHandler {
             model.put("web", Memebot.webBaseURL);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "badbrowser.vm");
+            return new ModelAndView(model, "web/badbrowser.vm");
         }, new VelocityTemplateEngine());
 
         post("/login/:channel/process", (req, res) -> {
@@ -266,7 +266,7 @@ public class WebHandler {
             model.put("login", response);
             model.put("uh", getLoginUserHandler(req, req.cookie("login_name"), channel));
 
-            return new ModelAndView(model, "process.vm");
+            return new ModelAndView(model, "web/process.vm");
         }, new VelocityTemplateEngine());
 
         post("/login", (req, res) ->  {
@@ -373,6 +373,8 @@ public class WebHandler {
             }
             return  "{}";
         });
+
+        HelpWeb.helpWeb();
     }
 
 

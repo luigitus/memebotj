@@ -1,0 +1,93 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Memebot help</title>
+</head>
+
+<body>
+    #parse("style.vm")
+
+<body background="${channel.bgimage}"></body>
+
+<script type="text/javascript">
+    function msieversion() {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+
+        if (msie > 0) { // If Internet Explorer, return version number
+            console.log("Bad Browser detected");
+            window.location = "${web}/badbrowser";
+        }
+        else { // If another browser, return 0
+            console.log("Good Browser detected");
+            //window.location = "${web}/badbrowser";
+        }
+
+        return false;
+    }
+
+    msieversion();
+</script>
+
+<div id="header">
+    <h1>Memebot help page</h1>
+</div>
+<div id="nav">
+    <ul id="main_nav" style="list-style-type:none">
+        <li>
+            <a class="s_requests_link" href="${web}/help">Help</a>
+        </li>
+    </ul>
+</div>
+<div id="content">
+    Welcome to Memebot help (Work in progress).
+
+    The following help topics are available:
+
+    <h2>Get Memebot</h2>
+    <ul>
+        <li>
+            <a href="${web}/help/join">Make Memebot join your channel</a>
+        </li>
+        <li>
+            <a href="${web}/help/part">Have memebot leave your channel</a>
+        </li>
+    </ul>
+
+    <h2>Command management</h2>
+    <ul>
+        <li>
+            <a href="${web}/help/makecommand">Create a command</a>
+        </li>
+        <li>
+            <a href="${web}/help/editcommand">Edit a command</a>
+        </li>
+        <li>
+            <a href="${web}/help/deletecommand">Delete a command</a>
+        </li>
+        <li>
+            <a href="${web}/help/internalcommands">Enable/Disable a built in command</a>
+        </li>
+        <li>
+            <a href="${web}/help/formatting">Formatting options</a>
+        </li>
+    </ul>
+
+    <h2>Broadcaster settings</h2>
+    <ul>
+        <li>
+            <a href="${web}/help/channel">Edit channel settings</a>
+        </li>
+    </ul>
+
+    <h2>Points and Filenames</h2>
+    <ul>
+        <li>
+            <a href="${web}/help/points">A full tutorial on how to manage filenames and how points are gained</a>
+        </li>
+    </ul>
+</div>
+    #parse("footer.vm")
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Memebot help</title>
+</head>
+
+<body>
+    #parse("style.vm")
+
+<body background="${channel.bgimage}"></body>
+
+<script type="text/javascript">
+    function msieversion() {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+
+        if (msie > 0) { // If Internet Explorer, return version number
+            console.log("Bad Browser detected");
+            window.location = "${web}/badbrowser";
+        }
+        else { // If another browser, return 0
+            console.log("Good Browser detected");
+            //window.location = "${web}/badbrowser";
+        }
+
+        return false;
+    }
+
+    msieversion();
+</script>
+
+<div id="header">
+    <h1>Memebot help page</h1>
+</div>
+<div id="nav">
+    <ul id="main_nav" style="list-style-type:none">
+        <li>
+            <a class="s_requests_link" href="${web}/help">Help</a>
+        </li>
+    </ul>
+</div>
+<div id="content">
+    <p>The broadcaster can edit channel settings. The generic command is:</p>
+
+    <code>
+        !channel {option} {new value}
+    </code>
+
+    <p>For example:</p>
+
+    <code>
+        !command allowautogreet false
+    </code>
+    </br>
+
+
+    <p>The following options are available:</p>
+    <h4 id="race">race</h4>
+    <p>description: changes the url used by the !race command<br/> possible values: any string of text</p>
+    <h4 id="allowautogreets">allowautogreets</h4>
+    <p>description: enables or disables autogreets<br/> possible values: true/false</p>
+    <h4 id="maxnamelen">maxnamelen</h4>
+    <p>description: the max filename lenght<br/> possible values: positive integer</p>
+    <h4 id="ppi">ppi</h4>
+    <p>description: points per update<br/> possible values: any integer</p>
+    <h4 id="purgelinks">purgelinks</h4>
+    <p>description: should links be purged<br/> possible values: true/false</p>
+    <h4 id="maxpoints">maxpoints</h4>
+    <p>description: max allowed points<br/> possible values: positive double</p>
+    <h4 id="local">local</h4>
+    <p>description: localisation<br/> possible values: engb (more soon to come)</p>
+    <h4 id="currname">currname</h4>
+    <p>description: currency name<br/> possible values: any string</p>
+    <h4 id="curremote">curremote</h4>
+    <p>description: currency emote<br/> possible values: any string</p>
+
+    <a href="${web}/help/points">Next Article</a>
+</div>
+    #parse("footer.vm")
+</body>
+
+</html>

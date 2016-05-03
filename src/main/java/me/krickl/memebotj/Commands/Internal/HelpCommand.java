@@ -41,7 +41,11 @@ public class HelpCommand extends CommandHandler {
             }
             getChannelHandler().sendMessage(Memebot.formatText("HELP_NOT_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
         } catch(ArrayIndexOutOfBoundsException e) {
-            getChannelHandler().sendMessage(Memebot.formatText("HELP_SYNTAX", getChannelHandler(), sender, this, true, new String[]{"!help <command>"}, getChannelHandler().getChannel()));
+            if(Memebot.useWeb) {
+                getChannelHandler().sendMessage(Memebot.webBaseURL + "/help", getChannelHandler().getChannel());
+            } else {
+                getChannelHandler().sendMessage(Memebot.formatText("HELP_SYNTAX", getChannelHandler(), sender, this, true, new String[]{"!help <command>"}, getChannelHandler().getChannel()));
+            }
         }
     }
 }

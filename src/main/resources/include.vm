@@ -46,5 +46,8 @@
         <li>
             <a class="s_requests_link" href="${web}/login/${channel.broadcaster}">Log in</a>
         </li>
+        <li>
+            <a class="s_requests_link" href="${web}/help">Help</a>
+        </li>
     </ul>
 </div>
