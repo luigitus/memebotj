@@ -24,9 +24,6 @@ public class Stream {
     @SerializedName("video_height")
     @Expose
     private Integer videoHeight;
-    @SerializedName("average_fps")
-    @Expose
-    private Integer averageFps;
     @SerializedName("delay")
     @Expose
     private Integer delay;
@@ -75,14 +72,6 @@ public class Stream {
 
     public void setVideoHeight(Integer videoHeight) {
         this.videoHeight = videoHeight;
-    }
-
-    public Integer getAverageFps() {
-        return averageFps;
-    }
-
-    public void setAverageFps(Integer averageFps) {
-        this.averageFps = averageFps;
     }
 
     public Integer getDelay() {
