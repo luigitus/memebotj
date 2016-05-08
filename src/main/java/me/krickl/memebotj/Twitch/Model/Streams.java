@@ -13,23 +13,11 @@ public class Streams {
     @Expose
     private Stream stream;
 
-    @SerializedName("created_at")
-    @Expose
-    private String createdAt;
-
     public Stream getStream() {
         return stream;
     }
 
     public void setStream(Stream stream) {
         this.stream = stream;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
     }
 }

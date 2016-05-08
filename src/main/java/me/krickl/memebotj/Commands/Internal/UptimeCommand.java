@@ -20,7 +20,9 @@ public class UptimeCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        getChannelHandler().sendMessage(getChannelHandler().getUptimeString(), getChannelHandler().getChannel(),
+        // fuck it let's just use this
+        getChannelHandler().sendMessage(Memebot.urlRequest("http://owyn.us/APIs/Uptime.php?Broadcaster="
+                + getChannelHandler().getBroadcaster()), getChannelHandler().getChannel(),
         sender, isWhisper());
     }
 }

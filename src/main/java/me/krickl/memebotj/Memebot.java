@@ -437,17 +437,14 @@ public class Memebot {
      * @return String of content
      * @deprecated
      */
-    @Deprecated
     public static String urlRequest(String urlString) {
         return urlRequest(urlString, 5000, false, "GET", "");
     }
 
-    @Deprecated
     public static String urlRequest(String urlString, int timeout, boolean appendLineFeed) {
         return urlRequest(urlString, timeout, appendLineFeed, "GET", "");
     }
 
-    @Deprecated
     public static String urlRequest(String urlString, int timeout, boolean appendLineFeed, String requestMethod, String urlParameters) {
         URL url;
         HttpURLConnection connection  = null;

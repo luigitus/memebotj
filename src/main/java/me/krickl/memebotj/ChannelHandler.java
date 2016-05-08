@@ -176,6 +176,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
         this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         this.internalCommands.add(new WorldRecordCommand(this, "!wr", "#internal#"));
+        this.internalCommands.add(new UptimeCommand(this, "!uptime", "#internal#"));
 
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
