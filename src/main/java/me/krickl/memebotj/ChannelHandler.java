@@ -99,6 +99,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private boolean useWhisper = false;
     private Cooldown reconnectCooldown = new Cooldown(40);
     private String itemDrops = "mm";
+    private String uptimeString = "";
 
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
@@ -515,7 +516,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         //log to file
         System.out.println("<" + channel + ">" + msg);
 
-        if(forcechat) {
+        if(forcechat && (whisper || useWhisper)) {
             if (sender.getUsername().equals("#readonly#")) {
                 this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
             } else {
@@ -1112,6 +1113,18 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setWriter(BufferedWriter writer) {
         this.writer = writer;
+    }
+
+    public void setSpeedRunComAPI(SpeedRunComAPI speedRunComAPI) {
+        this.speedRunComAPI = speedRunComAPI;
+    }
+
+    public String getUptimeString() {
+        return uptimeString;
+    }
+
+    public void setUptimeString(String uptimeString) {
+        this.uptimeString = uptimeString;
     }
 
     public JSONObject toJSONObject() {

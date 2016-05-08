@@ -84,6 +84,7 @@ public class TwitchAPI {
     private void parseChannel(Channel channel) {
         channelHandler.setStreamTitle(channel.getStatus());
         channelHandler.setCurrentGame(channel.getGame());
+        channelHandler.setUptimeString("");
         if (channelHandler.getCurrentGame() == null) {
             channelHandler.setCurrentGame("Not Playing");
         }

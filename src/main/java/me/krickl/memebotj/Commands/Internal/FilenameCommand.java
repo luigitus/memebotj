@@ -1,11 +1,13 @@
 package me.krickl.memebotj.Commands.Internal;
 
+import com.sun.istack.internal.Nullable;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
@@ -14,6 +16,7 @@ import java.util.Random;
  */
 public class FilenameCommand extends CommandHandler {
     private double namecost = 40;
+    public char[] characters;
 
     public FilenameCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
@@ -22,6 +25,18 @@ public class FilenameCommand extends CommandHandler {
 
     @Override
     public void initCommand() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for(char chara = '0'; chara <= '9'; chara++) {
+            stringBuilder.append(chara);
+        }
+        for(char chara = 'a'; chara <= 'z'; chara++) {
+            stringBuilder.append(chara);
+        }
+        for(char chara = 'A'; chara <= 'Z'; chara++) {
+            stringBuilder.append(chara);
+        }
+        characters = stringBuilder.toString().toCharArray();
     }
 
     @Override
@@ -91,7 +106,7 @@ public class FilenameCommand extends CommandHandler {
 
                         try {
                             amount = Integer.parseInt(data[1]);
-                        } catch(ArrayIndexOutOfBoundsException e) {
+                        } catch (ArrayIndexOutOfBoundsException e) {
                             e.printStackTrace();
                         }
 
@@ -136,6 +151,25 @@ public class FilenameCommand extends CommandHandler {
                 } else if (data[0].equals("cost")) {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_COST", getChannelHandler(), sender, this, true, new String[]{Double.toString(namecost)}, ""), this.getChannelHandler().getChannel());
                     return;
+                } else if (data[0].equals("random")) {
+                    if (checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
+                        int length = getChannelHandler().getMaxFileNameLen();
+
+                        try {
+                            length = Integer.parseInt(data[1]);
+                        } catch(ArrayIndexOutOfBoundsException e1) {
+                            e1.printStackTrace();
+                        }
+
+                        String name = randomString(getChannelHandler().getMaxFileNameLen(), characters);
+                        getChannelHandler().sendMessage(Memebot.formatText("NAME_PICK", getChannelHandler(), sender, this, true, new String[]{name, "#RNG"}, ""));
+                        getChannelHandler().setCurrentFileName(name);
+
+                        return;
+                    } else {
+                        getChannelHandler().sendMessage(Memebot.formatText("NAME_GET_ERROR", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+                        return;
+                    }
                 }
             }
 
@@ -180,7 +214,25 @@ public class FilenameCommand extends CommandHandler {
             e.printStackTrace();
         } catch(IllegalArgumentException e) {
             e.printStackTrace();
-            getChannelHandler().sendMessage(Memebot.formatText("NAME_EMPTY", getChannelHandler(), sender, this, true, new String[]{}, ""));
+            String name = randomString(getChannelHandler().getMaxFileNameLen(), characters);
+            getChannelHandler().sendMessage(Memebot.formatText("NAME_EMPTY", getChannelHandler(), sender, this, true, new String[]{name}, ""));
+            getChannelHandler().setCurrentFileName(name);
         }
+    }
+
+    @Nullable
+    private static String randomString(int length, char[] characters) {
+        SecureRandom random = new SecureRandom();
+        if(length < 1) {
+            return null;
+        }
+
+        StringBuilder str = new StringBuilder();
+
+        for(int i = 0; i < length; i++) {
+            str.append(characters[random.nextInt(characters.length)]);
+        }
+
+        return str.toString();
     }
 }
