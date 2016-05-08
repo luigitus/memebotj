@@ -23,8 +23,13 @@ public class WorldRecordCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        getChannelHandler().getSpeedRunComAPI().updateGame();
-        getChannelHandler().sendMessage(formatString(sender), getChannelHandler().getChannel(), sender, isWhisper());
+        if (getChannelHandler().getSpeedRunComAPI().getGame() != null) {
+            getChannelHandler().getSpeedRunComAPI().updateGame();
+            getChannelHandler().sendMessage(formatString(sender), getChannelHandler().getChannel(), sender, isWhisper());
+        } else {
+            getChannelHandler().sendMessage(Memebot.formatText("WR_NO_GAME_AVAILABLE", getChannelHandler(), sender, this, true,
+                    new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
+        }
     }
 
     private String formatString(UserHandler sender) {

@@ -23,24 +23,44 @@ public class PersonalBestCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        getChannelHandler().getSpeedRunComAPI().updateGame();
-        getChannelHandler().sendMessage(formatString(sender), getChannelHandler().getChannel(), sender, isWhisper());
+        if (getChannelHandler().getSpeedRunComAPI().getUser() != null) {
+            try {
+                if (data[0].equals("list")) {
+                    getChannelHandler().sendMessage(formatString(sender, true), getChannelHandler().getChannel(), sender, isWhisper());
+                    return;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+            }
+            getChannelHandler().getSpeedRunComAPI().updateGame();
+            getChannelHandler().sendMessage(formatString(sender, false), getChannelHandler().getChannel(), sender, isWhisper());
+        } else {
+            if (getChannelHandler().getSpeedRunComAPI().getGame() != null) {
+                getChannelHandler().sendMessage(Memebot.formatText("PB_NO_USER", getChannelHandler(), sender, this, true,
+                        new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
+            } else {
+                getChannelHandler().sendMessage(Memebot.formatText("PB_NO_USER_AND_GAME", getChannelHandler(), sender, this, true,
+                        new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
+            }
+        }
     }
 
-    private String formatString(UserHandler sender) {
+    private String formatString(UserHandler sender, boolean list) {
         String title = getChannelHandler().getStreamTitle();
         String gameID = getChannelHandler().getSpeedRunComAPI().getGame().getId();
         String userID = getChannelHandler().getSpeedRunComAPI().getUser().getId();
         ArrayList<Category> categories = getChannelHandler().getSpeedRunComAPI().getGame().getCategories();
-        for (Category category : categories) {
-            if (title.toLowerCase().contains(category.getName().toLowerCase())) {
-                String time = getPB(userID, gameID, category.getId());
-                return Memebot.formatText("PB_CATEGORY", getChannelHandler(), sender, this, true,
-                        new String[]{category.getName(), time}, "");
+        if (!list) {
+            for (Category category : categories) {
+                if (title.toLowerCase().contains(category.getName().toLowerCase())) {
+                    String time = getPB(userID, gameID, category.getId());
+                    return Memebot.formatText("PB_CATEGORY", getChannelHandler(), sender, this, true,
+                            new String[]{category.getName(), time}, "");
+                }
             }
         }
-        return Memebot.formatText("PB_NO_CATEGORY_SET", getChannelHandler(), sender, this, true,
-                new String[]{}, "");
+        String output = getPBs(userID, gameID, categories);
+        return Memebot.formatText("PB_ALL_GAME", getChannelHandler(), sender, this, true,
+                new String[]{output}, "");
     }
 
     private String getPB(String userID, String gameID, String categoryID) {
@@ -58,6 +78,31 @@ public class PersonalBestCommand extends CommandHandler {
             e.printStackTrace();
         }
         return "THERE'S NO TIME TO EXPLAIN [FOUND_NO_PB_TIME]";
+    }
+
+    private String getPBs(String userID, String gameID, ArrayList<Category> categories) {
+        String output = "";
+        try {
+            SpeedRunCom service = getChannelHandler().getSpeedRunComAPI().getService();
+            Call<PBLookup> pbs = service.getPersonalBests(userID, gameID);
+            ArrayList<RunObject> runs = pbs.execute().body().getData();
+            for (RunObject run1 : runs) {
+                Run run = run1.getRun();
+                for (Category category : categories) {
+                    if (run.getCategory().equals(category.getId())) {
+                        output += " " + category.getName();
+                        break;
+                    }
+                }
+                output += " " + parseTime(run.getTimes().getPrimaryT()) + ",";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (output.equals("")) {
+            return "HE HAS NO STYLE, HE HAS NO GRACE, THIS STRIMMER HAS NO PBS IN THIS GAME";
+        }
+        return output.substring(0, output.lastIndexOf(","));
     }
 
     private String parseTime(long time) {

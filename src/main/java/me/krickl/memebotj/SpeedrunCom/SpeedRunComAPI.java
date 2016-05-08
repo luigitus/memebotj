@@ -17,6 +17,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 /**
@@ -67,7 +68,10 @@ public class SpeedRunComAPI {
     public void updateUser() {
         Call<UsersLookup> userLookup = service.lookupUser(channelHandler.getBroadcaster());
         try {
-            user = userLookup.execute().body().getData().get(0);
+            ArrayList<UserObject> users = userLookup.execute().body().getData();
+            if (!users.isEmpty()) {
+                user = users.get(0);
+            }
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
@@ -75,22 +79,26 @@ public class SpeedRunComAPI {
 
     public void updateGame() {
         String currentGame = channelHandler.getCurrentGame();
-        if (game == null) {
-            Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
-            try {
-                game = gameLookup.execute().body().getData().get(0);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (!currentGame.equals("Not Playing") && !currentGame.equals("")) {
+            if (game == null) {
+                Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
+                try {
+                    game = gameLookup.execute().body().getData().get(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
-            return;
-        }
-        if (!game.getName().equals(currentGame)) {
-            Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
-            try {
-                game = gameLookup.execute().body().getData().get(0);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (!game.getName().equals(currentGame)) {
+                Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
+                try {
+                    game = gameLookup.execute().body().getData().get(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        } else {
+            game = null;
         }
     }
 
