@@ -366,7 +366,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = Memebot.formatText("ADDED", channelHandler, sender, this, true, new String[]{this.listContent.get(listContent.size() - 1)}, "");
                         this.success = false;
                     }
-                } else if(data[1].equals("suggest")) {
+                } else if (data[1].equals("suggest")) {
                     // allow users to suggest quotes
                     String newEntry = "";
                     for (int i = 2; i < data.length; i++) {
@@ -377,12 +377,28 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         this.success = false;
                     } else {
                         String newEntryFormatted = newEntry + " " + Memebot.formatText(this.commandScript, channelHandler, sender, this, false, new String[]{}, "");
-                        if(!this.suggestedList.contains(newEntryFormatted)) {
+                        if (!this.suggestedList.contains(newEntryFormatted)) {
                             this.suggestedList.add(newEntryFormatted);
                         }
                         formattedOutput = Memebot.formatText("ADDED_SUGGESTED", channelHandler, sender, this, true, new String[]{this.suggestedList.get(suggestedList.size() - 1)}, "");
                         this.success = false;
                     }
+                } else if (data[1].equals("replace") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
+                    String fullargument = "";
+                    for (int i = 2; i < data.length; i++) {
+                        fullargument = fullargument + data[i] + " ";
+                    }
+                    if(fullargument.split(";;").length >= 2) {
+                        String oldString = fullargument.split(";;")[0];
+                        String newString = fullargument.split(";;")[1];
+                        for (int i = 0; i < listContent.size(); i++) {
+                            listContent.get(i).replace(oldString, newString);
+                        }
+                        formattedOutput = Memebot.formatText("REPLACED", channelHandler, sender, this, true, new String[]{}, "");
+                    } else {
+                        formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                    }
+
                 } else if(data[1].equals("approve") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     try {
                         if (this.suggestedList.size() > Integer.parseInt(data[2])) {
@@ -522,6 +538,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         //format parameters
         if (counterStart < this.parameters + 1) {
             formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
+            commandScript = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
         }
         formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, new String[]{}, "");
         commandScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, new String[]{}, "");

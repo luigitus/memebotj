@@ -17,7 +17,7 @@ public class SendMessageCommand extends CommandHandler {
 
     @Override
     public void overrideDB() {
-        this.setNeededCommandPower(CommandPower.adminAbsolute);
+        this.setNeededCommandPower(CommandPower.botModAbsolute);
     }
 
     @Override
@@ -25,6 +25,7 @@ public class SendMessageCommand extends CommandHandler {
         try {
             String sendToChannel = data[0];
             String message = "";
+            boolean includeName = false;
 
             for(int i = 1; i < data.length; i++) {
                 message = message + data[i] + " ";
@@ -32,6 +33,14 @@ public class SendMessageCommand extends CommandHandler {
 
             if(!sendToChannel.contains("#")) {
                 sendToChannel = "#" + sendToChannel;
+            }
+
+            if(sendToChannel.equals("#all#") || sendToChannel.equals("#live#")) {
+                includeName = true;
+            }
+
+            if(includeName) {
+                message = "<" + sender.getUsername() + "> ";
             }
 
             if(sendToChannel.equals("#all#")) {
