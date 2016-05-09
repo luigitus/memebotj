@@ -535,13 +535,14 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             }
         }
 
+        String formattedScript = "";
         //format parameters
         if (counterStart < this.parameters + 1) {
             formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
-            commandScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
+            formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
         }
         formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, new String[]{}, "");
-        commandScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, new String[]{}, "");
+        formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, new String[]{}, "");
 
         if(!formattedOutput.equals("null")) {
             if(commandType.equals("counter") || commandType.equals("list") || commandType.equals("default") || commandType.equals("timer")) {
@@ -552,7 +553,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             String channel = this.channelHandler.getChannel();
 
             if(commandType.equals("default")) {
-                channelHandler.sendMessage(commandScript, channel, sender);
+                channelHandler.sendMessage(formattedScript, channel, sender);
                 success = true;
             } else if(commandType.equals("state")) {
                 if(state == 0) {
@@ -560,7 +561,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                     success = true;
                     state = 1;
                 } else if(state == 1) {
-                    channelHandler.sendMessage(commandScript, channel, sender);
+                    channelHandler.sendMessage(formattedScript, channel, sender);
                     success = true;
                     state = 0;
                 }
