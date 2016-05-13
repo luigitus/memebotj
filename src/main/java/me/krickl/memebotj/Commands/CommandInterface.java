@@ -8,15 +8,23 @@ import me.krickl.memebotj.UserHandler;
  */
 public interface CommandInterface {
     void readDB();
+
     void removeDB();
+
     void writeDB();
+
     void overrideDB();
+
     void initCommand();
 
     boolean handleCooldown(UserHandler sender);
+
     boolean startCooldown(UserHandler sender);
+
     boolean checkCost(UserHandler sender, double cost);
+
     void commandScript(UserHandler sender, String[] data);
+
     boolean executeCommand(UserHandler sender, String[] data);
 
     boolean editCommand(String modType, String newValue, UserHandler sender);

@@ -44,7 +44,7 @@ public class InvertedPyramidCommand extends CommandHandler {
                 message = message + " " + data[0];
                 //Thread.sleep(1000)
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

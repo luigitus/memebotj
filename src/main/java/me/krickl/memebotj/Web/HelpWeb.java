@@ -1,9 +1,6 @@
 package me.krickl.memebotj.Web;
 
-import me.krickl.memebotj.ChannelHandler;
-import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import org.json.simple.JSONObject;
 import spark.ModelAndView;
 import spark.template.velocity.VelocityTemplateEngine;
 

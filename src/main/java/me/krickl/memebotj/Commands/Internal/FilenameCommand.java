@@ -15,25 +15,41 @@ import java.util.Random;
  * Created by unlink on 11/04/16.
  */
 public class FilenameCommand extends CommandHandler {
-    private double namecost = 40;
     public char[] characters;
+    private double namecost = 40;
 
     public FilenameCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
         this.readDB();
     }
 
+    @Nullable
+    private static String randomString(int length, char[] characters) {
+        SecureRandom random = new SecureRandom();
+        if (length < 1) {
+            return null;
+        }
+
+        StringBuilder str = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            str.append(characters[random.nextInt(characters.length)]);
+        }
+
+        return str.toString();
+    }
+
     @Override
     public void initCommand() {
 
         StringBuilder stringBuilder = new StringBuilder();
-        for(char chara = '0'; chara <= '9'; chara++) {
+        for (char chara = '0'; chara <= '9'; chara++) {
             stringBuilder.append(chara);
         }
-        for(char chara = 'a'; chara <= 'z'; chara++) {
+        for (char chara = 'a'; chara <= 'z'; chara++) {
             stringBuilder.append(chara);
         }
-        for(char chara = 'A'; chara <= 'Z'; chara++) {
+        for (char chara = 'A'; chara <= 'Z'; chara++) {
             stringBuilder.append(chara);
         }
         characters = stringBuilder.toString().toCharArray();
@@ -52,10 +68,12 @@ public class FilenameCommand extends CommandHandler {
 
     @Override
     public void readDB() {
-        if(!Memebot.useMongo) {return;}
+        if (!Memebot.useMongo) {
+            return;
+        }
         super.readDB();
 
-        namecost = (double)mongoHandler.getObject("namecost", namecost);
+        namecost = (double) mongoHandler.getObject("namecost", namecost);
     }
 
     @Override
@@ -72,12 +90,12 @@ public class FilenameCommand extends CommandHandler {
 
         setSuccess(super.editCommand(modType, newValue, sender));
 
-        if(modType.equals("cost")) {
+        if (modType.equals("cost")) {
             try {
                 //check if number is integer
                 namecost = Integer.parseInt(newValue);
                 setSuccess(true);
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 log.info(e.toString());
             }
         }
@@ -93,7 +111,7 @@ public class FilenameCommand extends CommandHandler {
             // count how many names a user has in the list
             int amountOfNamesInList = 0;
 
-            for(String name : getChannelHandler().getFileNameList()) {
+            for (String name : getChannelHandler().getFileNameList()) {
                 if (name.contains(String.format("%s#%s", data[0], sender.getUsername()))) {
                     amountOfNamesInList = amountOfNamesInList + 1;
                 }
@@ -157,7 +175,7 @@ public class FilenameCommand extends CommandHandler {
 
                         try {
                             length = Integer.parseInt(data[1]);
-                        } catch(ArrayIndexOutOfBoundsException e1) {
+                        } catch (ArrayIndexOutOfBoundsException e1) {
                             e1.printStackTrace();
                         }
 
@@ -177,7 +195,7 @@ public class FilenameCommand extends CommandHandler {
             if (data.length >= 2) {
                 try {
                     i = java.lang.Integer.parseInt(data[1]);
-                } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+                } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
                     getChannelHandler().sendMessage(this.getHelptext(), this.getChannelHandler().getChannel());
                     return;
                 }
@@ -187,14 +205,12 @@ public class FilenameCommand extends CommandHandler {
                 if (amountOfNamesInList + i > getChannelHandler().getMaxAmountOfNameInList()) {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_ADD_TOO_MANY", getChannelHandler(), sender, this, true, new String[]{Integer.toString(getChannelHandler().getMaxAmountOfNameInList()), Integer.toString(amountOfNamesInList)}, ""), this.getChannelHandler().getChannel());
                     success = false;
-                }
-                else if (!this.checkCost(sender, namecost * i + getChannelHandler().getPointsPerUpdate())) {
+                } else if (!this.checkCost(sender, namecost * i + getChannelHandler().getPointsPerUpdate())) {
                     getChannelHandler().sendMessage(Memebot.formatText("NAME_NOT_ENOUGH_MONEY", getChannelHandler(), sender, this, true, new String[]{Double.toString(namecost * i)}, ""), this.getChannelHandler().getChannel());
                 } else {
                     if (i > 1) {
                         getChannelHandler().sendMessage(Memebot.formatText("NAME_ADD_MANY", getChannelHandler(), sender, this, true, new String[]{data[0], data[1]}, ""), this.getChannelHandler().getChannel());
-                    }
-                    else {
+                    } else {
                         getChannelHandler().sendMessage(Memebot.formatText("NAME_ADD", getChannelHandler(), sender, this, true, new String[]{data[0]}, ""), this.getChannelHandler().getChannel());
                     }
                     sender.setPoints(sender.getPoints() - (namecost * i));
@@ -204,7 +220,7 @@ public class FilenameCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText("NAME_ADD_TOO_LONG", getChannelHandler(), sender, this, true, new String[]{Integer.toString(getChannelHandler().getMaxFileNameLen())}, ""), this.getChannelHandler().getChannel());
             }
             for (int c = 0; c < i; c++) {
-                if(success) {
+                if (success) {
                     getChannelHandler().getFileNameList().add(data[0].replace("#", "") + "#" + sender.getUsername());
                 }
             }
@@ -212,27 +228,11 @@ public class FilenameCommand extends CommandHandler {
         } catch (ArrayIndexOutOfBoundsException e) {
             getChannelHandler().sendMessage(this.getHelptext(), this.getChannelHandler().getChannel());
             e.printStackTrace();
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             String name = randomString(getChannelHandler().getMaxFileNameLen(), characters);
             getChannelHandler().sendMessage(Memebot.formatText("NAME_EMPTY", getChannelHandler(), sender, this, true, new String[]{name}, ""));
             getChannelHandler().setCurrentFileName(name);
         }
-    }
-
-    @Nullable
-    private static String randomString(int length, char[] characters) {
-        SecureRandom random = new SecureRandom();
-        if(length < 1) {
-            return null;
-        }
-
-        StringBuilder str = new StringBuilder();
-
-        for(int i = 0; i < length; i++) {
-            str.append(characters[random.nextInt(characters.length)]);
-        }
-
-        return str.toString();
     }
 }

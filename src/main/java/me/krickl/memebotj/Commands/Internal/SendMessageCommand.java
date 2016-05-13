@@ -27,36 +27,36 @@ public class SendMessageCommand extends CommandHandler {
             String message = "";
             boolean includeName = false;
 
-            for(int i = 1; i < data.length; i++) {
+            for (int i = 1; i < data.length; i++) {
                 message = message + data[i] + " ";
             }
 
-            if(!sendToChannel.contains("#")) {
+            if (!sendToChannel.contains("#")) {
                 sendToChannel = "#" + sendToChannel;
             }
 
-            if(sendToChannel.equals("#all#") || sendToChannel.equals("#live#")) {
+            if (sendToChannel.equals("#all#") || sendToChannel.equals("#live#")) {
                 includeName = true;
             }
 
-            if(includeName) {
+            if (includeName) {
                 message = "<" + sender.getUsername() + "> " + message;
             }
 
-            if(sendToChannel.equals("#all#")) {
-                for(ChannelHandler channelHandler : Memebot.joinedChannels) {
-                    channelHandler.sendMessage(message, channelHandler.getChannel() ,sender, false, true);
+            if (sendToChannel.equals("#all#")) {
+                for (ChannelHandler channelHandler : Memebot.joinedChannels) {
+                    channelHandler.sendMessage(message, channelHandler.getChannel(), sender, false, true);
                 }
-            } else if(sendToChannel.equals("#live#")) {
-                for(ChannelHandler channelHandler : Memebot.joinedChannels) {
-                    if(channelHandler.isLive()) {
+            } else if (sendToChannel.equals("#live#")) {
+                for (ChannelHandler channelHandler : Memebot.joinedChannels) {
+                    if (channelHandler.isLive()) {
                         channelHandler.sendMessage(message, channelHandler.getChannel(), sender, false, true);
                     }
                 }
             } else {
                 getChannelHandler().sendMessage(message, sendToChannel, sender, false, true);
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             log.warning(e.toString());
         }
     }

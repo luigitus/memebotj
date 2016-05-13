@@ -1,8 +1,5 @@
 package me.krickl.memebotj;
 
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Inventory.Inventory;
@@ -24,45 +21,35 @@ import java.util.logging.Logger;
  */
 public class UserHandler implements Comparable<UserHandler> {
     public static Logger log = Logger.getLogger(UserHandler.class.getName());
-
-    private MongoHandler mongoHandler = null;
-
-    private String username = "";
-    private String channelOrigin = "";
-
     boolean isModerator = false;
     boolean isUserBroadcaster = false;
     boolean newUser = false;
-    private String nickname = "";
     int commandPower = CommandPower.viewerAbsolute;
     int autoCommandPower = CommandPower.viewerAbsolute;
     int customCommandPower = 0;
+    int timeouts = 0;
+    boolean shouldBeRemoved = false;
+    private MongoHandler mongoHandler = null;
+    private String username = "";
+    private String channelOrigin = "";
+    private String nickname = "";
     private double points = 0.0f;
-
     // private boolean isJoined = false
     private Cooldown userCooldown = new Cooldown(0);
     private String autogreet = "";
-    int timeouts = 0;
     // todo old db code - remove soon
     //MongoCollection<Document> userCollection = null;
     private java.util.HashMap<String, Cooldown> userCommandCooldowns = new java.util.HashMap<String, Cooldown>();
     private String modNote = "";
     private SecureRandom random = new SecureRandom();
-
     private String dateJoined = "null";
     private long timeStampJoined = System.currentTimeMillis();
-
     private boolean enableAutogreets = true;
-
     private double walletSize = -1;
-
     private boolean isFollowing = false;
     private boolean hasFollowed = false;
-
     private boolean hasAutogreeted = false;
-
     private Cooldown removeCooldown = new Cooldown(0);
-    boolean shouldBeRemoved = false;
     private int jackpotWins = 0;
 
     private Inventory userInventory;
@@ -76,7 +63,7 @@ public class UserHandler implements Comparable<UserHandler> {
         userInventory = new Inventory(username, channelOrigin, this);
 
         if (Memebot.useMongo) {
-            if(!Memebot.channelsPrivate.contains(this.channelOrigin)) {
+            if (!Memebot.channelsPrivate.contains(this.channelOrigin)) {
                 // todo old db code - remove soon
                 //this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
                 mongoHandler = new MongoHandler(Memebot.db, this.channelOrigin + "_users");
@@ -97,6 +84,14 @@ public class UserHandler implements Comparable<UserHandler> {
         setCommandPower(this.autoCommandPower);
     }
 
+    public static Logger getLog() {
+        return log;
+    }
+
+    public static void setLog(Logger log) {
+        UserHandler.log = log;
+    }
+
     private void readDB() {
         if (!Memebot.useMongo) {
             return;
@@ -104,27 +99,27 @@ public class UserHandler implements Comparable<UserHandler> {
 
         try {
             mongoHandler.readDatabase(this.username);
-        } catch(DatabaseReadException | IllegalArgumentException e) {
+        } catch (DatabaseReadException | IllegalArgumentException e) {
             log.warning(e.toString());
             this.newUser = true;
             return;
         }
 
-        this.isModerator = (boolean)mongoHandler.getObject("mod", this.isModerator);
-        this.points = (double)mongoHandler.getObject("pointsf", this.points);
+        this.isModerator = (boolean) mongoHandler.getObject("mod", this.isModerator);
+        this.points = (double) mongoHandler.getObject("pointsf", this.points);
         this.autogreet = mongoHandler.getObject("autogreet", this.autogreet).toString();
-        this.customCommandPower = (int)mongoHandler.getObject("ccommandpower", this.customCommandPower);
+        this.customCommandPower = (int) mongoHandler.getObject("ccommandpower", this.customCommandPower);
         this.isUserBroadcaster = (boolean) mongoHandler.getObject("broadcaster", this.isUserBroadcaster);
-        this.timeouts = (int)mongoHandler.getObject("timeouts", this.timeouts);
-        this.enableAutogreets = (boolean)mongoHandler.getObject("enableautogreet", this.enableAutogreets);
+        this.timeouts = (int) mongoHandler.getObject("timeouts", this.timeouts);
+        this.enableAutogreets = (boolean) mongoHandler.getObject("enableautogreet", this.enableAutogreets);
         this.dateJoined = mongoHandler.getObject("datejoined", this.dateJoined).toString();
-        this.timeStampJoined = (long)mongoHandler.getObject("timeStampJoined", this.timeStampJoined);
+        this.timeStampJoined = (long) mongoHandler.getObject("timeStampJoined", this.timeStampJoined);
         this.nickname = mongoHandler.getObject("nickname", this.nickname).toString();
-        this.walletSize = (double)mongoHandler.getObject("wallet", this.walletSize);
-        this.isFollowing = (boolean)mongoHandler.getObject("isfollowing", this.isFollowing);
-        this.hasFollowed = (boolean)mongoHandler.getObject("hasfollowed", this.hasFollowed);
-        this.jackpotWins = (int)mongoHandler.getObject("jackpotwins", this.jackpotWins);
-        this.lastTimeoutDuration = (int)mongoHandler.getObject("lasttoduration", this.lastTimeoutDuration);
+        this.walletSize = (double) mongoHandler.getObject("wallet", this.walletSize);
+        this.isFollowing = (boolean) mongoHandler.getObject("isfollowing", this.isFollowing);
+        this.hasFollowed = (boolean) mongoHandler.getObject("hasfollowed", this.hasFollowed);
+        this.jackpotWins = (int) mongoHandler.getObject("jackpotwins", this.jackpotWins);
+        this.lastTimeoutDuration = (int) mongoHandler.getObject("lasttoduration", this.lastTimeoutDuration);
         this.lastTimeoutReason = mongoHandler.getObject("lasttoreason", this.lastTimeoutReason).toString();
 
         userInventory.readDB();
@@ -151,7 +146,6 @@ public class UserHandler implements Comparable<UserHandler> {
         mongoHandler.updateDocument("lasttoreason", this.lastTimeoutReason);
         //mongoHandler.setDocument(userData);
     }
-
 
     public void writeDB() {
         if (!Memebot.useMongo) {
@@ -206,14 +200,6 @@ public class UserHandler implements Comparable<UserHandler> {
 
     public void setMongoHandler(MongoHandler mongoHandler) {
         this.mongoHandler = mongoHandler;
-    }
-
-    public static Logger getLog() {
-        return log;
-    }
-
-    public static void setLog(Logger log) {
-        UserHandler.log = log;
     }
 
     public int getJackpotWins() {
@@ -312,7 +298,7 @@ public class UserHandler implements Comparable<UserHandler> {
         for (ChannelHandler ch : Memebot.joinedChannels) {
             if (ch.getChannel().equals(this.channelOrigin)) {
                 if (this.points + f > ch.getMaxPoints() || (this.points + f > this.walletSize && this.walletSize > 0)) {
-                    if(Memebot.debug) {
+                    if (Memebot.debug) {
                         this.points = ch.getMaxPoints();
                         result = false;
                     } else {
@@ -491,7 +477,7 @@ public class UserHandler implements Comparable<UserHandler> {
 
         String dbOauth = mongoHandler.getDocument().getOrDefault("oauth", oauth).toString();
 
-        if(oauth.equals(dbOauth)) {
+        if (oauth.equals(dbOauth)) {
             setOauth(dbOauth);
         }
 
@@ -520,7 +506,7 @@ public class UserHandler implements Comparable<UserHandler> {
 
         String dbkey = mongoHandler.getDocument().getOrDefault("apikey", apikey).toString();
 
-        if(apikey.equals(dbkey)) {
+        if (apikey.equals(dbkey)) {
             setOauth(dbkey);
         }
 

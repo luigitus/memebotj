@@ -62,10 +62,10 @@ public class PointsCommand extends CommandHandler {
                         double tax = getChannelHandler().getPointsTax(); // tax is currently 0
                         if (data[0].equals("send")) {
                             if (this.checkCost(sender, number + tax)) {
-                                if(getChannelHandler().getPointsTax() <= 0) {
+                                if (getChannelHandler().getPointsTax() <= 0) {
                                     sender.setPoints(sender.getPoints() - number);
                                 } else {
-                                    sender.setPoints(sender.getPoints() - (number + number/tax));
+                                    sender.setPoints(sender.getPoints() - (number + number / tax));
                                 }
                                 target.setPoints(target.getPoints() + number);
                                 getChannelHandler().sendMessage(Memebot.formatText("POINTS_SEND", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", number), target.screenName(), String.format("%.2f", tax)}, getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender);
@@ -74,9 +74,9 @@ public class PointsCommand extends CommandHandler {
                             }
                         }
                     }
-                } catch(ArrayIndexOutOfBoundsException e) {
+                } catch (ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
-                } catch(NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     CommandHandler.log.info("This exception is an illusion and is a trap devised by satan!" + e.toString());
                     getChannelHandler().sendMessage(Memebot.formatText("POINTS_ERROR_NFE", getChannelHandler(), sender, this, true, new String[]{"NumberFormatException"}, ""), getChannelHandler().getChannel(), sender);
                 }

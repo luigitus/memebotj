@@ -3,9 +3,9 @@ package me.krickl.memebotj;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
-import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
 
@@ -28,8 +28,8 @@ import java.util.logging.Logger;
  */
 //todo rewrite main class
 public class Memebot {
+    public static final int messageLimit = 19; // message limit per 30 seconds
     public static Logger log = Logger.getLogger(Memebot.class.getName());
-
     public static String ircServer = "irc.twitch.tv";
     public static int ircport = 6667;
     public static String mongoHost = "localhost";
@@ -53,7 +53,6 @@ public class Memebot {
     public static ArrayList<String> channelsPrivate = new java.util.ArrayList<String>();
     public static boolean isTwitchBot = true;
     public static boolean jokeMode = false;
-
     // ConnectionHandler connection = null
     public static List<ChannelHandler> joinedChannels = new ArrayList<ChannelHandler>();
     public static boolean useMongo = true;
@@ -61,13 +60,9 @@ public class Memebot {
     public static MongoClient mongoClient = null;
     public static MongoDatabase dbPrivate = null;
     public static MongoDatabase db = null;
-
     public static int webPort = 4567;
 
-    public static final int messageLimit = 19; // message limit per 30 seconds
-
     //public static MongoCollection<Document> internalCollection = null;
-
     public static String webBaseURL = "";
 
     public static boolean useWeb = true;
@@ -140,7 +135,7 @@ public class Memebot {
             try {
                 channels = Memebot.listDirectory(new File(memebotDir + "/channels/"), 1);
                 //private channels on private database
-                channelsPrivate = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig),Charset.defaultCharset());
+                channelsPrivate = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig), Charset.defaultCharset());
 
                 urlBanList = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
                         Charset.defaultCharset());
@@ -163,7 +158,7 @@ public class Memebot {
         // join channels
         Iterator it = Memebot.channels.iterator();
         while (it.hasNext()) {
-            String channel  = (String)it.next();
+            String channel = (String) it.next();
             Memebot.joinChannel(channel);
         }
     }
@@ -182,7 +177,7 @@ public class Memebot {
 
             try {
                 Thread.sleep(60000);
-            } catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.warning(e.toString());
             }
         }
@@ -192,7 +187,7 @@ public class Memebot {
         try {
             File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
             if (login.exists()) {
-                ArrayList<String> loginInfo = (ArrayList<String>)Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
+                ArrayList<String> loginInfo = (ArrayList<String>) Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
 
                 Memebot.log.info("Found login file for channel " + channel);
 
@@ -204,7 +199,7 @@ public class Memebot {
                 newChannel.start();
                 joinedChannels.add(newChannel);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.warning(e.toString());
         }
     }
@@ -214,16 +209,16 @@ public class Memebot {
         Properties config = new Properties();
         try {
             config.load(new FileReader(Memebot.configFile));
-        } catch(FileNotFoundException e) {
-                try {
-                    new File(Memebot.configFile).createNewFile();
-                    // save properties
-                } catch(IOException e1) {
-                    log.warning(e.toString());
+        } catch (FileNotFoundException e) {
+            try {
+                new File(Memebot.configFile).createNewFile();
+                // save properties
+            } catch (IOException e1) {
+                log.warning(e.toString());
             }
 
             log.warning(e.toString());
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.warning(e.toString());
         }
 
@@ -232,7 +227,7 @@ public class Memebot {
         try {
             botAdmins = Files.readAllLines(Paths.get(Memebot.memebotDir + "/botadmins.cfg"));
             botAdmins.add("#internal#");
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.warning(e.toString());
         }
 
@@ -259,7 +254,7 @@ public class Memebot {
         Memebot.jokeMode = Boolean.parseBoolean(config.getProperty("joke", Boolean.toString(Memebot.jokeMode)));
         Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
 
-        if(!Memebot.debug) {
+        if (!Memebot.debug) {
             try {
                 File f = new File(Memebot.memebotDir + "/logs/#bot#.log");
                 if (!f.exists())
@@ -293,7 +288,7 @@ public class Memebot {
             bw = new BufferedWriter(new FileWriter(f));
             bw.write(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
             bw.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.info(e.toString());
         }
     }
@@ -301,17 +296,17 @@ public class Memebot {
     public static void saveAll() {
         Iterator it = Memebot.joinedChannels.iterator();
         while (it.hasNext()) {
-            ChannelHandler ch = (ChannelHandler)it.next();
+            ChannelHandler ch = (ChannelHandler) it.next();
             ch.writeDB();
-            for(CommandHandler commandHandler : ch.getChannelCommands()) {
+            for (CommandHandler commandHandler : ch.getChannelCommands()) {
                 commandHandler.writeDB();
             }
 
-            for(CommandHandler commandHandler : ch.getInternalCommands()) {
+            for (CommandHandler commandHandler : ch.getInternalCommands()) {
                 commandHandler.writeDB();
             }
 
-            for(String userHandler : ch.getUserList().keySet()) {
+            for (String userHandler : ch.getUserList().keySet()) {
                 ch.getUserList().get(userHandler).writeDB();
             }
             ch.setJoined(false);
@@ -345,7 +340,7 @@ public class Memebot {
             formattedOutput = formattedOutput.replace("{points}", String.format("%.2f", sender.getPoints()));
             formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
             int newRan = new Double(sender.getPoints()).intValue();
-            if(newRan > 0) {
+            if (newRan > 0) {
                 formattedOutput = formattedOutput.replace("{randompoints}", Integer.toString(Math.abs(ran.nextInt(newRan))));
             } else {
                 formattedOutput = formattedOutput.replace("{randompoints}", Integer.toString(Math.abs(ran.nextInt(newRan + 1))));
@@ -362,7 +357,7 @@ public class Memebot {
             if (channelHandler.getCurrentGame() != null) {
                 formattedOutput = formattedOutput.replace("{game}", channelHandler.getCurrentGame());
             }
-            if(channelHandler.getStreamTitle() != null) {
+            if (channelHandler.getStreamTitle() != null) {
                 formattedOutput = formattedOutput.replace("{title}", channelHandler.getStreamTitle());
             }
             formattedOutput = formattedOutput.replace("{curremote}",
@@ -379,7 +374,7 @@ public class Memebot {
             // random USSR as parameter - returns your favourite communist leader
             String[] keysUSSR = {"Vladimir Lenin", "Joseph Stalin", "Georgy Malenkov", "Nikita Khrushchev",
                     "Leonid Brezhnev", "Yuri Andropov", "Konstantin Chernenko", "Mikhail Gorbachev",
-            "Gennady Yanayev", "The man who arranges the blocks which continue to fall from up above"};
+                    "Gennady Yanayev", "The man who arranges the blocks which continue to fall from up above"};
             String randomUSSRString = keysUSSR[ran.nextInt(keysUSSR.length)];
             formattedOutput = formattedOutput.replace("{randomUSSR}", randomUSSRString);
 
@@ -438,8 +433,10 @@ public class Memebot {
 
 
     //todo replace urlRequest with Retrofit calls, so we can easily call API endpoints
+
     /***
      * Reads from URL
+     *
      * @param urlString The URL
      * @return String of content
      * @deprecated
@@ -454,14 +451,14 @@ public class Memebot {
 
     public static String urlRequest(String urlString, int timeout, boolean appendLineFeed, String requestMethod, String urlParameters) {
         URL url;
-        HttpURLConnection connection  = null;
+        HttpURLConnection connection = null;
         byte[] sendData = urlParameters.getBytes(StandardCharsets.UTF_8);
         int sendLen = sendData.length;
         String data = "";
         BufferedReader in;
         try {
             url = new URL(urlString);
-            connection = (HttpURLConnection)url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(timeout);
             connection.setRequestMethod(requestMethod);
             if (requestMethod.equals("POST") || requestMethod.equals("PUT")) {
@@ -482,15 +479,15 @@ public class Memebot {
 
             boolean isError = connection.getResponseCode() >= 400;
 
-            if(!isError) {
+            if (!isError) {
                 in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             } else {
                 in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
             }
 
             String line;
-            while((line = in.readLine()) != null) {
-                if(appendLineFeed) {
+            while ((line = in.readLine()) != null) {
+                if (appendLineFeed) {
                     data = data + line + "\n";
                 } else {
                     data = data + line;
@@ -498,11 +495,11 @@ public class Memebot {
             }
 
             in.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.warning(e.toString());
             data = e.toString();
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
@@ -516,15 +513,15 @@ public class Memebot {
 
     public static byte[] urlRequestBytes(String urlString, int timeout, String requestMethod, String urlParameters) {
         URL url;
-        HttpURLConnection connection  = null;
+        HttpURLConnection connection = null;
         byte[] data = new byte[1024];
-        byte[] sendData = urlParameters.getBytes(StandardCharsets.UTF_8 );
+        byte[] sendData = urlParameters.getBytes(StandardCharsets.UTF_8);
         int sendLen = sendData.length;
         InputStream in;
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
         try {
             url = new URL(urlString);
-            connection = (HttpURLConnection)url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(timeout);
             connection.setRequestMethod(requestMethod);
             if (requestMethod.equals("POST") || requestMethod.equals("PUT")) {
@@ -545,7 +542,7 @@ public class Memebot {
 
             boolean isError = connection.getResponseCode() >= 400;
 
-            if(!isError) {
+            if (!isError) {
                 in = connection.getInputStream();
             } else {
                 in = connection.getErrorStream();
@@ -553,17 +550,17 @@ public class Memebot {
 
             int bytesRead = 0;
 
-            while((bytesRead = in.read(data)) != -1) {
+            while ((bytesRead = in.read(data)) != -1) {
                 bao.write(data, 0, bytesRead);
             }
 
             in.close();
             bao.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.warning(e.toString());
             return e.toString().getBytes();
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
@@ -572,7 +569,6 @@ public class Memebot {
     }
 
     /***
-     *
      * @param dir
      * @param mode 1 = list all files, 2 = list all directories, 0 = list both
      * @return

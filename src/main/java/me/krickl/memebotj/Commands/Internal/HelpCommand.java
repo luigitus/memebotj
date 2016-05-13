@@ -5,8 +5,6 @@ import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 
-import java.nio.channels.Channel;
-
 /**
  * This file is part of memebotj.
  * Created by unlink on 11/04/16.
@@ -30,7 +28,7 @@ public class HelpCommand extends CommandHandler {
                 return;
             }
             for (CommandHandler ch : getChannelHandler().getInternalCommands()) {
-                if(ch.getCommandName().equals(data[0])) {
+                if (ch.getCommandName().equals(data[0])) {
                     if (ch.getHelptext().equals("null")) {
                         getChannelHandler().sendMessage(Memebot.formatText("HELP_NOT_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
                     } else {
@@ -40,8 +38,8 @@ public class HelpCommand extends CommandHandler {
                 }
             }
             getChannelHandler().sendMessage(Memebot.formatText("HELP_NOT_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
-        } catch(ArrayIndexOutOfBoundsException e) {
-            if(Memebot.useWeb) {
+        } catch (ArrayIndexOutOfBoundsException e) {
+            if (Memebot.useWeb) {
                 getChannelHandler().sendMessage(Memebot.webBaseURL + "/help", getChannelHandler().getChannel());
             } else {
                 getChannelHandler().sendMessage(Memebot.formatText("HELP_SYNTAX", getChannelHandler(), sender, this, true, new String[]{"!help <command>"}, getChannelHandler().getChannel()));

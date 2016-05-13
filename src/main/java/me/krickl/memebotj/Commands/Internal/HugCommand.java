@@ -28,7 +28,7 @@ public class HugCommand extends CommandHandler {
             } else {
                 getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_SOMEONE"), getChannelHandler(), sender, this, false, new String[]{sender.screenName(), data[0]}, getChannelHandler().getChannel()));
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_NOBODY"), getChannelHandler(), sender, this, false, new String[]{sender.screenName()}, ""), getChannelHandler().getChannel());
         }
     }

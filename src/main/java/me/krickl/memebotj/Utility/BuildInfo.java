@@ -23,7 +23,7 @@ public class BuildInfo {
                 buildInfo.load(is);
                 is.close();
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

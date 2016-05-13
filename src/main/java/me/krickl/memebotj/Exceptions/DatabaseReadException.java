@@ -5,8 +5,7 @@ package me.krickl.memebotj.Exceptions;
  * Created by unlink on 18/04/16.
  */
 public class DatabaseReadException extends Exception {
-    public DatabaseReadException(String message)
-    {
+    public DatabaseReadException(String message) {
         super(message);
     }
 }

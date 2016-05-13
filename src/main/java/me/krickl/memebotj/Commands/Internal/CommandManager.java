@@ -1,6 +1,5 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
@@ -98,9 +97,9 @@ public class CommandManager extends CommandHandler {
                         ch.writeDB();
                     }
                 }
-            } else if(data[0].equals("removeinternal") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
+            } else if (data[0].equals("removeinternal") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
                 new CommandHandler(this.getChannelHandler(), data[1], "#internal#").removeDB();
-            } else if (data[0].equals("info") && checkPermissions(sender, CommandPower.broadcasterAbsolute,CommandPower.broadcasterAbsolute)) {
+            } else if (data[0].equals("info") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
                 int j = getChannelHandler().findCommand(data[1]);
                 if (j != -1) {
                     getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("COMMAND_TIMES_EXECUTED"), getChannelHandler(), sender, this, false, new String[]{Integer.toString(getChannelHandler().getChannelCommands().get(j).getExecCounter()), "", getChannelHandler().getChannelCommands().get(j).toString()}, ""), this.getChannelHandler().getChannel(), sender);
@@ -117,7 +116,7 @@ public class CommandManager extends CommandHandler {
                     String output = "";
                     try {
                         index = java.lang.Integer.parseInt(data[1]);
-                    } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+                    } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
                         e.printStackTrace();
                     }
                     for (int i = index * 10; i < getChannelHandler().getChannelCommands().size(); i++) {
@@ -129,9 +128,9 @@ public class CommandManager extends CommandHandler {
                     getChannelHandler().sendMessage("Commands: " + output, this.getChannelHandler().getChannel(), sender);
                 }
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             getChannelHandler().sendMessage(this.getHelptext(), this.getChannelHandler().getChannel());
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             getChannelHandler().sendMessage(Memebot.formatText("COMMAND_LIST_ERROR", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender);
             e.printStackTrace();
         }

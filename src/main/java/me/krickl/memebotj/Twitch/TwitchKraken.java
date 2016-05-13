@@ -13,6 +13,7 @@ import retrofit2.http.Path;
 public interface TwitchKraken {
     @GET("streams/{channel}")
     Call<Streams> getStream(@Path("channel") String channel);
+
     @GET("channels/{channel}")
     Call<Channel> getChannel(@Path("channel") String channel);
 }

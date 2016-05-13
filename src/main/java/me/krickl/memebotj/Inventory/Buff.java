@@ -1,7 +1,5 @@
 package me.krickl.memebotj.Inventory;
 
-import me.krickl.memebotj.UserHandler;
-import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.PersistentCooldown;
 
 /**
@@ -10,6 +8,7 @@ import me.krickl.memebotj.Utility.PersistentCooldown;
  */
 public class Buff extends PersistentCooldown {
     Item baseItem = null;
+
     public Buff(int lenght, String id, Item item) {
         super(lenght, id);
         baseItem = item;

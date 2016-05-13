@@ -5,12 +5,10 @@ import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import org.bson.Document;
-import org.bson.codecs.IntegerCodec;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.jar.Pack200;
 
 /**
  * This class will contain items of users that are shared accross channels
@@ -18,17 +16,14 @@ import java.util.jar.Pack200;
  * Created by unlink on 22/04/16.
  */
 public class Inventory {
+    int maxEquips = 8;
+    int currentHealth = 1;
     private MongoHandler mongoHandler;
     private String username = "";
     private ArrayList<Item> items = new ArrayList<>();
     private Document stats = new Document();
-
     private HashMap<String, Buff> buffList = new HashMap<>();
     private ArrayList<String> equips = new ArrayList<>();
-
-    int maxEquips = 8;
-    int currentHealth = 1;
-
     private UserHandler sender = null;
 
     public Inventory(String username, String channelOrigin, UserHandler sender) {
@@ -43,14 +38,14 @@ public class Inventory {
 
     public void addItem(String name, int amount) {
         boolean added = false;
-        for(Item i : items) {
-            if(i.getItemname().equals(name)) {
+        for (Item i : items) {
+            if (i.getItemname().equals(name)) {
                 i.setAmount(i.getAmount() + amount);
                 added = true;
             }
         }
 
-        if(!added) {
+        if (!added) {
             items.add(new Item(name, amount));
         }
     }
@@ -63,21 +58,21 @@ public class Inventory {
         setDefault("armour", 1);
         setDefault("agility", 1);
 
-        for(String key : buffList.keySet()) {
-            if(buffList.get(key).canContinue()) {
+        for (String key : buffList.keySet()) {
+            if (buffList.get(key).canContinue()) {
                 buffList.remove(key);
             }
         }
     }
 
     public void setDefault(String key, int value) {
-        if(!stats.containsKey(key)) {
+        if (!stats.containsKey(key)) {
             stats.append(key, value);
         }
     }
 
     public void setStat(String key, int value) {
-        if(!stats.containsKey(key)) {
+        if (!stats.containsKey(key)) {
             stats.append(key, value);
         } else {
             stats.replace(key, value);
@@ -85,15 +80,15 @@ public class Inventory {
     }
 
     public int getStat(String key) {
-        if(stats.containsKey(key)) {
+        if (stats.containsKey(key)) {
             int stat = stats.getInteger(key);
 
-            for(String buffKey : buffList.keySet()) {
+            for (String buffKey : buffList.keySet()) {
                 Buff buff = buffList.get(buffKey);
                 stat = stat + buff.getBaseItem().getTempStat(key);
             }
 
-            for(String equipKey : equips) {
+            for (String equipKey : equips) {
                 Item equip = new Item(equipKey, 1);
                 stat = stat + equip.getEquipStat(key);
             }
@@ -110,7 +105,7 @@ public class Inventory {
         // check if item can still be equipped
         // check cause item can have a max amount if same equips
         int i = hasItems(key, 1);
-        if((i >= 0) && !equips.contains(key) && item.isCanEquip() && this.equips.size() <= this.maxEquips) {
+        if ((i >= 0) && !equips.contains(key) && item.isCanEquip() && this.equips.size() <= this.maxEquips) {
             equips.add(key);
             items.get(i).setAmount(items.get(i).getAmount() - 1);
             return true;
@@ -120,7 +115,7 @@ public class Inventory {
     }
 
     public boolean unequip(String key) {
-        if(equips.contains(key)) {
+        if (equips.contains(key)) {
             addItem(key, 1);
             equips.remove(key);
         }
@@ -134,17 +129,17 @@ public class Inventory {
 
         try {
             mongoHandler.readDatabase(this.username);
-        } catch(DatabaseReadException | IllegalArgumentException e) {
+        } catch (DatabaseReadException | IllegalArgumentException e) {
             return;
         }
 
-        ArrayList<String> itemNames = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("itemnames", new ArrayList<String>());
-        ArrayList<Integer> itemCount = (ArrayList<Integer>)mongoHandler.getDocument().getOrDefault("itemcount", new ArrayList<Integer>());
-        stats = (Document)mongoHandler.getDocument().getOrDefault("stats", stats);
-        equips = (ArrayList<String>)mongoHandler.getDocument().getOrDefault("equips", new ArrayList<String>());
-        currentHealth = (int)mongoHandler.getDocument().getOrDefault("currhp", currentHealth);
+        ArrayList<String> itemNames = (ArrayList<String>) mongoHandler.getDocument().getOrDefault("itemnames", new ArrayList<String>());
+        ArrayList<Integer> itemCount = (ArrayList<Integer>) mongoHandler.getDocument().getOrDefault("itemcount", new ArrayList<Integer>());
+        stats = (Document) mongoHandler.getDocument().getOrDefault("stats", stats);
+        equips = (ArrayList<String>) mongoHandler.getDocument().getOrDefault("equips", new ArrayList<String>());
+        currentHealth = (int) mongoHandler.getDocument().getOrDefault("currhp", currentHealth);
 
-        for(int i = 0; i < itemNames.size(); i++) {
+        for (int i = 0; i < itemNames.size(); i++) {
             items.add(new Item(itemNames.get(i), itemCount.get(i)));
         }
     }
@@ -156,7 +151,7 @@ public class Inventory {
         ArrayList<String> itemNames = new ArrayList<>();
         ArrayList<Integer> itemCount = new ArrayList<>();
 
-        for(Item i : items) {
+        for (Item i : items) {
             itemNames.add(i.getItemname());
             itemCount.add(i.getAmount());
         }
@@ -201,20 +196,20 @@ public class Inventory {
     }
 
     public int hasItems(String name, int amount) {
-        for(int i = 0; i < items.size(); i++) {
+        for (int i = 0; i < items.size(); i++) {
             Item item = items.get(i);
-            if(item.getItemname().equals(name) && item.getAmount() >= amount) {
+            if (item.getItemname().equals(name) && item.getAmount() >= amount) {
                 return i;
             }
         }
 
-        return  -1;
+        return -1;
     }
 
     public void addBuff(Item item) {
         buffList.put(item.getItemname(), new Buff(item.getBuffTime(), sender.getUsername(), item));
 
-        for(String key : item.getStatGain().keySet()) {
+        for (String key : item.getStatGain().keySet()) {
             setStat(key, item.getStatGain().get(key) + getStat(key));
         }
     }
@@ -226,7 +221,7 @@ public class Inventory {
     public int isUsing(String name) {
         hasItems(name, 1);
 
-        return  -1;
+        return -1;
     }
 
     public Document getStats() {
@@ -270,13 +265,13 @@ public class Inventory {
     }
 
     public void setHP(int offset) {
-        if((currentHealth + offset) <= getStat("str") * 4) {
+        if ((currentHealth + offset) <= getStat("str") * 4) {
             currentHealth = offset + currentHealth;
         } else {
             currentHealth = getStat("str") * 4;
         }
 
-        if(currentHealth < 0) {
+        if (currentHealth < 0) {
             currentHealth = 0;
         }
     }

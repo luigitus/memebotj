@@ -37,7 +37,7 @@ public class EdituserCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_NEVER_JOINED", getChannelHandler(), sender, this, true, new String[]{data[1]}, ""), this.getChannelHandler().getChannel());
                 return;
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
         try {
@@ -58,17 +58,17 @@ public class EdituserCommand extends CommandHandler {
                     getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_UP", getChannelHandler(), sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
                 }
 
-            } else if(data[0].equals("save") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
+            } else if (data[0].equals("save") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
                 sender.writeDB();
-            } else if(data[0].equals("login")) {
+            } else if (data[0].equals("login")) {
                 getChannelHandler().sendMessage(sender.getOauth(), this.getChannelHandler().getChannel(), sender, true);
-            } else if(data[0].equals("restlogin")) {
+            } else if (data[0].equals("restlogin")) {
                 getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_RESETLOGIN", getChannelHandler(), sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
 
                 sender.setOauth(sender.resetOAuth());
                 sender.setAPIKey(sender.resetOAuth());
             }
-        } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
             e.printStackTrace();
         }
     }

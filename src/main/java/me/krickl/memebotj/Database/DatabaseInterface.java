@@ -1,7 +1,6 @@
 package me.krickl.memebotj.Database;
 
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
-import org.bson.Document;
 
 import java.util.ArrayList;
 

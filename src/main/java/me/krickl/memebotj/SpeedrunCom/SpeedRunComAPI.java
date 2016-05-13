@@ -18,7 +18,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 /**
  * This file is part of memebotj.

@@ -6,7 +6,9 @@ import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * This file is part of memebotj.
@@ -34,10 +36,10 @@ public class LoginCredentials extends CommandHandler {
                 fop.println(data[0] + "\n" + data[1]);
                 fop.close();
                 getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("LOGIN"), getChannelHandler(), sender, this, false, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-            } catch(IOException e) {
+            } catch (IOException e) {
                 log.warning(e.toString());
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             log.info(e.toString());
         }
     }

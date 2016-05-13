@@ -4,7 +4,6 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
-import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Utility.CommandPower;
 
 /**
