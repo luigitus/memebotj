@@ -232,7 +232,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
                         sender.sendAutogreet(channelHandler);
                     }
                 }
-            } else if (ircmsgList[2].equals("CLEARCHAT")) {
+            } else if (messageType.equals("CLEARCHAT")) {
                 try {
                     if (channelHandler.getUserList().containsKey(ircmsgList[4].replace(":", ""))) {
                         channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).setTimeouts(channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);

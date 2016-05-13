@@ -99,6 +99,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private String itemDrops = "mm";
     private String uptimeString = "";
 
+    private Document aliasDoc = new Document();
+
+    private boolean useAlias = true;
+
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
         this.connection = connection;
@@ -619,6 +623,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.startingPoints = (double) mongoHandler.getObject("startingpoints", this.startingPoints);
             this.bgImage = mongoHandler.getObject("bgImage", this.bgImage).toString();
             itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
+            aliasDoc = (Document) mongoHandler.getObject("commandalias", this.aliasDoc);
         }
 
         // read commands
@@ -665,6 +670,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("startingpoints", this.startingPoints);
         mongoHandler.updateDocument("bgImage", this.bgImage);
         mongoHandler.updateDocument("itemDrops", this.itemDrops);
+        mongoHandler.updateDocument("commandalias", this.aliasDoc);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -1134,6 +1140,30 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setUptimeString(String uptimeString) {
         this.uptimeString = uptimeString;
+    }
+
+    public Cooldown getShortUpdateCooldown() {
+        return shortUpdateCooldown;
+    }
+
+    public void setShortUpdateCooldown(Cooldown shortUpdateCooldown) {
+        this.shortUpdateCooldown = shortUpdateCooldown;
+    }
+
+    public ArrayList<String> getChannelCommandReferences() {
+        return channelCommandReferences;
+    }
+
+    public void setChannelCommandReferences(ArrayList<String> channelCommandReferences) {
+        this.channelCommandReferences = channelCommandReferences;
+    }
+
+    public Document getAliasDoc() {
+        return aliasDoc;
+    }
+
+    public void setAliasDoc(Document aliasDoc) {
+        this.aliasDoc = aliasDoc;
     }
 
     public JSONObject toJSONObject() {
