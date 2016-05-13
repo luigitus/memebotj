@@ -32,6 +32,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     private int cooldownLength = 0;
     private Cooldown cooldown = new Cooldown(cooldownLength);
+    private Cooldown removeCooldown = new Cooldown(300);
     private String helptext = "";
     private int parameters = 0;
     private String commandType = "default";
@@ -52,7 +53,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     private boolean allowPicksFromList = true;
     private boolean overrideHandleMessage = false;
     private int execCounter = 0;
-    private boolean caseSensitive = false;
+    private boolean caseSensitive = true;
     private boolean formatData = false;
     private boolean checkDefaultCooldown = true;
 
@@ -99,6 +100,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public CommandHandler(ChannelHandler channelHandler, String commandName, String dbprefix) {
         this.channelHandler = channelHandler;
         this.commandName = commandName;
+        removeCooldown.startCooldown();
 
         if (Memebot.useMongo) {
             if(!Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel())) {
@@ -325,7 +327,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     public boolean executeCommand(UserHandler sender, String[] data) {
         this.success = false;
-
+        removeCooldown.startCooldown();
         data = formatData(sender, data);
 
         if(this.overrideHandleMessage) {
@@ -445,7 +447,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 } else if (data[1].equals("edit") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     String newEntry = "";
                     for (int i = 3; i < data.length; i++) {
-                        newEntry = newEntry + data[i];
+                        newEntry = newEntry + data[i] + " ";
                     }
                     try {
                         if(this.listContent.size() > Integer.parseInt(data[2])) {
@@ -992,5 +994,13 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     public String toJSON() {
         return toJSONObject().toJSONString();
+    }
+
+    // this method returns true if the object can be removed from memeory
+    public boolean canBeRemoved() {
+        if(removeCooldown.canContinue() && !commandType.equals("timer")) {
+            return true;
+        }
+        return false;
     }
 }

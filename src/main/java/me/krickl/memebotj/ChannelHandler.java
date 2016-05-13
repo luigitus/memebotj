@@ -40,8 +40,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private String broadcaster = this.channel.replace("#", "");
     private HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
     private Cooldown updateCooldown = new Cooldown(600);
+    private Cooldown shortUpdateCooldown = new Cooldown(60);
     private ArrayList<CommandHandler> channelCommands = new ArrayList<CommandHandler>();
     private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
+
+    //this is a collection of channel command namaes
+    private ArrayList<String> channelCommandReferences = new ArrayList<>();
+
     private String followerNotification = "";
     private String raceBaseURL = "http://kadgar.net/live";
     private String greetMessage = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz";
@@ -300,15 +305,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.currentMessageCount = 0;
         }
 
-        if (this.updateCooldown.canContinue()) {
-            this.updateCooldown.startCooldown();
-
-            //update channel api information
-            twitchChannelAPI.update();
-            speedRunComAPI.update();
-
-            this.writeDB();
-            this.writeHTML();
+        if(this.shortUpdateCooldown.canContinue()) {
+            this.shortUpdateCooldown.startCooldown();
 
             ArrayList<String> removeUsers = new java.util.ArrayList<String>();
             Iterator it = this.userList.keySet().iterator();
@@ -332,6 +330,18 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             for (CommandHandler ch : this.channelCommands) {
                 ch.update();
             }
+
+        }
+
+        if (this.updateCooldown.canContinue()) {
+            this.updateCooldown.startCooldown();
+
+            //update channel api information
+            twitchChannelAPI.update();
+            speedRunComAPI.update();
+
+            this.writeDB();
+            this.writeHTML();
         }
     }
 
@@ -378,20 +388,20 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         String[] data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length);
         if (this.purgeURLS) {
             for (String username : Memebot.globalBanList) {
-                if (sender.username.equals(username) && !sender.isModerator) {
-                    this.sendMessage("/ban " + sender.username);
+                if (sender.getUsername().equals(username) && !sender.isModerator) {
+                    this.sendMessage("/ban " + sender.getUsername());
                 }
             }
 
             for (String message : Memebot.urlBanList) {
                 if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.username + " 1");
+                    this.sendMessage("/timeout " + sender.getUsername() + " 1");
                 }
             }
 
             for (String message : Memebot.phraseBanList) {
                 if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.username + " 1");
+                    this.sendMessage("/timeout " + sender.getUsername() + " 1");
                 }
             }
         }
@@ -517,6 +527,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         //log to file
         System.out.println("<" + channel + ">" + msg);
 
+        // force outut to both chat and whisper
         if(forcechat && (whisper || useWhisper)) {
             if (sender.getUsername().equals("#readonly#")) {
                 this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
@@ -622,6 +633,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         for(Document doc : mongoHandler.getDocuments()) {
             channelCommands.add(new CommandHandler(this, doc.getString("command"), ""));
+
+            // todo remove commands after x minutes of them being unused
+            // todo commands will only be kept as references - if needed they can be realoaded
+            // todo needs an implementation of cooldowns that save to db
+            // todo also needs adjustment of the findcommand method
+            // todo - never remove timer commands - this'll need a lot of work
+            channelCommandReferences.add(doc.getString("command"));
         }
     }
 

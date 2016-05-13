@@ -53,6 +53,8 @@ public class WhoisCommand extends CommandHandler {
                     java.lang.Integer.toString(uh.getCommandPower()) +
                     " || Timeouts: " +
                     java.lang.Integer.toString(uh.getTimeouts()) +
+                    " || Timeout Duration " + Integer.toString(uh.getLastTimeoutDuration()) +
+                    " || Timeout Reason " + uh.getLastTimeoutReason() +
                     " || Is known user: " +
                     java.lang.Boolean.toString(!uh.isNewUser()) +
                     " || Date joined: " +

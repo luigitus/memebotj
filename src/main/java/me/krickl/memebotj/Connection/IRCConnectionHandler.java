@@ -233,15 +233,17 @@ public class IRCConnectionHandler implements ConnectionInterface {
                         sender.sendAutogreet(channelHandler);
                     }
                 }
-            } else if (ircmsgList[1].equals("CLEARCHAT")) {
+            } else if (ircmsgList[2].equals("CLEARCHAT")) {
                 try {
-                    if (channelHandler.getUserList().containsKey(ircmsgList[3].replace(":", ""))) {
-                        channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).setTimeouts(channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);
-                        channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).writeDB();
+                    if (channelHandler.getUserList().containsKey(ircmsgList[4].replace(":", ""))) {
+                        channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).setTimeouts(channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);
+                        channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).writeDB();
                     } else {
-                        UserHandler uh = new UserHandler(ircmsgList[3].replace(":", ""), channelHandler.getChannel());
-                        if (!uh.isNewUser()) {
+                        UserHandler uh = new UserHandler(ircmsgList[4].replace(":", ""), channelHandler.getChannel());
+                        if (!uh.isNewUser() || Memebot.debug) {
                             uh.setTimeouts(uh.getTimeouts() + 1);
+                            uh.setLastTimeoutDuration(Integer.parseInt(ircTags.getOrDefault("@ban-duration", "0")));
+                            uh.setLastTimeoutReason(ircTags.getOrDefault("ban-reason", "").replace("\\s", " "));
                             uh.writeDB();
                         }
                     }

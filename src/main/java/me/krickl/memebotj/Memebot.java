@@ -379,7 +379,7 @@ public class Memebot {
             // random USSR as parameter - returns your favourite communist leader
             String[] keysUSSR = {"Vladimir Lenin", "Joseph Stalin", "Georgy Malenkov", "Nikita Khrushchev",
                     "Leonid Brezhnev", "Yuri Andropov", "Konstantin Chernenko", "Mikhail Gorbachev",
-            "Gennady Yanayev", "The man who arranges the block which continue to fall from up above"};
+            "Gennady Yanayev", "The man who arranges the blocks which continue to fall from up above"};
             String randomUSSRString = keysUSSR[ran.nextInt(keysUSSR.length)];
             formattedOutput = formattedOutput.replace("{randomUSSR}", randomUSSRString);
 

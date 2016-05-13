@@ -212,7 +212,7 @@ public class Inventory {
     }
 
     public void addBuff(Item item) {
-        buffList.put(item.getItemname(), new Buff(item.getBuffTime(), sender, item));
+        buffList.put(item.getItemname(), new Buff(item.getBuffTime(), sender.getUsername(), item));
 
         for(String key : item.getStatGain().keySet()) {
             setStat(key, item.getStatGain().get(key) + getStat(key));

@@ -40,7 +40,7 @@ public class SendMessageCommand extends CommandHandler {
             }
 
             if(includeName) {
-                message = "<" + sender.getUsername() + "> ";
+                message = "<" + sender.getUsername() + "> " + message;
             }
 
             if(sendToChannel.equals("#all#")) {

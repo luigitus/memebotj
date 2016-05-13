@@ -173,9 +173,9 @@ public class DampeCommand extends CommandHandler {
             offlineModifier = 5;
         }
 
-        if(sender.getUserInventory().hasBuff("dekustick")) {
+        /*if(sender.getUserInventory().hasBuff("dekustick")) {
             jackpotchance = jackpotchance + 2;
-        }
+        }*/
 
         //outcomes of dampe
         if (outcome <= jackpotchance && getChannelHandler().isLive()) {

@@ -25,47 +25,50 @@ import java.util.logging.Logger;
 public class UserHandler implements Comparable<UserHandler> {
     public static Logger log = Logger.getLogger(UserHandler.class.getName());
 
-    MongoHandler mongoHandler = null;
+    private MongoHandler mongoHandler = null;
 
-    String username = "";
-    String channelOrigin = "";
+    private String username = "";
+    private String channelOrigin = "";
 
     boolean isModerator = false;
     boolean isUserBroadcaster = false;
     boolean newUser = false;
-    String nickname = "";
+    private String nickname = "";
     int commandPower = CommandPower.viewerAbsolute;
     int autoCommandPower = CommandPower.viewerAbsolute;
     int customCommandPower = 0;
     private double points = 0.0f;
 
     // private boolean isJoined = false
-    Cooldown userCooldown = new Cooldown(0);
-    String autogreet = "";
+    private Cooldown userCooldown = new Cooldown(0);
+    private String autogreet = "";
     int timeouts = 0;
     // todo old db code - remove soon
     //MongoCollection<Document> userCollection = null;
-    java.util.HashMap<String, Cooldown> userCommandCooldowns = new java.util.HashMap<String, Cooldown>();
-    String modNote = "";
-    SecureRandom random = new SecureRandom();
+    private java.util.HashMap<String, Cooldown> userCommandCooldowns = new java.util.HashMap<String, Cooldown>();
+    private String modNote = "";
+    private SecureRandom random = new SecureRandom();
 
-    String dateJoined = "null";
-    long timeStampJoined = System.currentTimeMillis();
+    private String dateJoined = "null";
+    private long timeStampJoined = System.currentTimeMillis();
 
-    boolean enableAutogreets = true;
+    private boolean enableAutogreets = true;
 
-    double walletSize = -1;
+    private double walletSize = -1;
 
-    boolean isFollowing = false;
-    boolean hasFollowed = false;
+    private boolean isFollowing = false;
+    private boolean hasFollowed = false;
 
-    boolean hasAutogreeted = false;
+    private boolean hasAutogreeted = false;
 
     private Cooldown removeCooldown = new Cooldown(0);
     boolean shouldBeRemoved = false;
     private int jackpotWins = 0;
 
     private Inventory userInventory;
+
+    private int lastTimeoutDuration = 0;
+    private String lastTimeoutReason = "";
 
     public UserHandler(String username, String channelOrigin) {
         this.username = username;
@@ -121,12 +124,14 @@ public class UserHandler implements Comparable<UserHandler> {
         this.isFollowing = (boolean)mongoHandler.getObject("isfollowing", this.isFollowing);
         this.hasFollowed = (boolean)mongoHandler.getObject("hasfollowed", this.hasFollowed);
         this.jackpotWins = (int)mongoHandler.getObject("jackpotwins", this.jackpotWins);
+        this.lastTimeoutDuration = (int)mongoHandler.getObject("lasttoduration", this.lastTimeoutDuration);
+        this.lastTimeoutReason = mongoHandler.getObject("lasttoreason", this.lastTimeoutReason).toString();
 
         userInventory.readDB();
     }
 
     public void setDB() {
-        Document userData = mongoHandler.getDocument();
+        //Document userData = mongoHandler.getDocument();
         mongoHandler.updateDocument("_id", this.username);
         mongoHandler.updateDocument("pointsf", this.points);
         mongoHandler.updateDocument("mod", this.isModerator);
@@ -142,7 +147,8 @@ public class UserHandler implements Comparable<UserHandler> {
         mongoHandler.updateDocument("isfollowing", this.isFollowing);
         mongoHandler.updateDocument("hasfollowed", this.hasFollowed);
         mongoHandler.updateDocument("jackpotwins", this.jackpotWins);
-
+        mongoHandler.updateDocument("lasttoduration", this.lastTimeoutDuration);
+        mongoHandler.updateDocument("lasttoreason", this.lastTimeoutReason);
         //mongoHandler.setDocument(userData);
     }
 
@@ -447,6 +453,22 @@ public class UserHandler implements Comparable<UserHandler> {
 
     public void setUserInventory(Inventory userInventory) {
         this.userInventory = userInventory;
+    }
+
+    public int getLastTimeoutDuration() {
+        return lastTimeoutDuration;
+    }
+
+    public void setLastTimeoutDuration(int lastTimeoutDuration) {
+        this.lastTimeoutDuration = lastTimeoutDuration;
+    }
+
+    public String getLastTimeoutReason() {
+        return lastTimeoutReason;
+    }
+
+    public void setLastTimeoutReason(String lastTimeoutReason) {
+        this.lastTimeoutReason = lastTimeoutReason;
     }
 
     public String screenName() {

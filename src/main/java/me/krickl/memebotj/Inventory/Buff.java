@@ -10,8 +10,8 @@ import me.krickl.memebotj.Utility.PersistentCooldown;
  */
 public class Buff extends PersistentCooldown {
     Item baseItem = null;
-    public Buff(int lenght, UserHandler sender, Item item) {
-        super(lenght, sender);
+    public Buff(int lenght, String id, Item item) {
+        super(lenght, id);
         baseItem = item;
     }
 
