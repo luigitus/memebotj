@@ -235,7 +235,9 @@ public class IRCConnectionHandler implements ConnectionInterface {
             } else if (messageType.equals("CLEARCHAT")) {
                 try {
                     if (channelHandler.getUserList().containsKey(ircmsgList[4].replace(":", ""))) {
-                        channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).setTimeouts(channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);
+                        channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).setTimeouts(
+                                channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).getTimeouts() + 1);
+
                         channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).writeDB();
                     } else {
                         UserHandler uh = new UserHandler(ircmsgList[4].replace(":", ""), channelHandler.getChannel());
