@@ -1,7 +1,8 @@
 package me.krickl.memebotj.Utility;
 
-import java.io.*;
-import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 /**
@@ -23,7 +24,7 @@ public class Localisation {
                 config.load(reader);
                 reader.close();
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -3,8 +3,6 @@ package me.krickl.memebotj.SpeedrunCom.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-
 public class RankingObject {
     @SerializedName("place")
     @Expose

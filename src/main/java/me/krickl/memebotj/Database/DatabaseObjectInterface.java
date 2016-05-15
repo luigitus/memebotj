@@ -6,7 +6,10 @@ package me.krickl.memebotj.Database;
  */
 public interface DatabaseObjectInterface {
     void writeDB();
+
     void readDB();
+
     void removeDB();
+
     void setDB();
 }

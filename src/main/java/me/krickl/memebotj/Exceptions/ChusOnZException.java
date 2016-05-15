@@ -5,8 +5,7 @@ package me.krickl.memebotj.Exceptions;
  * Created by unlink on 29/04/16.
  */
 public class ChusOnZException extends Exception {
-    public ChusOnZException()
-    {
+    public ChusOnZException() {
         super("Keg Was Thrown");
     }
 }

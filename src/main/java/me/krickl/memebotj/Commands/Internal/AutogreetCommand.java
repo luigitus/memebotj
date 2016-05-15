@@ -59,7 +59,7 @@ public class AutogreetCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_TOGGLE"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), Boolean.toString(sender.isEnableAutogreets())}, getChannelHandler().getChannel()));
             }
             getChannelHandler().sendMessage(message, getChannelHandler().getChannel());
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
     }

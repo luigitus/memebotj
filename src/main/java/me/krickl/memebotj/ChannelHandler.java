@@ -1,8 +1,5 @@
 package me.krickl.memebotj;
 
-import com.mongodb.Block;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
@@ -10,20 +7,22 @@ import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
-import me.krickl.memebotj.Inventory.Buff;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Utility.MessagePackage;
 import org.bson.Document;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.*;
-import java.math.BigInteger;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 /**
@@ -32,33 +31,32 @@ import java.util.logging.Logger;
  */
 public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, DatabaseObjectInterface {
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
-
+    // todo old db code - remove soon
+    //private MongoCollection<Document> channelCollection = null;
+    MongoHandler mongoHandler = null;
     private BufferedWriter writer = null;
-
     private String channel = "";
     private IRCConnectionHandler connection = null;
     private String broadcaster = this.channel.replace("#", "");
     private HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
     private Cooldown updateCooldown = new Cooldown(600);
+    private Cooldown shortUpdateCooldown = new Cooldown(60);
     private ArrayList<CommandHandler> channelCommands = new ArrayList<CommandHandler>();
     private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
+    //this is a collection of channel command namaes
+    private ArrayList<String> channelCommandReferences = new ArrayList<>();
     private String followerNotification = "";
     private String raceBaseURL = "http://kadgar.net/live";
     private String greetMessage = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz";
     private String currentRaceURL = "";
     private ArrayList<String> fileNameList = new ArrayList<>();
-
     private int maxFileNameLen = 8;
     private String currentFileName = "";
     private long streamStartTime = 0;
-
     private String local = "engb";
     private String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
-    // todo old db code - remove soon
-    //private MongoCollection<Document> channelCollection = null;
-    MongoHandler mongoHandler = null;
     private double pointsPerUpdate = 1.0f;
     private Thread t = null;
     private boolean isJoined = true;
@@ -101,6 +99,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private String itemDrops = "mm";
     private String uptimeString = "";
 
+    private Document aliasDoc = new Document();
+
+    private boolean useAlias = true;
+
     public ChannelHandler(String channel, IRCConnectionHandler connection) {
         this.channel = channel;
         this.connection = connection;
@@ -112,10 +114,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         log.info("Joining channel " + this.channel);
         try {
             File f = new File(Memebot.memebotDir + "/logs/" + channel + ".log");
-            if(!f.exists())
+            if (!f.exists())
                 f.createNewFile();
             writer = new BufferedWriter(new FileWriter(f, true));
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -132,7 +134,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.joinChannel(this.channel);
 
         if (Memebot.useMongo) {
-            if(!Memebot.channelsPrivate.contains(this.channel)) {
+            if (!Memebot.channelsPrivate.contains(this.channel)) {
                 // todo old db code - remove soon
                 //this.channelCollection = Memebot.db.getCollection(this.channel);
                 mongoHandler = new MongoHandler(Memebot.db, this.channel);
@@ -196,12 +198,20 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
     }
 
+    public static Logger getLog() {
+        return log;
+    }
+
+    public static void setLog(Logger log) {
+        ChannelHandler.log = log;
+    }
+
     public void partChannel(String channel) {
         this.connection.sendMessageBytes("PART " + channel + "\n");
         boolean isInList = false;
         ChannelHandler removeThisCH = null;
-        for(ChannelHandler ch : Memebot.joinedChannels) {
-            if(ch.getChannel().equalsIgnoreCase(channel)) {
+        for (ChannelHandler ch : Memebot.joinedChannels) {
+            if (ch.getChannel().equalsIgnoreCase(channel)) {
                 isInList = true;
                 removeThisCH = ch;
                 break;
@@ -225,16 +235,16 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         boolean isInList = false;
 
         for (ChannelHandler ch : Memebot.joinedChannels) {
-            if (ch.getChannel().equalsIgnoreCase(channel)){
+            if (ch.getChannel().equalsIgnoreCase(channel)) {
                 isInList = true;
                 break;
             }
         }
 
-        if(!isInList) {
+        if (!isInList) {
             try {
                 new File(Memebot.memebotDir + "/channels/" + channel).createNewFile();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 log.warning(e.toString());
             }
         }
@@ -252,7 +262,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                         update();
                         try {
                             Thread.sleep(100);
-                        } catch(InterruptedException e) {
+                        } catch (InterruptedException e) {
 
                         }
                     }
@@ -277,10 +287,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 if (!Memebot.useUpdateThread) {
                     this.update();
                 }
-            } catch(LoginException e) {
+            } catch (LoginException e) {
                 log.info(e.toString());
                 // fallback in case of login issues - try again
-                if(this.reconnectCooldown.canContinue()) {
+                if (this.reconnectCooldown.canContinue()) {
                     this.connection = new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword);
                     reconnectCooldown.startCooldown();
                 }
@@ -289,7 +299,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         try {
             writer.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
 
         }
     }
@@ -300,20 +310,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.currentMessageCount = 0;
         }
 
-        if (this.updateCooldown.canContinue()) {
-            this.updateCooldown.startCooldown();
-
-            //update channel api information
-            twitchChannelAPI.update();
-            speedRunComAPI.update();
-
-            this.writeDB();
-            this.writeHTML();
+        if (this.shortUpdateCooldown.canContinue()) {
+            this.shortUpdateCooldown.startCooldown();
 
             ArrayList<String> removeUsers = new java.util.ArrayList<String>();
             Iterator it = this.userList.keySet().iterator();
             while (it.hasNext()) {
-                String key = (String)it.next();
+                String key = (String) it.next();
                 UserHandler uh = this.userList.get(key);
                 uh.update(this);
                 if (this.isLive || this.givePointsWhenOffline) {
@@ -332,6 +335,18 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             for (CommandHandler ch : this.channelCommands) {
                 ch.update();
             }
+
+        }
+
+        if (this.updateCooldown.canContinue()) {
+            this.updateCooldown.startCooldown();
+
+            //update channel api information
+            twitchChannelAPI.update();
+            speedRunComAPI.update();
+
+            this.writeDB();
+            this.writeHTML();
         }
     }
 
@@ -348,12 +363,12 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
 
         // if channel does not match ignore the message
-        if(!msgPackage.channel.equals(this.channel)) {
+        if (!msgPackage.channel.equals(this.channel)) {
             // todo send message to the right channel
             return;
         }
 
-        if(msgPackage.messageType.equals("WHISPER")) {
+        if (msgPackage.messageType.equals("WHISPER")) {
             useWhisper = true;
             msgPackage.messageType = "PRIVMSG";
         }
@@ -369,7 +384,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         //log chat content
         String messageString = "";
-        for(String msg : msgContent) {
+        for (String msg : msgContent) {
             messageString = messageString + msg + " ";
         }
         System.out.println("<" + channel + ">" + sender.getUsername() + ": " + messageString);
@@ -378,20 +393,20 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         String[] data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length);
         if (this.purgeURLS) {
             for (String username : Memebot.globalBanList) {
-                if (sender.username.equals(username) && !sender.isModerator) {
-                    this.sendMessage("/ban " + sender.username);
+                if (sender.getUsername().equals(username) && !sender.isModerator) {
+                    this.sendMessage("/ban " + sender.getUsername());
                 }
             }
 
             for (String message : Memebot.urlBanList) {
                 if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.username + " 1");
+                    this.sendMessage("/timeout " + sender.getUsername() + " 1");
                 }
             }
 
             for (String message : Memebot.phraseBanList) {
                 if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.username + " 1");
+                    this.sendMessage("/timeout " + sender.getUsername() + " 1");
                 }
             }
         }
@@ -413,7 +428,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         p = this.findCommand(msg, this.internalCommands, 0);
         if (p != -1) {
             CommandHandler ch = this.internalCommands.get(p);
-            if(!ch.isTextTrigger()) {
+            if (!ch.isTextTrigger()) {
                 ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
             }
         }
@@ -440,7 +455,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         //todo other channel's commands
         for (ChannelHandler ch : Memebot.joinedChannels) {
-            for(String och : this.otherLoadedChannels) {
+            for (String och : this.otherLoadedChannels) {
                 String channel = ch.getBroadcaster();
                 if (ch.getChannel().equals(och) || ch.getBroadcaster().equals(och)) {
                     p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""));
@@ -457,7 +472,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     /***
-     *
      * @param mesgessage
      * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
      */
@@ -467,7 +481,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     /***
-     *
      * @param mesgessage
      * @param channel
      * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
@@ -478,7 +491,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     /***
-     *
      * @param mesgessage
      * @param channel
      * @param sender
@@ -495,7 +507,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat) {
         String msg = mesgessage;
-        if(msg.isEmpty()) {
+        if (msg.isEmpty()) {
             return;
         }
         if (!this.preventMessageCooldown.canContinue()) {
@@ -509,7 +521,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.preventMessageCooldown.startCooldown();
         }
         // ignore /ignore to avoid people being ignored by the bot
-        if(msg.startsWith("/ignore")) {
+        if (msg.startsWith("/ignore")) {
             return;
         }
 
@@ -517,7 +529,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         //log to file
         System.out.println("<" + channel + ">" + msg);
 
-        if(forcechat && (whisper || useWhisper)) {
+        // force outut to both chat and whisper
+        if (forcechat && (whisper || useWhisper)) {
             if (sender.getUsername().equals("#readonly#")) {
                 this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
             } else {
@@ -525,7 +538,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             }
         }
 
-        if(!whisper && !useWhisper) {
+        if (!whisper && !useWhisper) {
             if (sender.getUsername().equals("#readonly#")) {
                 this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
             } else {
@@ -561,8 +574,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public CommandHandler findCommandForString(String command, ArrayList<CommandHandler> commands) {
-        for(CommandHandler commandHandler : commands) {
-            if(commandHandler.getCommandName().equals(command)) {
+        for (CommandHandler commandHandler : commands) {
+            if (commandHandler.getCommandName().equals(command)) {
                 return commandHandler;
             }
         }
@@ -583,45 +596,53 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         try {
             mongoHandler.readDatabase(this.channel);
-        } catch(DatabaseReadException e) {
+        } catch (DatabaseReadException e) {
             log.warning(e.toString());
         }
 
-        if(mongoHandler.getDocument() != null) {
-            this.maxFileNameLen = (int)mongoHandler.getObject("maxfilenamelen", this.maxFileNameLen);
+        if (mongoHandler.getDocument() != null) {
+            this.maxFileNameLen = (int) mongoHandler.getObject("maxfilenamelen", this.maxFileNameLen);
             this.raceBaseURL = mongoHandler.getObject("raceurl", this.raceBaseURL).toString();
-            this.fileNameList = (java.util.ArrayList<String>)mongoHandler.getObject("fileanmelist", this.fileNameList);
-            this.otherLoadedChannels = (java.util.ArrayList<String>)mongoHandler.getObject("otherchannels", this.otherLoadedChannels);
-            this.pointsPerUpdate = (double)mongoHandler.getObject("pointsperupdate", this.pointsPerUpdate);
-            this.allowAutogreet = (boolean)mongoHandler.getObject("allowautogreet", this.allowAutogreet);
-            this.linkTimeout = (int)mongoHandler.getObject("linktimeout", this.linkTimeout);
-            this.purgeURLS = (boolean)mongoHandler.getObject("purgelinks", this.purgeURLS);
-            this.silentMode = (boolean)mongoHandler.getObject("silent", this.silentMode);
-            this.givePointsWhenOffline = (boolean)mongoHandler.getObject("pointswhenoffline", this.givePointsWhenOffline);
-            this.allowGreetMessage = (boolean)mongoHandler.getObject("allowgreetmessage", this.givePointsWhenOffline);
-            this.maxPoints = (double)mongoHandler.getObject("maxpoints", this.maxPoints);
+            this.fileNameList = (java.util.ArrayList<String>) mongoHandler.getObject("fileanmelist", this.fileNameList);
+            this.otherLoadedChannels = (java.util.ArrayList<String>) mongoHandler.getObject("otherchannels", this.otherLoadedChannels);
+            this.pointsPerUpdate = (double) mongoHandler.getObject("pointsperupdate", this.pointsPerUpdate);
+            this.allowAutogreet = (boolean) mongoHandler.getObject("allowautogreet", this.allowAutogreet);
+            this.linkTimeout = (int) mongoHandler.getObject("linktimeout", this.linkTimeout);
+            this.purgeURLS = (boolean) mongoHandler.getObject("purgelinks", this.purgeURLS);
+            this.silentMode = (boolean) mongoHandler.getObject("silent", this.silentMode);
+            this.givePointsWhenOffline = (boolean) mongoHandler.getObject("pointswhenoffline", this.givePointsWhenOffline);
+            this.allowGreetMessage = (boolean) mongoHandler.getObject("allowgreetmessage", this.givePointsWhenOffline);
+            this.maxPoints = (double) mongoHandler.getObject("maxpoints", this.maxPoints);
             this.local = mongoHandler.getObject("local", this.local).toString();
             this.currencyName = mongoHandler.getObject("currname", this.currencyName).toString();
             this.currencyEmote = mongoHandler.getObject("curremote", this.currencyEmote).toString();
             this.followAnnouncement = mongoHandler.getObject("followannouncement", this.followAnnouncement).toString();
-            this.maxScreenNameLen = (int)mongoHandler.getObject("maxscreennamelen", this.maxScreenNameLen);
-            this.maxAmountOfNameInList = (int)mongoHandler.getObject("maxnameinlist", this.maxScreenNameLen);
-            this.pointsTax = (double)mongoHandler.getObject("pointstax", this.pointsTax);
-            this.startingPoints = (double)mongoHandler.getObject("startingpoints", this.startingPoints);
+            this.maxScreenNameLen = (int) mongoHandler.getObject("maxscreennamelen", this.maxScreenNameLen);
+            this.maxAmountOfNameInList = (int) mongoHandler.getObject("maxnameinlist", this.maxScreenNameLen);
+            this.pointsTax = (double) mongoHandler.getObject("pointstax", this.pointsTax);
+            this.startingPoints = (double) mongoHandler.getObject("startingpoints", this.startingPoints);
             this.bgImage = mongoHandler.getObject("bgImage", this.bgImage).toString();
             itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
+            aliasDoc = (Document) mongoHandler.getObject("commandalias", this.aliasDoc);
         }
 
         // read commands
         MongoHandler mongoHandler = null;
-        if(!Memebot.channelsPrivate.contains(this.channel)) {
+        if (!Memebot.channelsPrivate.contains(this.channel)) {
             mongoHandler = new MongoHandler(Memebot.db, this.channel + "_commands");
         } else {
             mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channel + "_commands");
         }
 
-        for(Document doc : mongoHandler.getDocuments()) {
+        for (Document doc : mongoHandler.getDocuments()) {
             channelCommands.add(new CommandHandler(this, doc.getString("command"), ""));
+
+            // todo remove commands after x minutes of them being unused
+            // todo commands will only be kept as references - if needed they can be realoaded
+            // todo needs an implementation of cooldowns that save to db
+            // todo also needs adjustment of the findcommand method
+            // todo - never remove timer commands - this'll need a lot of work
+            channelCommandReferences.add(doc.getString("command"));
         }
     }
 
@@ -649,6 +670,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("startingpoints", this.startingPoints);
         mongoHandler.updateDocument("bgImage", this.bgImage);
         mongoHandler.updateDocument("itemDrops", this.itemDrops);
+        mongoHandler.updateDocument("commandalias", this.aliasDoc);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -670,14 +692,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     @Override
     public int compareTo(ChannelHandler another) {
         return channel.compareTo(another.getChannel());
-    }
-
-    public static Logger getLog() {
-        return log;
-    }
-
-    public static void setLog(Logger log) {
-        ChannelHandler.log = log;
     }
 
     public String getChannel() {
@@ -1060,6 +1074,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         return speedRunComAPI;
     }
 
+    public void setSpeedRunComAPI(SpeedRunComAPI speedRunComAPI) {
+        this.speedRunComAPI = speedRunComAPI;
+    }
+
     public boolean isSilentMode() {
         return silentMode;
     }
@@ -1116,10 +1134,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.writer = writer;
     }
 
-    public void setSpeedRunComAPI(SpeedRunComAPI speedRunComAPI) {
-        this.speedRunComAPI = speedRunComAPI;
-    }
-
     public String getUptimeString() {
         return uptimeString;
     }
@@ -1128,17 +1142,41 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.uptimeString = uptimeString;
     }
 
+    public Cooldown getShortUpdateCooldown() {
+        return shortUpdateCooldown;
+    }
+
+    public void setShortUpdateCooldown(Cooldown shortUpdateCooldown) {
+        this.shortUpdateCooldown = shortUpdateCooldown;
+    }
+
+    public ArrayList<String> getChannelCommandReferences() {
+        return channelCommandReferences;
+    }
+
+    public void setChannelCommandReferences(ArrayList<String> channelCommandReferences) {
+        this.channelCommandReferences = channelCommandReferences;
+    }
+
+    public Document getAliasDoc() {
+        return aliasDoc;
+    }
+
+    public void setAliasDoc(Document aliasDoc) {
+        this.aliasDoc = aliasDoc;
+    }
+
     public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
 
         JSONObject channelCommandsObject = new JSONObject();
         JSONObject internalCommandsObject = new JSONObject();
 
-        for(CommandHandler commandHandler : this.channelCommands) {
+        for (CommandHandler commandHandler : this.channelCommands) {
             channelCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
         }
 
-        for(CommandHandler commandHandler : this.internalCommands) {
+        for (CommandHandler commandHandler : this.internalCommands) {
             internalCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
         }
 

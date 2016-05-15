@@ -1,7 +1,5 @@
 package me.krickl.memebotj.Utility;
 
-import me.krickl.memebotj.UserHandler;
-
 /**
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
@@ -24,9 +22,9 @@ public class Cooldown {
     }
 
     public void startCooldown() {
-        if(uses == cooldownAfterUses) {
-            this.cooldownStart = (int)(System.currentTimeMillis() / 1000);
-            this.cooldownEnd = (int)(System.currentTimeMillis() / 1000L) + this.cooldownLength;
+        if (uses == cooldownAfterUses) {
+            this.cooldownStart = (int) (System.currentTimeMillis() / 1000);
+            this.cooldownEnd = (int) (System.currentTimeMillis() / 1000L) + this.cooldownLength;
             uses = 0;
         } else {
             cooldownAfterUses = cooldownAfterUses + 1;
@@ -34,12 +32,8 @@ public class Cooldown {
     }
 
     public boolean canContinue() {
-        if (this.cooldownEnd > (int)(System.currentTimeMillis() / 1000)) {
-            //this.cooldownEnd = this.cooldownEnd + this.cooldownEnd / 100 * 5 // make cooldown 5% longer if required
-            return false;
-        }
+        return this.cooldownEnd <= (int) (System.currentTimeMillis() / 1000);
 
-        return true;
     }
 
     public int getCooldownLength() {

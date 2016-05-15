@@ -36,7 +36,7 @@ public class PyramidCommand extends CommandHandler {
                 //Thread.sleep(1000)
                 i -= 1;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

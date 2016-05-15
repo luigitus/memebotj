@@ -1,14 +1,10 @@
 package me.krickl.memebotj.Inventory;
 
-import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.Utility.Localisation;
 import org.json.simple.JSONObject;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -41,12 +37,12 @@ public class Item {
 
         try {
             InputStream itemURL = getClass().getResourceAsStream("/items/" + name + ".cfg");
-            if(itemURL != null) {
+            if (itemURL != null) {
                 InputStreamReader reader = new InputStreamReader(itemURL, "UTF-8");
                 itemConfig.load(reader);
                 reader.close();
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -67,7 +63,7 @@ public class Item {
             for (String str : statTemp) {
                 statGain.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
-        } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
             //e.printStackTrace();
         }
 
@@ -76,7 +72,7 @@ public class Item {
             for (String str : statTemp) {
                 statGainTemp.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
-        } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
             //e.printStackTrace();
         }
 
@@ -85,7 +81,7 @@ public class Item {
             for (String str : statTemp) {
                 statGainEquip.put(str.split(" ")[0], Integer.parseInt(str.split(" ")[1]));
             }
-        } catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
             //e.printStackTrace();
         }
 
@@ -114,10 +110,10 @@ public class Item {
 
     public void setAmount(int amount) {
         this.amount = amount;
-        if(this.amount > maxAmount) {
+        if (this.amount > maxAmount) {
             this.amount = maxAmount;
         }
-        if(this.amount < 0) {
+        if (this.amount < 0) {
             amount = 0;
         }
     }
@@ -198,20 +194,20 @@ public class Item {
         return collection;
     }
 
+    public void setCollection(String collection) {
+        this.collection = collection;
+    }
+
     public boolean canBuy() {
+        return canBuy;
+    }
+
+    public boolean isCanBuy() {
         return canBuy;
     }
 
     public void setCanBuy(boolean canBuy) {
         this.canBuy = canBuy;
-    }
-
-    public void setCollection(String collection) {
-        this.collection = collection;
-    }
-
-    public boolean isCanBuy() {
-        return canBuy;
     }
 
     public boolean isCanEquip() {

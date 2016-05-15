@@ -13,7 +13,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -27,7 +26,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
     String botNick = "";
     String password = "";
     int port = -1;
-    Socket ircSocket  = null;
+    Socket ircSocket = null;
     BufferedReader inFromServer = null;
     DataOutputStream outToServer = null;
     boolean debugMode = false;
@@ -40,7 +39,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
         try {
             this.ircSocket = new Socket(server, port);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         try {
@@ -58,7 +57,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
             } else {
                 debugMode = true;
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -69,7 +68,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public String recvData() throws LoginException {
         String ircmsg = "";
-        if(inFromServer == null) {
+        if (inFromServer == null) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -84,7 +83,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
             } else {
                 ircmsg = this.inFromServer.readLine().replace("\n", "").replace("\r", "");
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -106,7 +105,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
         if (ircmsg.contains("PING :")) {
             try {
                 this.ping();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else if (ircmsg.contains(":tmi.twitch.tv NOTICE * :Error logging in")) {
@@ -154,13 +153,13 @@ public class IRCConnectionHandler implements ConnectionInterface {
                 for (String tag : tagList) {
                     try {
                         ircTags.put(tag.split("=")[0], tag.split("=")[1]);
-                    } catch(ArrayIndexOutOfBoundsException e) {
+                    } catch (ArrayIndexOutOfBoundsException e) {
                         //e.printStackTrace();
                     }
                 }
             } else if (i == 0 || (i == 1 && senderName.isEmpty())) {
                 boolean exclaReached = false;
-                for (int j = 0; j <  msg.length(); j++) {
+                for (int j = 0; j < msg.length(); j++) {
                     if (msg.charAt(j) == '!') {
                         exclaReached = true;
                         break;
@@ -233,24 +232,28 @@ public class IRCConnectionHandler implements ConnectionInterface {
                         sender.sendAutogreet(channelHandler);
                     }
                 }
-            } else if (ircmsgList[1].equals("CLEARCHAT")) {
+            } else if (messageType.equals("CLEARCHAT")) {
                 try {
-                    if (channelHandler.getUserList().containsKey(ircmsgList[3].replace(":", ""))) {
-                        channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).setTimeouts(channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).getTimeouts() + 1);
-                        channelHandler.getUserList().get(ircmsgList[3].replace(":", "")).writeDB();
+                    if (channelHandler.getUserList().containsKey(ircmsgList[4].replace(":", ""))) {
+                        channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).setTimeouts(
+                                channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).getTimeouts() + 1);
+
+                        channelHandler.getUserList().get(ircmsgList[4].replace(":", "")).writeDB();
                     } else {
-                        UserHandler uh = new UserHandler(ircmsgList[3].replace(":", ""), channelHandler.getChannel());
-                        if (!uh.isNewUser()) {
+                        UserHandler uh = new UserHandler(ircmsgList[4].replace(":", ""), channelHandler.getChannel());
+                        if (!uh.isNewUser() || Memebot.debug) {
                             uh.setTimeouts(uh.getTimeouts() + 1);
+                            uh.setLastTimeoutDuration(Integer.parseInt(ircTags.getOrDefault("@ban-duration", "0")));
+                            uh.setLastTimeoutReason(ircTags.getOrDefault("ban-reason", "").replace("\\s", " "));
                             uh.writeDB();
                         }
                     }
-                } catch(ArrayIndexOutOfBoundsException e) {
+                } catch (ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
                 }
             }
         } else {
-            if(ircTags.containsKey("display-name")) {
+            if (ircTags.containsKey("display-name")) {
                 sender.setNickname(ircTags.get("display-name"));
             }
             if (ircTags.containsKey("user-type")) {
@@ -277,12 +280,12 @@ public class IRCConnectionHandler implements ConnectionInterface {
             }
         }
 
-        if(messageType.equals("WHISPER")) {
+        if (messageType.equals("WHISPER")) {
             try {
                 messageType = "WHISPER";
                 channel = msgContent[0];
                 msgContent = Arrays.copyOfRange(msgContent, 1, msgContent.length);
-            } catch(ArrayIndexOutOfBoundsException e) {
+            } catch (ArrayIndexOutOfBoundsException e) {
 
             }
         }
@@ -295,14 +298,14 @@ public class IRCConnectionHandler implements ConnectionInterface {
             this.outToServer.close();
             this.inFromServer.close();
             this.ircSocket.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void sendMessage(String msg) {
         System.out.println(msg);
-        if(outToServer == null) {
+        if (outToServer == null) {
             return;
         }
         try {
@@ -315,7 +318,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public void sendMessageBytes(String msg) {
         System.out.println(msg);
-        if(outToServer == null) {
+        if (outToServer == null) {
             return;
         }
         try {

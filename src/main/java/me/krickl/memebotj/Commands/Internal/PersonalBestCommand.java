@@ -3,8 +3,8 @@ package me.krickl.memebotj.Commands.Internal;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.SpeedrunCom.SpeedRunCom;
 import me.krickl.memebotj.SpeedrunCom.Model.*;
+import me.krickl.memebotj.SpeedrunCom.SpeedRunCom;
 import me.krickl.memebotj.UserHandler;
 import retrofit2.Call;
 

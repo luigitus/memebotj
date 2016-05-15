@@ -4,7 +4,6 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
-import me.krickl.memebotj.Utility.CommandPower;
 
 /**
  * This file is part of memebotj.
@@ -33,7 +32,7 @@ public class JoinCommand extends CommandHandler {
             }
             Memebot.joinChannel("#" + sender.getUsername());
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
     }

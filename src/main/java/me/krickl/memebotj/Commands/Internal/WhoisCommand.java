@@ -29,8 +29,7 @@ public class WhoisCommand extends CommandHandler {
             UserHandler uh = null;
             if (getChannelHandler().getUserList().containsKey(user)) {
                 uh = getChannelHandler().getUserList().get(user);
-            }
-            else {
+            } else {
                 uh = new UserHandler(user, this.getChannelHandler().getChannel());
             }
 
@@ -43,7 +42,7 @@ public class WhoisCommand extends CommandHandler {
             if (user.contains("cat") || user.contains("kitty")) {
                 isCat = true;
             }
-            if(user.contains("95shade")) {
+            if (user.contains("95shade")) {
                 swears = false;
             }
             getChannelHandler().sendMessage(uh.getUsername() + " || Broadcaster: " + java.lang.Boolean.toString(uh.isUserBroadcaster()) +
@@ -53,6 +52,8 @@ public class WhoisCommand extends CommandHandler {
                     java.lang.Integer.toString(uh.getCommandPower()) +
                     " || Timeouts: " +
                     java.lang.Integer.toString(uh.getTimeouts()) +
+                    " || Timeout Duration " + Integer.toString(uh.getLastTimeoutDuration()) +
+                    " || Timeout Reason " + uh.getLastTimeoutReason() +
                     " || Is known user: " +
                     java.lang.Boolean.toString(!uh.isNewUser()) +
                     " || Date joined: " +
@@ -63,7 +64,7 @@ public class WhoisCommand extends CommandHandler {
                     java.lang.Boolean.toString(isCat)
                     + "|| Is user a bad girl/boy: " + Boolean.toString(swears)
                     + "|| Jackpot wins: " + Integer.toString(sender.getJackpotWins()), this.getChannelHandler().getChannel(), sender);
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
     }

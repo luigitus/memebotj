@@ -12,7 +12,6 @@ import spark.ModelAndView;
 import spark.Request;
 import spark.template.velocity.VelocityTemplateEngine;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +38,7 @@ public class WebHandler {
             String channel = "#" + req.params(":channel");
             ChannelHandler channelHandler = getChannelForName(channel);
 
-            if(channelHandler != null) {
+            if (channelHandler != null) {
                 Collections.sort(channelHandler.getChannelCommands());
             }
 
@@ -54,7 +53,7 @@ public class WebHandler {
         get("/commands/list/internals/:channel", (req, res) -> {
             String channel = "#" + req.params(":channel");
             ChannelHandler channelHandler = getChannelForName(channel);
-            if(channelHandler != null) {
+            if (channelHandler != null) {
                 Collections.sort(channelHandler.getInternalCommands());
             }
 
@@ -71,11 +70,11 @@ public class WebHandler {
             String command = req.params(":command");
             ChannelHandler channelHandler = getChannelForName(channel);
             int i = -1;
-            if(channelHandler != null) {
+            if (channelHandler != null) {
                 i = channelHandler.findCommand(command);
             }
             CommandHandler commandHandler = null;
-            if(i != -1) {
+            if (i != -1) {
                 commandHandler = channelHandler.getChannelCommands().get(i);
             }
 
@@ -94,11 +93,11 @@ public class WebHandler {
 
             ChannelHandler channelHandler = getChannelForName(channel);
             int i = -1;
-            if(channelHandler != null) {
+            if (channelHandler != null) {
                 i = channelHandler.findCommand(command, channelHandler.getInternalCommands(), 1);
             }
             CommandHandler commandHandler = null;
-            if(i != -1) {
+            if (i != -1) {
                 commandHandler = channelHandler.getInternalCommands().get(i);
             }
 
@@ -134,7 +133,7 @@ public class WebHandler {
 
             ArrayList<String> displayList = new ArrayList<String>();
 
-            if(channelHandler != null) {
+            if (channelHandler != null) {
                 // decide what name to list
                 for (int i = page * 10; i < channelHandler.getFileNameList().size(); i++) {
                     if (i <= page * 10 + 25) {
@@ -163,13 +162,13 @@ public class WebHandler {
 
             ChannelHandler channelHandler = getChannelForName(channel);
 
-            if(channelHandler != null) {
+            if (channelHandler != null) {
                 //Collections.sort(channelHandler.getUserList());
             }
 
             Map<String, Object> model = new HashMap<>();
             MongoHandler mh = null;
-            if(Memebot.channelsPrivate.contains(channel)) {
+            if (Memebot.channelsPrivate.contains(channel)) {
                 mh = new MongoHandler(Memebot.dbPrivate, channel + "_users");
             } else {
                 mh = new MongoHandler(Memebot.db, channel + "_users");
@@ -177,7 +176,7 @@ public class WebHandler {
 
             ArrayList<String> userList = new ArrayList<String>();
             int counter = 0;
-            for(Document doc : mh.getDocuments()) {
+            for (Document doc : mh.getDocuments()) {
                 userList.add(doc.getOrDefault("_id", "#error#").toString());
             }
 
@@ -186,8 +185,8 @@ public class WebHandler {
             ArrayList<String> displayList = new ArrayList<String>();
 
             // decide what user to list
-            for(int i = page * 10; i < userList.size(); i++) {
-                if(i <= page * 10 + 25) {
+            for (int i = page * 10; i < userList.size(); i++) {
+                if (i <= page * 10 + 25) {
                     displayList.add(userList.get(i));
                 }
             }
@@ -252,7 +251,7 @@ public class WebHandler {
 
             String response = "Failed to login!";
 
-            if(oauth.equals(user.getOauth())) {
+            if (oauth.equals(user.getOauth())) {
                 response = "Login OK";
                 res.cookie("/", "login_name", user.getUsername(), 604800, false);
                 res.cookie("/", "login_oauth", sha1HexString(user.getOauth()), 604800, false);
@@ -269,7 +268,7 @@ public class WebHandler {
             return new ModelAndView(model, "web/process.vm");
         }, new VelocityTemplateEngine());
 
-        post("/login", (req, res) ->  {
+        post("/login", (req, res) -> {
             JSONObject loginObject = new JSONObject();
 
             String channel = "#" + req.params(":channel");
@@ -280,7 +279,7 @@ public class WebHandler {
             loginObject.put("_status", "Login Failed");
             loginObject.put("_self", Memebot.webBaseURL + "/login");
 
-            if(oauth.equals(user.getOauth())) {
+            if (oauth.equals(user.getOauth())) {
                 loginObject.put("_status", "Login OK");
                 res.cookie("/", "login_name", user.getUsername(), 604800, false);
                 res.cookie("/", "login_oauth", sha1HexString(user.getOauth()), 604800, false);
@@ -291,28 +290,28 @@ public class WebHandler {
         });
 
 
-        get("/api/channels", (req, res) ->  {
+        get("/api/channels", (req, res) -> {
             JSONObject channelsObject = new JSONObject();
 
-            for(ChannelHandler channelHandler : Memebot.joinedChannels) {
+            for (ChannelHandler channelHandler : Memebot.joinedChannels) {
                 channelsObject.put(channelHandler.getChannel(), Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster());
             }
 
             return channelsObject.toJSONString();
         });
 
-        get("/api/channels/:channel", (req, res) ->  {
+        get("/api/channels/:channel", (req, res) -> {
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             return channelHandler.toJSON();
         });
 
-        get("/api/users/:channel", (req, res) ->  {
+        get("/api/users/:channel", (req, res) -> {
             String channel = "#" + req.params(":channel");
 
             ChannelHandler channelHandler = getChannelForName(channel);
 
             MongoHandler mh = null;
-            if(Memebot.channelsPrivate.contains(channel)) {
+            if (Memebot.channelsPrivate.contains(channel)) {
                 mh = new MongoHandler(Memebot.dbPrivate, channel + "_users");
             } else {
                 mh = new MongoHandler(Memebot.db, channel + "_users");
@@ -320,58 +319,58 @@ public class WebHandler {
 
             ArrayList<String> userList = new ArrayList<String>();
             int counter = 0;
-            for(Document doc : mh.getDocuments()) {
+            for (Document doc : mh.getDocuments()) {
                 userList.add(doc.getOrDefault("_id", "#error#").toString());
             }
 
             JSONObject usersObject = new JSONObject();
 
-            for(String user : userList) {
+            for (String user : userList) {
                 usersObject.put(user, Memebot.webBaseURL + "/api/users/" + channel.replace("#", "") + "/" + user);
             }
 
             return usersObject.toJSONString();
         });
 
-        get("/api/users/:channel/:user", (req, res) ->  {
+        get("/api/users/:channel/:user", (req, res) -> {
             UserHandler userHandler = new UserHandler(req.params(":user"), "#" + req.params(":channel"));
-            return  userHandler.toJSON();
+            return userHandler.toJSON();
         });
 
-        get("/api/commands/:channel", (req, res) ->  {
+        get("/api/commands/:channel", (req, res) -> {
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            for(CommandHandler commandHandler : channelHandler.getChannelCommands()) {
+            for (CommandHandler commandHandler : channelHandler.getChannelCommands()) {
                 commandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
             }
-            return  commandsObject.toJSONString();
+            return commandsObject.toJSONString();
         });
 
-        get("/api/commands/:channel/:command", (req, res) ->  {
+        get("/api/commands/:channel/:command", (req, res) -> {
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getChannelCommands());
-            if(commandHandler != null) {
+            if (commandHandler != null) {
                 return commandHandler.toJSON();
             }
-            return  "{}";
+            return "{}";
         });
 
-        get("/api/internals/:channel", (req, res) ->  {
+        get("/api/internals/:channel", (req, res) -> {
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            for(CommandHandler commandHandler : channelHandler.getInternalCommands()) {
+            for (CommandHandler commandHandler : channelHandler.getInternalCommands()) {
                 commandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
             }
-            return  commandsObject.toJSONString();
+            return commandsObject.toJSONString();
         });
 
-        get("/api/internals/:channel/:command", (req, res) ->  {
+        get("/api/internals/:channel/:command", (req, res) -> {
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getInternalCommands());
-            if(commandHandler != null) {
+            if (commandHandler != null) {
                 return commandHandler.toJSON();
             }
-            return  "{}";
+            return "{}";
         });
 
         HelpWeb.helpWeb();
@@ -383,20 +382,17 @@ public class WebHandler {
         String storedOauth = req.cookie("login_oauth");
         UserHandler user = new UserHandler(username, channel);
 
-        if(storedName == null || storedOauth == null) {
+        if (storedName == null || storedOauth == null) {
             return false;
         }
 
-        if(user.getUsername().equals(storedName) && sha1HexString(user.getOauth()).equals(storedOauth)) {
-            return true;
-        }
+        return user.getUsername().equals(storedName) && sha1HexString(user.getOauth()).equals(storedOauth);
 
-        return false;
     }
 
     public static UserHandler getLoginUserHandler(Request req, String username, String channel) {
 
-        if(checkLogin(req, username, channel)) {
+        if (checkLogin(req, username, channel)) {
             return getUserHandlerForName(channel, username);
         }
 
@@ -405,7 +401,7 @@ public class WebHandler {
 
     public static UserHandler getUserHandlerForName(String channel, String username) {
         ChannelHandler channelHandler = getChannelForName(channel);
-        if(channelHandler.getUserList().containsKey(username)) {
+        if (channelHandler.getUserList().containsKey(username)) {
             return channelHandler.getUserList().get(username);
         }
         UserHandler userHandler = new UserHandler(username, channel);
@@ -417,8 +413,8 @@ public class WebHandler {
 
     public static ChannelHandler getChannelForName(String channel) {
         ChannelHandler channelHandler = null;
-        for(ChannelHandler ch : Memebot.joinedChannels) {
-            if(ch.getChannel().equals(channel)) {
+        for (ChannelHandler ch : Memebot.joinedChannels) {
+            if (ch.getChannel().equals(channel)) {
                 channelHandler = ch;
             }
         }

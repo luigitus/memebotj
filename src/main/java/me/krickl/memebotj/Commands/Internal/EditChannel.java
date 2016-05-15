@@ -1,6 +1,5 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
@@ -80,14 +79,14 @@ public class EditChannel extends CommandHandler {
                 getChannelHandler().setPointsTax(Double.parseDouble(data[1]));
             } else if (data[0].equals("maxname")) {
                 getChannelHandler().setMaxAmountOfNameInList(Integer.parseInt(data[1]));
-            } else if(data[0].equals("background")) {
+            } else if (data[0].equals("background")) {
                 getChannelHandler().setBgImage(data[1]);
-            } else if(data[0].equals("itemDrops")) {
+            } else if (data[0].equals("itemDrops")) {
                 getChannelHandler().setItemDrops(data[1]);
             }
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]}, getChannelHandler().getChannel()));
             getChannelHandler().writeDB();
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             getChannelHandler().sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
         } catch (NumberFormatException e) {
             e.printStackTrace();

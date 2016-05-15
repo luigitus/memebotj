@@ -6,10 +6,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
-import me.krickl.memebotj.Memebot;
 import org.bson.Document;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -20,8 +18,8 @@ import java.util.logging.Logger;
  */
 public class MongoHandler implements DatabaseInterface<Document> {
     public static Logger log = Logger.getLogger(MongoHandler.class.getName());
-    private MongoCollection<Document> collection = null;
     Document document = new Document();
+    private MongoCollection<Document> collection = null;
 
     public MongoHandler(MongoDatabase db, String collectionName) {
         collection = db.getCollection(collectionName);
@@ -30,7 +28,7 @@ public class MongoHandler implements DatabaseInterface<Document> {
     public boolean readDatabase(String id) throws DatabaseReadException {
         Document query = new Document("_id", id);
         FindIterable cursor = this.collection.find(query);
-        document = (Document)cursor.first();
+        document = (Document) cursor.first();
 
         log.info("Reading db for id " + id);
 
@@ -53,18 +51,18 @@ public class MongoHandler implements DatabaseInterface<Document> {
             if (this.collection.findOneAndReplace(query, document) == null) {
                 this.collection.insertOne(document);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.warning(e.toString());
         }
         return true;
     }
 
     public void updateDocument(String key, Object object) {
-        if(document == null) {
+        if (document == null) {
             log.info("Warning: Document is null");
             document = new Document();
         }
-        if(document.containsKey(key)) {
+        if (document.containsKey(key)) {
             document.replace(key, object);
         } else {
             document.append(key, object);
@@ -76,7 +74,7 @@ public class MongoHandler implements DatabaseInterface<Document> {
     }
 
     public void removeFromDocument(String key) {
-        if(document.containsKey(key)) {
+        if (document.containsKey(key)) {
             document.remove(key);
         }
     }
@@ -84,10 +82,10 @@ public class MongoHandler implements DatabaseInterface<Document> {
     public boolean removeDatabase(String id) {
         log.info("Removing db for id " + id);
         try {
-            if(document != null) {
+            if (document != null) {
                 this.collection.deleteOne(document);
             }
-        } catch(java.lang.IllegalArgumentException e) {
+        } catch (java.lang.IllegalArgumentException e) {
             log.warning(e.toString());
         }
 
@@ -98,7 +96,7 @@ public class MongoHandler implements DatabaseInterface<Document> {
         FindIterable data = collection.find();
         ArrayList<Document> ret = new ArrayList<>();
 
-        data.forEach(new Block<Document>(){
+        data.forEach(new Block<Document>() {
 
             @Override
             public void apply(final Document doc) {
