@@ -1,8 +1,10 @@
 package me.krickl.memebotj.Twitch;
 
+import com.google.gson.JsonSyntaxException;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Twitch.Model.Channel;
+import me.krickl.memebotj.Twitch.Model.KrakenRoot;
 import me.krickl.memebotj.Twitch.Model.Stream;
 import me.krickl.memebotj.Twitch.Model.Streams;
 import me.krickl.memebotj.Utility.BuildInfo;
@@ -16,6 +18,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * This file is part of memebotj.
@@ -47,7 +50,7 @@ public class TwitchAPI {
             httpClient.addInterceptor(logging);
         }
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.twitch.tv/kraken/")
+                .baseUrl("https://api.twitch.tv/")
                 .client(httpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -55,6 +58,9 @@ public class TwitchAPI {
     }
 
     public void update() {
+        if (!runningWithValidClientID()) {
+            return;
+        }
         try {
             if (Memebot.isTwitchBot) {
                 Call<Streams> streamCall = service.getStream(channelHandler.getBroadcaster());
@@ -74,11 +80,46 @@ public class TwitchAPI {
                 channelHandler.setCurrentGame("");
                 channelHandler.setStreamTitle("");
             }
-        } catch (IOException | NumberFormatException | com.google.gson.JsonSyntaxException e) {
-            // todo find out what causes com.google.gson.JsonSyntaxException and fix it
+        } catch (IOException | NumberFormatException | JsonSyntaxException e) {
             channelHandler.setCurrentGame("");
             channelHandler.setStreamTitle("");
         }
+    }
+
+    public int validateClientID() {
+        if (Memebot.isTwitchBot) {
+            KrakenRoot root = callRoot();
+            if (root != null && root.getIdentified()) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    public boolean validateOAuthToken(String token, String[] scopes) {
+        if (Memebot.isTwitchBot && runningWithValidClientID()) {
+            if (token.startsWith("oauth:")) {
+                token = token.substring(token.indexOf(":") + 1);
+            }
+            ArrayList<String> validatedScopes = new ArrayList<>();
+            KrakenRoot root = callRootWithToken(token);
+            if (root != null) {
+                if (root.getToken().getValid()) {
+                    ArrayList<String> scopeList = root.getToken().getAuthorization().getScopes();
+                    for (int i = 0; i < scopes.length; i++) {
+                        for (String scopeItem : scopeList) {
+                            if (scopeItem.equals(scopes[i])) {
+                                validatedScopes.add(scopes[i]);
+                            }
+                        }
+                    }
+                    if (scopes.length == validatedScopes.size()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private void parseChannel(Channel channel) {
@@ -91,6 +132,36 @@ public class TwitchAPI {
         if (channelHandler.getStreamTitle() == null) {
             channelHandler.setStreamTitle("");
         }
+    }
+
+    private KrakenRoot callRoot() {
+        if (Memebot.isTwitchBot) {
+            try {
+                Call<KrakenRoot> rootCall = service.getRoot(null);
+                return rootCall.execute().body();
+            } catch (IOException |JsonSyntaxException e) {
+                KrakenRoot root = new KrakenRoot();
+                root.setIdentified(false);
+                return root;
+            }
+        }
+        return null;
+    }
+
+    private KrakenRoot callRootWithToken(String token) {
+        if (Memebot.isTwitchBot) {
+            try {
+                Call<KrakenRoot> rootCall = service.getRoot("OAuth " + token);
+                return rootCall.execute().body();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private boolean runningWithValidClientID() {
+        return Memebot.clientIDValidated == 1;
     }
 
 }

@@ -43,6 +43,7 @@ public class Memebot {
     public static String botNick = null;
     public static String botPassword = null;
     public static String clientID = null;
+    public static int clientIDValidated = -1;
     public static String clientSecret = null;
     public static List<String> botAdmins = new ArrayList<String>();
     public static String mongoUser = "";
@@ -198,10 +199,16 @@ public class Memebot {
 
                 ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", "")));
                 newChannel.start();
+                if (Memebot.clientIDValidated == -1) {
+                    validateClientID(newChannel);
+                }
                 joinedChannels.add(newChannel);
             } else {
                 ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword));
                 newChannel.start();
+                if (Memebot.clientIDValidated == -1) {
+                    validateClientID(newChannel);
+                }
                 joinedChannels.add(newChannel);
             }
         } catch(IOException e) {
@@ -436,8 +443,6 @@ public class Memebot {
         return formattedOutput;
     }
 
-
-    //todo replace urlRequest with Retrofit calls, so we can easily call API endpoints
     /***
      * Reads from URL
      * @param urlString The URL
@@ -569,6 +574,17 @@ public class Memebot {
         }
 
         return bao.toByteArray();
+    }
+
+    private static void validateClientID(ChannelHandler ch) {
+        Memebot.clientIDValidated = ch.getTwitchChannelAPI().validateClientID();
+        if (Memebot.clientIDValidated == 1) {
+            log.info("Client-ID identified, Twitch API can be called without issues");
+            ch.getTwitchChannelAPI().update();
+        } else {
+            log.warning("Client-ID couldn't be identified, please check if you entered a valid Client-ID" +
+                    " in memebot.cfg, this will be REQUIRED for API calls on August 8th.");
+        }
     }
 
     /***
