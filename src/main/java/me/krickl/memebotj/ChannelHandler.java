@@ -320,7 +320,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 UserHandler uh = this.userList.get(key);
                 uh.update(this);
                 if (this.isLive || this.givePointsWhenOffline) {
-                    uh.setPoints(uh.getPoints() + this.pointsPerUpdate * 10);
+                    uh.setPoints(uh.getPoints() + this.pointsPerUpdate);
                 }
                 uh.writeDB();
 
