@@ -36,7 +36,7 @@ public class DampeCommand extends CommandHandler {
         this.setUnformattedOutput("");
         this.setCommandScript("");
         //special case for mikami currently hard coded
-        if (this.getChannelHandler().getChannel().equals("mikamihero")) {
+        if (this.getChannelHandler().getChannel().equals("#mikamihero")) {
             this.setUserCooldownLength(300);
         }
 
