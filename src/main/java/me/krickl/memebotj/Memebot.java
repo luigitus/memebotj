@@ -408,6 +408,8 @@ public class Memebot {
         formattedOutput = formattedOutput.replace("{random}", Integer.toString(Math.abs(ran.nextInt())));
         formattedOutput = formattedOutput.replace("NO_OUTPUT_ERR()", "");
 
+        String paramN = "";
+
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 String str = params[i];
@@ -415,14 +417,19 @@ public class Memebot {
                 if (str != null) {
                     formattedOutput = formattedOutput.replace(String.format("{param%d}", i + 1), str);
 
-                    if (formattedOutput.equals(original)) {
+                    if (formattedOutput.equals(original) && !formattedOutput.contains("{paramN}")) {
                         formattedOutput = formattedOutput + " " + str;
+                    } else {
+                        paramN = paramN + str + " ";
                     }
                 } else if (alternativeText != null) {
                     formattedOutput = alternativeText;
                 }
             }
         }
+
+        // insert paramN
+        formattedOutput = formattedOutput.replace("{paramN}", paramN);
 
         if (formattedOutput.isEmpty() && !containsNone && Memebot.debug) {
             formattedOutput = "";//"NO_OUTPUT_ERR()";

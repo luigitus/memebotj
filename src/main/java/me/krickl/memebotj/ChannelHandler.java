@@ -44,7 +44,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private ArrayList<CommandHandler> channelCommands = new ArrayList<CommandHandler>();
     private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
     //this is a collection of channel command namaes
-    private ArrayList<String> channelCommandReferences = new ArrayList<>();
     private String followerNotification = "";
     private String raceBaseURL = "http://kadgar.net/live";
     private String greetMessage = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz";
@@ -179,6 +178,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         this.internalCommands.add(new WorldRecordCommand(this, "!wr", "#internal#"));
         this.internalCommands.add(new UptimeCommand(this, "!uptime", "#internal#"));
+        this.internalCommands.add(new DoggyRaceCommand(this, "!doggy", "#internal#"));
 
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
@@ -642,7 +642,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             // todo needs an implementation of cooldowns that save to db
             // todo also needs adjustment of the findcommand method
             // todo - never remove timer commands - this'll need a lot of work
-            channelCommandReferences.add(doc.getString("command"));
         }
     }
 
@@ -1150,20 +1149,16 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.shortUpdateCooldown = shortUpdateCooldown;
     }
 
-    public ArrayList<String> getChannelCommandReferences() {
-        return channelCommandReferences;
-    }
-
-    public void setChannelCommandReferences(ArrayList<String> channelCommandReferences) {
-        this.channelCommandReferences = channelCommandReferences;
-    }
-
     public Document getAliasDoc() {
         return aliasDoc;
     }
 
     public void setAliasDoc(Document aliasDoc) {
         this.aliasDoc = aliasDoc;
+    }
+
+    public int getViewerNumber() {
+        return userList.size();
     }
 
     public JSONObject toJSONObject() {

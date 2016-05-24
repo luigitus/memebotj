@@ -33,14 +33,18 @@ public class Cooldown {
         cooldownLength = length;
     }
 
-    public void startCooldown() {
+    public void startCooldown(int offset) {
         if (uses == cooldownAfterUses) {
             this.cooldownStart = (int) (System.currentTimeMillis() / 1000);
-            this.cooldownEnd = (int) (System.currentTimeMillis() / 1000L) + this.cooldownLength;
+            this.cooldownEnd = (int) (System.currentTimeMillis() / 1000L) + this.cooldownLength + offset;
             uses = 0;
         } else {
             cooldownAfterUses = cooldownAfterUses + 1;
         }
+    }
+
+    public void startCooldown() {
+        startCooldown(0);
     }
 
     public boolean canContinue() {
