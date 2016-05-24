@@ -52,29 +52,29 @@ public class DoggyRaceCommand extends CommandHandler {
             if(data[0].equals("enter") && data.length >= 3) {
                 //enter doggy race
                 if(!entracnes.containsKey(sender.getUsername())) {
-                    String message = Memebot.formatText("DOGGY_ENTER", getChannelHandler(), null, this, true, new
-                            String[]{data[1], data[2]}, "");
+                    String message = Memebot.formatText("DOGGY_ENTER", getChannelHandler(), sender, this, true, new
+                            String[]{data[2], data[1]}, "");
 
                     getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
 
                     try {
-                        entracnes.append(sender.getUsername(), new Document().append("bet", Integer.parseInt(data[1]))
-                                .append("doggy", data[2]));
+                        entracnes.append(sender.getUsername(), new Document().append("bet", Double.parseDouble(data[2]))
+                                .append("doggy", data[1]));
                     } catch(NumberFormatException e) {
-                        message = Memebot.formatText("DOGGY_ENTER_NFE", getChannelHandler(), null, this, true, new
+                        message = Memebot.formatText("DOGGY_ENTER_NFE", getChannelHandler(), sender, this, true, new
                                 String[]{data[1], data[2]}, "");
 
                         getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
                     }
                 } else {
-                    String message = Memebot.formatText("DOGGY_ENTER_ERROR", getChannelHandler(), null, this, true, new
+                    String message = Memebot.formatText("DOGGY_ENTER_ERROR", getChannelHandler(), sender, this, true, new
                             String[]{data[1], data[2]}, "");
 
                     getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
                 }
 
             } else if(data[0].equals("status")) {
-                String message = Memebot.formatText("DOGGY_STATUS", getChannelHandler(), null, this, true, new
+                String message = Memebot.formatText("DOGGY_STATUS", getChannelHandler(), sender, this, true, new
                         String[]{}, "");
 
                 getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
@@ -103,12 +103,11 @@ public class DoggyRaceCommand extends CommandHandler {
             }
 
             String winners = "";
-
-            for(int i = 2; i <= 0; i--) {
+            for(int i = 2; i >= 0; i--) {
                 Document winner = (Document) entracnes.get(entracnesKeys.get(i));
                 String winnerName = entracnesKeys.get(i);
 
-                winners = winnerName + " ";
+                winners = winners + winnerName + " " + String.format("(%.2f) ", (double) winner.getOrDefault("bet", 0.0f) * (i + 1));
 
                 UserHandler winnerUH = null;
                 if (getChannelHandler().getUserList().containsKey(winnerName)) {
@@ -118,11 +117,11 @@ public class DoggyRaceCommand extends CommandHandler {
                     winnerUH = new UserHandler(winnerName, getChannelHandler().getChannel());
                 }
 
-                winnerUH.setPoints(winnerUH.getPoints() + (double) winner.getOrDefault("bet", 0) * (i + 1));
+                winnerUH.setPoints(winnerUH.getPoints() + (double) winner.getOrDefault("bet", 0.0f) * (i + 1));
             }
 
 
-            String message = Memebot.formatText("DOGGY_START", getChannelHandler(), null, this, true, new
+            String message = Memebot.formatText("DOGGY_START", getChannelHandler(), sender, this, true, new
                     String[]{winners}, "");
 
             getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
