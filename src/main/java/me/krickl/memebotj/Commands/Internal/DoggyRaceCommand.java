@@ -85,7 +85,7 @@ public class DoggyRaceCommand extends CommandHandler {
         }
 
         //start doggy race at X entrances
-        if(entracnes.keySet().size() >= 15) {
+        if(entracnes.keySet().size() >= 10 && entracnes.keySet().size() >= (getChannelHandler().getViewerNumber() / 100 * 10)) {
             SecureRandom random = new SecureRandom();
 
             ArrayList<String> entracnesKeys = new ArrayList();
