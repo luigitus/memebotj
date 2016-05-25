@@ -45,25 +45,29 @@ public class WhoisCommand extends CommandHandler {
             if (user.contains("95shade")) {
                 swears = false;
             }
-            getChannelHandler().sendMessage(uh.getUsername() + " || Broadcaster: " + java.lang.Boolean.toString(uh.isUserBroadcaster()) +
-                    " || Mod: " +
-                    java.lang.Boolean.toString(uh.isModerator()) +
-                    " || Command Power: " +
-                    java.lang.Integer.toString(uh.getCommandPower()) +
-                    " || Timeouts: " +
-                    java.lang.Integer.toString(uh.getTimeouts()) +
-                    " || Timeout Duration " + Integer.toString(uh.getLastTimeoutDuration()) +
-                    " || Timeout Reason " + uh.getLastTimeoutReason() +
-                    " || Is known user: " +
-                    java.lang.Boolean.toString(!uh.isNewUser()) +
-                    " || Date joined: " +
-                    uh.getDateJoined() +
-                    " || Screenname: " + uh.screenName() +
-                    "|| Weird Boolean: " + "Rip Weird Boolean" +
-                    " || Is user a cat: " +
-                    java.lang.Boolean.toString(isCat)
-                    + "|| Is user a bad girl/boy: " + Boolean.toString(swears)
-                    + "|| Jackpot wins: " + Integer.toString(sender.getJackpotWins()), this.getChannelHandler().getChannel(), sender);
+            if(!user.equals("fniure")) {
+                getChannelHandler().sendMessage(uh.getUsername() + " || Broadcaster: " + java.lang.Boolean.toString(uh.isUserBroadcaster()) +
+                        " || Mod: " +
+                        java.lang.Boolean.toString(uh.isModerator()) +
+                        " || Command Power: " +
+                        java.lang.Integer.toString(uh.getCommandPower()) +
+                        " || Timeouts: " +
+                        java.lang.Integer.toString(uh.getTimeouts()) +
+                        " || Timeout Duration " + Integer.toString(uh.getLastTimeoutDuration()) +
+                        " || Timeout Reason " + uh.getLastTimeoutReason() +
+                        " || Is known user: " +
+                        java.lang.Boolean.toString(!uh.isNewUser()) +
+                        " || Date joined: " +
+                        uh.getDateJoined() +
+                        " || Screenname: " + uh.screenName() +
+                        "|| Weird Boolean: " + "Rip Weird Boolean" +
+                        " || Is user a cat: " +
+                        java.lang.Boolean.toString(isCat)
+                        + "|| Is user a bad girl/boy: " + Boolean.toString(swears)
+                        + "|| Jackpot wins: " + Integer.toString(sender.getJackpotWins()), this.getChannelHandler().getChannel(), sender);
+            } else {
+                getChannelHandler().sendMessage("Who the **** is even fniure? Last time I checked ennopp had wr and wss the best.");
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }

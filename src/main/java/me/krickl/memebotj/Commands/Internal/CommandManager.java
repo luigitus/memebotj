@@ -11,6 +11,8 @@ import me.krickl.memebotj.Utility.CommandPower;
  * Created by unlink on 11/04/16.
  */
 public class CommandManager extends CommandHandler {
+    private int commandLimit = 1000;
+
     public CommandManager(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
     }
@@ -27,6 +29,11 @@ public class CommandManager extends CommandHandler {
     public void commandScript(UserHandler sender, String[] data) {
         try {
             if (data[0].equals("add") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+                if(getChannelHandler().getChannelCommands().size() >= commandLimit) {
+                    getChannelHandler().sendMessage(Memebot.formatText("ADD_COMMAND_ERROR", getChannelHandler(),
+                            sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender);
+                    return;
+                }
                 CommandHandler newCommand = new CommandHandler(getChannelHandler(), "null", null);
                 if (getChannelHandler().findCommand(data[1]) == -1) {
                     newCommand.editCommand("name", data[1], new UserHandler("#internal#", "#internal#"));
@@ -38,7 +45,9 @@ public class CommandManager extends CommandHandler {
                         }
                     }
                     newCommand.editCommand("output", output, new UserHandler("#internal#", "#internal#"));
-                    getChannelHandler().sendMessage(Memebot.formatText("ADD_COMMAND", getChannelHandler(), sender, this, true, new String[]{newCommand.getCommandName()}, ""), this.getChannelHandler().getChannel(), sender);
+                    getChannelHandler().sendMessage(Memebot.formatText("ADD_COMMAND", getChannelHandler(),
+                            sender, this, true, new String[]{newCommand.getCommandName()}, ""),
+                            this.getChannelHandler().getChannel(), sender);
                     getChannelHandler().getChannelCommands().add(newCommand);
                 } else {
                     getChannelHandler().sendMessage(Memebot.formatText("COMMAND_EXISTS", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender);
