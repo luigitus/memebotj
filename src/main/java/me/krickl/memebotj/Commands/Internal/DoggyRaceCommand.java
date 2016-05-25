@@ -60,6 +60,7 @@ public class DoggyRaceCommand extends CommandHandler {
                     try {
                         entracnes.append(sender.getUsername(), new Document().append("bet", Double.parseDouble(data[2]))
                                 .append("doggy", data[1]));
+                        sender.setPoints(sender.getPoints() - Double.parseDouble(data[2]));
                     } catch(NumberFormatException e) {
                         message = Memebot.formatText("DOGGY_ENTER_NFE", getChannelHandler(), sender, this, true, new
                                 String[]{data[1], data[2]}, "");

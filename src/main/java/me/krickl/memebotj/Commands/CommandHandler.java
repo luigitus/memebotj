@@ -65,6 +65,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     private ArrayList<String> suggestedList = new ArrayList<>();
     private String lastOutput = "";
     private int uses = 0;
+    private boolean startCooldown = true;
     private int cooldownOffsetPerViewer = 1; // cooldown increase per viewer - defaults to 1% of user cooldown
 
     public CommandHandler(ChannelHandler channelHandler, String commandName, String dbprefix) {
@@ -255,6 +256,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public boolean handleCooldown(UserHandler sender) {
+        if(this.startCooldown) {
+            return false;
+        }
         // check global cooldown
         if ((!this.cooldown.canContinue() || !sender.getUserCooldown().canContinue()) && !checkPermissions(sender, this.neededCooldownBypassPower, this.neededCooldownBypassPower)) {
             if (Memebot.debug) {
@@ -283,7 +287,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public boolean startCooldown(UserHandler sender) {
-        if (this.success) {
+        if (this.success && this.startCooldown) {
             this.cooldown.startCooldown();
             sender.getUserCooldown().startCooldown();
             if (!sender.getUserCommandCooldowns().containsKey(this.commandName)) {
@@ -337,15 +341,14 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     public boolean executeCommand(UserHandler sender, String[] data) {
         this.success = false;
+        this.startCooldown = true;
         removeCooldown.startCooldown();
         data = formatData(sender, data);
 
         if (this.overrideHandleMessage) {
             return false;
         }
-        if (this.checkDefaultCooldown && this.handleCooldown(sender)) {
-            return false;
-        }
+
         if (!this.checkPermissions(sender, this.neededCommandPower, this.neededCommandPower)) {
             return false;
         }
@@ -378,6 +381,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = Memebot.formatText("ADDED", channelHandler, sender, this, true, new String[]{this.listContent.get(listContent.size() - 1)}, "");
                         this.success = false;
                     }
+                    this.startCooldown = false;
                 } else if (data[1].equals("suggest")) {
                     // allow users to suggest quotes
                     String newEntry = "";
@@ -411,6 +415,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true, new String[]{}, "");
                     }
 
+                    this.startCooldown = false;
                 } else if (data[1].equals("approve") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     try {
                         int index = Integer.parseInt(data[2]) - 1;
@@ -425,6 +430,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = e.toString();
                         this.success = false;
                     }
+
+                    this.startCooldown = false;
                 } else if (data[1].equals("deny") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     try {
                         int index = Integer.parseInt(data[2]) - 1;
@@ -443,6 +450,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = e.toString();
                         this.success = false;
                     }
+
+                    this.startCooldown = false;
                 } else if (data[1].equals("remove") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     try {
                         int index = Integer.parseInt(data[2]) - 1;
@@ -457,6 +466,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = e.toString();
                         this.success = false;
                     }
+
+                    this.startCooldown = false;
                 } else if (data[1].equals("edit") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     String newEntry = "";
                     for (int i = 3; i < data.length; i++) {
@@ -476,6 +487,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         this.success = false;
                         formattedOutput = e.toString();
                     }
+
+                    this.startCooldown = false;
                 } else if (data[1].equals("list")) {
                     try {
                         formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
@@ -485,6 +498,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = e.toString();
                         success = false;
                     }
+
+                    this.startCooldown = false;
                 } else if (allowPicksFromList) {
                     try {
                         int index = Integer.parseInt(data[1]) - 1;
@@ -544,16 +559,26 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 if (data[1].equals("add")
                         && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     counter = counter + modifier;
+                    this.startCooldown = false;
                 } else if (data[1].equals("sub")
                         && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     counter = counter - modifier;
+                    this.startCooldown = false;
                 } else if (data[1].equals("set")
                         && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                     counter = modifier;
+                    this.startCooldown = false;
                 }
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
                 log.warning(e.toString());
+                this.success = false;
             }
+        }
+
+        // start cooldown both tells whether to check cooldown and wheter to start a cooldown
+        // if start cooldown is false output should be sent regardless of cooldown
+        if (this.checkDefaultCooldown && this.handleCooldown(sender)) {
+            return false;
         }
 
         String formattedScript = "";
