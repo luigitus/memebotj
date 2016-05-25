@@ -256,7 +256,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public boolean handleCooldown(UserHandler sender) {
-        if(this.startCooldown) {
+        if(!this.startCooldown) {
             return false;
         }
         // check global cooldown

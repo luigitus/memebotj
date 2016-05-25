@@ -15,6 +15,7 @@ import java.util.HashMap;
  * This file is part of memebotj.
  * Created by unlink on 22/04/16.
  */
+@Deprecated
 public class Inventory {
     int maxEquips = 8;
     int currentHealth = 1;

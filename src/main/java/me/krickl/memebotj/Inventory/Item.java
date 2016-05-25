@@ -12,6 +12,7 @@ import java.util.Properties;
  * This file is part of memebotj.
  * Created by unlink on 22/04/16.
  */
+@Deprecated
 public class Item {
     private String itemname = "";
     private String description = "";

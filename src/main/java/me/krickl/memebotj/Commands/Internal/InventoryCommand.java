@@ -12,6 +12,7 @@ import me.krickl.memebotj.Utility.CommandPower;
  * This file is part of memebotj.
  * Created by unlink on 22/04/16.
  */
+@Deprecated
 public class InventoryCommand extends CommandHandler {
     public InventoryCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);

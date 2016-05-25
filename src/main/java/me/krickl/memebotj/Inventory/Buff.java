@@ -6,6 +6,7 @@ import me.krickl.memebotj.Utility.Cooldown;
  * This file is part of memebotj.
  * Created by unlink on 23/04/16.
  */
+@Deprecated
 public class Buff extends Cooldown {
     Item baseItem = null;
 

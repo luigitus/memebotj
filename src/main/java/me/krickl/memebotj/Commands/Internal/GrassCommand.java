@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  * This file is part of memebotj.
  * Created by unlink on 22/04/16.
  */
+@Deprecated
 public class GrassCommand extends CommandHandler {
     public GrassCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
