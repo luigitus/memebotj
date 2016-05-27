@@ -201,7 +201,7 @@ public class DampeCommand extends CommandHandler {
 
         try {
             outcome = ran.nextInt(possibleOutComes.size());
-        } catch (InvalidStateException e) {
+        } catch (Exception e) {
             outcome = 0;
         }
 

@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -162,11 +163,17 @@ public class UserHandler implements Comparable<UserHandler> {
         userInventory.update();
 
         // remove unused cooldowns asap
+        ArrayList<String> toRemove = new ArrayList<>();
+
         for(String key : userCommandCooldowns.keySet()) {
             Cooldown cooldown = userCommandCooldowns.get(key);
             if(cooldown.canContinue()) {
-                userCommandCooldowns.remove(key);
+                toRemove.add(key);
             }
+        }
+
+        for(String key : toRemove) {
+            userCommandCooldowns.remove(key);
         }
     }
 
