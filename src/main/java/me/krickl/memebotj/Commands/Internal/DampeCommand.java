@@ -6,12 +6,10 @@ import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
-import me.krickl.memebotj.Utility.DampeOutcome;
-import sun.plugin.dom.exception.InvalidStateException;
+import me.krickl.memebotj.Utility.RNGObject;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * This file is part of memebotj.
@@ -186,29 +184,24 @@ public class DampeCommand extends CommandHandler {
         // see what outcomes are possible with first roll
 
         // list of possible outcomes
-        DampeOutcome[] dampeOutcomes = {new DampeOutcome("jackpot", 0, jackpotchance),
-        new DampeOutcome("win1", 1, 90 - offlineModifier), new DampeOutcome("win2", 2, 380 - offlineModifier),
-        new DampeOutcome("half", 3, 650),
-        new DampeOutcome("loss", 4, 910), new DampeOutcome("rupoor1", 5, 950), new DampeOutcome("rupoor2", 6, range)};
+        ArrayList<RNGObject> RNGObjects = new ArrayList<>();
+        RNGObjects.add(new RNGObject("jackpot", 0, 20));
+        RNGObjects.add(new RNGObject("win1", 1, 150 - offlineModifier));
+        RNGObjects.add(new RNGObject("win2", 2, 480 - offlineModifier));
+        RNGObjects.add(new RNGObject("half", 3, 650));
+        RNGObjects.add(new RNGObject("loss", 4, 910));
+        RNGObjects.add(new RNGObject("rupoor1", 5, 950));
+        RNGObjects.add(new RNGObject("rupoor2", 6, range));
 
-        ArrayList<DampeOutcome> possibleOutComes = new ArrayList<>();
+        /*ArrayList<RNGObject> possibleOutComes = RNGObject.rollObjects(outcome, RNGObjects);
 
-        for(DampeOutcome dampeOutcomeT : dampeOutcomes) {
-            if(outcome <= dampeOutcomeT.getChance()) {
-                possibleOutComes.add(dampeOutcomeT);
-            }
-        }
+        outcome = ran.nextInt(possibleOutComes.size() - 1);
 
-        try {
-            outcome = ran.nextInt(possibleOutComes.size());
-        } catch (Exception e) {
-            outcome = 0;
-        }
-
-        DampeOutcome dampeOutcome = possibleOutComes.get(outcome);
+        RNGObject RNGObject = possibleOutComes.get(outcome);*/
+        RNGObject rngobject = RNGObject.rollUntilLast(range, RNGObjects);
 
         // process the outcomes
-        if(dampeOutcome.getId() == 0 && getChannelHandler().isLive()) {
+        if(rngobject.getId() == 0 && getChannelHandler().isLive()) {
             sender.setPoints(sender.getPoints() + this.getJackpot() + wage);
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", getChannelHandler(), sender, this,
                     true, new String[]{sender.screenName(), String.format("%.2f", this.getJackpot()),
@@ -217,14 +210,14 @@ public class DampeCommand extends CommandHandler {
             this.setJackpot(0);
             this.winner = sender.getUsername();
             sender.setJackpotWins(sender.getJackpotWins() + 1);
-        } else if(dampeOutcome.getId() == 1) {
+        } else if(rngobject.getId() == 1) {
             double price = 10 * (Math.sqrt(wage) * 5) + ran.nextInt((int) wage);
             sender.setPoints(sender.getPoints() + price + wage);
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_1", getChannelHandler(), sender, this, true,
                     new String[]{sender.screenName(), String.format("%.2f", price), getChannelHandler().getCurrencyEmote()}, ""),
                     this.getChannelHandler().getChannel(), sender, isWhisper());
 
-        } else if(dampeOutcome.getId() == 2) {
+        } else if(rngobject.getId() == 2) {
             double price = 3 * (Math.sqrt(wage) * 5) + ran.nextInt((int) wage);
             sender.setPoints(sender.getPoints() + price + wage);
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_2", getChannelHandler(), sender, this, true,
@@ -232,14 +225,14 @@ public class DampeCommand extends CommandHandler {
                             getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(),
                     sender, isWhisper());
 
-        } else if(dampeOutcome.getId() == 3) {
+        } else if(rngobject.getId() == 3) {
             sender.setPoints(sender.getPoints() + wage / 2);
             this.setJackpot(this.getJackpot() + wage / 2);
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_1", getChannelHandler(), sender, this, true,
                     new String[]{String.format("%.2f", wage / 2)}, ""), this.getChannelHandler().getChannel(), sender,
                     isWhisper());
 
-        } else if(dampeOutcome.getId() == 4) {
+        } else if(rngobject.getId() == 4) {
             int lossText = ran.nextInt(4);
             if(lossText < 2) {
                 lossText = 2;
@@ -250,12 +243,12 @@ public class DampeCommand extends CommandHandler {
                     this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             this.setJackpot(this.getJackpot() + wage);
 
-        } else if(dampeOutcome.getId() == 5) {
+        } else if(rngobject.getId() == 5) {
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_RUPOOR", getChannelHandler(), sender,
                     this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             sender.setPoints(sender.getPoints() - 10);
             this.setJackpot(this.getJackpot() + wage + 10);
-        } else if(dampeOutcome.getId() == 6) {
+        } else if(rngobject.getId() == 6) {
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_SHITTY", getChannelHandler(),
                     sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             sender.setPoints(sender.getPoints() - 20);
