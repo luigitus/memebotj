@@ -6,8 +6,12 @@ import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
+import me.krickl.memebotj.Utility.DampeOutcome;
+import sun.plugin.dom.exception.InvalidStateException;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * This file is part of memebotj.
@@ -179,63 +183,86 @@ public class DampeCommand extends CommandHandler {
             jackpotchance = jackpotchance + 2;
         }*/
 
-        //outcomes of dampe
-        if (outcome <= jackpotchance && getChannelHandler().isLive()) {
-            if (sender.setPoints(sender.getPoints() + this.getJackpot() + wage)) {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
-                this.setJackpot(0);
-                this.winner = sender.getUsername();
-                sender.setJackpotWins(sender.getJackpotWins() + 1);
-            } else {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON_WALLET_FULL", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", this.getJackpot()), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-                this.setJackpot(0);
+        // see what outcomes are possible with first roll
+
+        // list of possible outcomes
+        DampeOutcome[] dampeOutcomes = {new DampeOutcome("jackpot", 0, jackpotchance),
+        new DampeOutcome("win1", 1, 90 - offlineModifier), new DampeOutcome("win2", 2, 380 - offlineModifier),
+        new DampeOutcome("half", 3, 650),
+        new DampeOutcome("loss", 4, 910), new DampeOutcome("rupoor1", 5, 950), new DampeOutcome("rupoor2", 6, range)};
+
+        ArrayList<DampeOutcome> possibleOutComes = new ArrayList<>();
+
+        for(DampeOutcome dampeOutcomeT : dampeOutcomes) {
+            if(outcome <= dampeOutcomeT.getChance()) {
+                possibleOutComes.add(dampeOutcomeT);
             }
-        } else if (outcome <= (40 - offlineModifier)) {
+        }
+
+        try {
+            outcome = ran.nextInt(possibleOutComes.size());
+        } catch (InvalidStateException e) {
+            outcome = 0;
+        }
+
+        DampeOutcome dampeOutcome = possibleOutComes.get(outcome);
+
+        // process the outcomes
+        if(dampeOutcome.getId() == 0 && getChannelHandler().isLive()) {
+            sender.setPoints(sender.getPoints() + this.getJackpot() + wage);
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_JACKPOT_WON", getChannelHandler(), sender, this,
+                    true, new String[]{sender.screenName(), String.format("%.2f", this.getJackpot()),
+                            getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel());
+
+            this.setJackpot(0);
+            this.winner = sender.getUsername();
+            sender.setJackpotWins(sender.getJackpotWins() + 1);
+        } else if(dampeOutcome.getId() == 1) {
             double price = 10 * (Math.sqrt(wage) * 5) + ran.nextInt((int) wage);
-            if (sender.setPoints(sender.getPoints() + price + wage)) {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_1", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", price), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-            } else {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_1_WALLET_FULL", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", price), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-                this.setJackpot(this.getJackpot() + price);
-            }
-        } else if (outcome <= (180 - offlineModifier)) {
+            sender.setPoints(sender.getPoints() + price + wage);
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_1", getChannelHandler(), sender, this, true,
+                    new String[]{sender.screenName(), String.format("%.2f", price), getChannelHandler().getCurrencyEmote()}, ""),
+                    this.getChannelHandler().getChannel(), sender, isWhisper());
+
+        } else if(dampeOutcome.getId() == 2) {
             double price = 3 * (Math.sqrt(wage) * 5) + ran.nextInt((int) wage);
-            if (sender.setPoints(sender.getPoints() + price + wage)) {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_2", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", price), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-            } else {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_2_WALLET_FULL", getChannelHandler(), sender, this, true, new String[]{sender.screenName(), String.format("%.2f", price), getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-                this.setJackpot(this.getJackpot() + price);
-            }
-        } else if (outcome <= 450) {
-            if (sender.setPoints(sender.getPoints() + wage / 2)) {
-                this.setJackpot(this.getJackpot() + wage / 2);
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_1", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", wage / 2)}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-            } else {
-                getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_1_WALLET_FULL", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", wage / 2)}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-                this.setJackpot(this.getJackpot() + wage / 2);
+            sender.setPoints(sender.getPoints() + price + wage);
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_2", getChannelHandler(), sender, this, true,
+                    new String[]{sender.screenName(), String.format("%.2f", price),
+                            getChannelHandler().getCurrencyEmote()}, ""), this.getChannelHandler().getChannel(),
+                    sender, isWhisper());
+
+        } else if(dampeOutcome.getId() == 3) {
+            sender.setPoints(sender.getPoints() + wage / 2);
+            this.setJackpot(this.getJackpot() + wage / 2);
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_1", getChannelHandler(), sender, this, true,
+                    new String[]{String.format("%.2f", wage / 2)}, ""), this.getChannelHandler().getChannel(), sender,
+                    isWhisper());
+
+        } else if(dampeOutcome.getId() == 4) {
+            int lossText = ran.nextInt(4);
+            if(lossText < 2) {
+                lossText = 2;
             }
 
-            this.setJackpot(this.getJackpot() + wage / 2);
-        } else if (outcome <= 650) {
-            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_2", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+            String lossString = String.format("DAMPE_LOST_%d", lossText);
+            getChannelHandler().sendMessage(Memebot.formatText(lossString, getChannelHandler(), sender,
+                    this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             this.setJackpot(this.getJackpot() + wage);
-        } else if (outcome <= 750) {
-            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_3", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-            sender.getUserInventory().addItem("heartpiece", 1);
-            this.setJackpot(this.getJackpot() + wage);
-        } else if (outcome <= 850) {
-            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_4", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
-            this.setJackpot(this.getJackpot() + wage);
-        } else if (outcome <= 900) {
-            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_6", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+
+        } else if(dampeOutcome.getId() == 5) {
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_RUPOOR", getChannelHandler(), sender,
+                    this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             sender.setPoints(sender.getPoints() - 10);
             this.setJackpot(this.getJackpot() + wage + 10);
-        } else if (outcome <= 910) {
-            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_SHITTY", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+        } else if(dampeOutcome.getId() == 6) {
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_SHITTY", getChannelHandler(),
+                    sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             sender.setPoints(sender.getPoints() - 20);
-            this.setJackpot(this.getJackpot() + wage + 10);
+            this.setJackpot(this.getJackpot() + wage + 20);
         } else {
-            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_LOST_5", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
+            getChannelHandler().sendMessage(Memebot.formatText("DAMPE_DEFAULT", getChannelHandler(),
+                    sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
             this.setJackpot(this.getJackpot() + wage);
         }
 

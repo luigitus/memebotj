@@ -160,6 +160,14 @@ public class UserHandler implements Comparable<UserHandler> {
 
     public void update(ChannelHandler channelHandler) {
         userInventory.update();
+
+        // remove unused cooldowns asap
+        for(String key : userCommandCooldowns.keySet()) {
+            Cooldown cooldown = userCommandCooldowns.get(key);
+            if(cooldown.canContinue()) {
+                userCommandCooldowns.remove(key);
+            }
+        }
     }
 
     public boolean canRemove() {

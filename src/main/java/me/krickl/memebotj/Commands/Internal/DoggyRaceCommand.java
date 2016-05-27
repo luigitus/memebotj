@@ -16,7 +16,7 @@ import java.util.HashMap;
  * Created by unlink on 17/05/16.
  */
 public class DoggyRaceCommand extends CommandHandler {
-    private Document entracnes = new Document();
+    private Document entrants = new Document();
 
     public DoggyRaceCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
@@ -32,7 +32,7 @@ public class DoggyRaceCommand extends CommandHandler {
     @Override
     public void setDB() {
         super.setDB();
-        mongoHandler.updateDocument("entrances", entracnes);
+        mongoHandler.updateDocument("entrants", entrants);
     }
 
     @Override
@@ -43,22 +43,25 @@ public class DoggyRaceCommand extends CommandHandler {
 
         super.readDB();
 
-        entracnes = (Document)mongoHandler.getObject("entrances", entracnes);
+        entrants = (Document)mongoHandler.getObject("entrants", entrants);
     }
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
+        int minEntrants = 10;
+        int viewerPercentage = 10;
+
         if(data.length >= 1) {
             if(data[0].equals("enter") && data.length >= 3) {
                 //enter doggy race
-                if(!entracnes.containsKey(sender.getUsername())) {
+                if(!entrants.containsKey(sender.getUsername())) {
                     String message = Memebot.formatText("DOGGY_ENTER", getChannelHandler(), sender, this, true, new
                             String[]{data[2], data[1]}, "");
 
                     getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
 
                     try {
-                        entracnes.append(sender.getUsername(), new Document().append("bet", Double.parseDouble(data[2]))
+                        entrants.append(sender.getUsername(), new Document().append("bet", Double.parseDouble(data[2]))
                                 .append("doggy", data[1]));
                         sender.setPoints(sender.getPoints() - Double.parseDouble(data[2]));
                     } catch(NumberFormatException e) {
@@ -75,8 +78,12 @@ public class DoggyRaceCommand extends CommandHandler {
                 }
 
             } else if(data[0].equals("status")) {
+                int startAt = minEntrants;
+                if(getChannelHandler().getViewerNumber() / viewerPercentage > minEntrants) {
+                    startAt = getChannelHandler().getViewerNumber();
+                }
                 String message = Memebot.formatText("DOGGY_STATUS", getChannelHandler(), sender, this, true, new
-                        String[]{}, "");
+                        String[]{String.format("%d/%d", entrants.size(), startAt)}, "");
 
                 getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
             }
@@ -84,16 +91,13 @@ public class DoggyRaceCommand extends CommandHandler {
             getChannelHandler().sendMessage(getHelptext(), getChannelHandler().getChannel(), sender, isWhisper());
         }
 
-        int minEntraces = 10;
-        int viwerPercentage = 10;
-
-        //start doggy race at X entrances
-        if(entracnes.keySet().size() >= minEntraces
-                && entracnes.keySet().size() >= (getChannelHandler().getViewerNumber() / 100 * viwerPercentage)) {
+        //start doggy race at X
+        if(entrants.keySet().size() >= minEntrants
+                && entrants.keySet().size() >= (getChannelHandler().getViewerNumber() / viewerPercentage)) {
             SecureRandom random = new SecureRandom();
 
             ArrayList<String> entracnesKeys = new ArrayList();
-            for(String keys : entracnes.keySet()) {
+            for(String keys : entrants.keySet()) {
                 entracnesKeys.add(keys);
             }
 
@@ -109,7 +113,7 @@ public class DoggyRaceCommand extends CommandHandler {
 
             String winners = "";
             for(int i = 2; i >= 0; i--) {
-                Document winner = (Document) entracnes.get(entracnesKeys.get(i));
+                Document winner = (Document) entrants.get(entracnesKeys.get(i));
                 String winnerName = entracnesKeys.get(i);
 
                 winners = winners + winnerName + " " + String.format("(%.2f) ",
@@ -126,7 +130,7 @@ public class DoggyRaceCommand extends CommandHandler {
                 winnerUH.setPoints(winnerUH.getPoints() + (double) winner.getOrDefault("bet", 0.0f) * (i + 1));
             }
 
-            entracnes.clear();
+            entrants.clear();
 
             String message = Memebot.formatText("DOGGY_START", getChannelHandler(), sender, this, true, new
                     String[]{winners}, "");
