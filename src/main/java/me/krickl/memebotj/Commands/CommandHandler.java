@@ -669,7 +669,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public void update() {
         if (this.commandType.equals("timer") && channelHandler.isLive()) {
             String[] newArray = new String[0];
-            this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel()), newArray);
+            this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel(), "#internal#"), newArray);
         }
     }
 

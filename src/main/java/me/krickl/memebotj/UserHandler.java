@@ -2,7 +2,7 @@ package me.krickl.memebotj;
 
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
-import me.krickl.memebotj.Inventory.Inventory;
+//import me.krickl.memebotj.Inventory.Inventory;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.apache.commons.codec.binary.Base64;
@@ -52,16 +52,22 @@ public class UserHandler implements Comparable<UserHandler> {
     private boolean hasAutogreeted = false;
     private Cooldown removeCooldown = new Cooldown(0);
     private int jackpotWins = 0;
+    private String id = "";
 
-    private Inventory userInventory;
+    //private Inventory userInventory;
 
     private int lastTimeoutDuration = 0;
     private String lastTimeoutReason = "";
 
     public UserHandler(String username, String channelOrigin) {
+        this(username, channelOrigin, username);
+    }
+
+    public UserHandler(String username, String channelOrigin, String id) {
         this.username = username;
         this.channelOrigin = channelOrigin;
-        userInventory = new Inventory(username, channelOrigin, this);
+        this.id = id;
+        //userInventory = new Inventory(username, channelOrigin, this);
 
         if (Memebot.useMongo) {
             if (!Memebot.channelsPrivate.contains(this.channelOrigin)) {
@@ -123,7 +129,7 @@ public class UserHandler implements Comparable<UserHandler> {
         this.lastTimeoutDuration = (int) mongoHandler.getObject("lasttoduration", this.lastTimeoutDuration);
         this.lastTimeoutReason = mongoHandler.getObject("lasttoreason", this.lastTimeoutReason).toString();
 
-        userInventory.readDB();
+        //userInventory.readDB();
     }
 
     public void setDB() {
@@ -156,11 +162,11 @@ public class UserHandler implements Comparable<UserHandler> {
 
         mongoHandler.writeDatabase(this.username);
 
-        userInventory.writeDB();
+        //userInventory.writeDB();
     }
 
     public void update(ChannelHandler channelHandler) {
-        userInventory.update();
+        //userInventory.update();
 
         // remove unused cooldowns asap
         ArrayList<String> toRemove = new ArrayList<>();
@@ -448,13 +454,13 @@ public class UserHandler implements Comparable<UserHandler> {
         this.shouldBeRemoved = shouldBeRemoved;
     }
 
-    public Inventory getUserInventory() {
+    /*public Inventory getUserInventory() {
         return userInventory;
     }
 
     public void setUserInventory(Inventory userInventory) {
         this.userInventory = userInventory;
-    }
+    }*/
 
     public int getLastTimeoutDuration() {
         return lastTimeoutDuration;
@@ -547,7 +553,7 @@ public class UserHandler implements Comparable<UserHandler> {
         jsonObject.put("_self", Memebot.webBaseURL + "/api/users/" + channelOrigin.replace("#", "") + "/" + username);
         jsonObject.put("joinded_t", timeStampJoined);
         jsonObject.put("joined_str", dateJoined);
-        jsonObject.put("inventory", userInventory.toJSON());
+        //jsonObject.put("inventory", userInventory.toJSON());
 
         return jsonObject;
     }

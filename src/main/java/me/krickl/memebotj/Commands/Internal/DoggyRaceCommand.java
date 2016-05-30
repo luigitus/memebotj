@@ -61,7 +61,7 @@ public class DoggyRaceCommand extends CommandHandler {
                     getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
 
                     try {
-                        if(Double.parseDouble(data[2]) < 0 && sender.getPoints() >= Double.parseDouble(data[2])) {
+                        if(checkCost(sender, Double.parseDouble(data[2]))) {
                             message = Memebot.formatText("DOGGY_ENTER_NFE", getChannelHandler(), sender, this, true, new
                                     String[]{data[1], data[2]}, "");
 

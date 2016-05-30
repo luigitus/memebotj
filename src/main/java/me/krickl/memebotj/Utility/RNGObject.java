@@ -17,16 +17,17 @@ public class RNGObject {
         this.chance = chance;
     }
 
-    public static RNGObject rollUntilLast(int maxRange, ArrayList<RNGObject> objects) {
-        ArrayList<RNGObject> next = objects;
-        final int maxRolls = 10;
+    public static RNGObject rollUntilLast(int maxRange, ArrayList<RNGObject> next, int maxRolls) {
+        if(maxRolls < 0) {
+            maxRolls = next.size() / 2;
+        }
         int rolls = 0;
         SecureRandom ran = new SecureRandom();
         do {
             if(rolls > maxRolls) {
                 break;
             }
-            rollObjects(ran.nextInt(maxRange), next);
+            next = rollObjects(ran.nextInt(maxRange), next);
             rolls++;
         } while(next.size() > 2 );
 
@@ -34,7 +35,7 @@ public class RNGObject {
             return null;
         }
 
-        if(next.size() >= 1) {
+        if(next.size() > 1) {
             return next.get(ran.nextInt(next.size() - 1));
         }
 

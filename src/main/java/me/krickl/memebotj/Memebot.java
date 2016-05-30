@@ -83,6 +83,8 @@ public class Memebot {
 
     public static Localisation defaultLocal = new Localisation("engb");
 
+    public static boolean cliInput = false;
+
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
@@ -265,6 +267,7 @@ public class Memebot {
                 Boolean.toString(Memebot.useUpdateThread)));
         Memebot.jokeMode = Boolean.parseBoolean(config.getProperty("joke", Boolean.toString(Memebot.jokeMode)));
         Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
+        Memebot.cliInput = Boolean.parseBoolean(config.getProperty("climode", Boolean.toString(Memebot.cliInput)));
 
         if (!Memebot.debug) {
             try {
@@ -325,6 +328,24 @@ public class Memebot {
         }
     }
 
+    public static String[] parseParameters(String toParse) {
+        String[] parsedTemp = toParse.replace("{", "").replace("}", "").split(";");
+        String[] parsed = new String[parsedTemp.length];
+
+        for(int i = 0; i < parsedTemp.length; i++) {
+            if(i != 0 && i != 1) {
+                parsed[i] = parsedTemp[i];
+            } else if(i == 1) {
+                parsed[i] = "{" + parsedTemp[i] + "}";
+            } else {
+                parsed[i] = toParse;
+            }
+        }
+
+
+        return parsed;
+    }
+
     public static String formatText(String fo, ChannelHandler channelHandler, UserHandler sender,
                                     CommandHandler commandHandler, boolean local, String[] params, String alternativeText) {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd"); // dd/MM/yyyy
@@ -383,7 +404,7 @@ public class Memebot {
 
             // random user as parameter
             List<String> keys = new ArrayList<String>(channelHandler.getUserList().keySet());
-            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())), new UserHandler("#internal#", channelHandler.getChannel()));
+            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())), new UserHandler("#internal#", channelHandler.getChannel(), "#internal#"));
             formattedOutput = formattedOutput.replace("{randomuser}", randomUH.getUsername());
 
             // random USSR as parameter - returns your favourite communist leader
@@ -434,7 +455,7 @@ public class Memebot {
 
                     if (formattedOutput.equals(original) && !formattedOutput.contains("{paramN}")) {
                         formattedOutput = formattedOutput + " " + str;
-                    } else {
+                    } else if(formattedOutput.equals(original)) {
                         paramN = paramN + str + " ";
                     }
                 } else if (alternativeText != null) {

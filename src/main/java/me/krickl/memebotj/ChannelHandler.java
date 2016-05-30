@@ -2,7 +2,9 @@ package me.krickl.memebotj;
 
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.Internal.*;
+import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.Database.DatabaseInterface;
 import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
@@ -33,10 +35,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
     // todo old db code - remove soon
     //private MongoCollection<Document> channelCollection = null;
-    MongoHandler mongoHandler = null;
+    DatabaseInterface mongoHandler = null;
     private BufferedWriter writer = null;
     private String channel = "";
-    private IRCConnectionHandler connection = null;
+    private ConnectionInterface connection = null;
     private String broadcaster = this.channel.replace("#", "");
     private HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
     private Cooldown updateCooldown = new Cooldown(600);
@@ -74,7 +76,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private UserHandler broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
     private File htmlDirF = new File(this.htmlDir);
-    private UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel);
+    private UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel, "#readonly#");
     private boolean allowGreetMessage = false;
 
     private double maxPoints = 100000.0f;
@@ -102,12 +104,12 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private boolean useAlias = true;
 
-    public ChannelHandler(String channel, IRCConnectionHandler connection) {
+    public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
         this.connection = connection;
         this.broadcaster = this.channel.replace("#", "");
         broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
-        readOnlyUser = new UserHandler("#readonly#", this.channel);
+        readOnlyUser = new UserHandler("#readonly#", this.channel, "#readonly#");
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
@@ -173,8 +175,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
         this.internalCommands.add(new LoginCredentials(this, "!setlogin", "#internal#"));
         this.internalCommands.add(new SongRequestCommand(this, "!songrequest", "#internal#"));
-        this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
-        this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
+        //this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
+        //this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
         this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         this.internalCommands.add(new WorldRecordCommand(this, "!wr", "#internal#"));
         this.internalCommands.add(new UptimeCommand(this, "!uptime", "#internal#"));
@@ -263,7 +265,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
-
                         }
                     }
                 }
@@ -701,11 +702,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.channel = channel;
     }
 
-    public IRCConnectionHandler getConnection() {
+    public ConnectionInterface getConnection() {
         return connection;
     }
 
-    public void setConnection(IRCConnectionHandler connection) {
+    public void setConnection(ConnectionInterface connection) {
         this.connection = connection;
     }
 
@@ -1093,11 +1094,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.localisation = localisation;
     }
 
-    public MongoHandler getMongoHandler() {
+    public DatabaseInterface getMongoHandler() {
         return mongoHandler;
     }
 
-    public void setMongoHandler(MongoHandler mongoHandler) {
+    public void setMongoHandler(DatabaseInterface mongoHandler) {
         this.mongoHandler = mongoHandler;
     }
 

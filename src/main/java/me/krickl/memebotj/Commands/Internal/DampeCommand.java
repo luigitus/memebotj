@@ -185,11 +185,11 @@ public class DampeCommand extends CommandHandler {
 
         // list of possible outcomes
         ArrayList<RNGObject> RNGObjects = new ArrayList<>();
-        RNGObjects.add(new RNGObject("jackpot", 0, 20));
-        RNGObjects.add(new RNGObject("win1", 1, 150 - offlineModifier));
-        RNGObjects.add(new RNGObject("win2", 2, 480 - offlineModifier));
-        RNGObjects.add(new RNGObject("half", 3, 650));
-        RNGObjects.add(new RNGObject("loss", 4, 910));
+        RNGObjects.add(new RNGObject("jackpot", 0, 5));
+        RNGObjects.add(new RNGObject("win1", 1, 220 - offlineModifier));
+        RNGObjects.add(new RNGObject("win2", 2, 425 - offlineModifier));
+        RNGObjects.add(new RNGObject("half", 3, 750));
+        RNGObjects.add(new RNGObject("loss", 4, 810));
         RNGObjects.add(new RNGObject("rupoor1", 5, 950));
         RNGObjects.add(new RNGObject("rupoor2", 6, range));
 
@@ -198,7 +198,10 @@ public class DampeCommand extends CommandHandler {
         outcome = ran.nextInt(possibleOutComes.size() - 1);
 
         RNGObject RNGObject = possibleOutComes.get(outcome);*/
-        RNGObject rngobject = RNGObject.rollUntilLast(range, RNGObjects);
+        RNGObject rngobject = RNGObject.rollUntilLast(range, RNGObjects, 0);
+        if(rngobject == null) {
+            rngobject = RNGObjects.get(RNGObjects.size() - 1);
+        }
 
         // process the outcomes
         if(rngobject.getId() == 0 && getChannelHandler().isLive()) {
