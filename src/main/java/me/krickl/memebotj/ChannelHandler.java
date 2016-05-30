@@ -58,7 +58,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
-    private double pointsPerUpdate = 1.0f;
+    private double pointsPerUpdate = 0.1f;
     private Thread t = null;
     private boolean isJoined = true;
     private boolean allowAutogreet = true;
@@ -103,6 +103,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private Document aliasDoc = new Document();
 
     private boolean useAlias = true;
+
+    private boolean pointsUpdateDone = false;
 
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
@@ -197,6 +199,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         if (this.allowGreetMessage) {
             this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null, false, new String[]{}, ""));
+        }
+
+        if(!this.pointsUpdateDone) {
+            this.pointsPerUpdate = pointsPerUpdate / 10;
+            this.pointsUpdateDone = true;
         }
     }
 
@@ -625,6 +632,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.bgImage = mongoHandler.getObject("bgImage", this.bgImage).toString();
             itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
             aliasDoc = (Document) mongoHandler.getObject("commandalias", this.aliasDoc);
+            pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
         }
 
         // read commands
@@ -671,6 +679,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("bgImage", this.bgImage);
         mongoHandler.updateDocument("itemDrops", this.itemDrops);
         mongoHandler.updateDocument("commandalias", this.aliasDoc);
+        mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
 
         //mongoHandler.setDocument(channelData);
     }

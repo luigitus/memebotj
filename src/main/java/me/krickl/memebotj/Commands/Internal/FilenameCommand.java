@@ -16,7 +16,7 @@ import java.util.Random;
  */
 public class FilenameCommand extends CommandHandler {
     public char[] characters;
-    private double namecost = 40;
+    private double namecost = 4;
 
     public FilenameCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
@@ -73,14 +73,14 @@ public class FilenameCommand extends CommandHandler {
         }
         super.readDB();
 
-        namecost = (double) mongoHandler.getObject("namecost", namecost);
+        namecost = (double) mongoHandler.getObject("namecostn", namecost);
     }
 
     @Override
     public void setDB() {
         super.setDB();
 
-        mongoHandler.updateDocument("namecost", namecost);
+        mongoHandler.updateDocument("namecostn", namecost);
     }
 
     @Override

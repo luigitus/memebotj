@@ -70,6 +70,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     private int listLimit = 10000;
 
+    private boolean pointsUpdateDone = false;
+
     public CommandHandler(ChannelHandler channelHandler, String commandName, String dbprefix) {
         this.channelHandler = channelHandler;
         this.commandName = commandName;
@@ -102,6 +104,11 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         initCommand();
         readDB();
         overrideDB();
+
+        if(!pointsUpdateDone) {
+            cost = cost / 10;
+            pointsUpdateDone = true;
+        }
     }
 
     public static Logger getLog() {
@@ -182,6 +189,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         uses = (int) mongoHandler.getObject("uses", uses);
         cooldownOffsetPerViewer = (int)mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
 
+        this.pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
+
         // todo reload cooldown from document - set default data
         //cooldown = new Cooldown((Document)mongoHandler.getObject("cooldowndoc", new Document()));
 
@@ -227,6 +236,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         mongoHandler.updateDocument("suggestedList", suggestedList);
         mongoHandler.updateDocument("cooldowndoc", cooldown.getDoc());
         mongoHandler.updateDocument("usercdoffset", cooldownOffsetPerViewer);
+        mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
 
         //mongoHandler.setDocument(channelData);
     }

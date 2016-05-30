@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class DampeCommand extends CommandHandler {
     private double jackpot = 0.0;
     private int jackpotchance = 3;
-    private double minbet = 50.0;
+    private double minbet = 5.0;
     private String winner = "";
 
     public DampeCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
@@ -77,9 +77,9 @@ public class DampeCommand extends CommandHandler {
     @Override
     public void setDB() {
         super.setDB();
-        mongoHandler.updateDocument("jackpot", this.jackpot);
-        mongoHandler.updateDocument("jackpotchance", this.jackpotchance);
-        mongoHandler.updateDocument("minbet", this.minbet);
+        mongoHandler.updateDocument("jackpotn", this.jackpot);
+        mongoHandler.updateDocument("jackpotchancen", this.jackpotchance);
+        mongoHandler.updateDocument("minbetn", this.minbet);
         mongoHandler.updateDocument("winner", this.winner);
     }
 
@@ -91,9 +91,9 @@ public class DampeCommand extends CommandHandler {
 
         super.readDB();
 
-        this.setJackpot((double) mongoHandler.getObject("jackpot", jackpot));
-        this.jackpotchance = (int) mongoHandler.getObject("jackpotchance", jackpotchance);
-        this.minbet = (double) mongoHandler.getObject("minbet", minbet);
+        this.setJackpot((double) mongoHandler.getObject("jackpotn", jackpot));
+        this.jackpotchance = (int) mongoHandler.getObject("jackpotchancen", jackpotchance);
+        this.minbet = (double) mongoHandler.getObject("minbetn", minbet);
         if (mongoHandler.getObject("winner", winner) != null) {
             this.winner = mongoHandler.getObject("winner", winner).toString();
         }

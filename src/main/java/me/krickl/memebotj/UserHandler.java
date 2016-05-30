@@ -54,6 +54,8 @@ public class UserHandler implements Comparable<UserHandler> {
     private int jackpotWins = 0;
     private String id = "";
 
+    private boolean pointsUpdateDone = false;
+
     //private Inventory userInventory;
 
     private int lastTimeoutDuration = 0;
@@ -86,6 +88,12 @@ public class UserHandler implements Comparable<UserHandler> {
             SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a"); // dd/MM/yyyy
             Calendar cal = Calendar.getInstance();
             this.dateJoined = sdfDate.format(cal.getTime());
+        }
+
+        //points update - reduce every points related segment
+        if(!this.pointsUpdateDone) {
+            this.points = points / 10;
+            this.pointsUpdateDone = true;
         }
 
         setCommandPower(this.autoCommandPower);
@@ -129,6 +137,8 @@ public class UserHandler implements Comparable<UserHandler> {
         this.lastTimeoutDuration = (int) mongoHandler.getObject("lasttoduration", this.lastTimeoutDuration);
         this.lastTimeoutReason = mongoHandler.getObject("lasttoreason", this.lastTimeoutReason).toString();
 
+        this.pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
+
         //userInventory.readDB();
     }
 
@@ -151,6 +161,7 @@ public class UserHandler implements Comparable<UserHandler> {
         mongoHandler.updateDocument("jackpotwins", this.jackpotWins);
         mongoHandler.updateDocument("lasttoduration", this.lastTimeoutDuration);
         mongoHandler.updateDocument("lasttoreason", this.lastTimeoutReason);
+        mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         //mongoHandler.setDocument(userData);
     }
 
