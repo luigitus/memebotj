@@ -10,11 +10,13 @@ public class RNGObject {
     private int chance = -1;
     private String idStr = "";
     private int id = -1;
+    private int range = -1;
 
-    public RNGObject(String idStr, int id, int chance) {
+    public RNGObject(String idStr, int id, int range,int chance) {
         this.idStr = idStr;
         this.id = id;
         this.chance = chance;
+        this.range = range;
     }
 
     public static RNGObject rollUntilLast(int maxRange, ArrayList<RNGObject> next, int maxRolls) {
@@ -46,7 +48,7 @@ public class RNGObject {
         ArrayList<RNGObject> possibleOutComes = new ArrayList<>();
 
         for(RNGObject RNGObjectT : objects) {
-            if(odds <= RNGObjectT.getChance()) {
+            if(odds <= RNGObjectT.getChance() && odds >= RNGObjectT.getRange()) {
                 possibleOutComes.add(RNGObjectT);
             }
         }
@@ -84,5 +86,13 @@ public class RNGObject {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getRange() {
+        return range;
+    }
+
+    public void setRange(int range) {
+        this.range = range;
     }
 }
