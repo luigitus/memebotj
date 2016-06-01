@@ -214,7 +214,8 @@ public class DampeCommand extends CommandHandler {
             this.winner = sender.getUsername();
             sender.setJackpotWins(sender.getJackpotWins() + 1);
         } else if(rngobject.getId() == 1) {
-            double price = (ran.nextInt(5) + 1) * wage + ran.nextInt((int) wage);
+            // ran.nextInt(upperbound - lowerbound) + lowerbound
+            double price = (ran.nextInt(5) + 3) * wage + ran.nextInt((int) wage);
             sender.setPoints(sender.getPoints() + price + wage);
             getChannelHandler().sendMessage(Memebot.formatText("DAMPE_WON_1", getChannelHandler(), sender, this, true,
                     new String[]{sender.screenName(), String.format("%.2f", price), getChannelHandler().getCurrencyEmote()}, ""),
