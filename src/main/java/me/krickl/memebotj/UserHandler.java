@@ -545,6 +545,14 @@ public class UserHandler implements Comparable<UserHandler> {
         return dbkey;
     }
 
+    public boolean isUserACat() {
+        if (username.contains("cat") || username.contains("kitty")) {
+            return true;
+        }
+
+        return false;
+    }
+
     public void setAPIKey(String key) {
         MongoHandler mongoHandler = new MongoHandler(Memebot.db, "#apikey#");
 
@@ -564,6 +572,11 @@ public class UserHandler implements Comparable<UserHandler> {
         jsonObject.put("_self", Memebot.webBaseURL + "/api/users/" + channelOrigin.replace("#", "") + "/" + username);
         jsonObject.put("joinded_t", timeStampJoined);
         jsonObject.put("joined_str", dateJoined);
+        jsonObject.put("new_user", newUser);
+        jsonObject.put("screenname", screenName());
+        jsonObject.put("weird_boolean", "rip");
+        jsonObject.put("is_user_a_cat", isUserACat());
+        jsonObject.put("jackpot_wins", jackpotWins);
         //jsonObject.put("inventory", userInventory.toJSON());
 
         return jsonObject;

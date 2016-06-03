@@ -354,6 +354,259 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         return data;
     }
 
+    /***
+     * This method handles list command specific actions
+     * @param sender
+     * @param data
+     * @param formattedOutput
+     * @return
+     */
+    private String handleListCommand(UserHandler sender, String data[], String formattedOutput) {
+        try {
+            if (data[1].equals("add") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+                if(listContent.size() >= listLimit) {
+                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                    this.success = false;
+                } else {
+                    String newEntry = "";
+                    for (int i = 2; i < data.length; i++) {
+                        newEntry = newEntry + data[i] + " ";
+                    }
+                    if (newEntry.isEmpty()) {
+                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
+                        this.success = false;
+                    } else {
+                        this.listContent.add(newEntry + " " + Memebot.formatText(this.commandScript,
+                                channelHandler, sender, this, false, new String[]{}, ""));
+
+                        formattedOutput = Memebot.formatText("ADDED", channelHandler, sender,
+                                this, true, new String[]{this.listContent.get(listContent.size() - 1)}, "");
+                        this.success = false;
+                    }
+                    this.startCooldown = false;
+                }
+            } else if (data[1].equals("suggest")) {
+                if(suggestedList.size() >= listLimit) {
+                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                    this.success = false;
+                } else {
+                    // allow users to suggest quotes
+                    String newEntry = "";
+                    for (int i = 2; i < data.length; i++) {
+                        newEntry = newEntry + data[i] + " ";
+                    }
+                    if (newEntry.isEmpty()) {
+                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
+                        this.success = false;
+                    } else {
+                        String newEntryFormatted = newEntry + " " +
+                                Memebot.formatText(this.commandScript, channelHandler, sender, this, false, new String[]{}, "");
+                        if (!this.suggestedList.contains(newEntryFormatted)) {
+                            this.suggestedList.add(newEntryFormatted);
+                        }
+                        formattedOutput = Memebot.formatText("ADDED_SUGGESTED", channelHandler, sender, this, true,
+                                new String[]{this.suggestedList.get(suggestedList.size() - 1)}, "");
+                        this.success = false;
+                    }
+                }
+            } else if (data[1].equals("replace") && checkPermissions(sender, CommandPower.broadcasterAbsolute,
+                    CommandPower.broadcasterAbsolute)) {
+
+                String fullargument = "";
+                for (int i = 2; i < data.length; i++) {
+                    fullargument = fullargument + data[i] + " ";
+                }
+                if (fullargument.split(";;").length >= 2) {
+                    String oldString = fullargument.split(";;")[0];
+                    String newString = fullargument.split(";;")[1];
+                    for (int i = 0; i < listContent.size(); i++) {
+                        listContent.get(i).replace(oldString, newString);
+                    }
+                    formattedOutput = Memebot.formatText("REPLACED", channelHandler, sender, this, true, new String[]{}, "");
+                } else {
+                    formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                }
+
+                this.startCooldown = false;
+            } else if (data[1].equals("approve") &&
+                    checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+
+                try {
+                    int index = Integer.parseInt(data[2]) - 1;
+                    if (this.suggestedList.size() > index) {
+                        this.listContent.add(suggestedList.get(index));
+                        suggestedList.remove(suggestedList.get(index));
+                        formattedOutput = Memebot.formatText("APPROVED", channelHandler, sender, this, true,
+                                new String[]{}, "");
+                    } else {
+                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                                new String[]{Integer.toString(this.suggestedList.size())}, "");
+                    }
+                } catch (NumberFormatException e) {
+                    formattedOutput = e.toString();
+                    this.success = false;
+                }
+
+                this.startCooldown = false;
+            } else if (data[1].equals("deny") && checkPermissions(sender, CommandPower.modAbsolute,
+                    CommandPower.modAbsolute)) {
+                try {
+                    int index = Integer.parseInt(data[2]) - 1;
+                    if (!data[2].equals("all")) {
+                        if (this.suggestedList.size() > index) {
+                            suggestedList.remove(suggestedList.get(index));
+                            formattedOutput = Memebot.formatText("DENIED", channelHandler, sender, this, true, new String[]{}, "");
+                        } else {
+                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                                    new String[]{Integer.toString(this.suggestedList.size())}, "");
+                        }
+                    } else {
+                        suggestedList.clear();
+                        formattedOutput = Memebot.formatText("DENIED_ALL", channelHandler, sender, this, true,
+                                new String[]{}, "");
+                    }
+                } catch (NumberFormatException e) {
+                    formattedOutput = e.toString();
+                    this.success = false;
+                }
+
+                this.startCooldown = false;
+            } else if (data[1].equals("remove") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+                try {
+                    int index = Integer.parseInt(data[2]) - 1;
+                    if (this.listContent.size() > index) {
+                        this.listContent.remove(index);
+                        formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, new String[]{}, "");
+                        this.success = true;
+                    } else {
+                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
+                    }
+                } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
+                    formattedOutput = e.toString();
+                    this.success = false;
+                }
+
+                this.startCooldown = false;
+            } else if (data[1].equals("edit") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+                String newEntry = "";
+                for (int i = 3; i < data.length; i++) {
+                    newEntry = newEntry + data[i] + " ";
+                }
+                try {
+                    int index = Integer.parseInt(data[2]) - 1;
+                    if (this.listContent.size() > index) {
+                        this.listContent.set(index, newEntry);
+                        formattedOutput = Memebot.formatText("EDITED", channelHandler, sender, this, true, new String[]{}, "");
+                        this.success = true;
+                    } else {
+                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
+                    }
+                } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
+                    log.warning(e.toString());
+                    this.success = false;
+                    formattedOutput = e.toString();
+                }
+
+                this.startCooldown = false;
+            } else if (data[1].equals("list")) {
+                try {
+                    formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
+                    //success = true;
+                } catch (Exception e) {
+                    log.warning(e.toString());
+                    formattedOutput = e.toString();
+                    success = false;
+                }
+
+                this.startCooldown = false;
+            } else if (allowPicksFromList) {
+                try {
+                    int index = Integer.parseInt(data[1]) - 1;
+                    if (this.listContent.size() <= index) {
+                        formattedOutput = Memebot.formatText("OOB", channelHandler,
+                                sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
+                    } else {
+                        formattedOutput = this.quotePrefix.replace("{number}", data[1]) + " " +
+                                this.listContent.get(index) + " " + this.quoteSuffix.replace("{number}", data[1]);
+                        success = true;
+                    }
+                } catch (NumberFormatException e) {
+                    // find string in list content
+                    formattedOutput = Memebot.formatText("QUERY_NOT_FOUND", channelHandler, sender, this, true, new String[]{}, "");
+                    String[] queryA = java.util.Arrays.copyOfRange(data, 1, data.length);
+                    String query = "";
+                    for (String s : queryA) {
+                        query = query + s + " ";
+                    }
+                    int number = 0;
+                    // find all contents of list containing the required string
+                    ArrayList<String> tempList = new ArrayList<>();
+                    for (String str : listContent) {
+                        if (str.contains(query)) {
+                            formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(number)) + str + this.quoteSuffix.replace("{number}", Integer.toString(number));
+                            number += 1;
+                            tempList.add(formattedOutput);
+                        }
+                    }
+                    if (tempList.size() > 0) {
+                        SecureRandom ran = new SecureRandom();
+                        formattedOutput = tempList.get(ran.nextInt(tempList.size()));
+                    }
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            try {
+                Random rand = new Random();
+                int i = rand.nextInt(this.listContent.size());
+                formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i));
+                success = true;
+            } catch (IllegalArgumentException e1) {
+                log.warning(e1.toString());
+            } finally {
+                // just ignore it
+            }
+        }
+
+        return formattedOutput;
+    }
+
+    /***
+     * This method handles counter command specific actions
+     * @param sender
+     * @param data
+     * @param formattedOutput
+     * @return
+     */
+    private String handleCounterCommand(UserHandler sender, String[] data, String formattedOutput) {
+        int modifier = 1;
+        try {
+            modifier = Integer.parseInt(data[2]);
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            log.warning(e.toString());
+        }
+
+        try {
+            if (data[1].equals("add")
+                    && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+                counter = counter + modifier;
+                this.startCooldown = false;
+            } else if (data[1].equals("sub")
+                    && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+                counter = counter - modifier;
+                this.startCooldown = false;
+            } else if (data[1].equals("set")
+                    && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+                counter = modifier;
+                this.startCooldown = false;
+            }
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            log.warning(e.toString());
+            this.success = false;
+        }
+
+        return formattedOutput;
+    }
+
     public boolean executeCommand(UserHandler sender, String[] data) {
         this.success = false;
         this.startCooldown = true;
@@ -383,236 +636,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
         // todo list needs clear and import command
         if (commandType.equals("list")) {
-            try {
-                if (data[1].equals("add") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                    if(listContent.size() >= listLimit) {
-                        formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
-                        this.success = false;
-                    } else {
-                        String newEntry = "";
-                        for (int i = 2; i < data.length; i++) {
-                            newEntry = newEntry + data[i] + " ";
-                        }
-                        if (newEntry.isEmpty()) {
-                            formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
-                            this.success = false;
-                        } else {
-                            this.listContent.add(newEntry + " " + Memebot.formatText(this.commandScript,
-                                    channelHandler, sender, this, false, new String[]{}, ""));
-
-                            formattedOutput = Memebot.formatText("ADDED", channelHandler, sender,
-                                    this, true, new String[]{this.listContent.get(listContent.size() - 1)}, "");
-                            this.success = false;
-                        }
-                        this.startCooldown = false;
-                    }
-                } else if (data[1].equals("suggest")) {
-                    if(suggestedList.size() >= listLimit) {
-                        formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
-                        this.success = false;
-                    } else {
-                        // allow users to suggest quotes
-                        String newEntry = "";
-                        for (int i = 2; i < data.length; i++) {
-                            newEntry = newEntry + data[i] + " ";
-                        }
-                        if (newEntry.isEmpty()) {
-                            formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
-                            this.success = false;
-                        } else {
-                            String newEntryFormatted = newEntry + " " +
-                                    Memebot.formatText(this.commandScript, channelHandler, sender, this, false, new String[]{}, "");
-                            if (!this.suggestedList.contains(newEntryFormatted)) {
-                                this.suggestedList.add(newEntryFormatted);
-                            }
-                            formattedOutput = Memebot.formatText("ADDED_SUGGESTED", channelHandler, sender, this, true,
-                                    new String[]{this.suggestedList.get(suggestedList.size() - 1)}, "");
-                            this.success = false;
-                        }
-                    }
-                } else if (data[1].equals("replace") && checkPermissions(sender, CommandPower.broadcasterAbsolute,
-                        CommandPower.broadcasterAbsolute)) {
-
-                    String fullargument = "";
-                    for (int i = 2; i < data.length; i++) {
-                        fullargument = fullargument + data[i] + " ";
-                    }
-                    if (fullargument.split(";;").length >= 2) {
-                        String oldString = fullargument.split(";;")[0];
-                        String newString = fullargument.split(";;")[1];
-                        for (int i = 0; i < listContent.size(); i++) {
-                            listContent.get(i).replace(oldString, newString);
-                        }
-                        formattedOutput = Memebot.formatText("REPLACED", channelHandler, sender, this, true, new String[]{}, "");
-                    } else {
-                        formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true, new String[]{}, "");
-                    }
-
-                    this.startCooldown = false;
-                } else if (data[1].equals("approve") &&
-                        checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-
-                    try {
-                        int index = Integer.parseInt(data[2]) - 1;
-                        if (this.suggestedList.size() > index) {
-                            this.listContent.add(suggestedList.get(index));
-                            suggestedList.remove(suggestedList.get(index));
-                            formattedOutput = Memebot.formatText("APPROVED", channelHandler, sender, this, true,
-                                    new String[]{}, "");
-                        } else {
-                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
-                                    new String[]{Integer.toString(this.suggestedList.size())}, "");
-                        }
-                    } catch (NumberFormatException e) {
-                        formattedOutput = e.toString();
-                        this.success = false;
-                    }
-
-                    this.startCooldown = false;
-                } else if (data[1].equals("deny") && checkPermissions(sender, CommandPower.modAbsolute,
-                        CommandPower.modAbsolute)) {
-                    try {
-                        int index = Integer.parseInt(data[2]) - 1;
-                        if (!data[2].equals("all")) {
-                            if (this.suggestedList.size() > index) {
-                                suggestedList.remove(suggestedList.get(index));
-                                formattedOutput = Memebot.formatText("DENIED", channelHandler, sender, this, true, new String[]{}, "");
-                            } else {
-                                formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
-                                        new String[]{Integer.toString(this.suggestedList.size())}, "");
-                            }
-                        } else {
-                            suggestedList.clear();
-                            formattedOutput = Memebot.formatText("DENIED_ALL", channelHandler, sender, this, true,
-                                    new String[]{}, "");
-                        }
-                    } catch (NumberFormatException e) {
-                        formattedOutput = e.toString();
-                        this.success = false;
-                    }
-
-                    this.startCooldown = false;
-                } else if (data[1].equals("remove") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                    try {
-                        int index = Integer.parseInt(data[2]) - 1;
-                        if (this.listContent.size() > index) {
-                            this.listContent.remove(index);
-                            formattedOutput = Memebot.formatText("REMOVED", channelHandler, sender, this, true, new String[]{}, "");
-                            this.success = true;
-                        } else {
-                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
-                        }
-                    } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-                        formattedOutput = e.toString();
-                        this.success = false;
-                    }
-
-                    this.startCooldown = false;
-                } else if (data[1].equals("edit") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                    String newEntry = "";
-                    for (int i = 3; i < data.length; i++) {
-                        newEntry = newEntry + data[i] + " ";
-                    }
-                    try {
-                        int index = Integer.parseInt(data[2]) - 1;
-                        if (this.listContent.size() > index) {
-                            this.listContent.set(index, newEntry);
-                            formattedOutput = Memebot.formatText("EDITED", channelHandler, sender, this, true, new String[]{}, "");
-                            this.success = true;
-                        } else {
-                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
-                        }
-                    } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-                        log.warning(e.toString());
-                        this.success = false;
-                        formattedOutput = e.toString();
-                    }
-
-                    this.startCooldown = false;
-                } else if (data[1].equals("list")) {
-                    try {
-                        formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
-                        //success = true;
-                    } catch (Exception e) {
-                        log.warning(e.toString());
-                        formattedOutput = e.toString();
-                        success = false;
-                    }
-
-                    this.startCooldown = false;
-                } else if (allowPicksFromList) {
-                    try {
-                        int index = Integer.parseInt(data[1]) - 1;
-                        if (this.listContent.size() <= index) {
-                            formattedOutput = Memebot.formatText("OOB", channelHandler,
-                                    sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
-                        } else {
-                            formattedOutput = this.quotePrefix.replace("{number}", data[1]) + " " +
-                                    this.listContent.get(index) + " " + this.quoteSuffix.replace("{number}", data[1]);
-                            success = true;
-                        }
-                    } catch (NumberFormatException e) {
-                        // find string in list content
-                        formattedOutput = Memebot.formatText("QUERY_NOT_FOUND", channelHandler, sender, this, true, new String[]{}, "");
-                        String[] queryA = java.util.Arrays.copyOfRange(data, 1, data.length);
-                        String query = "";
-                        for (String s : queryA) {
-                            query = query + s + " ";
-                        }
-                        int number = 0;
-                        // find all contents of list containing the required string
-                        ArrayList<String> tempList = new ArrayList<>();
-                        for (String str : listContent) {
-                            if (str.contains(query)) {
-                                formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(number)) + str + this.quoteSuffix.replace("{number}", Integer.toString(number));
-                                number += 1;
-                                tempList.add(formattedOutput);
-                            }
-                        }
-                        if (tempList.size() > 0) {
-                            SecureRandom ran = new SecureRandom();
-                            formattedOutput = tempList.get(ran.nextInt(tempList.size()));
-                        }
-                    }
-                }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                try {
-                    Random rand = new Random();
-                    int i = rand.nextInt(this.listContent.size());
-                    formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i));
-                    success = true;
-                } catch (IllegalArgumentException e1) {
-                    log.warning(e1.toString());
-                } finally {
-                    // just ignore it
-                }
-            }
+            formattedOutput = handleListCommand(sender, data, formattedOutput);
         } else if (commandType.equals("counter")) {
-            int modifier = 1;
-            try {
-                modifier = Integer.parseInt(data[2]);
-            } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-                log.warning(e.toString());
-            }
-
-            try {
-                if (data[1].equals("add")
-                        && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                    counter = counter + modifier;
-                    this.startCooldown = false;
-                } else if (data[1].equals("sub")
-                        && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                    counter = counter - modifier;
-                    this.startCooldown = false;
-                } else if (data[1].equals("set")
-                        && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                    counter = modifier;
-                    this.startCooldown = false;
-                }
-            } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-                log.warning(e.toString());
-                this.success = false;
-            }
+            formattedOutput = handleCounterCommand(sender, data, formattedOutput);
         }
 
         // start cooldown both tells whether to check cooldown and wheter to start a cooldown

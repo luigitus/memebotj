@@ -8,6 +8,7 @@ import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
+import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -637,5 +638,16 @@ public class Memebot {
         }
 
         return dirList;
+    }
+
+    public static JSONObject toJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("channels", Memebot.webBaseURL + "/api/channels");
+
+        return jsonObject;
+    }
+
+    public static String toJSONString() {
+        return toJSONObject().toJSONString();
     }
 }

@@ -290,7 +290,14 @@ public class WebHandler {
         });
 
 
+        get("/api", (req, res) -> {
+            res.type("application/json");
+
+            return Memebot.toJSONString();
+        });
+
         get("/api/channels", (req, res) -> {
+            res.type("application/json");
             JSONObject channelsObject = new JSONObject();
 
             for (ChannelHandler channelHandler : Memebot.joinedChannels) {
@@ -301,11 +308,13 @@ public class WebHandler {
         });
 
         get("/api/channels/:channel", (req, res) -> {
+            res.type("application/json");
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             return channelHandler.toJSON();
         });
 
         get("/api/users/:channel", (req, res) -> {
+            res.type("application/json");
             String channel = "#" + req.params(":channel");
 
             ChannelHandler channelHandler = getChannelForName(channel);
@@ -333,11 +342,17 @@ public class WebHandler {
         });
 
         get("/api/users/:channel/:user", (req, res) -> {
+            res.type("application/json");
             UserHandler userHandler = new UserHandler(req.params(":user"), "#" + req.params(":channel"));
+            if(userHandler.isNewUser()) {
+                res.status(404);
+                return "{}";
+            }
             return userHandler.toJSON();
         });
 
         get("/api/commands/:channel", (req, res) -> {
+            res.type("application/json");
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             for (CommandHandler commandHandler : channelHandler.getChannelCommands()) {
@@ -347,15 +362,18 @@ public class WebHandler {
         });
 
         get("/api/commands/:channel/:command", (req, res) -> {
+            res.type("application/json");
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getChannelCommands());
             if (commandHandler != null) {
                 return commandHandler.toJSON();
             }
+            res.status(404);
             return "{}";
         });
 
         get("/api/internals/:channel", (req, res) -> {
+            res.type("application/json");
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             for (CommandHandler commandHandler : channelHandler.getInternalCommands()) {
@@ -365,11 +383,13 @@ public class WebHandler {
         });
 
         get("/api/internals/:channel/:command", (req, res) -> {
+            res.type("application/json");
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getInternalCommands());
             if (commandHandler != null) {
                 return commandHandler.toJSON();
             }
+            res.status(404);
             return "{}";
         });
 
