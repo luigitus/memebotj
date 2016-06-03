@@ -1174,27 +1174,23 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     public JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
 
-        JSONObject channelCommandsObject = new JSONObject();
-        JSONObject internalCommandsObject = new JSONObject();
-
-        for (CommandHandler commandHandler : this.channelCommands) {
-            channelCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
-        }
-
-        for (CommandHandler commandHandler : this.internalCommands) {
-            internalCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
-        }
-
         jsonObject.put("_id", channel);
         jsonObject.put("_self", Memebot.webBaseURL + "/api/channels/" + broadcaster);
-        jsonObject.put("commands", channelCommandsObject);
-        jsonObject.put("internals", internalCommandsObject);
-        jsonObject.put("filenames", fileNameList);
+        jsonObject.put("commands", Memebot.webBaseURL + "/api/commands/" + getBroadcaster());
+        jsonObject.put("internals", Memebot.webBaseURL + "/api/internals/" + getBroadcaster());
+        jsonObject.put("filenames", Memebot.webBaseURL + "/api/filenames/" + getBroadcaster());
+        jsonObject.put("users", Memebot.webBaseURL + "/api/users/" + getBroadcaster());
 
         return jsonObject;
     }
 
-    public String toJSON() {
+    public String toJSONSString() {
         return toJSONObject().toJSONString();
+    }
+
+    public String filenamesToJSON() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("filenames", fileNameList);
+        return jsonObject.toJSONString();
     }
 }

@@ -577,7 +577,7 @@ public class UserHandler implements Comparable<UserHandler> {
         jsonObject.put("weird_boolean", "rip");
         jsonObject.put("is_user_a_cat", isUserACat());
         jsonObject.put("jackpot_wins", jackpotWins);
-        //jsonObject.put("inventory", userInventory.toJSON());
+        //jsonObject.put("inventory", userInventory.toJSONSString());
 
         return jsonObject;
     }
