@@ -654,7 +654,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
         }
         formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, new String[]{}, "");
-        formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, new String[]{}, "");
+        formattedScript = Memebot.formatText(formattedScript, channelHandler, sender, this, false, new String[]{}, "");
 
         if (!formattedOutput.equals("null")) {
             if (commandType.equals("counter") || commandType.equals("list") || commandType.equals("default") || commandType.equals("timer")) {
@@ -1125,7 +1125,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         return jsonObject;
     }
 
-    public String toJSON() {
+    public String toJSONString() {
         return toJSONObject().toJSONString();
     }
 

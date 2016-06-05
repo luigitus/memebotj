@@ -1180,6 +1180,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         jsonObject.put("internals", Memebot.webBaseURL + "/api/internals/" + getBroadcaster());
         jsonObject.put("filenames", Memebot.webBaseURL + "/api/filenames/" + getBroadcaster());
         jsonObject.put("users", Memebot.webBaseURL + "/api/users/" + getBroadcaster());
+        jsonObject.put("_parent", Memebot.webBaseURL + "/api/channels");
 
         return jsonObject;
     }
@@ -1191,6 +1192,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     public String filenamesToJSON() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("filenames", fileNameList);
+        jsonObject.put("_self", Memebot.webBaseURL + "/api/filenames/" + getBroadcaster());
+        jsonObject.put("_parent", Memebot.webBaseURL + "/api/channels/" + getBroadcaster());
+        jsonObject.put("_id", getChannel());
         return jsonObject.toJSONString();
     }
 }

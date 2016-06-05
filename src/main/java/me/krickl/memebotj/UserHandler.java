@@ -577,12 +577,13 @@ public class UserHandler implements Comparable<UserHandler> {
         jsonObject.put("weird_boolean", "rip");
         jsonObject.put("is_user_a_cat", isUserACat());
         jsonObject.put("jackpot_wins", jackpotWins);
+        jsonObject.put("_parent", Memebot.webBaseURL + "/api/channels/" + getChannelOrigin().replace("#", ""));
         //jsonObject.put("inventory", userInventory.toJSONSString());
 
         return jsonObject;
     }
 
-    public String toJSON() {
+    public String toJSONString() {
         return toJSONObject().toJSONString();
     }
 }

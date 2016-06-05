@@ -643,6 +643,11 @@ public class Memebot {
     public static JSONObject toJSONObject() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("channels", Memebot.webBaseURL + "/api/channels");
+        jsonObject.put("_id", BuildInfo.appName);
+        jsonObject.put("version", BuildInfo.version);
+        jsonObject.put("dev", BuildInfo.dev);
+        jsonObject.put("_self", Memebot.webBaseURL + "/api");
+        jsonObject.put("_parent", null);
 
         return jsonObject;
     }
