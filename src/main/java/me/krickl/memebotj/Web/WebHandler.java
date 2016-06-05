@@ -344,13 +344,18 @@ public class WebHandler {
                 userList.add(doc.getOrDefault("_id", "#error#").toString());
             }
 
+            JSONObject wrapper = new JSONObject();
             JSONObject usersObject = new JSONObject();
 
             for (String user : userList) {
                 usersObject.put(user, Memebot.webBaseURL + "/api/users/" + channel.replace("#", "") + "/" + user);
             }
 
-            return usersObject.toJSONString();
+            wrapper.put("data", usersObject);
+            wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/users/" + channel.replace("#", ""),
+                    Memebot.webBaseURL + "/api/channels/" + channel.replace("#", ""), null, null));
+
+            return wrapper.toJSONString();
         });
 
         get("/api/users/:channel/:user", (req, res) -> {
@@ -379,6 +384,19 @@ public class WebHandler {
 
             return wrapper.toJSONString();
         });
+
+        get("/api/alias/:channel", (req, res) -> {
+            JSONObject wrapper = new JSONObject();
+            JSONObject aliasObjects = new JSONObject();
+            ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
+
+            wrapper.put("data", aliasObjects);
+            wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/alias/" + channelHandler.getBroadcaster(),
+                    Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster(), null, null));
+
+            return wrapper.toJSONString();
+        });
+
 
         get("/api/commands/:channel/:command", (req, res) -> {
             res.type("application/json");

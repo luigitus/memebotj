@@ -651,7 +651,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         //format parameters
         if (counterStart < this.parameters + 1) {
             formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
-            formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
+            if(!commandType.equals("state")) {
+                formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false, java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
+            }
         }
         formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, new String[]{}, "");
         formattedScript = Memebot.formatText(formattedScript, channelHandler, sender, this, false, new String[]{}, "");

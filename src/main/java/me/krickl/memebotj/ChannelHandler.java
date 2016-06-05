@@ -58,7 +58,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
-    private double pointsPerUpdate = 0.1f;
+    private double pointsPerUpdate = 1.0f;
     private Thread t = null;
     private boolean isJoined = true;
     private boolean allowAutogreet = true;
@@ -105,6 +105,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private boolean useAlias = true;
 
     private boolean pointsUpdateDone = false;
+
+    private Document aliasList = new Document();
 
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
@@ -183,6 +185,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.internalCommands.add(new WorldRecordCommand(this, "!wr", "#internal#"));
         this.internalCommands.add(new UptimeCommand(this, "!uptime", "#internal#"));
         this.internalCommands.add(new DoggyRaceCommand(this, "!doggy", "#internal#"));
+        this.internalCommands.add(new AliasCommand(this, "!alias", "#internal#"));
 
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
@@ -369,6 +372,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         if (msgPackage == null) {
             return;
         }
+        msgPackage.handleAlias(aliasList);
 
         // if channel does not match ignore the message
         if (!msgPackage.channel.equals(this.channel)) {
@@ -633,6 +637,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
             aliasDoc = (Document) mongoHandler.getObject("commandalias", this.aliasDoc);
             pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
+            aliasList = (Document) mongoHandler.getObject("aliaslist", this.aliasList);
         }
 
         // read commands
@@ -680,6 +685,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("itemDrops", this.itemDrops);
         mongoHandler.updateDocument("commandalias", this.aliasDoc);
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
+        mongoHandler.updateDocument("aliaslist", this.aliasList);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -965,6 +971,30 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setGivePointsWhenOffline(boolean givePointsWhenOffline) {
         this.givePointsWhenOffline = givePointsWhenOffline;
+    }
+
+    public boolean isUseAlias() {
+        return useAlias;
+    }
+
+    public void setUseAlias(boolean useAlias) {
+        this.useAlias = useAlias;
+    }
+
+    public boolean isPointsUpdateDone() {
+        return pointsUpdateDone;
+    }
+
+    public void setPointsUpdateDone(boolean pointsUpdateDone) {
+        this.pointsUpdateDone = pointsUpdateDone;
+    }
+
+    public Document getAliasList() {
+        return aliasList;
+    }
+
+    public void setAliasList(Document aliasList) {
+        this.aliasList = aliasList;
     }
 
     public int getLinkTimeout() {
