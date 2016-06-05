@@ -1107,11 +1107,11 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public JSONObject toJSONObject() {
+        JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("_id", commandName);
         jsonObject.put("_channel", channelHandler.getChannel());
-        jsonObject.put("_self", Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandName);
         jsonObject.put("execcounter", execCounter);
         jsonObject.put("listcontent", listContent);
         jsonObject.put("suggestedlist", suggestedList);
@@ -1122,7 +1122,12 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         jsonObject.put("qprefix", quotePrefix);
         jsonObject.put("qsuffix", quoteSuffix);
 
-        return jsonObject;
+        wrapper.put("data", jsonObject);
+        wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandName,
+                Memebot.webBaseURL + "/api/channels/" + getChannelHandler().getBroadcaster(), null
+                , null));
+
+        return wrapper;
     }
 
     public String toJSONString() {

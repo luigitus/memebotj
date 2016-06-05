@@ -641,13 +641,25 @@ public class Memebot {
     }
 
     public static JSONObject toJSONObject() {
+        JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("channels", Memebot.webBaseURL + "/api/channels");
         jsonObject.put("_id", BuildInfo.appName);
         jsonObject.put("version", BuildInfo.version);
         jsonObject.put("dev", BuildInfo.dev);
-        jsonObject.put("_self", Memebot.webBaseURL + "/api");
-        jsonObject.put("_parent", null);
+
+        wrapper.put("data", jsonObject);
+        wrapper.put("links" ,getLinks(Memebot.webBaseURL + "/api", null, null, null));
+
+        return wrapper;
+    }
+
+    public static JSONObject getLinks(String self, String parent, String next, String previous) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("self", self);
+        jsonObject.put("parent", parent);
+        jsonObject.put("next", next);
+        jsonObject.put("previous", previous);
 
         return jsonObject;
     }

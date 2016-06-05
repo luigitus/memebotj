@@ -1,5 +1,6 @@
 package me.krickl.memebotj.Web;
 
+import com.mongodb.util.JSON;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Database.MongoHandler;
@@ -298,6 +299,7 @@ public class WebHandler {
 
         get("/api/channels", (req, res) -> {
             res.type("application/json");
+            JSONObject wrapper = new JSONObject();
             JSONObject channelsObject = new JSONObject();
 
             for (ChannelHandler channelHandler : Memebot.joinedChannels) {
@@ -305,9 +307,10 @@ public class WebHandler {
             }
 
             channelsObject.put("_id", null);
-            channelsObject.put("_self", Memebot.webBaseURL + "/api/channels");
-            channelsObject.put("_parent", Memebot.webBaseURL + "/api");
-            return channelsObject.toJSONString();
+            wrapper.put("data", channelsObject);
+            wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/channels", Memebot.webBaseURL + "/api", null
+            , null));
+            return wrapper.toJSONString();
         });
 
         get("/api/channels/:channel", (req, res) -> {
@@ -362,15 +365,19 @@ public class WebHandler {
 
         get("/api/commands/:channel", (req, res) -> {
             res.type("application/json");
+            JSONObject wrapper = new JSONObject();
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             for (CommandHandler commandHandler : channelHandler.getChannelCommands()) {
                 commandsObject.put(commandHandler.getCommandName(), Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandHandler.getCommandName());
             }
-            commandsObject.put("_self", Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster());
-            commandsObject.put("_parent", Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster());
             commandsObject.put("_id", channelHandler.getChannel());
-            return commandsObject.toJSONString();
+
+            wrapper.put("data", commandsObject);
+            wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster(),
+                    Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster(), null, null));
+
+            return wrapper.toJSONString();
         });
 
         get("/api/commands/:channel/:command", (req, res) -> {
@@ -379,7 +386,6 @@ public class WebHandler {
             CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getChannelCommands());
             if (commandHandler != null) {
                 JSONObject jsonObject = commandHandler.toJSONObject();
-                jsonObject.put("_parent", Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster());
                 return jsonObject.toJSONString();
             }
             res.status(404);
@@ -388,16 +394,19 @@ public class WebHandler {
 
         get("/api/internals/:channel", (req, res) -> {
             res.type("application/json");
+            JSONObject wrapper = new JSONObject();
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
             for (CommandHandler commandHandler : channelHandler.getInternalCommands()) {
                 commandsObject.put(commandHandler.getCommandName(), Memebot.webBaseURL + "/api/internals/" + channelHandler.getBroadcaster() + "/" + commandHandler.getCommandName());
             }
-            commandsObject.put("_self", Memebot.webBaseURL + "/api/internals/" + channelHandler.getBroadcaster());
-            commandsObject.put("_parent", Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster());
             commandsObject.put("_id", channelHandler.getChannel());
 
-            return commandsObject.toJSONString();
+            wrapper.put("data", commandsObject);
+            wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/internals/" + channelHandler.getBroadcaster(),
+                    Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster(), null, null));
+
+            return wrapper.toJSONString();
         });
 
         get("/api/internals/:channel/:command", (req, res) -> {
@@ -406,7 +415,6 @@ public class WebHandler {
             CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getInternalCommands());
             if (commandHandler != null) {
                 JSONObject jsonObject = commandHandler.toJSONObject();
-                jsonObject.put("_parent", Memebot.webBaseURL + "/api/internals/" + channelHandler.getBroadcaster());
                 return jsonObject.toJSONString();
             }
             res.status(404);

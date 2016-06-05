@@ -22,14 +22,14 @@ import java.util.logging.Logger;
  */
 public class UserHandler implements Comparable<UserHandler> {
     public static Logger log = Logger.getLogger(UserHandler.class.getName());
-    boolean isModerator = false;
-    boolean isUserBroadcaster = false;
-    boolean newUser = false;
-    int commandPower = CommandPower.viewerAbsolute;
-    int autoCommandPower = CommandPower.viewerAbsolute;
-    int customCommandPower = 0;
-    int timeouts = 0;
-    boolean shouldBeRemoved = false;
+    private boolean isModerator = false;
+    private boolean isUserBroadcaster = false;
+    private boolean newUser = false;
+    private int commandPower = CommandPower.viewerAbsolute;
+    private int autoCommandPower = CommandPower.viewerAbsolute;
+    private int customCommandPower = 0;
+    private int timeouts = 0;
+    private boolean shouldBeRemoved = false;
     private MongoHandler mongoHandler = null;
     private String username = "";
     private String channelOrigin = "";
@@ -52,7 +52,9 @@ public class UserHandler implements Comparable<UserHandler> {
     private boolean hasAutogreeted = false;
     private Cooldown removeCooldown = new Cooldown(0);
     private int jackpotWins = 0;
-    private String id = "";
+    private String id = ""; // todo implement id
+
+    private int constantCommandPower = -1;
 
     private boolean pointsUpdateDone = false;
 
@@ -136,6 +138,7 @@ public class UserHandler implements Comparable<UserHandler> {
         this.jackpotWins = (int) mongoHandler.getObject("jackpotwins", this.jackpotWins);
         this.lastTimeoutDuration = (int) mongoHandler.getObject("lasttoduration", this.lastTimeoutDuration);
         this.lastTimeoutReason = mongoHandler.getObject("lasttoreason", this.lastTimeoutReason).toString();
+        this.constantCommandPower = (int) mongoHandler.getObject("contstantcommandpower", this.constantCommandPower);
 
         this.pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
 
@@ -162,6 +165,7 @@ public class UserHandler implements Comparable<UserHandler> {
         mongoHandler.updateDocument("lasttoduration", this.lastTimeoutDuration);
         mongoHandler.updateDocument("lasttoreason", this.lastTimeoutReason);
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
+        mongoHandler.updateDocument("contstantcommandpower", constantCommandPower);
         //mongoHandler.setDocument(userData);
     }
 
@@ -291,6 +295,11 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public int getCommandPower() {
+        if(this.constantCommandPower >= 0 && this.constantCommandPower >= commandPower) {
+            // constant command power can be used to assign a constant value to a user
+            // this will be used for permissions on the website
+            return constantCommandPower;
+        }
         return commandPower;
     }
 
@@ -473,6 +482,30 @@ public class UserHandler implements Comparable<UserHandler> {
         this.userInventory = userInventory;
     }*/
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getConstantCommandPower() {
+        return constantCommandPower;
+    }
+
+    public void setConstantCommandPower(int constantCommandPower) {
+        this.constantCommandPower = constantCommandPower;
+    }
+
+    public boolean isPointsUpdateDone() {
+        return pointsUpdateDone;
+    }
+
+    public void setPointsUpdateDone(boolean pointsUpdateDone) {
+        this.pointsUpdateDone = pointsUpdateDone;
+    }
+
     public int getLastTimeoutDuration() {
         return lastTimeoutDuration;
     }
@@ -563,13 +596,13 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public JSONObject toJSONObject() {
+        JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("points", points);
         jsonObject.put("timeouts", timeouts);
         jsonObject.put("_id", username);
         jsonObject.put("_channel", channelOrigin);
-        jsonObject.put("_self", Memebot.webBaseURL + "/api/users/" + channelOrigin.replace("#", "") + "/" + username);
         jsonObject.put("joinded_t", timeStampJoined);
         jsonObject.put("joined_str", dateJoined);
         jsonObject.put("new_user", newUser);
@@ -577,10 +610,15 @@ public class UserHandler implements Comparable<UserHandler> {
         jsonObject.put("weird_boolean", "rip");
         jsonObject.put("is_user_a_cat", isUserACat());
         jsonObject.put("jackpot_wins", jackpotWins);
-        jsonObject.put("_parent", Memebot.webBaseURL + "/api/channels/" + getChannelOrigin().replace("#", ""));
-        //jsonObject.put("inventory", userInventory.toJSONSString());
+        jsonObject.put("constant_commandpower", constantCommandPower);
+        jsonObject.put("mod_note", modNote);
+        jsonObject.put("commandpower", commandPower);
 
-        return jsonObject;
+        wrapper.put("data", jsonObject);
+        wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/users/" + channelOrigin.replace("#", "") + "/" + username,
+                Memebot.webBaseURL + "/api/channels/" + getChannelOrigin().replace("#", ""), null, null));
+
+        return wrapper;
     }
 
     public String toJSONString() {

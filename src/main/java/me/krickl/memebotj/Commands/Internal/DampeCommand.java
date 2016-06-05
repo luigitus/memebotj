@@ -186,9 +186,9 @@ public class DampeCommand extends CommandHandler {
         // list of possible outcomes
         ArrayList<RNGObject> RNGObjects = new ArrayList<>();
         RNGObjects.add(new RNGObject("jackpot", 0, 0, 5));
-        RNGObjects.add(new RNGObject("win1", 1, 6, 80 - offlineModifier));
-        RNGObjects.add(new RNGObject("win2", 2, 81, 155 - offlineModifier));
-        RNGObjects.add(new RNGObject("half", 3, 156, 450));
+        RNGObjects.add(new RNGObject("win1", 1, 6, 50 - offlineModifier));
+        RNGObjects.add(new RNGObject("win2", 2, 51, 125 - offlineModifier));
+        RNGObjects.add(new RNGObject("half", 3, 126, 450));
         RNGObjects.add(new RNGObject("loss", 4, 451, 810));
         RNGObjects.add(new RNGObject("rupoor1", 5, 811, 950));
         RNGObjects.add(new RNGObject("rupoor2", 6, 951, range));

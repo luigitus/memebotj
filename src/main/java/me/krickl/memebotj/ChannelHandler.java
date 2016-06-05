@@ -401,7 +401,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         String[] data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length);
         if (this.purgeURLS) {
             for (String username : Memebot.globalBanList) {
-                if (sender.getUsername().equals(username) && !sender.isModerator) {
+                if (sender.getUsername().equals(username) && !sender.isModerator()) {
                     this.sendMessage("/ban " + sender.getUsername());
                 }
             }
@@ -1172,17 +1172,20 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public JSONObject toJSONObject() {
+        JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("_id", channel);
-        jsonObject.put("_self", Memebot.webBaseURL + "/api/channels/" + broadcaster);
         jsonObject.put("commands", Memebot.webBaseURL + "/api/commands/" + getBroadcaster());
         jsonObject.put("internals", Memebot.webBaseURL + "/api/internals/" + getBroadcaster());
         jsonObject.put("filenames", Memebot.webBaseURL + "/api/filenames/" + getBroadcaster());
         jsonObject.put("users", Memebot.webBaseURL + "/api/users/" + getBroadcaster());
-        jsonObject.put("_parent", Memebot.webBaseURL + "/api/channels");
 
-        return jsonObject;
+        wrapper.put("data", jsonObject);
+        wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/channels/" + broadcaster,
+                Memebot.webBaseURL + "/api/channels", null, null));
+
+        return wrapper;
     }
 
     public String toJSONSString() {
@@ -1190,11 +1193,15 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public String filenamesToJSON() {
+        JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("filenames", fileNameList);
-        jsonObject.put("_self", Memebot.webBaseURL + "/api/filenames/" + getBroadcaster());
-        jsonObject.put("_parent", Memebot.webBaseURL + "/api/channels/" + getBroadcaster());
         jsonObject.put("_id", getChannel());
-        return jsonObject.toJSONString();
+
+        wrapper.put("data", jsonObject);
+        wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/filenames/" + getBroadcaster(),
+                Memebot.webBaseURL + "/api/channels/" + getBroadcaster(), null, null));
+
+        return wrapper.toJSONString();
     }
 }

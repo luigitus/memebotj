@@ -42,7 +42,7 @@ public class WhoisCommand extends CommandHandler {
                 // todo make it render json of user object
 
                 // get json
-                JSONObject jsonObject = uh.toJSONObject();
+                JSONObject jsonObject = (JSONObject) uh.toJSONObject().get("data");
 
                 String output = "";
 
