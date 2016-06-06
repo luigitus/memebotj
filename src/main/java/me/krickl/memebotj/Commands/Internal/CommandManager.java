@@ -143,46 +143,6 @@ public class CommandManager extends CommandHandler {
                     }
                     getChannelHandler().sendMessage("Commands: " + output, this.getChannelHandler().getChannel(), sender);
                 }
-            } else if (data[0].equals("addalias")) {
-                String aliasData = "";
-                for(int i = 1; i < data.length; i++) {
-                    aliasData = aliasData + data[i] + " ";
-                }
-
-                String aliasOriginal = aliasData.split(";;")[0];
-                String aliasReplace = aliasData.split(";;")[1];
-
-                if(getChannelHandler().getAliasDoc().containsKey(aliasOriginal)) {
-                    getChannelHandler().sendMessage(
-                            Memebot.formatText("COMMAND_ADD_ALIAS",
-                                    getChannelHandler(),
-                                    sender, this, true, new String[]{getChannelHandler().getChannelPageBaseURL()}, ""));
-
-                    getChannelHandler().getAliasDoc().put(aliasOriginal, aliasReplace);
-                } else {
-                    getChannelHandler().sendMessage(
-                            Memebot.formatText("COMMAND_ADD_ALIAS_ERR",
-                                    getChannelHandler(),
-                                    sender, this, true, new String[]{getChannelHandler().getChannelPageBaseURL()}, ""));
-                }
-
-            } else if (data[0].equals("removealias")) {
-                String aliasData = "";
-                for(int i = 1; i < data.length; i++) {
-                    aliasData = aliasData + data[i] + " ";
-                }
-                if(getChannelHandler().getAliasDoc().containsKey(aliasData)) {
-                    getChannelHandler().getAliasDoc().remove(aliasData);
-                    getChannelHandler().sendMessage(
-                            Memebot.formatText("COMMAND_REMOVE_ALIAS",
-                                    getChannelHandler(),
-                                    sender, this, true, new String[]{getChannelHandler().getChannelPageBaseURL()}, ""));
-                } else {
-                    getChannelHandler().sendMessage(
-                            Memebot.formatText("COMMAND_REMOVE_ALIAS_ERR",
-                                    getChannelHandler(),
-                                    sender, this, true, new String[]{getChannelHandler().getChannelPageBaseURL()}, ""));
-                }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             getChannelHandler().sendMessage(this.getHelptext(), this.getChannelHandler().getChannel());

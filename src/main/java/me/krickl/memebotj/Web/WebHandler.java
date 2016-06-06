@@ -390,6 +390,10 @@ public class WebHandler {
             JSONObject aliasObjects = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
 
+            for(String alias : channelHandler.getAliasList().keySet()) {
+                aliasObjects.put(alias, channelHandler.getAliasList().get(alias).toString());
+            }
+
             wrapper.put("data", aliasObjects);
             wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/alias/" + channelHandler.getBroadcaster(),
                     Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster(), null, null));

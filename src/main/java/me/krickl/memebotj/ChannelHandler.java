@@ -100,8 +100,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private String itemDrops = "mm";
     private String uptimeString = "";
 
-    private Document aliasDoc = new Document();
-
     private boolean useAlias = true;
 
     private boolean pointsUpdateDone = false;
@@ -635,7 +633,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.startingPoints = (double) mongoHandler.getObject("startingpoints", this.startingPoints);
             this.bgImage = mongoHandler.getObject("bgImage", this.bgImage).toString();
             itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
-            aliasDoc = (Document) mongoHandler.getObject("commandalias", this.aliasDoc);
             pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
             aliasList = (Document) mongoHandler.getObject("aliaslist", this.aliasList);
         }
@@ -683,7 +680,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("startingpoints", this.startingPoints);
         mongoHandler.updateDocument("bgImage", this.bgImage);
         mongoHandler.updateDocument("itemDrops", this.itemDrops);
-        mongoHandler.updateDocument("commandalias", this.aliasDoc);
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         mongoHandler.updateDocument("aliaslist", this.aliasList);
 
@@ -1187,14 +1183,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setShortUpdateCooldown(Cooldown shortUpdateCooldown) {
         this.shortUpdateCooldown = shortUpdateCooldown;
-    }
-
-    public Document getAliasDoc() {
-        return aliasDoc;
-    }
-
-    public void setAliasDoc(Document aliasDoc) {
-        this.aliasDoc = aliasDoc;
     }
 
     public int getViewerNumber() {
