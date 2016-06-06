@@ -58,6 +58,11 @@ public class WorldRecordCommand extends CommandHandler {
             String userID = runs.getPlayers().get(0).getId();
             Call<UserLookup> user = service.getUser(userID);
             String wrHolder = user.execute().body().getData().getName();
+
+            if(wrHolder.equalsIgnoreCase("trevperson") && getChannelHandler().getBroadcaster().equals("trevperson")) {
+                wrHolder = "Me";
+            }
+
             return new String[]{parseTime(runs.getTimes().getPrimaryT()), wrHolder};
         } catch (IOException e) {
             e.printStackTrace();
