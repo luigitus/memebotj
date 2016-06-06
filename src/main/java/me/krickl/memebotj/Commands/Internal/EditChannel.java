@@ -4,6 +4,7 @@ import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.Utility.ChatColours;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Localisation;
 
@@ -83,7 +84,15 @@ public class EditChannel extends CommandHandler {
                 getChannelHandler().setBgImage(data[1]);
             } else if (data[0].equals("itemDrops")) {
                 getChannelHandler().setItemDrops(data[1]);
+            } else if(data[0].equals("colour")) {
+                if(!getChannelHandler().getConnection().getBotNick().equals(Memebot.botNick)
+                        || checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
+                    ChatColours.setColour(getChannelHandler(), sender, data[1]);
+                }
+            } else if(data[0].equals("colourrotation")) {
+                getChannelHandler().setUseRotatingColours(Boolean.parseBoolean(data[1]));
             }
+
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]}, getChannelHandler().getChannel()));
             getChannelHandler().writeDB();
         } catch (ArrayIndexOutOfBoundsException e) {

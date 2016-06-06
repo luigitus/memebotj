@@ -386,6 +386,7 @@ public class WebHandler {
         });
 
         get("/api/alias/:channel", (req, res) -> {
+            res.type("application/json");
             JSONObject wrapper = new JSONObject();
             JSONObject aliasObjects = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));

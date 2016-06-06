@@ -2,6 +2,7 @@ package me.krickl.memebotj.Commands;
 
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Database.DatabaseObjectInterface;
+import me.krickl.memebotj.Database.JSONInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 03/04/16.
  */
-public class CommandHandler implements CommandInterface, Comparable<CommandHandler>,
+public class CommandHandler implements CommandInterface, Comparable<CommandHandler>, JSONInterface,
         DatabaseObjectInterface {
     public static Logger log = Logger.getLogger(CommandHandler.class.getName());
     protected MongoHandler mongoHandler = null;
@@ -203,11 +204,6 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public void setDB() {
-        /*Document otherDataDocument = new Document();
-        for(String key : this.otherData.keySet()) {
-            otherDataDocument.append(key, this.otherData.get(key));
-        }*/
-
         mongoHandler.updateDocument("_id", this.commandName);
         mongoHandler.updateDocument("command", this.commandName);
         mongoHandler.updateDocument("cooldown", new Integer(this.cooldownLength));
@@ -1144,7 +1140,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         return wrapper;
     }
 
-    public String toJSONString() {
+    public String toJSONSString() {
         return toJSONObject().toJSONString();
     }
 

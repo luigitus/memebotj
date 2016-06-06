@@ -6,11 +6,13 @@ import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Database.DatabaseInterface;
 import me.krickl.memebotj.Database.DatabaseObjectInterface;
+import me.krickl.memebotj.Database.JSONInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
+import me.krickl.memebotj.Utility.ChatColours;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Utility.MessagePackage;
@@ -31,7 +33,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, DatabaseObjectInterface {
+public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, DatabaseObjectInterface, JSONInterface {
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
     // todo old db code - remove soon
     //private MongoCollection<Document> channelCollection = null;
@@ -54,7 +56,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private int maxFileNameLen = 8;
     private String currentFileName = "";
     private long streamStartTime = 0;
-    private String local = "engb";
+    private String local = Memebot.defaultLocal.getLocal();
     private String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
@@ -104,7 +106,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private boolean pointsUpdateDone = false;
 
+    private boolean useRotatingColours = false;
+
     private Document aliasList = new Document();
+
+    private Cooldown longUpdateCooldown = new Cooldown(600, 0);
 
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
@@ -202,7 +208,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null, false, new String[]{}, ""));
         }
 
-        if(!this.pointsUpdateDone) {
+        if (!this.pointsUpdateDone) {
             this.pointsPerUpdate = pointsPerUpdate / 10;
             this.pointsUpdateDone = true;
         }
@@ -356,6 +362,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
             this.writeDB();
             this.writeHTML();
+        }
+
+        if(this.longUpdateCooldown.canContinue()) {
+            this.longUpdateCooldown.startCooldown();
+
+            if(this.useRotatingColours || connection.getBotNick().equals(Memebot.botNick)) {
+                ChatColours.pickColour(this, new UserHandler("#internal#", channel));
+            }
         }
     }
 
@@ -516,6 +530,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat) {
+        sendMessage(mesgessage, channel, sender, whisper, forcechat, false);
+    }
+
+    public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat,
+                            boolean allowIgnored) {
         String msg = mesgessage;
         if (msg.isEmpty()) {
             return;
@@ -531,8 +550,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.preventMessageCooldown.startCooldown();
         }
         // ignore /ignore to avoid people being ignored by the bot
-        if (msg.startsWith("/ignore")) {
-            return;
+        String[] ignoredMessages = new String[]{"/ignore", "/color"};
+        for(String ignoredStr : ignoredMessages) {
+            if (msg.startsWith(ignoredStr) && allowIgnored) {
+                return;
+            }
         }
 
         this.currentMessageCount += 1;
@@ -635,6 +657,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
             pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
             aliasList = (Document) mongoHandler.getObject("aliaslist", this.aliasList);
+            useRotatingColours = (boolean) mongoHandler.getObject("rotatingcolours", this.useRotatingColours);
         }
 
         // read commands
@@ -682,6 +705,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("itemDrops", this.itemDrops);
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         mongoHandler.updateDocument("aliaslist", this.aliasList);
+        mongoHandler.updateDocument("rotatingcolours", this.useRotatingColours);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -1187,6 +1211,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public int getViewerNumber() {
         return userList.size();
+    }
+
+    public boolean isUseRotatingColours() {
+        return useRotatingColours;
+    }
+
+    public void setUseRotatingColours(boolean useRotatingColours) {
+        this.useRotatingColours = useRotatingColours;
     }
 
     public JSONObject toJSONObject() {
