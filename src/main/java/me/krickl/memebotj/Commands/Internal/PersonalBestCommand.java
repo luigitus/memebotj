@@ -23,7 +23,7 @@ public class PersonalBestCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        if (getChannelHandler().getSpeedRunComAPI().getUser() != null) {
+        if (getChannelHandler().getUser() != null) {
             try {
                 if (data[0].equals("list")) {
                     getChannelHandler().sendMessage(formatString(sender, true), getChannelHandler().getChannel(), sender, isWhisper());
@@ -31,10 +31,10 @@ public class PersonalBestCommand extends CommandHandler {
                 }
             } catch (ArrayIndexOutOfBoundsException e) {
             }
-            getChannelHandler().getSpeedRunComAPI().updateGame();
+            //getChannelHandler().getSpeedRunComAPI().updateGame();
             getChannelHandler().sendMessage(formatString(sender, false), getChannelHandler().getChannel(), sender, isWhisper());
         } else {
-            if (getChannelHandler().getSpeedRunComAPI().getGame() != null) {
+            if (getChannelHandler().getGame() != null) {
                 getChannelHandler().sendMessage(Memebot.formatText("PB_NO_USER", getChannelHandler(), sender, this, true,
                         new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
             } else {
@@ -46,9 +46,9 @@ public class PersonalBestCommand extends CommandHandler {
 
     private String formatString(UserHandler sender, boolean list) {
         String title = getChannelHandler().getStreamTitle();
-        String gameID = getChannelHandler().getSpeedRunComAPI().getGame().getId();
-        String userID = getChannelHandler().getSpeedRunComAPI().getUser().getId();
-        ArrayList<Category> categories = getChannelHandler().getSpeedRunComAPI().getGame().getCategories();
+        String gameID = getChannelHandler().getGame().getId();
+        String userID = getChannelHandler().getUser().getId();
+        ArrayList<Category> categories = getChannelHandler().getGame().getCategories();
         if (!list) {
             for (Category category : categories) {
                 if (title.toLowerCase().contains(category.getName().toLowerCase())) {
@@ -58,14 +58,13 @@ public class PersonalBestCommand extends CommandHandler {
                 }
             }
         }
-        String output = getPBs(userID, gameID, categories);
         return Memebot.formatText("PB_ALL_GAME", getChannelHandler(), sender, this, true,
-                new String[]{output}, "");
+                new String[]{getPBs(userID, gameID, categories)}, "");
     }
 
     private String getPB(String userID, String gameID, String categoryID) {
         try {
-            SpeedRunCom service = getChannelHandler().getSpeedRunComAPI().getService();
+            SpeedRunCom service = Memebot.speedRunComAPI.getService();
             Call<PBLookup> pbs = service.getPersonalBests(userID, gameID);
             ArrayList<RunObject> runs = pbs.execute().body().getData();
             for (RunObject run1 : runs) {
@@ -83,7 +82,7 @@ public class PersonalBestCommand extends CommandHandler {
     private String getPBs(String userID, String gameID, ArrayList<Category> categories) {
         String output = "";
         try {
-            SpeedRunCom service = getChannelHandler().getSpeedRunComAPI().getService();
+            SpeedRunCom service = Memebot.speedRunComAPI.getService();
             Call<PBLookup> pbs = service.getPersonalBests(userID, gameID);
             ArrayList<RunObject> runs = pbs.execute().body().getData();
             for (RunObject run1 : runs) {
@@ -110,7 +109,7 @@ public class PersonalBestCommand extends CommandHandler {
         return String.format("%02d:%02d:%02d",
                 TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) -
-                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }

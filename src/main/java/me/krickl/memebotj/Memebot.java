@@ -6,6 +6,8 @@ import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandRefernce;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
+import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
@@ -45,6 +47,7 @@ public class Memebot {
     public static String botNick = null;
     public static String botPassword = null;
     public static String clientID = null;
+    public static int clientIDValidated = 1;
     public static String clientSecret = null;
     public static List<String> botAdmins = new ArrayList<String>();
     public static String mongoUser = "";
@@ -63,6 +66,9 @@ public class Memebot {
     public static MongoDatabase dbPrivate = null;
     public static MongoDatabase db = null;
     public static int webPort = 4567;
+
+    public static TwitchAPI twitchAPI = null;
+    public static SpeedRunComAPI speedRunComAPI = null;
 
     //public static MongoCollection<Document> internalCollection = null;
     public static String webBaseURL = "";
@@ -171,6 +177,11 @@ public class Memebot {
             String channel = (String) it.next();
             Memebot.joinChannel(channel);
         }
+
+        twitchAPI = new TwitchAPI();
+        twitchAPI.start();
+        speedRunComAPI = new SpeedRunComAPI();
+        speedRunComAPI.start();
     }
 
     public static void mainLoop() {
@@ -183,6 +194,16 @@ public class Memebot {
                     Memebot.joinedChannels.remove(i);
                     Memebot.joinChannel(channel);
                 }
+            }
+
+            if (!twitchAPI.getT().isAlive()) {
+                twitchAPI = new TwitchAPI();
+                twitchAPI.start();
+            }
+
+            if (!speedRunComAPI.getT().isAlive()) {
+                speedRunComAPI = new SpeedRunComAPI();
+                speedRunComAPI.start();
             }
 
             try {
@@ -478,12 +499,8 @@ public class Memebot {
         return formattedOutput;
     }
 
-
-    //todo replace urlRequest with Retrofit calls, so we can easily call API endpoints
-
     /***
      * Reads from URL
-     *
      * @param urlString The URL
      * @return String of content
      * @deprecated

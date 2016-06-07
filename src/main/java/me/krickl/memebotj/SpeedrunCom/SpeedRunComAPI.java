@@ -23,15 +23,13 @@ import java.util.ArrayList;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public class SpeedRunComAPI {
-    private ChannelHandler channelHandler;
-    private UserObject user;
-    private Game game;
+public class SpeedRunComAPI implements Runnable {
+    private Thread t = null;
+    private int updateCycleMinuets = 10;
 
     private SpeedRunCom service;
 
-    public SpeedRunComAPI(ChannelHandler ch) {
-        this.channelHandler = ch;
+    public SpeedRunComAPI() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(new Interceptor() {
             @Override
@@ -57,47 +55,87 @@ public class SpeedRunComAPI {
         service = retrofit.create(SpeedRunCom.class);
     }
 
-    public void update() {
-        if (user == null) {
-            updateUser();
+    public void start() {
+        if (t == null) {
+            t = new Thread(this, "SpeedRunComAPI");
+            t.start();
         }
-        updateGame();
     }
 
-    public void updateUser() {
-        Call<UsersLookup> userLookup = service.lookupUser(channelHandler.getBroadcaster());
+    @Override
+    public void run() {
+        while (Memebot.twitchAPI != null && !Memebot.twitchAPI.isCycleDone()) {
+            try {
+                Memebot.log.info("SpeedRunComAPI: Waiting for first completed cycle.");
+                Thread.sleep(15000);
+            } catch (InterruptedException ignored) {
+            }
+        }
+        while (true) {
+            for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
+                update(Memebot.joinedChannels.get(i));
+                if (!(i + 1 == Memebot.joinedChannels.size())) {
+                    try {
+                        Memebot.log.info("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                                + ", pausing before continuing.");
+                        if (!Memebot.debug) {
+                            Thread.sleep(5000); // 5 second pause
+                        }
+                    } catch (InterruptedException ignored) {
+                    }
+                } else {
+                    Memebot.log.info("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                            + ", Update cycle completed. Next update is scheduled in " + updateCycleMinuets + " minuets.");
+                }
+            }
+            try {
+                Thread.sleep(updateCycleMinuets * 60000); // Continue this loop every updateCycleMinuets minuets
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    public void update(ChannelHandler channelHandler) {
+        if (channelHandler.getUser() == null) {
+            updateUser(channelHandler);
+        }
+        updateGame(channelHandler);
+    }
+
+    public void updateUser(ChannelHandler ch) {
+        Call<UsersLookup> userLookup = service.lookupUser(ch.getBroadcaster());
         try {
             ArrayList<UserObject> users = userLookup.execute().body().getData();
             if (!users.isEmpty()) {
-                user = users.get(0);
+                ch.setUser(users.get(0));
             }
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
     }
 
-    public void updateGame() {
-        String currentGame = channelHandler.getCurrentGame();
+    public void updateGame(ChannelHandler ch) {
+        String currentGame = ch.getCurrentGame();
         if (!currentGame.equals("Not Playing") && !currentGame.equals("")) {
-            if (game == null) {
+            if (ch.getGame() == null) {
                 Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
                 try {
-                    game = gameLookup.execute().body().getData().get(0);
+                    ch.setGame(gameLookup.execute().body().getData().get(0));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return;
             }
-            if (!game.getName().equals(currentGame)) {
+            if (!ch.getGame().getName().equals(currentGame)) {
                 Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
                 try {
-                    game = gameLookup.execute().body().getData().get(0);
+                    ch.setGame(gameLookup.execute().body().getData().get(0));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         } else {
-            game = null;
+            ch.setGame(null);
         }
     }
 
@@ -105,11 +143,7 @@ public class SpeedRunComAPI {
         return service;
     }
 
-    public Game getGame() {
-        return game;
-    }
-
-    public UserObject getUser() {
-        return user;
+    public Thread getT() {
+        return t;
     }
 }
