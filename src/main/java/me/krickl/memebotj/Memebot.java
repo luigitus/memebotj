@@ -5,6 +5,8 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
+import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
@@ -43,7 +45,7 @@ public class Memebot {
     public static String botNick = null;
     public static String botPassword = null;
     public static String clientID = null;
-    public static int clientIDValidated = -1;
+    public static int clientIDValidated = 1;
     public static String clientSecret = null;
     public static List<String> botAdmins = new ArrayList<String>();
     public static String mongoUser = "";
@@ -62,6 +64,9 @@ public class Memebot {
     public static MongoDatabase dbPrivate = null;
     public static MongoDatabase db = null;
     public static int webPort = 4567;
+
+    public static TwitchAPI twitchAPI = null;
+    public static SpeedRunComAPI speedRunComAPI = null;
 
     //public static MongoCollection<Document> internalCollection = null;
     public static String webBaseURL = "";
@@ -162,6 +167,11 @@ public class Memebot {
             String channel = (String) it.next();
             Memebot.joinChannel(channel);
         }
+
+        twitchAPI = new TwitchAPI();
+        twitchAPI.start();
+        speedRunComAPI = new SpeedRunComAPI();
+        speedRunComAPI.start();
     }
 
     public static void mainLoop() {
@@ -174,6 +184,16 @@ public class Memebot {
                     Memebot.joinedChannels.remove(i);
                     Memebot.joinChannel(channel);
                 }
+            }
+
+            if (!twitchAPI.getT().isAlive()) {
+                twitchAPI = new TwitchAPI();
+                twitchAPI.start();
+            }
+
+            if (!speedRunComAPI.getT().isAlive()) {
+                speedRunComAPI = new SpeedRunComAPI();
+                speedRunComAPI.start();
             }
 
             try {
@@ -194,16 +214,10 @@ public class Memebot {
 
                 ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", "")));
                 newChannel.start();
-                if (Memebot.clientIDValidated == -1) {
-                    validateClientID(newChannel);
-                }
                 joinedChannels.add(newChannel);
             } else {
                 ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword));
                 newChannel.start();
-                if (Memebot.clientIDValidated == -1) {
-                    validateClientID(newChannel);
-                }
                 joinedChannels.add(newChannel);
             }
         } catch (IOException e) {
@@ -576,17 +590,6 @@ public class Memebot {
         }
 
         return bao.toByteArray();
-    }
-
-    private static void validateClientID(ChannelHandler ch) {
-        Memebot.clientIDValidated = ch.getTwitchChannelAPI().validateClientID();
-        if (Memebot.clientIDValidated == 1) {
-            log.info("Client-ID identified, Twitch API can be called without issues");
-            ch.getTwitchChannelAPI().update();
-        } else {
-            log.warning("Client-ID couldn't be identified, please check if you entered a valid Client-ID" +
-                    " in memebot.cfg, this will be REQUIRED for API calls on August 8th.");
-        }
     }
 
     /***

@@ -18,6 +18,9 @@ public class UserObject {
     @SerializedName("weblink")
     @Expose
     private String weblink;
+    @SerializedName("twitch")
+    @Expose
+    private TwitchURL twitch;
 
     public String getId() {
         return id;
@@ -47,12 +50,8 @@ public class UserObject {
         this.weblink = weblink;
     }
 
-    @Override
-    public String toString() {
-        return "UserObject{" +
-                "id='" + id + '\'' +
-                ", names=" + names +
-                ", weblink='" + weblink + '\'' +
-                '}';
+    public String getTwitch() {
+        return twitch.getUri();
     }
+
 }

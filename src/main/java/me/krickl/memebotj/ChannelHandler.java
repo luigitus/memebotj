@@ -7,6 +7,8 @@ import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
+import me.krickl.memebotj.SpeedrunCom.Model.Game;
+import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.Cooldown;
@@ -87,8 +89,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private int maxScreenNameLen = 15;
     private int maxAmountOfNameInList = 25;
     private double pointsTax = 0.0f;
-    private TwitchAPI twitchChannelAPI = new TwitchAPI(this);
-    private SpeedRunComAPI speedRunComAPI = new SpeedRunComAPI(this);
+    private UserObject user;
+    private Game game;
     private boolean silentMode = false;
     private Localisation localisation = new Localisation(this.local);
     private String bgImage = "";
@@ -342,8 +344,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.updateCooldown.startCooldown();
 
             //update channel api information
-            twitchChannelAPI.update();
-            speedRunComAPI.update();
+            //twitchChannelAPI.update();
+            //speedRunComAPI.update();
 
             this.writeDB();
             this.writeHTML();
@@ -725,6 +727,22 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.userList = userList;
     }
 
+    public UserObject getUser() {
+        return user;
+    }
+
+    public void setUser(UserObject user) {
+        this.user = user;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
     public Cooldown getUpdateCooldown() {
         return updateCooldown;
     }
@@ -1059,22 +1077,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setPointsTax(double pointsTax) {
         this.pointsTax = pointsTax;
-    }
-
-    public TwitchAPI getTwitchChannelAPI() {
-        return twitchChannelAPI;
-    }
-
-    public void setTwitchChannelAPI(TwitchAPI twitchChannelAPI) {
-        this.twitchChannelAPI = twitchChannelAPI;
-    }
-
-    public SpeedRunComAPI getSpeedRunComAPI() {
-        return speedRunComAPI;
-    }
-
-    public void setSpeedRunComAPI(SpeedRunComAPI speedRunComAPI) {
-        this.speedRunComAPI = speedRunComAPI;
     }
 
     public boolean isSilentMode() {

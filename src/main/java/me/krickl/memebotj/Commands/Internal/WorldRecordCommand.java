@@ -3,10 +3,7 @@ package me.krickl.memebotj.Commands.Internal;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.SpeedrunCom.Model.Category;
-import me.krickl.memebotj.SpeedrunCom.Model.Run;
-import me.krickl.memebotj.SpeedrunCom.Model.UserLookup;
-import me.krickl.memebotj.SpeedrunCom.Model.WRLookup;
+import me.krickl.memebotj.SpeedrunCom.Model.*;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunCom;
 import me.krickl.memebotj.UserHandler;
 import retrofit2.Call;
@@ -26,43 +23,74 @@ public class WorldRecordCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        if (getChannelHandler().getSpeedRunComAPI().getGame() != null) {
-            getChannelHandler().getSpeedRunComAPI().updateGame();
-            getChannelHandler().sendMessage(formatString(sender), getChannelHandler().getChannel(), sender, isWhisper());
+        if (getChannelHandler().getGame() != null) {
+            try {
+                if (data[0].equals("list")) {
+                    getChannelHandler().sendMessage(formatString(sender, true), getChannelHandler().getChannel(), sender, isWhisper());
+                    return;
+                }
+            } catch (ArrayIndexOutOfBoundsException ignored) {
+            }
+            //getChannelHandler().updateGame();
+            getChannelHandler().sendMessage(formatString(sender, false), getChannelHandler().getChannel(), sender, isWhisper());
         } else {
-            getChannelHandler().sendMessage(Memebot.formatText("WR_NO_GAME_AVAILABLE", getChannelHandler(), sender, this, true,
-                    new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
+            getChannelHandler().sendMessage(Memebot.formatText("WR_NO_GAME_AVAILABLE", getChannelHandler(), sender,
+                    this, true, new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
         }
     }
 
-    private String formatString(UserHandler sender) {
+    private String formatString(UserHandler sender, boolean list) {
         String title = getChannelHandler().getStreamTitle();
-        String gameID = getChannelHandler().getSpeedRunComAPI().getGame().getId();
-        ArrayList<Category> categories = getChannelHandler().getSpeedRunComAPI().getGame().getCategories();
-        for (Category category : categories) {
-            if (title.toLowerCase().contains(category.getName().toLowerCase())) {
-                String[] wr = getWR(gameID, category.getId());
-                return Memebot.formatText("WR_CATEGORY", getChannelHandler(), sender, this, true,
-                        new String[]{category.getName(), wr[0], wr[1]}, "");
+        String gameID = getChannelHandler().getGame().getId();
+        ArrayList<Category> categories = getChannelHandler().getGame().getCategories();
+        if (!list) {
+            for (Category category : categories) {
+                if (title.toLowerCase().contains(category.getName().toLowerCase())) {
+                    String[] wr = getWR(gameID, category.getId());
+                    return Memebot.formatText("WR_CATEGORY", getChannelHandler(), sender, this, true,
+                            new String[]{category.getName(), wr[0], wr[1], wr[2]}, "");
+                }
             }
         }
-        return Memebot.formatText("PB_NO_CATEGORY_SET", getChannelHandler(), sender, this, true,
-                new String[]{}, "");
+        return Memebot.formatText("WR_ALL_GAME", getChannelHandler(), sender, this, true,
+                new String[]{getWRs(gameID, categories)}, "");
     }
 
     private String[] getWR(String gameID, String categoryID) {
         try {
-            SpeedRunCom service = getChannelHandler().getSpeedRunComAPI().getService();
-            Call<WRLookup> wrs = service.getWorldRecord(gameID, categoryID);
-            Run runs = wrs.execute().body().getData().getRuns().get(0).getRun();
-            String userID = runs.getPlayers().get(0).getId();
-            Call<UserLookup> user = service.getUser(userID);
-            String wrHolder = user.execute().body().getData().getName();
-            return new String[]{parseTime(runs.getTimes().getPrimaryT()), wrHolder};
+            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            Call<WRLookup> wr = service.getWorldRecord(gameID, categoryID, "players");
+            RecordObject record = wr.execute().body().getData();
+            return new String[]{parseTime(record.getTime()), record.getUsername(),
+                    record.getTwitchURL() != null ? "- " + record.getTwitchURL() : ""};
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new String[]{"THERE'S NO TIME TO EXPLAIN", "[FOUND_NO_PB_TIME]"};
+        return new String[]{"THERE'S NO TIME TO EXPLAIN", "[FOUND_NO_PB_TIME]", "4Head"};
+    }
+
+    private String getWRs(String gameID, ArrayList<Category> categories) {
+        String output = "";
+        try {
+            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            Call<WRSLookup> wrs = service.getWorldRecords(gameID, "players");
+            ArrayList<RecordObject> records = wrs.execute().body().getData();
+            for (RecordObject record : records) {
+                if (record.getLevel() == null) {
+                    Run run = record.getRuns().get(0).getRun();
+                    for (Category category : categories) {
+                        if (run.getCategory().equals(category.getId())) {
+                            output += " " + category.getName();
+                            break;
+                        }
+                    }
+                    output += " " + parseTime(run.getTimes().getPrimaryT()) + " held by " + record.getUsername() + ",";
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return output.substring(0, output.lastIndexOf(","));
     }
 
     private String parseTime(long time) {
@@ -70,7 +98,7 @@ public class WorldRecordCommand extends CommandHandler {
         return String.format("%02d:%02d:%02d",
                 TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) -
-                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }

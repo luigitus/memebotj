@@ -26,6 +26,9 @@ public class RecordObject {
     @SerializedName("runs")
     @Expose
     private ArrayList<RankingObject> runs = new ArrayList<RankingObject>();
+    @SerializedName("players")
+    @Expose
+    private UsersLookup players;
 
     public String getWeblink() {
         return weblink;
@@ -65,6 +68,26 @@ public class RecordObject {
 
     public void setRuns(ArrayList<RankingObject> runs) {
         this.runs = runs;
+    }
+
+    public UsersLookup getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(UsersLookup data) {
+        this.players = data;
+    }
+
+    public String getUsername() {
+        return this.players.getData().get(0).getName();
+    }
+
+    public Integer getTime() {
+        return this.getRuns().get(0).getRun().getTimes().getPrimaryT();
+    }
+
+    public String getTwitchURL() {
+        return this.players.getData().get(0).getTwitch();
     }
 
 }

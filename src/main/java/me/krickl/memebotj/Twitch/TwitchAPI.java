@@ -24,12 +24,13 @@ import java.util.ArrayList;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public class TwitchAPI {
-    private ChannelHandler channelHandler;
+public class TwitchAPI implements Runnable {
+    private Thread t = null;
+    private int updateCycleMinuets = 7;
+    private boolean cycleDone = false;
     private TwitchKraken service;
 
-    public TwitchAPI(ChannelHandler ch) {
-        this.channelHandler = ch;
+    public TwitchAPI() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(new Interceptor() {
             @Override
@@ -57,32 +58,66 @@ public class TwitchAPI {
         service = retrofit.create(TwitchKraken.class);
     }
 
-    public void update() {
+    public void start() {
+        if (t == null) {
+            t = new Thread(this, "TwitchAPI");
+            t.start();
+        }
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
+                update(Memebot.joinedChannels.get(i));
+                if (!(i + 1 == Memebot.joinedChannels.size())) {
+                    try {
+                        Memebot.log.info("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                                + ", pausing before continuing.");
+                        if (!Memebot.debug) {
+                            Thread.sleep(5000); // 5 second pause
+                        }
+                    } catch (InterruptedException ignored) {
+                    }
+                } else {
+                    Memebot.log.info("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                            + ", Update cycle completed. Next update is scheduled in " + updateCycleMinuets + " minuets.");
+                    cycleDone = true;
+                }
+            }
+            try {
+                Thread.sleep(updateCycleMinuets * 60000); // Continue this loop every updateCycleMinuets minuets
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    public void update(ChannelHandler ch) {
         if (!runningWithValidClientID()) {
             return;
         }
         try {
             if (Memebot.isTwitchBot) {
-                Call<Streams> streamCall = service.getStream(channelHandler.getBroadcaster());
+                Call<Streams> streamCall = service.getStream(ch.getBroadcaster());
                 Stream stream = streamCall.execute().body().getStream();
                 if (stream == null) {
-                    channelHandler.setLive(false);
-                    Call<Channel> channelCall = service.getChannel(channelHandler.getBroadcaster());
+                    ch.setLive(false);
+                    Call<Channel> channelCall = service.getChannel(ch.getBroadcaster());
                     Channel channel = channelCall.execute().body();
-                    parseChannel(channel);
+                    parseChannel(ch, channel);
                 } else {
-                    channelHandler.setLive(true);
+                    ch.setLive(true);
                     // When the stream is live, we get the channel data too! One API call less
-                    parseChannel(stream.getChannel());
+                    parseChannel(ch, stream.getChannel());
                 }
             } else {
-                channelHandler.setLive(true);
-                channelHandler.setCurrentGame("");
-                channelHandler.setStreamTitle("");
+                ch.setLive(true);
+                ch.setCurrentGame("");
+                ch.setStreamTitle("");
             }
         } catch (IOException | NumberFormatException | JsonSyntaxException e) {
-            channelHandler.setCurrentGame("");
-            channelHandler.setStreamTitle("");
+            ch.setCurrentGame("");
+            ch.setStreamTitle("");
         }
     }
 
@@ -122,15 +157,15 @@ public class TwitchAPI {
         return false;
     }
 
-    private void parseChannel(Channel channel) {
-        channelHandler.setStreamTitle(channel.getStatus());
-        channelHandler.setCurrentGame(channel.getGame());
-        channelHandler.setUptimeString("");
-        if (channelHandler.getCurrentGame() == null) {
-            channelHandler.setCurrentGame("Not Playing");
+    private void parseChannel(ChannelHandler ch ,Channel channel) {
+        ch.setStreamTitle(channel.getStatus());
+        ch.setCurrentGame(channel.getGame());
+        ch.setUptimeString("");
+        if (ch.getCurrentGame() == null) {
+            ch.setCurrentGame("Not Playing");
         }
-        if (channelHandler.getStreamTitle() == null) {
-            channelHandler.setStreamTitle("");
+        if (ch.getStreamTitle() == null) {
+            ch.setStreamTitle("");
         }
     }
 
@@ -164,4 +199,11 @@ public class TwitchAPI {
         return Memebot.clientIDValidated == 1;
     }
 
+    public boolean isCycleDone() {
+        return cycleDone;
+    }
+
+    public Thread getT() {
+        return t;
+    }
 }
