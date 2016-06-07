@@ -4,12 +4,14 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Commands.CommandRefernce;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
+import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -89,6 +91,10 @@ public class Memebot {
 
     public static Localisation defaultLocal = new Localisation("engb");
 
+    public static boolean cliInput = false;
+
+    public static boolean isRunning = false;
+
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
@@ -141,15 +147,19 @@ public class Memebot {
             try {
                 channels = Memebot.listDirectory(new File(memebotDir + "/channels/"), 1);
                 //private channels on private database
-                channelsPrivate = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.channelConfig), Charset.defaultCharset());
+                channelsPrivate = (java.util.ArrayList<String>)
+                        Files.readAllLines(Paths.get(Memebot.channelConfig), Charset.defaultCharset());
 
-                urlBanList = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
+                urlBanList = (java.util.ArrayList<String>)
+                        Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
                         Charset.defaultCharset());
 
-                phraseBanList = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.memebotDir + "/phrasebanlist.cfg"),
+                phraseBanList = (java.util.ArrayList<String>)
+                        Files.readAllLines(Paths.get(Memebot.memebotDir + "/phrasebanlist.cfg"),
                         Charset.defaultCharset());
 
-                globalBanList = (java.util.ArrayList<String>) Files.readAllLines(Paths.get(Memebot.memebotDir + "/globalbanlist.cfg"),
+                globalBanList = (java.util.ArrayList<String>)
+                        Files.readAllLines(Paths.get(Memebot.memebotDir + "/globalbanlist.cfg"),
                         Charset.defaultCharset());
 
             } catch (IOException e) {
@@ -208,15 +218,20 @@ public class Memebot {
         try {
             File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
             if (login.exists()) {
-                ArrayList<String> loginInfo = (ArrayList<String>) Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
+                ArrayList<String> loginInfo = (ArrayList<String>)
+                        Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
 
                 Memebot.log.info("Found login file for channel " + channel);
 
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", "")));
+                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
+                        new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0).replace("\n", ""),
+                                loginInfo.get(1).replace("\n", "")));
                 newChannel.start();
                 joinedChannels.add(newChannel);
             } else {
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword));
+                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
+                        new IRCConnectionHandler(Memebot.ircServer,
+                                Memebot.ircport, Memebot.botNick, Memebot.botPassword));
                 newChannel.start();
                 joinedChannels.add(newChannel);
             }
@@ -264,16 +279,20 @@ public class Memebot {
         Memebot.htmlDir = config.getProperty("htmldir", Memebot.htmlDir);
         Memebot.mongoUser = config.getProperty("mongouser", Memebot.mongoUser);
         Memebot.mongoPassword = config.getProperty("mongopassword", Memebot.mongoPassword);
-        Memebot.useMongoAuth = Boolean.parseBoolean(config.getProperty("mongoauth", Boolean.toString(Memebot.useMongoAuth)));
+        Memebot.useMongoAuth = Boolean.parseBoolean(config.getProperty("mongoauth",
+                Boolean.toString(Memebot.useMongoAuth)));
         Memebot.webBaseURL = config.getProperty("weburl", Memebot.webBaseURL);
         Memebot.useWeb = Boolean.parseBoolean(config.getProperty("useweb", Boolean.toString(Memebot.useWeb)));
         Memebot.useMongo = Boolean.parseBoolean(config.getProperty("usemongo", Boolean.toString(Memebot.useMongo)));
-        Memebot.isTwitchBot = Boolean.parseBoolean(config.getProperty("istwitchbot", Boolean.toString(Memebot.isTwitchBot)));
+        Memebot.isTwitchBot = Boolean.parseBoolean(config.getProperty("istwitchbot",
+                Boolean.toString(Memebot.isTwitchBot)));
         Memebot.mainChannel = config.getProperty("mainchannel", Memebot.mainChannel);
         Memebot.debug = Boolean.parseBoolean(config.getProperty("debug", Boolean.toString(Memebot.debug)));
-        Memebot.useUpdateThread = Boolean.parseBoolean(config.getProperty("updatethread", Boolean.toString(Memebot.useUpdateThread)));
+        Memebot.useUpdateThread = Boolean.parseBoolean(config.getProperty("updatethread",
+                Boolean.toString(Memebot.useUpdateThread)));
         Memebot.jokeMode = Boolean.parseBoolean(config.getProperty("joke", Boolean.toString(Memebot.jokeMode)));
         Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
+        Memebot.cliInput = Boolean.parseBoolean(config.getProperty("climode", Boolean.toString(Memebot.cliInput)));
 
         if (!Memebot.debug) {
             try {
@@ -319,7 +338,7 @@ public class Memebot {
         while (it.hasNext()) {
             ChannelHandler ch = (ChannelHandler) it.next();
             ch.writeDB();
-            for (CommandHandler commandHandler : ch.getChannelCommands()) {
+            for (CommandRefernce commandHandler : ch.getChannelCommands()) {
                 commandHandler.writeDB();
             }
 
@@ -334,7 +353,26 @@ public class Memebot {
         }
     }
 
-    public static String formatText(String fo, ChannelHandler channelHandler, UserHandler sender, CommandHandler commandHandler, boolean local, String[] params, String alternativeText) {
+    public static String[] parseParameters(String toParse) {
+        String[] parsedTemp = toParse.replace("{", "").replace("}", "").split(";");
+        String[] parsed = new String[parsedTemp.length];
+
+        for(int i = 0; i < parsedTemp.length; i++) {
+            if(i != 0 && i != 1) {
+                parsed[i] = parsedTemp[i];
+            } else if(i == 1) {
+                parsed[i] = "{" + parsedTemp[i] + "}";
+            } else {
+                parsed[i] = toParse;
+            }
+        }
+
+
+        return parsed;
+    }
+
+    public static String formatText(String fo, ChannelHandler channelHandler, UserHandler sender,
+                                    CommandHandler commandHandler, boolean local, String[] params, String alternativeText) {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd"); // dd/MM/yyyy
         Calendar cal = Calendar.getInstance();
         String strDate = sdfDate.format(cal.getTime());
@@ -362,9 +400,11 @@ public class Memebot {
             formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
             int newRan = new Double(sender.getPoints()).intValue();
             if (newRan > 0) {
-                formattedOutput = formattedOutput.replace("{randompoints}", Integer.toString(Math.abs(ran.nextInt(newRan))));
+                formattedOutput = formattedOutput.replace("{randompoints}",
+                        Integer.toString(Math.abs(ran.nextInt(newRan))));
             } else {
-                formattedOutput = formattedOutput.replace("{randompoints}", Integer.toString(Math.abs(ran.nextInt(newRan + 1))));
+                formattedOutput = formattedOutput.replace("{randompoints}",
+                        Integer.toString(Math.abs(ran.nextInt(newRan + 1))));
             }
         }
         if (commandHandler != null) {
@@ -389,7 +429,7 @@ public class Memebot {
 
             // random user as parameter
             List<String> keys = new ArrayList<String>(channelHandler.getUserList().keySet());
-            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())), new UserHandler("#internal#", channelHandler.getChannel()));
+            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())), new UserHandler("#internal#", channelHandler.getChannel(), "#internal#"));
             formattedOutput = formattedOutput.replace("{randomuser}", randomUH.getUsername());
 
             // random USSR as parameter - returns your favourite communist leader
@@ -440,7 +480,7 @@ public class Memebot {
 
                     if (formattedOutput.equals(original) && !formattedOutput.contains("{paramN}")) {
                         formattedOutput = formattedOutput + " " + str;
-                    } else {
+                    } else if(formattedOutput.equals(original)) {
                         paramN = paramN + str + " ";
                     }
                 } else if (alternativeText != null) {
@@ -473,7 +513,8 @@ public class Memebot {
         return urlRequest(urlString, timeout, appendLineFeed, "GET", "");
     }
 
-    public static String urlRequest(String urlString, int timeout, boolean appendLineFeed, String requestMethod, String urlParameters) {
+    public static String urlRequest(String urlString, int timeout, boolean appendLineFeed, String requestMethod,
+                                    String urlParameters) {
         URL url;
         HttpURLConnection connection = null;
         byte[] sendData = urlParameters.getBytes(StandardCharsets.UTF_8);
@@ -617,5 +658,33 @@ public class Memebot {
         }
 
         return dirList;
+    }
+
+    public static JSONObject toJSONObject() {
+        JSONObject wrapper = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("channels", Memebot.webBaseURL + "/api/channels");
+        jsonObject.put("_id", BuildInfo.appName);
+        jsonObject.put("version", BuildInfo.version);
+        jsonObject.put("dev", BuildInfo.dev);
+
+        wrapper.put("data", jsonObject);
+        wrapper.put("links" ,getLinks(Memebot.webBaseURL + "/api", null, null, null));
+
+        return wrapper;
+    }
+
+    public static JSONObject getLinks(String self, String parent, String next, String previous) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("self", self);
+        jsonObject.put("parent", parent);
+        jsonObject.put("next", next);
+        jsonObject.put("previous", previous);
+
+        return jsonObject;
+    }
+
+    public static String toJSONString() {
+        return toJSONObject().toJSONString();
     }
 }

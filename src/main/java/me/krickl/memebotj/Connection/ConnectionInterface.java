@@ -23,4 +23,5 @@ public interface ConnectionInterface {
 
     void sendMessageBytes(String msg);
 
+    String getBotNick();
 }

@@ -34,7 +34,8 @@ public class EdituserCommand extends CommandHandler {
             }
 
             if (uh.isNewUser() && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
-                getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_NEVER_JOINED", getChannelHandler(), sender, this, true, new String[]{data[1]}, ""), this.getChannelHandler().getChannel());
+                getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_NEVER_JOINED", getChannelHandler(), sender,
+                        this, true, new String[]{data[1]}, ""), this.getChannelHandler().getChannel());
                 return;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -46,7 +47,8 @@ public class EdituserCommand extends CommandHandler {
                 int newCP = java.lang.Integer.parseInt(data[2]);
 
                 if ((newCP + uh.getAutoCommandPower()) > sender.getCommandPower()) {
-                    getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_FAILED_UP", getChannelHandler(), sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_FAILED_UP", getChannelHandler(), sender,
+                            this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
                     return;
                 }
                 uh.setCustomCommandPower(java.lang.Integer.parseInt(data[2]));
@@ -55,7 +57,8 @@ public class EdituserCommand extends CommandHandler {
                 success = true;
 
                 if (success) {
-                    getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_UP", getChannelHandler(), sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_UP", getChannelHandler(), sender,
+                            this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
                 }
 
             } else if (data[0].equals("save") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
@@ -63,10 +66,24 @@ public class EdituserCommand extends CommandHandler {
             } else if (data[0].equals("login")) {
                 getChannelHandler().sendMessage(sender.getOauth(), this.getChannelHandler().getChannel(), sender, true);
             } else if (data[0].equals("restlogin")) {
-                getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_RESETLOGIN", getChannelHandler(), sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
+                getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_RESETLOGIN", getChannelHandler(),
+                        sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
 
                 sender.setOauth(sender.resetOAuth());
                 sender.setAPIKey(sender.resetOAuth());
+            } else if (data[0].equals("permit") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
+                // todo make this broadcaster only later
+                int newPower = Integer.parseInt(data[2]);
+                String response = "";
+                if(checkPermissions(sender, newPower, newPower) && uh != null) {
+                    uh.setConstantCommandPower(newPower);
+                    response = Memebot.formatText("EDIT_CCP_OK", getChannelHandler(), sender, this, true,
+                            new String[]{data[1], data[2]}, "");
+                    uh.writeDB();
+                } else {
+                    response = Memebot.formatText("EDIT_CCP_FAIL", getChannelHandler(), sender, this, true,
+                            new String[]{data[1], data[2]}, "");
+                }
             }
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
             e.printStackTrace();

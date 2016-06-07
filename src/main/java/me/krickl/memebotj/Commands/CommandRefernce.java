@@ -10,7 +10,7 @@ import me.krickl.memebotj.UserHandler;
  * This file is part of memebotj.
  * Created by unlink on 17/05/16.
  */
-public class CommandRefernce implements CommandInterface {
+public class CommandRefernce implements CommandInterface, Comparable<CommandRefernce> {
 
     protected String commandName = null;
     protected ChannelHandler channelHandler = null;
@@ -108,17 +108,66 @@ public class CommandRefernce implements CommandInterface {
         if(commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
+        boolean success = false;
+        success = commandHandler.editCommand(modType, newValue, sender);
 
-        return commandHandler.editCommand(modType, newValue, sender);
+        commandName = commandHandler.getCommandName();
+
+        return success;
     }
 
     public void update() {
         if(commandHandler != null) {
-            if(commandHandler.canBeRemoved()) {
+            commandHandler.update();
+            if(commandHandler.canBeRemoved() && !commandHandler.getCommandType().equals("timer")) {
                 commandHandler.writeDB();
                 commandHandler = null;
             }
-            commandHandler.update();
         }
+    }
+
+    public CommandHandler getCH() {
+        if(commandHandler == null) {
+            commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
+        }
+        return commandHandler;
+    }
+
+
+    public String getCommandName() {
+        return commandName;
+    }
+
+    public void setCommandName(String commandName) {
+        this.commandName = commandName;
+    }
+
+    public ChannelHandler getChannelHandler() {
+        return channelHandler;
+    }
+
+    public void setChannelHandler(ChannelHandler channelHandler) {
+        this.channelHandler = channelHandler;
+    }
+
+    public String getDbprefix() {
+        return dbprefix;
+    }
+
+    public void setDbprefix(String dbprefix) {
+        this.dbprefix = dbprefix;
+    }
+
+    public CommandHandler getCommandHandler() {
+        return commandHandler;
+    }
+
+    public void setCommandHandler(CommandHandler commandHandler) {
+        this.commandHandler = commandHandler;
+    }
+
+    @Override
+    public int compareTo(CommandRefernce another) {
+        return commandName.compareTo(another.getCommandName());
     }
 }

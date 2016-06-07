@@ -32,4 +32,20 @@ public class Localisation {
     public String localisedStringFor(String stringID) {
         return config.getOrDefault(stringID, "UNKNOWN_STRING_ERR(" + stringID + ")").toString();
     }
+
+    public String getLocal() {
+        return local;
+    }
+
+    public void setLocal(String local) {
+        this.local = local;
+    }
+
+    public Properties getConfig() {
+        return config;
+    }
+
+    public void setConfig(Properties config) {
+        this.config = config;
+    }
 }

@@ -1,12 +1,14 @@
 package me.krickl.memebotj.Utility;
 
+import me.krickl.memebotj.Database.JSONInterface;
 import org.bson.Document;
+import org.json.simple.JSONObject;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class Cooldown {
+public class Cooldown implements JSONInterface {
 
     int cooldownLength = 0;
     int cooldownStart = 0;
@@ -14,6 +16,18 @@ public class Cooldown {
     int cooldownAfterUses = 0;
     int uses = 0;
     Document doc = new Document();
+
+    public static Document createCooldownDocument(int lenght, int uses) {
+        Document doc = new Document();
+
+        doc.put("start", -1);
+        doc.put("end", 0);
+        doc.put("uses", lenght);
+        doc.put("cdafteruses", uses);
+        doc.put("uses", 0);
+
+        return doc;
+    }
 
     public Cooldown(Document doc) {
         this.doc = doc;
@@ -27,6 +41,7 @@ public class Cooldown {
     public Cooldown(int length, int uses) {
         cooldownLength = length;
         cooldownAfterUses = uses;
+        doc = Cooldown.createCooldownDocument(length, uses);
     }
 
     public Cooldown(int length) {
@@ -88,5 +103,15 @@ public class Cooldown {
 
     public void setCooldownEnd(int cooldownEnd) {
         this.cooldownEnd = cooldownEnd;
+    }
+
+    @Override
+    public JSONObject toJSONObject() {
+        return null;
+    }
+
+    @Override
+    public String toJSONSString() {
+        return null;
     }
 }

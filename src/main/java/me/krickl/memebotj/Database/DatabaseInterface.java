@@ -1,6 +1,7 @@
 package me.krickl.memebotj.Database;
 
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import org.bson.Document;
 
 import java.util.ArrayList;
 
@@ -24,4 +25,5 @@ public interface DatabaseInterface<T> {
     Object getObject(String key, Object defaultValue);
 
     ArrayList<T> getDocuments();
+    Document getDocument();
 }

@@ -61,6 +61,10 @@ public class WorldRecordCommand extends CommandHandler {
             SpeedRunCom service = Memebot.speedRunComAPI.getService();
             Call<WRLookup> wr = service.getWorldRecord(gameID, categoryID, "players");
             RecordObject record = wr.execute().body().getData();
+			if(record.getUsername().equalsIgnoreCase("trevperson") && getChannelHandler().getBroadcaster().equals("trevperson")) {
+				return new String[]{parseTime(record.getTime()),"Me",
+                    record.getTwitchURL() != null ? "- " + record.getTwitchURL() : ""};
+			}
             return new String[]{parseTime(record.getTime()), record.getUsername(),
                     record.getTwitchURL() != null ? "- " + record.getTwitchURL() : ""};
         } catch (IOException e) {

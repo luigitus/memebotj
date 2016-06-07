@@ -27,7 +27,13 @@ public class ChannelInfoCommand extends CommandHandler {
                 Memebot.readConfig();
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            getChannelHandler().sendMessage("Is live: " + getChannelHandler().isLive() + " || Points per update: " + getChannelHandler().getPointsPerUpdate() + " || Game: " + getChannelHandler().getCurrentGame() + " || Private DB: " + Boolean.toString(Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel())), this.getChannelHandler().getChannel());
+            getChannelHandler().sendMessage("Is live: " + getChannelHandler().isLive() +
+                    " || Points per update: " + getChannelHandler().getPointsPerUpdate() +
+                    " || Game: " + getChannelHandler().getCurrentGame()
+                    + " || Private DB: "
+                    + Boolean.toString(Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel()))
+                    + " || Current Viewer Count: " + Integer.toString(getChannelHandler().getViewerNumber()),
+                    this.getChannelHandler().getChannel());
         }
     }
 }

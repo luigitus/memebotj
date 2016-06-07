@@ -1,9 +1,13 @@
 package me.krickl.memebotj;
 
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Commands.CommandRefernce;
 import me.krickl.memebotj.Commands.Internal.*;
+import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.Database.DatabaseInterface;
 import me.krickl.memebotj.Database.DatabaseObjectInterface;
+import me.krickl.memebotj.Database.JSONInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
@@ -11,6 +15,7 @@ import me.krickl.memebotj.SpeedrunCom.Model.Game;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
+import me.krickl.memebotj.Utility.ChatColours;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Utility.MessagePackage;
@@ -31,19 +36,19 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, DatabaseObjectInterface {
+public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, DatabaseObjectInterface, JSONInterface {
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
     // todo old db code - remove soon
     //private MongoCollection<Document> channelCollection = null;
-    MongoHandler mongoHandler = null;
+    DatabaseInterface mongoHandler = null;
     private BufferedWriter writer = null;
     private String channel = "";
-    private IRCConnectionHandler connection = null;
+    private ConnectionInterface connection = null;
     private String broadcaster = this.channel.replace("#", "");
     private HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
     private Cooldown updateCooldown = new Cooldown(600);
     private Cooldown shortUpdateCooldown = new Cooldown(60);
-    private ArrayList<CommandHandler> channelCommands = new ArrayList<CommandHandler>();
+    private ArrayList<CommandRefernce> channelCommands = new ArrayList<CommandRefernce>();
     private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
     //this is a collection of channel command namaes
     private String followerNotification = "";
@@ -54,7 +59,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private int maxFileNameLen = 8;
     private String currentFileName = "";
     private long streamStartTime = 0;
-    private String local = "engb";
+    private String local = Memebot.defaultLocal.getLocal();
     private String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
     private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
@@ -76,7 +81,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private UserHandler broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
     private File htmlDirF = new File(this.htmlDir);
-    private UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel);
+    private UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel, "#readonly#");
     private boolean allowGreetMessage = false;
 
     private double maxPoints = 100000.0f;
@@ -100,16 +105,22 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private String itemDrops = "mm";
     private String uptimeString = "";
 
-    private Document aliasDoc = new Document();
-
     private boolean useAlias = true;
 
-    public ChannelHandler(String channel, IRCConnectionHandler connection) {
+    private boolean pointsUpdateDone = false;
+
+    private boolean useRotatingColours = false;
+
+    private Document aliasList = new Document();
+
+    private Cooldown longUpdateCooldown = new Cooldown(600, 0);
+
+    public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
         this.connection = connection;
         this.broadcaster = this.channel.replace("#", "");
         broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
-        readOnlyUser = new UserHandler("#readonly#", this.channel);
+        readOnlyUser = new UserHandler("#readonly#", this.channel, "#readonly#");
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
@@ -175,12 +186,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
         this.internalCommands.add(new LoginCredentials(this, "!setlogin", "#internal#"));
         this.internalCommands.add(new SongRequestCommand(this, "!songrequest", "#internal#"));
-        this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
-        this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
+        //this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
+        //this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
         this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         this.internalCommands.add(new WorldRecordCommand(this, "!wr", "#internal#"));
         this.internalCommands.add(new UptimeCommand(this, "!uptime", "#internal#"));
         this.internalCommands.add(new DoggyRaceCommand(this, "!doggy", "#internal#"));
+        this.internalCommands.add(new AliasCommand(this, "!alias", "#internal#"));
 
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
@@ -197,6 +209,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         if (this.allowGreetMessage) {
             this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null, false, new String[]{}, ""));
+        }
+
+        if (!this.pointsUpdateDone) {
+            this.pointsPerUpdate = pointsPerUpdate / 10;
+            this.pointsUpdateDone = true;
         }
     }
 
@@ -265,7 +282,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
-
                         }
                     }
                 }
@@ -334,7 +350,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 this.userList.remove(user);
             }
 
-            for (CommandHandler ch : this.channelCommands) {
+            for (CommandRefernce ch : this.channelCommands) {
                 ch.update();
             }
 
@@ -350,6 +366,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.writeDB();
             this.writeHTML();
         }
+
+        if(this.longUpdateCooldown.canContinue()) {
+            this.longUpdateCooldown.startCooldown();
+
+            if(this.useRotatingColours || connection.getBotNick().equals(Memebot.botNick)) {
+                ChatColours.pickColour(this, new UserHandler("#internal#", channel));
+            }
+        }
     }
 
     public void writeHTML() {
@@ -363,6 +387,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         if (msgPackage == null) {
             return;
         }
+        msgPackage.handleAlias(aliasList);
 
         // if channel does not match ignore the message
         if (!msgPackage.channel.equals(this.channel)) {
@@ -395,7 +420,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         String[] data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length);
         if (this.purgeURLS) {
             for (String username : Memebot.globalBanList) {
-                if (sender.getUsername().equals(username) && !sender.isModerator) {
+                if (sender.getUsername().equals(username) && !sender.isModerator()) {
                     this.sendMessage("/ban " + sender.getUsername());
                 }
             }
@@ -413,13 +438,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             }
         }
 
-        int p = -1;
+        CommandHandler ch = null;
+        CommandRefernce cr = null;
+
         //internal text triggers
         for (String s : msgContent) {
-            p = this.findCommand(s, this.internalCommands, 0);
+            ch = this.findCommandForString(s, this.internalCommands);
 
-            if (p != -1) {
-                CommandHandler ch = this.internalCommands.get(p);
+            if (ch != null) {
                 if (ch.isTextTrigger()) {
                     ch.executeCommand(sender, new String[]{"", ""});
                 }
@@ -427,42 +453,41 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
 
         //internal commands
-        p = this.findCommand(msg, this.internalCommands, 0);
-        if (p != -1) {
-            CommandHandler ch = this.internalCommands.get(p);
+        ch = this.findCommandForString(msg, this.internalCommands);
+        if (ch != null) {
             if (!ch.isTextTrigger()) {
                 ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
             }
         }
 
         //channel commands
-        p = this.findCommand(msg);
-        if (p != -1) {
-            if (!this.channelCommands.get(p).isTextTrigger()) {
-                this.channelCommands.get(p).executeCommand(sender, data);
+        cr = this.findCommandReferneceForString(msg, this.channelCommands);
+        if (cr != null) {
+            if (!cr.getCH().isTextTrigger()) {
+                cr.executeCommand(sender, data);
             }
         }
 
         //text triggers
         for (String s : msgContent) {
-            p = this.findCommand(s);
+            cr = this.findCommandReferneceForString(s, this.channelCommands);
 
-            if (p != -1) {
-                CommandHandler ch = this.channelCommands.get(p);
-                if (ch.isTextTrigger()) {
-                    ch.executeCommand(sender, new String[]{"", ""});
+            if (cr != null) {
+                if (cr.getCH().isTextTrigger()) {
+                    cr.executeCommand(sender, new String[]{"", ""});
                 }
             }
         }
 
         //todo other channel's commands
-        for (ChannelHandler ch : Memebot.joinedChannels) {
+        for (ChannelHandler channelHandler : Memebot.joinedChannels) {
             for (String och : this.otherLoadedChannels) {
-                String channel = ch.getBroadcaster();
-                if (ch.getChannel().equals(och) || ch.getBroadcaster().equals(och)) {
-                    p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""));
-                    if (p != -1 && msg.contains(channel)) {
-                        ch.getChannelCommands().get(p).executeCommand(readOnlyUser, data);
+                String channel = channelHandler.getBroadcaster();
+                if (channelHandler.getChannel().equals(och) || channelHandler.getBroadcaster().equals(och)) {
+                    cr = channelHandler.findCommandReferneceForString(msg.replace(och.replace("#", "") + ".", ""),
+                            channelHandler.getChannelCommands());
+                    if (cr != null && msg.contains(channel)) {
+                        cr.executeCommand(readOnlyUser, data);
                     }
                 }
             }
@@ -508,6 +533,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat) {
+        sendMessage(mesgessage, channel, sender, whisper, forcechat, false);
+    }
+
+    public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat,
+                            boolean allowIgnored) {
         String msg = mesgessage;
         if (msg.isEmpty()) {
             return;
@@ -523,8 +553,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.preventMessageCooldown.startCooldown();
         }
         // ignore /ignore to avoid people being ignored by the bot
-        if (msg.startsWith("/ignore")) {
-            return;
+        String[] ignoredMessages = new String[]{"/ignore", "/color"};
+        for(String ignoredStr : ignoredMessages) {
+            if (msg.startsWith(ignoredStr) && allowIgnored) {
+                return;
+            }
         }
 
         this.currentMessageCount += 1;
@@ -555,24 +588,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
     }
 
-    @Deprecated
-    public int findCommand(String command) {
-        return findCommand(command, this.channelCommands, 0);
-    }
-
-    @Deprecated
-    public int findCommand(String command, java.util.ArrayList<CommandHandler> commandList, int i) {
-        for (int index = 0; index < commandList.size(); index++) {
-            CommandHandler cmd = commandList.get(index);
-            if (cmd.getCommandName().equals(command)) {
-                return index;
-            }
-
-            if (!cmd.isCaseSensitive() && cmd.getCommandName().toLowerCase().equals(command.toLowerCase())) {
-                return index;
+    public CommandRefernce findCommandReferneceForString(String command, ArrayList<CommandRefernce> commands) {
+        for (CommandRefernce commandHandler : commands) {
+            if (commandHandler.getCommandName().equals(command)) {
+                return commandHandler;
             }
         }
-        return -1;
+        return null;
     }
 
     public CommandHandler findCommandForString(String command, ArrayList<CommandHandler> commands) {
@@ -625,7 +647,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.startingPoints = (double) mongoHandler.getObject("startingpoints", this.startingPoints);
             this.bgImage = mongoHandler.getObject("bgImage", this.bgImage).toString();
             itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
-            aliasDoc = (Document) mongoHandler.getObject("commandalias", this.aliasDoc);
+            pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
+            aliasList = (Document) mongoHandler.getObject("aliaslist", this.aliasList);
+            useRotatingColours = (boolean) mongoHandler.getObject("rotatingcolours", this.useRotatingColours);
         }
 
         // read commands
@@ -637,7 +661,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
 
         for (Document doc : mongoHandler.getDocuments()) {
-            channelCommands.add(new CommandHandler(this, doc.getString("command"), ""));
+            channelCommands.add(new CommandRefernce(this, doc.getString("command"), ""));
 
             // todo remove commands after x minutes of them being unused
             // todo commands will only be kept as references - if needed they can be realoaded
@@ -671,7 +695,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("startingpoints", this.startingPoints);
         mongoHandler.updateDocument("bgImage", this.bgImage);
         mongoHandler.updateDocument("itemDrops", this.itemDrops);
-        mongoHandler.updateDocument("commandalias", this.aliasDoc);
+        mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
+        mongoHandler.updateDocument("aliaslist", this.aliasList);
+        mongoHandler.updateDocument("rotatingcolours", this.useRotatingColours);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -703,11 +729,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.channel = channel;
     }
 
-    public IRCConnectionHandler getConnection() {
+    public ConnectionInterface getConnection() {
         return connection;
     }
 
-    public void setConnection(IRCConnectionHandler connection) {
+    public void setConnection(ConnectionInterface connection) {
         this.connection = connection;
     }
 
@@ -751,11 +777,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.updateCooldown = updateCooldown;
     }
 
-    public ArrayList<CommandHandler> getChannelCommands() {
+    public ArrayList<CommandRefernce> getChannelCommands() {
         return channelCommands;
     }
 
-    public void setChannelCommands(ArrayList<CommandHandler> channelCommands) {
+    public void setChannelCommands(ArrayList<CommandRefernce> channelCommands) {
         this.channelCommands = channelCommands;
     }
 
@@ -975,6 +1001,30 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.givePointsWhenOffline = givePointsWhenOffline;
     }
 
+    public boolean isUseAlias() {
+        return useAlias;
+    }
+
+    public void setUseAlias(boolean useAlias) {
+        this.useAlias = useAlias;
+    }
+
+    public boolean isPointsUpdateDone() {
+        return pointsUpdateDone;
+    }
+
+    public void setPointsUpdateDone(boolean pointsUpdateDone) {
+        this.pointsUpdateDone = pointsUpdateDone;
+    }
+
+    public Document getAliasList() {
+        return aliasList;
+    }
+
+    public void setAliasList(Document aliasList) {
+        this.aliasList = aliasList;
+    }
+
     public int getLinkTimeout() {
         return linkTimeout;
     }
@@ -1095,11 +1145,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.localisation = localisation;
     }
 
-    public MongoHandler getMongoHandler() {
+    public DatabaseInterface getMongoHandler() {
         return mongoHandler;
     }
 
-    public void setMongoHandler(MongoHandler mongoHandler) {
+    public void setMongoHandler(DatabaseInterface mongoHandler) {
         this.mongoHandler = mongoHandler;
     }
 
@@ -1151,42 +1201,49 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.shortUpdateCooldown = shortUpdateCooldown;
     }
 
-    public Document getAliasDoc() {
-        return aliasDoc;
-    }
-
-    public void setAliasDoc(Document aliasDoc) {
-        this.aliasDoc = aliasDoc;
-    }
-
     public int getViewerNumber() {
         return userList.size();
     }
 
-    public JSONObject toJSONObject() {
-        JSONObject jsonObject = new JSONObject();
-
-        JSONObject channelCommandsObject = new JSONObject();
-        JSONObject internalCommandsObject = new JSONObject();
-
-        for (CommandHandler commandHandler : this.channelCommands) {
-            channelCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
-        }
-
-        for (CommandHandler commandHandler : this.internalCommands) {
-            internalCommandsObject.put(commandHandler.getCommandName(), commandHandler.toJSONObject());
-        }
-
-        jsonObject.put("_id", channel);
-        jsonObject.put("_self", Memebot.webBaseURL + "/api/channels/" + broadcaster);
-        jsonObject.put("commands", channelCommandsObject);
-        jsonObject.put("internals", internalCommandsObject);
-        jsonObject.put("filenames", fileNameList);
-
-        return jsonObject;
+    public boolean isUseRotatingColours() {
+        return useRotatingColours;
     }
 
-    public String toJSON() {
+    public void setUseRotatingColours(boolean useRotatingColours) {
+        this.useRotatingColours = useRotatingColours;
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject wrapper = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("_id", channel);
+        jsonObject.put("commands", Memebot.webBaseURL + "/api/commands/" + getBroadcaster());
+        jsonObject.put("internals", Memebot.webBaseURL + "/api/internals/" + getBroadcaster());
+        jsonObject.put("filenames", Memebot.webBaseURL + "/api/filenames/" + getBroadcaster());
+        jsonObject.put("users", Memebot.webBaseURL + "/api/users/" + getBroadcaster());
+
+        wrapper.put("data", jsonObject);
+        wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/channels/" + broadcaster,
+                Memebot.webBaseURL + "/api/channels", null, null));
+
+        return wrapper;
+    }
+
+    public String toJSONSString() {
         return toJSONObject().toJSONString();
+    }
+
+    public String filenamesToJSON() {
+        JSONObject wrapper = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("filenames", fileNameList);
+        jsonObject.put("_id", getChannel());
+
+        wrapper.put("data", jsonObject);
+        wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/filenames/" + getBroadcaster(),
+                Memebot.webBaseURL + "/api/channels/" + getBroadcaster(), null, null));
+
+        return wrapper.toJSONString();
     }
 }
