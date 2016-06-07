@@ -3,6 +3,7 @@ package me.krickl.memebotj.Web;
 import com.mongodb.util.JSON;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Commands.CommandRefernce;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
@@ -70,13 +71,13 @@ public class WebHandler {
             String channel = "#" + req.params(":channel");
             String command = req.params(":command");
             ChannelHandler channelHandler = getChannelForName(channel);
-            int i = -1;
+            CommandRefernce i = null;
             if (channelHandler != null) {
-                i = channelHandler.findCommand(command);
+                i = channelHandler.findCommandReferneceForString(command, channelHandler.getChannelCommands());
             }
             CommandHandler commandHandler = null;
-            if (i != -1) {
-                commandHandler = channelHandler.getChannelCommands().get(i);
+            if (i != null) {
+                commandHandler = i.getCH();
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -93,13 +94,9 @@ public class WebHandler {
             String command = req.params(":command");
 
             ChannelHandler channelHandler = getChannelForName(channel);
-            int i = -1;
-            if (channelHandler != null) {
-                i = channelHandler.findCommand(command, channelHandler.getInternalCommands(), 1);
-            }
             CommandHandler commandHandler = null;
-            if (i != -1) {
-                commandHandler = channelHandler.getInternalCommands().get(i);
+            if (channelHandler != null) {
+                commandHandler = channelHandler.findCommandForString(command, channelHandler.getInternalCommands());
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -373,7 +370,7 @@ public class WebHandler {
             JSONObject wrapper = new JSONObject();
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            for (CommandHandler commandHandler : channelHandler.getChannelCommands()) {
+            for (CommandRefernce commandHandler : channelHandler.getChannelCommands()) {
                 commandsObject.put(commandHandler.getCommandName(), Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandHandler.getCommandName());
             }
             commandsObject.put("_id", channelHandler.getChannel());
@@ -406,9 +403,11 @@ public class WebHandler {
         get("/api/commands/:channel/:command", (req, res) -> {
             res.type("application/json");
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            CommandHandler commandHandler = channelHandler.findCommandForString(req.params(":command"), channelHandler.getChannelCommands());
+            CommandRefernce commandHandler = channelHandler.findCommandReferneceForString(req.params(":command"),
+                    channelHandler.getChannelCommands());
+
             if (commandHandler != null) {
-                JSONObject jsonObject = commandHandler.toJSONObject();
+                JSONObject jsonObject = commandHandler.getCH().toJSONObject();
                 return jsonObject.toJSONString();
             }
             res.status(404);

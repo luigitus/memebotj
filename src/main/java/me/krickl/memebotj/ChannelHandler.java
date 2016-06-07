@@ -1,6 +1,7 @@
 package me.krickl.memebotj;
 
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Commands.CommandRefernce;
 import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
@@ -45,7 +46,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
     private Cooldown updateCooldown = new Cooldown(600);
     private Cooldown shortUpdateCooldown = new Cooldown(60);
-    private ArrayList<CommandHandler> channelCommands = new ArrayList<CommandHandler>();
+    private ArrayList<CommandRefernce> channelCommands = new ArrayList<CommandRefernce>();
     private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
     //this is a collection of channel command namaes
     private String followerNotification = "";
@@ -347,7 +348,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 this.userList.remove(user);
             }
 
-            for (CommandHandler ch : this.channelCommands) {
+            for (CommandRefernce ch : this.channelCommands) {
                 ch.update();
             }
 
@@ -435,13 +436,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             }
         }
 
-        int p = -1;
+        CommandHandler ch = null;
+        CommandRefernce cr = null;
+
         //internal text triggers
         for (String s : msgContent) {
-            p = this.findCommand(s, this.internalCommands, 0);
+            ch = this.findCommandForString(s, this.internalCommands);
 
-            if (p != -1) {
-                CommandHandler ch = this.internalCommands.get(p);
+            if (ch != null) {
                 if (ch.isTextTrigger()) {
                     ch.executeCommand(sender, new String[]{"", ""});
                 }
@@ -449,42 +451,41 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
 
         //internal commands
-        p = this.findCommand(msg, this.internalCommands, 0);
-        if (p != -1) {
-            CommandHandler ch = this.internalCommands.get(p);
+        ch = this.findCommandForString(msg, this.internalCommands);
+        if (ch != null) {
             if (!ch.isTextTrigger()) {
                 ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
             }
         }
 
         //channel commands
-        p = this.findCommand(msg);
-        if (p != -1) {
-            if (!this.channelCommands.get(p).isTextTrigger()) {
-                this.channelCommands.get(p).executeCommand(sender, data);
+        cr = this.findCommandReferneceForString(msg, this.channelCommands);
+        if (cr != null) {
+            if (!cr.getCH().isTextTrigger()) {
+                cr.executeCommand(sender, data);
             }
         }
 
         //text triggers
         for (String s : msgContent) {
-            p = this.findCommand(s);
+            cr = this.findCommandReferneceForString(s, this.channelCommands);
 
-            if (p != -1) {
-                CommandHandler ch = this.channelCommands.get(p);
-                if (ch.isTextTrigger()) {
-                    ch.executeCommand(sender, new String[]{"", ""});
+            if (cr != null) {
+                if (cr.getCH().isTextTrigger()) {
+                    cr.executeCommand(sender, new String[]{"", ""});
                 }
             }
         }
 
         //todo other channel's commands
-        for (ChannelHandler ch : Memebot.joinedChannels) {
+        for (ChannelHandler channelHandler : Memebot.joinedChannels) {
             for (String och : this.otherLoadedChannels) {
-                String channel = ch.getBroadcaster();
-                if (ch.getChannel().equals(och) || ch.getBroadcaster().equals(och)) {
-                    p = ch.findCommand(msg.replace(och.replace("#", "") + ".", ""));
-                    if (p != -1 && msg.contains(channel)) {
-                        ch.getChannelCommands().get(p).executeCommand(readOnlyUser, data);
+                String channel = channelHandler.getBroadcaster();
+                if (channelHandler.getChannel().equals(och) || channelHandler.getBroadcaster().equals(och)) {
+                    cr = channelHandler.findCommandReferneceForString(msg.replace(och.replace("#", "") + ".", ""),
+                            channelHandler.getChannelCommands());
+                    if (cr != null && msg.contains(channel)) {
+                        cr.executeCommand(readOnlyUser, data);
                     }
                 }
             }
@@ -585,24 +586,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
     }
 
-    @Deprecated
-    public int findCommand(String command) {
-        return findCommand(command, this.channelCommands, 0);
-    }
-
-    @Deprecated
-    public int findCommand(String command, java.util.ArrayList<CommandHandler> commandList, int i) {
-        for (int index = 0; index < commandList.size(); index++) {
-            CommandHandler cmd = commandList.get(index);
-            if (cmd.getCommandName().equals(command)) {
-                return index;
-            }
-
-            if (!cmd.isCaseSensitive() && cmd.getCommandName().toLowerCase().equals(command.toLowerCase())) {
-                return index;
+    public CommandRefernce findCommandReferneceForString(String command, ArrayList<CommandRefernce> commands) {
+        for (CommandRefernce commandHandler : commands) {
+            if (commandHandler.getCommandName().equals(command)) {
+                return commandHandler;
             }
         }
-        return -1;
+        return null;
     }
 
     public CommandHandler findCommandForString(String command, ArrayList<CommandHandler> commands) {
@@ -669,7 +659,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
 
         for (Document doc : mongoHandler.getDocuments()) {
-            channelCommands.add(new CommandHandler(this, doc.getString("command"), ""));
+            channelCommands.add(new CommandRefernce(this, doc.getString("command"), ""));
 
             // todo remove commands after x minutes of them being unused
             // todo commands will only be kept as references - if needed they can be realoaded
@@ -769,11 +759,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.updateCooldown = updateCooldown;
     }
 
-    public ArrayList<CommandHandler> getChannelCommands() {
+    public ArrayList<CommandRefernce> getChannelCommands() {
         return channelCommands;
     }
 
-    public void setChannelCommands(ArrayList<CommandHandler> channelCommands) {
+    public void setChannelCommands(ArrayList<CommandRefernce> channelCommands) {
         this.channelCommands = channelCommands;
     }
 

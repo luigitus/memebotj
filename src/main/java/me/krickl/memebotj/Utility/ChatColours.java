@@ -9,6 +9,7 @@ import java.security.SecureRandom;
  * Created by unlink on 6/6/2016.
  */
 public class ChatColours {
+    // todo make custom channel settings possible
     private static final String[] chatColours = new String[]{"Blue", "BlueViolet", "CadetBlue", "Chocolate", "Coral",
             "DodgerBlue", "Firebrick", "GoldenRod", "Green", "HotPink", "OrangeRed", "Red", "SeaGreen", "SpringGreen",
             "YellowGreen"};

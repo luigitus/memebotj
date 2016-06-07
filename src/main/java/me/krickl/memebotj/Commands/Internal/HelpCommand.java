@@ -2,6 +2,7 @@ package me.krickl.memebotj.Commands.Internal;
 
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Commands.CommandRefernce;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 
@@ -22,9 +23,9 @@ public class HelpCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         try {
-            int j = getChannelHandler().findCommand(data[0]);
-            if (j != -1) {
-                getChannelHandler().sendMessage(getChannelHandler().getChannelCommands().get(j).getHelptext(), getChannelHandler().getChannel());
+            CommandRefernce j = getChannelHandler().findCommandReferneceForString(data[0], getChannelHandler().getChannelCommands());
+            if (j != null) {
+                getChannelHandler().sendMessage(j.getCH().getHelptext(), getChannelHandler().getChannel());
                 return;
             }
             for (CommandHandler ch : getChannelHandler().getInternalCommands()) {

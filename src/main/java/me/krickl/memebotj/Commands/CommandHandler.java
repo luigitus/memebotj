@@ -191,6 +191,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         this.suggestedList = (ArrayList<String>) mongoHandler.getObject("suggestedList", suggestedList);
         uses = (int) mongoHandler.getObject("uses", uses);
         cooldownOffsetPerViewer = (int)mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
+        Document cooldownDoc = (Document) mongoHandler.getObject("cooldowndoc",
+                Cooldown.createCooldownDocument(cooldownLength, uses));
 
         Document timerCooldownDoc = (Document) mongoHandler.getObject("timercd", timerCooldown.getDoc());
 
@@ -199,7 +201,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         // todo reload cooldown from document - set default data
         //cooldown = new Cooldown((Document)mongoHandler.getObject("cooldowndoc", new Document()));
 
-        cooldown = new Cooldown(cooldownLength, uses);
+        cooldown = new Cooldown(cooldownDoc);
         timerCooldown = new Cooldown(timerCooldownDoc);
     }
 
@@ -239,6 +241,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         mongoHandler.updateDocument("usercdoffset", cooldownOffsetPerViewer);
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         mongoHandler.updateDocument("timercd", this.timerCooldown.getDoc());
+        mongoHandler.updateDocument("cooldowndoc", this.cooldown.getDoc());
 
         //mongoHandler.setDocument(channelData);
     }

@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Commands.CommandRefernce;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Utility.Localisation;
@@ -316,7 +317,7 @@ public class Memebot {
         while (it.hasNext()) {
             ChannelHandler ch = (ChannelHandler) it.next();
             ch.writeDB();
-            for (CommandHandler commandHandler : ch.getChannelCommands()) {
+            for (CommandRefernce commandHandler : ch.getChannelCommands()) {
                 commandHandler.writeDB();
             }
 
