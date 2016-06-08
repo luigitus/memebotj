@@ -359,6 +359,19 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         return data;
     }
 
+
+    public boolean isCommandType(String type) {
+        boolean isType = false;
+
+        for(String t : commandType.split(",")) {
+            if(t.equals(type)) {
+                isType = true;
+            }
+        }
+
+        return isType;
+    }
+
     /***
      * This method handles list command specific actions
      * @param sender
@@ -591,11 +604,11 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         }
 
         try {
-            if (data[1].equals("add")
+            if (data[1].equals("+")
                     && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                 counter = counter + modifier;
                 this.startCooldown = false;
-            } else if (data[1].equals("sub")
+            } else if (data[1].equals("-")
                     && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                 counter = counter - modifier;
                 this.startCooldown = false;
@@ -640,9 +653,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         int counterStart = 1;
 
         // todo list needs clear and import command
-        if (commandType.equals("list")) {
+        if (isCommandType("list")) {
             formattedOutput = handleListCommand(sender, data, formattedOutput);
-        } else if (commandType.equals("counter")) {
+        }
+        if (isCommandType("counter")) {
             formattedOutput = handleCounterCommand(sender, data, formattedOutput);
         }
 
@@ -657,7 +671,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         if (counterStart < this.parameters + 1) {
             formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false,
                     java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
-            if(!commandType.equals("state")) {
+            if(isCommandType("state")) {
                 formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false,
                         java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
             }
@@ -666,17 +680,17 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         formattedScript = Memebot.formatText(formattedScript, channelHandler, sender, this, false, new String[]{}, "");
 
         if (!formattedOutput.equals("null")) {
-            if (commandType.equals("counter") || commandType.equals("list") || commandType.equals("default") || commandType.equals("timer")) {
+            if (isCommandType("counter") || isCommandType("list") || isCommandType("default") || isCommandType("timer")) {
                 channelHandler.sendMessage(formattedOutput, this.channelHandler.getChannel(), sender, whisper);
                 success = true;
             }
 
             String channel = this.channelHandler.getChannel();
 
-            if (commandType.equals("default") || commandType.equals("timer")) {
+            if (isCommandType("default") || isCommandType("timer")) {
                 channelHandler.sendMessage(formattedScript, channel, sender, whisper);
                 success = true;
-            } else if (commandType.equals("state")) {
+            } else if (isCommandType("state")) {
                 if (state == 0) {
                     channelHandler.sendMessage(formattedOutput, channel, sender, whisper);
                     success = true;
@@ -712,7 +726,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public void update() {
-        if (this.commandType.equals("timer") && (channelHandler.isLive() || Memebot.debug) && timerCooldown.canContinue()) {
+        if (isCommandType("timer") && (channelHandler.isLive() || Memebot.debug) && timerCooldown.canContinue()) {
             String[] newArray = new String[0];
             this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel(), "#internal#"), newArray);
             timerCooldown.startCooldown();
@@ -1134,6 +1148,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         jsonObject.put("neededpower", neededCommandPower);
         jsonObject.put("qprefix", quotePrefix);
         jsonObject.put("qsuffix", quoteSuffix);
+        jsonObject.put("commandtype", commandType);
 
         wrapper.put("data", jsonObject);
         wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandName,
