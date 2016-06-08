@@ -74,7 +74,7 @@ public class CommandManager extends CommandHandler {
                     for (int x = 4; x < data.length; x++) {
                         newValue = newValue + " " + data[x];
                     }
-                    if (j.getCH().editCommand(data[2], newValue, sender)) {
+                    if (j.editCommand(data[2], newValue, sender)) {
                         getChannelHandler().sendMessage(Memebot.formatText("EDITCOMMAND_OK", getChannelHandler(), sender, this, true, new String[]{data[1], data[2], newValue}, ""), this.getChannelHandler().getChannel(), sender);
 
                     } else {

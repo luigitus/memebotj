@@ -42,6 +42,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     //private MongoCollection<Document> channelCollection = null;
     DatabaseInterface mongoHandler = null;
     private BufferedWriter writer = null;
+    private int nextID = 0;
     private String channel = "";
     private ConnectionInterface connection = null;
     private String broadcaster = this.channel.replace("#", "");
@@ -650,6 +651,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
             aliasList = (Document) mongoHandler.getObject("aliaslist", this.aliasList);
             useRotatingColours = (boolean) mongoHandler.getObject("rotatingcolours", this.useRotatingColours);
+            nextID = (int) mongoHandler.getObject("nextID", nextID);
         }
 
         // read commands
@@ -698,6 +700,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         mongoHandler.updateDocument("aliaslist", this.aliasList);
         mongoHandler.updateDocument("rotatingcolours", this.useRotatingColours);
+        mongoHandler.updateDocument("nextID", this.nextID);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -714,6 +717,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         setDB();
 
         mongoHandler.writeDatabase(this.channel);
+    }
+
+    public String getNextID() {
+        nextID++;
+        return Integer.toHexString(nextID);
     }
 
     @Override

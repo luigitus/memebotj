@@ -75,10 +75,13 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     private boolean pointsUpdateDone = false;
 
+    private String id = null;
+
     public CommandHandler(ChannelHandler channelHandler, String commandName, String dbprefix) {
         this.channelHandler = channelHandler;
         this.commandName = commandName;
         removeCooldown.startCooldown();
+        id = channelHandler.getNextID();
 
         if (Memebot.useMongo) {
             if (!Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel())) {
