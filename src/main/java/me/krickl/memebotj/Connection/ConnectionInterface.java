@@ -24,4 +24,6 @@ public interface ConnectionInterface {
     void sendMessageBytes(String msg);
 
     String getBotNick();
+
+    boolean canReceive();
 }

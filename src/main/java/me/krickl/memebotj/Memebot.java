@@ -5,6 +5,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandRefernce;
+import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
@@ -93,7 +94,9 @@ public class Memebot {
 
     public static boolean cliInput = false;
 
-    public static boolean isRunning = false;
+    public static boolean isRunning = true;
+
+    public static String connectionMode = "irc";
 
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
@@ -217,21 +220,22 @@ public class Memebot {
     public static void joinChannel(String channel) {
         try {
             File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
+            ConnectionInterface connectionInterface = new IRCConnectionHandler(Memebot.ircServer,
+                    Memebot.ircport, Memebot.botNick, Memebot.botPassword);
             if (login.exists()) {
                 ArrayList<String> loginInfo = (ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
 
                 Memebot.log.info("Found login file for channel " + channel);
 
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
-                        new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0).replace("\n", ""),
-                                loginInfo.get(1).replace("\n", "")));
+                connectionInterface = new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport,
+                        loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", ""));
+
+                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), connectionInterface);
                 newChannel.start();
                 joinedChannels.add(newChannel);
             } else {
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
-                        new IRCConnectionHandler(Memebot.ircServer,
-                                Memebot.ircport, Memebot.botNick, Memebot.botPassword));
+                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), connectionInterface);
                 newChannel.start();
                 joinedChannels.add(newChannel);
             }
@@ -293,6 +297,7 @@ public class Memebot {
         Memebot.jokeMode = Boolean.parseBoolean(config.getProperty("joke", Boolean.toString(Memebot.jokeMode)));
         Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
         Memebot.cliInput = Boolean.parseBoolean(config.getProperty("climode", Boolean.toString(Memebot.cliInput)));
+        Memebot.connectionMode = config.getProperty("connectionmode", Memebot.connectionMode);
 
         if (!Memebot.debug) {
             try {

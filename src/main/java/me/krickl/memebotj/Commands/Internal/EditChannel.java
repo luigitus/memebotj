@@ -91,6 +91,14 @@ public class EditChannel extends CommandHandler {
                 }
             } else if(data[0].equals("colourrotation")) {
                 getChannelHandler().setUseRotatingColours(Boolean.parseBoolean(data[1]));
+            } else if(data[0].equals("setoverride")) {
+                getChannelHandler().setOverrideChannelInformation(Boolean.parseBoolean(data[1]));
+            } else if(data[0].equals("overridetitle")) {
+                getChannelHandler().setStreamTitle(newEntry);
+            } else if(data[0].equals("overridegame")) {
+                getChannelHandler().setCurrentGame(newEntry);
+            } else if(data[0].equals("setlive")) {
+                getChannelHandler().setLive(Boolean.parseBoolean(data[1]));
             }
 
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]}, getChannelHandler().getChannel()));

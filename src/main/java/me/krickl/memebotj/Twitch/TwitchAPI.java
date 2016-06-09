@@ -67,7 +67,7 @@ public class TwitchAPI implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (Memebot.isRunning) {
             for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
                 update(Memebot.joinedChannels.get(i));
                 if (!(i + 1 == Memebot.joinedChannels.size())) {
@@ -93,7 +93,7 @@ public class TwitchAPI implements Runnable {
     }
 
     public void update(ChannelHandler ch) {
-        if (!runningWithValidClientID()) {
+        if (!runningWithValidClientID() || ch.isOverrideChannelInformation()) {
             return;
         }
         try {

@@ -392,4 +392,6 @@ public class IRCConnectionHandler implements ConnectionInterface {
     public void setDebugMode(boolean debugMode) {
         this.debugMode = debugMode;
     }
+
+    public boolean canReceive() { return true; };
 }

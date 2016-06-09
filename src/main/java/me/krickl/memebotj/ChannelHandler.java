@@ -116,6 +116,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private Cooldown longUpdateCooldown = new Cooldown(600, 0);
 
+    private boolean overrideChannelInformation = false;
+
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
         this.connection = connection;
@@ -652,6 +654,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             aliasList = (Document) mongoHandler.getObject("aliaslist", this.aliasList);
             useRotatingColours = (boolean) mongoHandler.getObject("rotatingcolours", this.useRotatingColours);
             nextID = (int) mongoHandler.getObject("nextID", nextID);
+            overrideChannelInformation = (boolean) mongoHandler.getObject("overrideChannelInformation", overrideChannelInformation);
+            currentGame = (String) mongoHandler.getObject("currentgame", currentGame);
+            streamTitle = (String) mongoHandler.getObject("currenttitle", streamTitle);
+            isLive = (boolean) mongoHandler.getObject("islive", isLive);
         }
 
         // read commands
@@ -701,6 +707,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("aliaslist", this.aliasList);
         mongoHandler.updateDocument("rotatingcolours", this.useRotatingColours);
         mongoHandler.updateDocument("nextID", this.nextID);
+        mongoHandler.updateDocument("overrideChannelInformation", overrideChannelInformation);
+        mongoHandler.updateDocument("currentgame", currentGame);
+        mongoHandler.updateDocument("currenttitle", streamTitle);
+        mongoHandler.updateDocument("islive", isLive);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -727,6 +737,26 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     @Override
     public int compareTo(ChannelHandler another) {
         return channel.compareTo(another.getChannel());
+    }
+
+    public void setNextID(int nextID) {
+        this.nextID = nextID;
+    }
+
+    public Cooldown getLongUpdateCooldown() {
+        return longUpdateCooldown;
+    }
+
+    public void setLongUpdateCooldown(Cooldown longUpdateCooldown) {
+        this.longUpdateCooldown = longUpdateCooldown;
+    }
+
+    public boolean isOverrideChannelInformation() {
+        return overrideChannelInformation;
+    }
+
+    public void setOverrideChannelInformation(boolean overrideChannelInformation) {
+        this.overrideChannelInformation = overrideChannelInformation;
     }
 
     public String getChannel() {

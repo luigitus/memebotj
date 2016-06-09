@@ -165,6 +165,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         }
 
         this.commandName = mongoHandler.getObject("command", this.commandName).toString();
+        this.id = mongoHandler.getObject("hex_id", this.id).toString();
         this.cooldownLength = (int) mongoHandler.getObject("cooldown", this.cooldownLength);
         this.helptext = mongoHandler.getObject("helptext", this.helptext).toString();
         this.parameters = (int) mongoHandler.getObject("param", this.parameters);
@@ -245,6 +246,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         mongoHandler.updateDocument("timercd", this.timerCooldown.getDoc());
         mongoHandler.updateDocument("cooldowndoc", this.cooldown.getDoc());
+        mongoHandler.updateDocument("hex_id", this.id);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -1140,7 +1142,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("_id", commandName);
+        jsonObject.put("_id_old", commandName);
         jsonObject.put("_channel", channelHandler.getChannel());
         jsonObject.put("execcounter", execCounter);
         jsonObject.put("listcontent", listContent);
@@ -1152,6 +1154,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         jsonObject.put("qprefix", quotePrefix);
         jsonObject.put("qsuffix", quoteSuffix);
         jsonObject.put("commandtype", commandType);
+        jsonObject.put("_id", id);
 
         wrapper.put("data", jsonObject);
         wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandName,

@@ -71,7 +71,7 @@ public class SpeedRunComAPI implements Runnable {
             } catch (InterruptedException ignored) {
             }
         }
-        while (true) {
+        while (Memebot.isRunning) {
             for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
                 update(Memebot.joinedChannels.get(i));
                 if (!(i + 1 == Memebot.joinedChannels.size())) {
@@ -93,6 +93,8 @@ public class SpeedRunComAPI implements Runnable {
             } catch (InterruptedException ignored) {
             }
         }
+
+        System.out.println("Thread end");
     }
 
     public void update(ChannelHandler channelHandler) {
