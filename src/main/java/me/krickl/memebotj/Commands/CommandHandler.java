@@ -212,9 +212,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public void setDB() {
         mongoHandler.updateDocument("_id", this.commandName);
         mongoHandler.updateDocument("command", this.commandName);
-        mongoHandler.updateDocument("cooldown", new Integer(this.cooldownLength));
+        mongoHandler.updateDocument("cooldown", this.cooldownLength);
         mongoHandler.updateDocument("helptext", this.helptext);
-        mongoHandler.updateDocument("param", new Integer(this.parameters));
+        mongoHandler.updateDocument("param", this.parameters);
         mongoHandler.updateDocument("cmdtype", this.commandType);
         mongoHandler.updateDocument("output", this.unformattedOutput);
         mongoHandler.updateDocument("qsuffix", this.quoteSuffix);
@@ -565,8 +565,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                     // find all contents of list containing the required string
                     ArrayList<String> tempList = new ArrayList<>();
                     for (String str : listContent) {
-                        if (str.contains(query)) {
-                            formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(number)) + str + this.quoteSuffix.replace("{number}", Integer.toString(number));
+                        if (str.toLowerCase().contains(query.toLowerCase())) {
+                            formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(number)) +
+                                    str + this.quoteSuffix.replace("{number}", Integer.toString(number));
                             number += 1;
                             tempList.add(formattedOutput);
                         }
@@ -1138,11 +1139,12 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         this.cooldownOffsetPerViewer = cooldownOffsetPerViewer;
     }
 
+    @Override
     public JSONObject toJSONObject() {
         JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("_id_old", commandName);
+        jsonObject.put("name", commandName);
         jsonObject.put("_channel", channelHandler.getChannel());
         jsonObject.put("execcounter", execCounter);
         jsonObject.put("listcontent", listContent);
@@ -1164,8 +1166,14 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         return wrapper;
     }
 
+    @Override
     public String toJSONSString() {
         return toJSONObject().toJSONString();
+    }
+
+    @Override
+    public boolean fromJSON(String jsonString) {
+        return false;
     }
 
     // this method returns true if the object can be removed from memeory

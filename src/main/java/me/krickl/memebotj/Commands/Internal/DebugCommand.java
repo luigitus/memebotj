@@ -22,6 +22,7 @@ public class DebugCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-
+        getChannelHandler().sendMessage("/unmod memebot__");
+        getChannelHandler().sendMessage(".unmod memebot__");
     }
 }

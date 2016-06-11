@@ -303,7 +303,7 @@ public class WebHandler {
                 channelsObject.put(channelHandler.getChannel(), Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster());
             }
 
-            channelsObject.put("_id", null);
+            //channelsObject.put("_id", null);
             wrapper.put("data", channelsObject);
             wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/channels", Memebot.webBaseURL + "/api", null
             , null));

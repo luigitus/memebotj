@@ -9,4 +9,6 @@ public interface JSONInterface {
     JSONObject toJSONObject();
 
     String toJSONSString();
+
+    boolean fromJSON(String jsonString);
 }

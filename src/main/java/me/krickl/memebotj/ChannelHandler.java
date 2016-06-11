@@ -13,8 +13,6 @@ import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.SpeedrunCom.Model.Game;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
-import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
-import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.ChatColours;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
@@ -166,7 +164,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         // todo add all internal commands
         this.internalCommands.add(new AboutCommand(this, "!about", "#internal#"));
         this.internalCommands.add(new AutogreetCommand(this, "!autogreet", "#internal#"));
-        this.internalCommands.add(new EditChannel(this, "!channel", "#internal#"));
+        this.internalCommands.add(new EditChannelCommand(this, "!channel", "#internal#"));
         this.internalCommands.add(new HelpCommand(this, "!help", "#internal#"));
         this.internalCommands.add(new HugCommand(this, "!mehug", "#internal#"));
         this.internalCommands.add(new JoinCommand(this, "!mejoin", "#internal#"));
@@ -556,10 +554,12 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.preventMessageCooldown.startCooldown();
         }
         // ignore /ignore to avoid people being ignored by the bot
-        String[] ignoredMessages = new String[]{"/ignore", "/color"};
+        String[] ignoredMessages = new String[]{"/ignore", "/color", ".ignore", ".color", ".unmod", "/unmod",
+                "/mod", ".mod"};
         for(String ignoredStr : ignoredMessages) {
-            if (msg.startsWith(ignoredStr) && allowIgnored) {
-                return;
+            if (msg.startsWith(ignoredStr) && !allowIgnored) {
+                msg.replaceFirst("/", "");
+                msg.replaceFirst(".", "");
             }
         }
 
@@ -670,12 +670,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
         for (Document doc : mongoHandler.getDocuments()) {
             channelCommands.add(new CommandRefernce(this, doc.getString("command"), ""));
-
-            // todo remove commands after x minutes of them being unused
-            // todo commands will only be kept as references - if needed they can be realoaded
-            // todo needs an implementation of cooldowns that save to db
-            // todo also needs adjustment of the findcommand method
-            // todo - never remove timer commands - this'll need a lot of work
         }
     }
 
@@ -1251,6 +1245,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.useRotatingColours = useRotatingColours;
     }
 
+    @Override
     public JSONObject toJSONObject() {
         JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
@@ -1260,6 +1255,13 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         jsonObject.put("internals", Memebot.webBaseURL + "/api/internals/" + getBroadcaster());
         jsonObject.put("filenames", Memebot.webBaseURL + "/api/filenames/" + getBroadcaster());
         jsonObject.put("users", Memebot.webBaseURL + "/api/users/" + getBroadcaster());
+        jsonObject.put("title", streamTitle);
+        jsonObject.put("game", currentGame);
+        jsonObject.put("currency_emote", currencyEmote);
+        jsonObject.put("currecny_name", currencyName);
+        jsonObject.put("current_filename", currentFileName);
+        jsonObject.put("is_live", isLive);
+        jsonObject.put("overrides_twitch_api", overrideChannelInformation);
 
         wrapper.put("data", jsonObject);
         wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/channels/" + broadcaster,
@@ -1268,8 +1270,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         return wrapper;
     }
 
+    @Override
     public String toJSONSString() {
         return toJSONObject().toJSONString();
+    }
+
+    @Override
+    public boolean fromJSON(String jsonString) {
+        return false;
     }
 
     public String filenamesToJSON() {

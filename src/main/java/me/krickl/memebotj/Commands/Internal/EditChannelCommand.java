@@ -12,8 +12,8 @@ import me.krickl.memebotj.Utility.Localisation;
  * This file is part of memebotj.
  * Created by unlink on 11/04/16.
  */
-public class EditChannel extends CommandHandler {
-    public EditChannel(ChannelHandler channelHandler, String commandName, String dbprefix) {
+public class EditChannelCommand extends CommandHandler {
+    public EditChannelCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
     }
 

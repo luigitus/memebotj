@@ -155,15 +155,15 @@ public class Memebot {
 
                 urlBanList = (java.util.ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
-                        Charset.defaultCharset());
+                                Charset.defaultCharset());
 
                 phraseBanList = (java.util.ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/phrasebanlist.cfg"),
-                        Charset.defaultCharset());
+                                Charset.defaultCharset());
 
                 globalBanList = (java.util.ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/globalbanlist.cfg"),
-                        Charset.defaultCharset());
+                                Charset.defaultCharset());
 
             } catch (IOException e) {
                 log.warning(e.toString());
@@ -362,10 +362,10 @@ public class Memebot {
         String[] parsedTemp = toParse.replace("{", "").replace("}", "").split(";");
         String[] parsed = new String[parsedTemp.length];
 
-        for(int i = 0; i < parsedTemp.length; i++) {
-            if(i != 0 && i != 1) {
+        for (int i = 0; i < parsedTemp.length; i++) {
+            if (i != 0 && i != 1) {
                 parsed[i] = parsedTemp[i];
-            } else if(i == 1) {
+            } else if (i == 1) {
                 parsed[i] = "{" + parsedTemp[i] + "}";
             } else {
                 parsed[i] = toParse;
@@ -485,7 +485,7 @@ public class Memebot {
 
                     if (formattedOutput.equals(original) && !formattedOutput.contains("{paramN}")) {
                         formattedOutput = formattedOutput + " " + str;
-                    } else if(formattedOutput.equals(original)) {
+                    } else if (formattedOutput.equals(original)) {
                         paramN = paramN + str + " ";
                     }
                 } else if (alternativeText != null) {
@@ -506,6 +506,7 @@ public class Memebot {
 
     /***
      * Reads from URL
+     *
      * @param urlString The URL
      * @return String of content
      * @deprecated
@@ -674,7 +675,7 @@ public class Memebot {
         jsonObject.put("dev", BuildInfo.dev);
 
         wrapper.put("data", jsonObject);
-        wrapper.put("links" ,getLinks(Memebot.webBaseURL + "/api", null, null, null));
+        wrapper.put("links", getLinks(Memebot.webBaseURL + "/api", null, null, null));
 
         return wrapper;
     }

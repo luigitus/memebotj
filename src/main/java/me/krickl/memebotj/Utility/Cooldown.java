@@ -114,4 +114,9 @@ public class Cooldown implements JSONInterface {
     public String toJSONSString() {
         return null;
     }
+
+    @Override
+    public boolean fromJSON(String jsonString) {
+        return false;
+    }
 }
