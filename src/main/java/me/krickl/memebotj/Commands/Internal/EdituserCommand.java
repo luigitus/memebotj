@@ -75,7 +75,7 @@ public class EdituserCommand extends CommandHandler {
                 // todo make this broadcaster only later
                 int newPower = Integer.parseInt(data[2]);
                 String response = "";
-                if(checkPermissions(sender, newPower, newPower) && uh != null) {
+                if (checkPermissions(sender, newPower, newPower) && uh != null) {
                     uh.setConstantCommandPower(newPower);
                     response = Memebot.formatText("EDIT_CCP_OK", getChannelHandler(), sender, this, true,
                             new String[]{data[1], data[2]}, "");

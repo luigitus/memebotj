@@ -2,9 +2,7 @@ package me.krickl.memebotj.Utility;
 
 import me.krickl.memebotj.UserHandler;
 import org.bson.Document;
-import org.omg.CORBA.Object;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -27,11 +25,11 @@ public class MessagePackage {
 
     public void handleAlias(Document aliasDoc) {
         ArrayList<String> tmpArray = new ArrayList<>(Arrays.asList(messageContent));
-        for(String obj : aliasDoc.keySet()) {
-            if(messageContent[0].equals(obj)) {
+        for (String obj : aliasDoc.keySet()) {
+            if (messageContent[0].equals(obj)) {
                 tmpArray.remove(0);
                 String[] tmp = aliasDoc.get(obj).toString().split(" ");
-                for(int i = tmp.length - 1; i >= 0; i--) {
+                for (int i = tmp.length - 1; i >= 0; i--) {
                     String str = tmp[i];
                     tmpArray.add(0, str);
                 }

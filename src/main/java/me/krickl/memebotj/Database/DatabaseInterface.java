@@ -25,5 +25,6 @@ public interface DatabaseInterface<T> {
     Object getObject(String key, Object defaultValue);
 
     ArrayList<T> getDocuments();
+
     Document getDocument();
 }

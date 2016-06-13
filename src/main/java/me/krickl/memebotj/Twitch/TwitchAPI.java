@@ -157,7 +157,7 @@ public class TwitchAPI implements Runnable {
         return false;
     }
 
-    private void parseChannel(ChannelHandler ch ,Channel channel) {
+    private void parseChannel(ChannelHandler ch, Channel channel) {
         ch.setStreamTitle(channel.getStatus());
         ch.setCurrentGame(channel.getGame());
         ch.setUptimeString("");
@@ -174,7 +174,7 @@ public class TwitchAPI implements Runnable {
             try {
                 Call<KrakenRoot> rootCall = service.getRoot(null);
                 return rootCall.execute().body();
-            } catch (IOException |JsonSyntaxException e) {
+            } catch (IOException | JsonSyntaxException e) {
                 KrakenRoot root = new KrakenRoot();
                 root.setIdentified(false);
                 return root;

@@ -84,21 +84,23 @@ public class EditChannelCommand extends CommandHandler {
                 getChannelHandler().setBgImage(data[1]);
             } else if (data[0].equals("itemDrops")) {
                 getChannelHandler().setItemDrops(data[1]);
-            } else if(data[0].equals("colour")) {
-                if(!getChannelHandler().getConnection().getBotNick().equals(Memebot.botNick)
+            } else if (data[0].equals("colour")) {
+                if (!getChannelHandler().getConnection().getBotNick().equals(Memebot.botNick)
                         || checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
                     ChatColours.setColour(getChannelHandler(), sender, data[1]);
                 }
-            } else if(data[0].equals("colourrotation")) {
+            } else if (data[0].equals("colourrotation")) {
                 getChannelHandler().setUseRotatingColours(Boolean.parseBoolean(data[1]));
-            } else if(data[0].equals("setoverride")) {
+            } else if (data[0].equals("setoverride")) {
                 getChannelHandler().setOverrideChannelInformation(Boolean.parseBoolean(data[1]));
-            } else if(data[0].equals("overridetitle")) {
+            } else if (data[0].equals("overridetitle")) {
                 getChannelHandler().setStreamTitle(newEntry);
-            } else if(data[0].equals("overridegame")) {
+            } else if (data[0].equals("overridegame")) {
                 getChannelHandler().setCurrentGame(newEntry);
-            } else if(data[0].equals("setlive")) {
+            } else if (data[0].equals("setlive")) {
                 getChannelHandler().setLive(Boolean.parseBoolean(data[1]));
+            } else if (data[0].equals("autogreetpower")) {
+                getChannelHandler().setNeededAutogreetCommandPower(Integer.parseInt(data[1]));
             }
 
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]}, getChannelHandler().getChannel()));

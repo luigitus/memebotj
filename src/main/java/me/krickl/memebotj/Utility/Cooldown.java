@@ -31,11 +31,11 @@ public class Cooldown implements JSONInterface {
 
     public Cooldown(Document doc) {
         this.doc = doc;
-        cooldownLength = (int)doc.getOrDefault("lenght", cooldownLength);
-        cooldownStart = (int)doc.getOrDefault("start", cooldownStart);
-        cooldownEnd = (int)doc.getOrDefault("end", cooldownEnd);
-        uses = (int)doc.getOrDefault("uses", uses);
-        cooldownAfterUses = (int)doc.getOrDefault("cdafteruses", cooldownAfterUses);
+        cooldownLength = (int) doc.getOrDefault("lenght", cooldownLength);
+        cooldownStart = (int) doc.getOrDefault("start", cooldownStart);
+        cooldownEnd = (int) doc.getOrDefault("end", cooldownEnd);
+        uses = (int) doc.getOrDefault("uses", uses);
+        cooldownAfterUses = (int) doc.getOrDefault("cdafteruses", cooldownAfterUses);
     }
 
     public Cooldown(int length, int uses) {
@@ -69,6 +69,7 @@ public class Cooldown implements JSONInterface {
 
     /***
      * This method returns a document that can be used to store the cooldown in database
+     *
      * @return
      */
     public Document getDoc() {

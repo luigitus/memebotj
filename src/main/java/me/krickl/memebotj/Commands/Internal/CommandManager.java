@@ -30,7 +30,7 @@ public class CommandManager extends CommandHandler {
     public void commandScript(UserHandler sender, String[] data) {
         try {
             if (data[0].equals("add") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                if(getChannelHandler().getChannelCommands().size() >= commandLimit) {
+                if (getChannelHandler().getChannelCommands().size() >= commandLimit) {
                     getChannelHandler().sendMessage(Memebot.formatText("ADD_COMMAND_ERROR", getChannelHandler(),
                             sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender);
                     return;

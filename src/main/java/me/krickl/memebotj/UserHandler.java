@@ -2,7 +2,6 @@ package me.krickl.memebotj;
 
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
-//import me.krickl.memebotj.Inventory.Inventory;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.apache.commons.codec.binary.Base64;
@@ -15,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+//import me.krickl.memebotj.Inventory.Inventory;
 
 /**
  * This file is part of memebotj.
@@ -63,6 +64,9 @@ public class UserHandler implements Comparable<UserHandler> {
     private int lastTimeoutDuration = 0;
     private String lastTimeoutReason = "";
 
+    private boolean isActive = true;
+    private Cooldown idleCooldown = new Cooldown(1200);
+
     public UserHandler(String username, String channelOrigin) {
         this(username, channelOrigin, username);
     }
@@ -93,7 +97,7 @@ public class UserHandler implements Comparable<UserHandler> {
         }
 
         //points update - reduce every points related segment
-        if(!this.pointsUpdateDone) {
+        if (!this.pointsUpdateDone) {
             this.points = points / 10;
             this.pointsUpdateDone = true;
         }
@@ -186,16 +190,18 @@ public class UserHandler implements Comparable<UserHandler> {
         // remove unused cooldowns asap
         ArrayList<String> toRemove = new ArrayList<>();
 
-        for(String key : userCommandCooldowns.keySet()) {
+        for (String key : userCommandCooldowns.keySet()) {
             Cooldown cooldown = userCommandCooldowns.get(key);
-            if(cooldown.canContinue()) {
+            if (cooldown.canContinue()) {
                 toRemove.add(key);
             }
         }
 
-        for(String key : toRemove) {
+        for (String key : toRemove) {
             userCommandCooldowns.remove(key);
         }
+
+        //todo implement idle cooldown
     }
 
     public boolean canRemove() {
@@ -213,7 +219,9 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public void sendAutogreet(ChannelHandler channelHandler) {
+        // todo && CommandHandler.checkPermissionsForUser(this,channelHandler.getNeededAutogreetCommandPower(), channelHandler.getNeededAutogreetCommandPower(), channelHandler)
         if (!this.hasAutogreeted && this.enableAutogreets && channelHandler.isAllowAutogreet() && !this.autogreet.equals("")) {
+
             channelHandler.sendMessage(autogreet, this.channelOrigin, this);
             this.hasAutogreeted = true;
         }
@@ -270,6 +278,14 @@ public class UserHandler implements Comparable<UserHandler> {
         isModerator = moderator;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
     public boolean isUserBroadcaster() {
         return isUserBroadcaster;
     }
@@ -295,7 +311,7 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public int getCommandPower() {
-        if(this.constantCommandPower >= 0 && this.constantCommandPower >= commandPower) {
+        if (this.constantCommandPower >= 0 && this.constantCommandPower >= commandPower) {
             // constant command power can be used to assign a constant value to a user
             // this will be used for permissions on the website
             return constantCommandPower;
@@ -579,11 +595,8 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public boolean isUserACat() {
-        if (username.contains("cat") || username.contains("kitty")) {
-            return true;
-        }
+        return username.contains("cat") || username.contains("kitty");
 
-        return false;
     }
 
     public void setAPIKey(String key) {

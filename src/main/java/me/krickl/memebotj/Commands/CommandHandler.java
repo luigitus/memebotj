@@ -111,7 +111,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         readDB();
         overrideDB();
 
-        if(!pointsUpdateDone) {
+        if (!pointsUpdateDone) {
             cost = cost / 10;
             pointsUpdateDone = true;
         }
@@ -125,7 +125,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         CommandHandler.log = log;
     }
 
-    public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
+    public static boolean checkPermissionsForUser(UserHandler senderObject, int reqPermLevel, int secondPerm,
+                                                  ChannelHandler channelHandler) {
         String senderName = senderObject.getUsername();
 
         Iterator it = Memebot.botAdmins.iterator();
@@ -140,7 +141,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             return false;
         }
 
-        if (reqPermLevel <= channelHandler.getUserList().get(senderName).getCommandPower() && secondPerm <= senderObject.getCommandPower()) {
+        if (reqPermLevel <= channelHandler.getUserList().get(senderName).getCommandPower() &&
+                secondPerm <= senderObject.getCommandPower()) {
             return true;
         }
 
@@ -151,6 +153,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         }
 
         return false;
+    }
+
+    public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
+        return checkPermissionsForUser(senderObject, reqPermLevel, secondPerm, getChannelHandler());
     }
 
     public void readDB() {
@@ -194,7 +200,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         this.state = (int) mongoHandler.getObject("state", this.state);
         this.suggestedList = (ArrayList<String>) mongoHandler.getObject("suggestedList", suggestedList);
         uses = (int) mongoHandler.getObject("uses", uses);
-        cooldownOffsetPerViewer = (int)mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
+        cooldownOffsetPerViewer = (int) mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
         Document cooldownDoc = (Document) mongoHandler.getObject("cooldowndoc",
                 Cooldown.createCooldownDocument(cooldownLength, uses));
 
@@ -278,7 +284,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public boolean handleCooldown(UserHandler sender) {
-        if(!this.startCooldown) {
+        if (!this.startCooldown) {
             return false;
         }
         // check global cooldown
@@ -320,7 +326,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             }
             sender.getUserCommandCooldowns().get(this.commandName).startCooldown(channelHandler.getViewerNumber() *
                     (userCooldownLength /
-                    100 * cooldownOffsetPerViewer));
+                            100 * cooldownOffsetPerViewer));
             sender.setPoints(sender.getPoints() - this.cost);
 
             if (Memebot.debug) {
@@ -368,8 +374,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public boolean isCommandType(String type) {
         boolean isType = false;
 
-        for(String t : commandType.split(",")) {
-            if(t.equals(type)) {
+        for (String t : commandType.split(",")) {
+            if (t.equals(type)) {
                 isType = true;
             }
         }
@@ -379,6 +385,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     /***
      * This method handles list command specific actions
+     *
      * @param sender
      * @param data
      * @param formattedOutput
@@ -387,7 +394,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     private String handleListCommand(UserHandler sender, String data[], String formattedOutput) {
         try {
             if (data[1].equals("add") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                if(listContent.size() >= listLimit) {
+                if (listContent.size() >= listLimit) {
                     formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
                     this.success = false;
                 } else {
@@ -409,7 +416,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                     this.startCooldown = false;
                 }
             } else if (data[1].equals("suggest")) {
-                if(suggestedList.size() >= listLimit) {
+                if (suggestedList.size() >= listLimit) {
                     formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
                     this.success = false;
                 } else {
@@ -596,6 +603,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     /***
      * This method handles counter command specific actions
+     *
      * @param sender
      * @param data
      * @param formattedOutput
@@ -677,7 +685,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         if (counterStart < this.parameters + 1) {
             formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false,
                     java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
-            if(isCommandType("state")) {
+            if (isCommandType("state")) {
                 formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false,
                         java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
             }
@@ -789,7 +797,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 this.setTextTrigger(Boolean.parseBoolean(newValue));
                 success = true;
             } else if (modType.equals("access")) {
-                if(checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
+                if (checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
                     this.setNeededCommandPower(Integer.parseInt(newValue));
                     success = true;
                 }
@@ -806,7 +814,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 setAllowPicksFromList(Boolean.parseBoolean(newValue));
                 success = true;
             } else if (modType.equals("cooldownbypasspower")) {
-                if(checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
+                if (checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
                     this.setNeededCooldownBypassPower(Integer.parseInt(newValue));
                     success = true;
                 }
@@ -822,10 +830,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             } else if (modType.equals("uses")) {
                 setUses(Integer.parseInt(newValue));
                 success = true;
-            } else if(modType.equals("cooldownoffset")) {
+            } else if (modType.equals("cooldownoffset")) {
                 setCooldownOffsetPerViewer(Integer.parseInt(newValue));
                 success = true;
-            } else if(modType.equals("timer")) {
+            } else if (modType.equals("timer")) {
                 timerCooldown = new Cooldown(Integer.parseInt(newValue), 0);
                 success = true;
             }

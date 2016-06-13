@@ -38,7 +38,7 @@ public class WhoisCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText("WHOIS_NEW_USER", getChannelHandler(), sender, this, true, new String[]{sender.screenName()}, ""), getChannelHandler().getChannel());
             }
 
-            if(!user.equals("fniure")) {
+            if (!user.equals("fniure")) {
                 // todo make it render json of user object
 
                 // get json
@@ -46,7 +46,7 @@ public class WhoisCommand extends CommandHandler {
 
                 String output = "";
 
-                for(Object key : jsonObject.keySet()) {
+                for (Object key : jsonObject.keySet()) {
                     output = output + key.toString() + ": " + jsonObject.get(key).toString() + " || ";
                 }
                 getChannelHandler().sendMessage(output, getChannelHandler().getChannel(), sender, isWhisper());

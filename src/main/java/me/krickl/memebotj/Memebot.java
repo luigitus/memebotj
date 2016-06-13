@@ -10,6 +10,7 @@ import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.BuildInfo;
+import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
 import org.json.simple.JSONObject;
@@ -404,6 +405,7 @@ public class Memebot {
             formattedOutput = formattedOutput.replace("{points}", String.format("%.2f", sender.getPoints()));
             formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
             int newRan = new Double(sender.getPoints()).intValue();
+
             if (newRan > 0) {
                 formattedOutput = formattedOutput.replace("{randompoints}",
                         Integer.toString(Math.abs(ran.nextInt(newRan))));
@@ -434,8 +436,31 @@ public class Memebot {
 
             // random user as parameter
             List<String> keys = new ArrayList<String>(channelHandler.getUserList().keySet());
-            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())), new UserHandler("#internal#", channelHandler.getChannel(), "#internal#"));
+            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())),
+                    new UserHandler("#internal#", channelHandler.getChannel(), "#internal#"));
+            if (sender != null && commandHandler != null) {
+                if (commandHandler.checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
+                    formattedOutput = formattedOutput.replace("{randomuserall}", randomUH.getUsername());
+                }
+            }
+
+            // todo random user as parameter
+            ArrayList<UserHandler> activeUsers = new ArrayList<>();
+            for (String key : keys) {
+                if (channelHandler.getUserList().get(key).isActive()) {
+                    activeUsers.add(channelHandler.getUserList().get(key));
+                }
+            }
+
+            randomUH = activeUsers.get(ran.nextInt(activeUsers.size()));
             formattedOutput = formattedOutput.replace("{randomuser}", randomUH.getUsername());
+
+            if (formattedOutput.contains("{randomuserdb}")) {
+                // random user from database
+                ArrayList<String> userList = WebHandler.getUserListFromDB(channelHandler.getChannel());
+                formattedOutput = formattedOutput.replace("{randomuserdb}", userList.get(ran.nextInt(userList.size())));
+            }
+
 
             // random USSR as parameter - returns your favourite communist leader
             String[] keysUSSR = {"Vladimir Lenin", "Joseph Stalin", "Georgy Malenkov", "Nikita Khrushchev",

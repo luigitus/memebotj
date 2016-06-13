@@ -6,6 +6,7 @@ import me.krickl.memebotj.UserHandler;
 
 // todo this class needs to be used instead of commandhandlers to have a refrence. it'll make sure to load/unload
 // todo commandhandlers
+
 /**
  * This file is part of memebotj.
  * Created by unlink on 17/05/16.
@@ -25,7 +26,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public void readDB() {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -33,7 +34,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public void removeDB() {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -41,7 +42,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public void writeDB() {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -49,7 +50,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public void overrideDB() {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -57,7 +58,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public void initCommand() {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -65,7 +66,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public boolean handleCooldown(UserHandler sender) {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -73,7 +74,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public boolean startCooldown(UserHandler sender) {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -81,7 +82,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public boolean checkCost(UserHandler sender, double cost) {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -89,7 +90,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public void commandScript(UserHandler sender, String[] data) {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -97,7 +98,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public boolean executeCommand(UserHandler sender, String[] data) {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
 
@@ -105,7 +106,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public boolean editCommand(String modType, String newValue, UserHandler sender) {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
         boolean success = false;
@@ -117,9 +118,9 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public void update() {
-        if(commandHandler != null) {
+        if (commandHandler != null) {
             commandHandler.update();
-            if(commandHandler.canBeRemoved() && !commandHandler.getCommandType().equals("timer")) {
+            if (commandHandler.canBeRemoved() && !commandHandler.getCommandType().equals("timer")) {
                 commandHandler.writeDB();
                 commandHandler = null;
             }
@@ -127,7 +128,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     public CommandHandler getCH() {
-        if(commandHandler == null) {
+        if (commandHandler == null) {
             commandHandler = new CommandHandler(channelHandler, commandName, dbprefix);
         }
         return commandHandler;

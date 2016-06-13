@@ -12,7 +12,7 @@ public class RNGObject {
     private int id = -1;
     private int range = -1;
 
-    public RNGObject(String idStr, int id, int range,int chance) {
+    public RNGObject(String idStr, int id, int range, int chance) {
         this.idStr = idStr;
         this.id = id;
         this.chance = chance;
@@ -20,24 +20,24 @@ public class RNGObject {
     }
 
     public static RNGObject rollUntilLast(int maxRange, ArrayList<RNGObject> next, int maxRolls) {
-        if(maxRolls < 0) {
+        if (maxRolls < 0) {
             maxRolls = next.size() / 2;
         }
         int rolls = 0;
         SecureRandom ran = new SecureRandom();
         do {
-            if(rolls > maxRolls) {
+            if (rolls > maxRolls) {
                 break;
             }
             next = rollObjects(ran.nextInt(maxRange), next);
             rolls++;
-        } while(next.size() > 2 );
+        } while (next.size() > 2);
 
-        if(next.size() <= 0) {
+        if (next.size() <= 0) {
             return null;
         }
 
-        if(next.size() > 1) {
+        if (next.size() > 1) {
             return next.get(ran.nextInt(next.size() - 1));
         }
 
@@ -47,8 +47,8 @@ public class RNGObject {
     public static ArrayList<RNGObject> rollObjects(int odds, ArrayList<RNGObject> objects) {
         ArrayList<RNGObject> possibleOutComes = new ArrayList<>();
 
-        for(RNGObject RNGObjectT : objects) {
-            if(odds <= RNGObjectT.getChance() && odds >= RNGObjectT.getRange()) {
+        for (RNGObject RNGObjectT : objects) {
+            if (odds <= RNGObjectT.getChance() && odds >= RNGObjectT.getRange()) {
                 possibleOutComes.add(RNGObjectT);
             }
         }

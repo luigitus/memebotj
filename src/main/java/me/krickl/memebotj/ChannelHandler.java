@@ -116,6 +116,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private boolean overrideChannelInformation = false;
 
+    private int neededAutogreetCommandPower = 25;
+
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
         this.connection = connection;
@@ -368,10 +370,10 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             this.writeHTML();
         }
 
-        if(this.longUpdateCooldown.canContinue()) {
+        if (this.longUpdateCooldown.canContinue()) {
             this.longUpdateCooldown.startCooldown();
 
-            if(this.useRotatingColours || connection.getBotNick().equals(Memebot.botNick)) {
+            if (this.useRotatingColours || connection.getBotNick().equals(Memebot.botNick)) {
                 ChatColours.pickColour(this, new UserHandler("#internal#", channel));
             }
         }
@@ -556,7 +558,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         // ignore /ignore to avoid people being ignored by the bot
         String[] ignoredMessages = new String[]{"/ignore", "/color", ".ignore", ".color", ".unmod", "/unmod",
                 "/mod", ".mod"};
-        for(String ignoredStr : ignoredMessages) {
+        for (String ignoredStr : ignoredMessages) {
             if (msg.startsWith(ignoredStr) && !allowIgnored) {
                 msg.replaceFirst("/", "");
                 msg.replaceFirst(".", "");
@@ -658,6 +660,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             currentGame = (String) mongoHandler.getObject("currentgame", currentGame);
             streamTitle = (String) mongoHandler.getObject("currenttitle", streamTitle);
             isLive = (boolean) mongoHandler.getObject("islive", isLive);
+            neededAutogreetCommandPower = (int) mongoHandler.getObject("neededAutogreetCommandPower", isLive);
         }
 
         // read commands
@@ -705,6 +708,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("currentgame", currentGame);
         mongoHandler.updateDocument("currenttitle", streamTitle);
         mongoHandler.updateDocument("islive", isLive);
+        mongoHandler.updateDocument("neededAutogreetCommandPower", neededAutogreetCommandPower);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -731,6 +735,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     @Override
     public int compareTo(ChannelHandler another) {
         return channel.compareTo(another.getChannel());
+    }
+
+    public int getNeededAutogreetCommandPower() {
+        return neededAutogreetCommandPower;
+    }
+
+    public void setNeededAutogreetCommandPower(int neededAutogreetCommandPower) {
+        this.neededAutogreetCommandPower = neededAutogreetCommandPower;
     }
 
     public void setNextID(int nextID) {
