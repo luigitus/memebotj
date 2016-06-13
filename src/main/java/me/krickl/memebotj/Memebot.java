@@ -4,8 +4,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.Commands.CommandRefernce;
+import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.Discord.DiscordConnectionHandler;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
@@ -99,6 +100,8 @@ public class Memebot {
 
     public static String connectionMode = "irc";
 
+    public static String discordOauth = "";
+
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
@@ -175,6 +178,10 @@ public class Memebot {
     public static void setupConnection() {
         // setup connection
 
+        // todo discord debug code
+        DiscordConnectionHandler discordConnectionHandler = new DiscordConnectionHandler(Memebot.discordOauth);
+        // todo remove
+
         // join channels
         Iterator it = Memebot.channels.iterator();
         while (it.hasNext()) {
@@ -190,7 +197,7 @@ public class Memebot {
 
     public static void mainLoop() {
         //auto rejoin if a thread crashes
-        while (true) {
+        while (Memebot.isRunning) {
             for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
                 ChannelHandler ch = Memebot.joinedChannels.get(i);
                 if (!ch.getT().isAlive()) {
@@ -299,6 +306,7 @@ public class Memebot {
         Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
         Memebot.cliInput = Boolean.parseBoolean(config.getProperty("climode", Boolean.toString(Memebot.cliInput)));
         Memebot.connectionMode = config.getProperty("connectionmode", Memebot.connectionMode);
+        Memebot.discordOauth = config.getProperty("discordOauth", discordOauth);
 
         if (!Memebot.debug) {
             try {
@@ -344,7 +352,7 @@ public class Memebot {
         while (it.hasNext()) {
             ChannelHandler ch = (ChannelHandler) it.next();
             ch.writeDB();
-            for (CommandRefernce commandHandler : ch.getChannelCommands()) {
+            for (CommandReference commandHandler : ch.getChannelCommands()) {
                 commandHandler.writeDB();
             }
 

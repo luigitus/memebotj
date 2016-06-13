@@ -2,7 +2,7 @@ package me.krickl.memebotj.Commands.Internal;
 
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.Commands.CommandRefernce;
+import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
@@ -35,7 +35,7 @@ public class CommandManager extends CommandHandler {
                             sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
                     return;
                 }
-                CommandRefernce newCommand = new CommandRefernce(getChannelHandler(), "null", null);
+                CommandReference newCommand = new CommandReference(getChannelHandler(), "null", null);
                 if (getChannelHandler().findCommandReferneceForString(data[1], getChannelHandler().getChannelCommands()) == null) {
                     newCommand.editCommand("name", data[1], new UserHandler("#internal#", "#internal#"));
                     newCommand.editCommand("access", "viewers", new UserHandler("#internal#", "#internal#"));
@@ -55,7 +55,7 @@ public class CommandManager extends CommandHandler {
                             this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
                 }
             } else if (data[0].equals("remove") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                CommandRefernce j = getChannelHandler().findCommandReferneceForString(data[1], getChannelHandler().getChannelCommands());
+                CommandReference j = getChannelHandler().findCommandReferneceForString(data[1], getChannelHandler().getChannelCommands());
                 if (j != null) {
                     if (!j.getCH().isLocked()) {
                         getChannelHandler().sendMessage(Memebot.formatText("DELCOM_OK", getChannelHandler(),
@@ -75,7 +75,7 @@ public class CommandManager extends CommandHandler {
                             sender, this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
                 }
             } else if (data[0].equals("edit") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                CommandRefernce j = getChannelHandler().findCommandReferneceForString(data[1], getChannelHandler().getChannelCommands());
+                CommandReference j = getChannelHandler().findCommandReferneceForString(data[1], getChannelHandler().getChannelCommands());
                 if (j != null) {
                     String newValue = data[3];
                     for (int x = 4; x < data.length; x++) {
@@ -126,7 +126,7 @@ public class CommandManager extends CommandHandler {
             } else if (data[0].equals("removeinternal") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
                 new CommandHandler(this.getChannelHandler(), data[1], "#internal#").removeDB();
             } else if (data[0].equals("info") && checkPermissions(sender, CommandPower.broadcasterAbsolute, CommandPower.broadcasterAbsolute)) {
-                CommandRefernce j = getChannelHandler().findCommandReferneceForString(data[1], getChannelHandler().getChannelCommands());
+                CommandReference j = getChannelHandler().findCommandReferneceForString(data[1], getChannelHandler().getChannelCommands());
                 if (j != null) {
                     getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("COMMAND_TIMES_EXECUTED"),
                             getChannelHandler(), sender, this, false,

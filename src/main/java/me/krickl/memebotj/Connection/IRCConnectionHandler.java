@@ -396,4 +396,8 @@ public class IRCConnectionHandler implements ConnectionInterface {
     public boolean canReceive() {
         return true;
     }
+
+    public String botMode() {
+        return "twitch.tmi";
+    }
 }

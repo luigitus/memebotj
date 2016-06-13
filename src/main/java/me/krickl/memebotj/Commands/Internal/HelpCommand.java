@@ -2,7 +2,7 @@ package me.krickl.memebotj.Commands.Internal;
 
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.Commands.CommandRefernce;
+import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 
@@ -23,7 +23,7 @@ public class HelpCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         try {
-            CommandRefernce j = getChannelHandler().findCommandReferneceForString(data[0], getChannelHandler().getChannelCommands());
+            CommandReference j = getChannelHandler().findCommandReferneceForString(data[0], getChannelHandler().getChannelCommands());
             if (j != null) {
                 getChannelHandler().sendMessage(j.getCH().getHelptext(), getChannelHandler().getChannel(), sender, isWhisper());
                 return;

@@ -26,4 +26,6 @@ public interface ConnectionInterface {
     String getBotNick();
 
     boolean canReceive();
+
+    String botMode();
 }

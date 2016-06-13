@@ -21,6 +21,13 @@
         </plugins>
     </build>
 
+    <repositories>
+    <repository>
+        <id>javacord-repo</id>
+        <url>http://repo.bastian-oppermann.de</url>
+    </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -75,6 +82,19 @@
             <version>3.2.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.btobastian.javacord</groupId>
+            <artifactId>javacord</artifactId>
+            <version>2.0.10</version>
+            <!-- This will use the shaded javacord which contains all required dependencies -->
+            <classifier>shaded</classifier>
+        </dependency>
+        <!-- A SLF4J comaptible logging framework. I would recommend to use logback -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
+        </dependency>
 
     </dependencies>
 </project>

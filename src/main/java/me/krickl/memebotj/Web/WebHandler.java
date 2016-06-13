@@ -2,7 +2,7 @@ package me.krickl.memebotj.Web;
 
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.Commands.CommandRefernce;
+import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
@@ -70,7 +70,7 @@ public class WebHandler {
             String channel = "#" + req.params(":channel");
             String command = req.params(":command");
             ChannelHandler channelHandler = getChannelForName(channel);
-            CommandRefernce i = null;
+            CommandReference i = null;
             if (channelHandler != null) {
                 i = channelHandler.findCommandReferneceForString(command, channelHandler.getChannelCommands());
             }
@@ -359,7 +359,7 @@ public class WebHandler {
             JSONObject wrapper = new JSONObject();
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            for (CommandRefernce commandHandler : channelHandler.getChannelCommands()) {
+            for (CommandReference commandHandler : channelHandler.getChannelCommands()) {
                 commandsObject.put(commandHandler.getCommandName(), Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandHandler.getCommandName());
             }
             commandsObject.put("_id", channelHandler.getChannel());
@@ -392,7 +392,7 @@ public class WebHandler {
         get("/api/commands/:channel/:command", (req, res) -> {
             res.type("application/json");
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            CommandRefernce commandHandler = channelHandler.findCommandReferneceForString(req.params(":command"),
+            CommandReference commandHandler = channelHandler.findCommandReferneceForString(req.params(":command"),
                     channelHandler.getChannelCommands());
 
             if (commandHandler != null) {

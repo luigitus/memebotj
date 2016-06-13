@@ -1,7 +1,7 @@
 package me.krickl.memebotj;
 
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.Commands.CommandRefernce;
+import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.IRCConnectionHandler;
@@ -47,7 +47,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     private HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
     private Cooldown updateCooldown = new Cooldown(600);
     private Cooldown shortUpdateCooldown = new Cooldown(60);
-    private ArrayList<CommandRefernce> channelCommands = new ArrayList<CommandRefernce>();
+    private ArrayList<CommandReference> channelCommands = new ArrayList<CommandReference>();
     private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
     //this is a collection of channel command namaes
     private String followerNotification = "";
@@ -118,6 +118,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private int neededAutogreetCommandPower = 25;
 
+    private String botMode = "";
+
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
         this.connection = connection;
@@ -127,6 +129,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
+
+        botMode = connection.botMode();
+
         try {
             File f = new File(Memebot.memebotDir + "/logs/" + channel + ".log");
             if (!f.exists())
@@ -354,7 +359,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 this.userList.remove(user);
             }
 
-            for (CommandRefernce ch : this.channelCommands) {
+            for (CommandReference ch : this.channelCommands) {
                 ch.update();
             }
 
@@ -438,7 +443,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
 
         CommandHandler ch = null;
-        CommandRefernce cr = null;
+        CommandReference cr = null;
 
         //internal text triggers
         for (String s : msgContent) {
@@ -563,8 +568,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
     }
 
-    public CommandRefernce findCommandReferneceForString(String command, ArrayList<CommandRefernce> commands) {
-        for (CommandRefernce commandHandler : commands) {
+    public CommandReference findCommandReferneceForString(String command, ArrayList<CommandReference> commands) {
+        for (CommandReference commandHandler : commands) {
             if (commandHandler.getCommandName().equals(command)) {
                 return commandHandler;
             }
@@ -642,7 +647,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
 
         for (Document doc : mongoHandler.getDocuments()) {
-            channelCommands.add(new CommandRefernce(this, doc.getString("command"), ""));
+            channelCommands.add(new CommandReference(this, doc.getString("command"), ""));
         }
     }
 
@@ -791,11 +796,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.updateCooldown = updateCooldown;
     }
 
-    public ArrayList<CommandRefernce> getChannelCommands() {
+    public ArrayList<CommandReference> getChannelCommands() {
         return channelCommands;
     }
 
-    public void setChannelCommands(ArrayList<CommandRefernce> channelCommands) {
+    public void setChannelCommands(ArrayList<CommandReference> channelCommands) {
         this.channelCommands = channelCommands;
     }
 
@@ -1225,6 +1230,15 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setUseRotatingColours(boolean useRotatingColours) {
         this.useRotatingColours = useRotatingColours;
+    }
+
+
+    public String getBotMode() {
+        return botMode;
+    }
+
+    public void setBotMode(String botMode) {
+        this.botMode = botMode;
     }
 
     @Override

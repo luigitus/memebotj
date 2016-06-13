@@ -11,14 +11,14 @@ import me.krickl.memebotj.UserHandler;
  * This file is part of memebotj.
  * Created by unlink on 17/05/16.
  */
-public class CommandRefernce implements CommandInterface, Comparable<CommandRefernce> {
+public class CommandReference implements CommandInterface, Comparable<CommandReference> {
 
     protected String commandName = null;
     protected ChannelHandler channelHandler = null;
     protected String dbprefix = "";
     private CommandHandler commandHandler = null;
 
-    public CommandRefernce(ChannelHandler channelHandler, String commandName, String dbprefix) {
+    public CommandReference(ChannelHandler channelHandler, String commandName, String dbprefix) {
         this.channelHandler = channelHandler;
         this.commandName = commandName;
         this.dbprefix = dbprefix;
@@ -168,7 +168,7 @@ public class CommandRefernce implements CommandInterface, Comparable<CommandRefe
     }
 
     @Override
-    public int compareTo(CommandRefernce another) {
+    public int compareTo(CommandReference another) {
         return commandName.compareTo(another.getCommandName());
     }
 }
