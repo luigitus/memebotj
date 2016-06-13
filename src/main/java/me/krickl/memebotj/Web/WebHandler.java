@@ -340,7 +340,8 @@ public class WebHandler {
             wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/users/" + channel.replace("#", ""),
                     Memebot.webBaseURL + "/api/channels/" + channel.replace("#", ""), null, null));
 
-            return wrapper.toJSONString();
+            return "{}";
+            //return wrapper.toJSONString();
         });
 
         get("/api/users/:channel/:user", (req, res) -> {

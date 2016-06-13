@@ -25,6 +25,8 @@ public class PartCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         getChannelHandler().partChannel(getChannelHandler().getChannel());
-        getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
+        getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN"),
+                getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel(),
+                sender, isWhisper());
     }
 }

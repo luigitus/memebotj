@@ -211,7 +211,8 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.internalCommands.add(annoyingDog);
 
         if (this.allowGreetMessage) {
-            this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null, false, new String[]{}, ""));
+            this.sendMessage(Memebot.formatText(this.greetMessage, this, readOnlyUser, null, false, new String[]{}, "")
+            , this.channel, null, false);
         }
 
         if (!this.pointsUpdateDone) {
@@ -245,7 +246,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             new File(Memebot.memebotDir + "/channels/" + channel).delete();
 
         }
-        this.sendMessage("Leaving channel :(", this.channel);
+        this.sendMessage("Leaving channel :(", this.channel, null, false);
         this.isJoined = false;
         this.t.interrupt();
         this.connection.close();
@@ -367,7 +368,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             //speedRunComAPI.update();
 
             this.writeDB();
-            this.writeHTML();
         }
 
         if (this.longUpdateCooldown.canContinue()) {
@@ -377,10 +377,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 ChatColours.pickColour(this, new UserHandler("#internal#", channel));
             }
         }
-    }
-
-    public void writeHTML() {
-
     }
 
     public void handleMessage(String rawmessage) {
@@ -424,19 +420,19 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         if (this.purgeURLS) {
             for (String username : Memebot.globalBanList) {
                 if (sender.getUsername().equals(username) && !sender.isModerator()) {
-                    this.sendMessage("/ban " + sender.getUsername());
+                    this.sendMessage("/ban " + sender.getUsername(), channel, null, false);
                 }
             }
 
             for (String message : Memebot.urlBanList) {
                 if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.getUsername() + " 1");
+                    this.sendMessage("/timeout " + sender.getUsername() + " 1", channel, null, false);
                 }
             }
 
             for (String message : Memebot.phraseBanList) {
                 if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.getUsername() + " 1");
+                    this.sendMessage("/timeout " + sender.getUsername() + " 1", channel, null, false);
                 }
             }
         }
@@ -482,7 +478,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             }
         }
 
-        //todo other channel's commands
+        // other channel's commands
         for (ChannelHandler channelHandler : Memebot.joinedChannels) {
             for (String och : this.otherLoadedChannels) {
                 String channel = channelHandler.getBroadcaster();
@@ -501,47 +497,17 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         useWhisper = false;
     }
 
-    /***
-     * @param mesgessage
-     * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
-     */
-    @Deprecated
-    public void sendMessage(String mesgessage) {
-        sendMessage(mesgessage, this.channel, readOnlyUser);
-    }
-
-    /***
-     * @param mesgessage
-     * @param channel
-     * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
-     */
-    @Deprecated
-    public void sendMessage(String mesgessage, String channel) {
-        sendMessage(mesgessage, channel, readOnlyUser);
-    }
-
-    /***
-     * @param mesgessage
-     * @param channel
-     * @param sender
-     * @deprecated Deprecated: This method is deprecated to make sure the whisper feature works with every output
-     */
-    @Deprecated
-    public void sendMessage(String mesgessage, String channel, UserHandler sender) {
-        sendMessage(mesgessage, channel, sender, false);
-    }
-
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper) {
         sendMessage(mesgessage, channel, sender, whisper, false);
     }
 
-    public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat) {
-        sendMessage(mesgessage, channel, sender, whisper, forcechat, false);
+    public void sendMessage(String message, String channel, UserHandler sender, boolean whisper, boolean forcechat) {
+        sendMessage(message, channel, sender, whisper, forcechat, false);
     }
 
-    public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper, boolean forcechat,
+    public void sendMessage(String message, String channel, UserHandler sender, boolean whisper, boolean forcechat,
                             boolean allowIgnored) {
-        String msg = mesgessage;
+        String msg = message;
         if (msg.isEmpty()) {
             return;
         }
@@ -560,14 +526,18 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 "/mod", ".mod"};
         for (String ignoredStr : ignoredMessages) {
             if (msg.startsWith(ignoredStr) && !allowIgnored) {
-                msg.replaceFirst("/", "");
-                msg.replaceFirst(".", "");
+                msg = msg.replaceFirst("/", "");
+                msg = msg.replaceFirst(".", "");
             }
         }
 
         this.currentMessageCount += 1;
         //log to file
         System.out.println("<" + channel + ">" + msg);
+
+        if(sender == null) {
+            sender = new UserHandler("#internal#", this.getChannel());
+        }
 
         // force outut to both chat and whisper
         if (forcechat && (whisper || useWhisper)) {
@@ -660,7 +630,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             currentGame = (String) mongoHandler.getObject("currentgame", currentGame);
             streamTitle = (String) mongoHandler.getObject("currenttitle", streamTitle);
             isLive = (boolean) mongoHandler.getObject("islive", isLive);
-            neededAutogreetCommandPower = (int) mongoHandler.getObject("neededAutogreetCommandPower", isLive);
+            neededAutogreetCommandPower = (int) mongoHandler.getObject("neededAutogreetCommandPower", neededAutogreetCommandPower);
         }
 
         // read commands

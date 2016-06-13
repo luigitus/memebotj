@@ -5,6 +5,7 @@ import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
+import org.json.simple.JSONObject;
 
 /**
  * This file is part of memebotj.
@@ -27,13 +28,22 @@ public class ChannelInfoCommand extends CommandHandler {
                 Memebot.readConfig();
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            getChannelHandler().sendMessage("Is live: " + getChannelHandler().isLive() +
+            JSONObject jsonObject = (JSONObject) getChannelHandler().toJSONObject().get("data");
+
+            String output = "";
+
+            for (Object key : jsonObject.keySet()) {
+                output = output + key.toString() + ": " + jsonObject.get(key).toString() + " || ";
+            }
+            getChannelHandler().sendMessage(output, getChannelHandler().getChannel(), sender, isWhisper());
+
+            /*getChannelHandler().sendMessage("Is live: " + getChannelHandler().isLive() +
                             " || Points per update: " + getChannelHandler().getPointsPerUpdate() +
                             " || Game: " + getChannelHandler().getCurrentGame()
                             + " || Private DB: "
                             + Boolean.toString(Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel()))
                             + " || Current Viewer Count: " + Integer.toString(getChannelHandler().getViewerNumber()),
-                    this.getChannelHandler().getChannel());
+                    this.getChannelHandler().getChannel(), sender, isWhisper());*/
         }
     }
 }

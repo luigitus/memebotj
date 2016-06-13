@@ -52,13 +52,10 @@ public class EditChannelCommand extends CommandHandler {
                 }
             } else if (data[0].equals("allowautogreet")) {
                 getChannelHandler().setAllowAutogreet(!getChannelHandler().isAllowAutogreet());
-                getChannelHandler().sendMessage(String.format("Autogreet set to %s", java.lang.Boolean.toString(getChannelHandler().isAllowAutogreet())), getChannelHandler().getChannel());
             } else if (data[0].equals("maxnamelen")) {
                 getChannelHandler().setMaxFileNameLen(java.lang.Short.parseShort(data[1]));
-                getChannelHandler().sendMessage("Changed max filename length to " + data[1], getChannelHandler().getChannel());
             } else if (data[0].equals("ppi")) {
                 getChannelHandler().setPointsPerUpdate(java.lang.Double.parseDouble(data[1]));
-                getChannelHandler().sendMessage("Changed max ppi to " + data[1], getChannelHandler().getChannel());
             } else if (data[0].equals("purgelinks")) {
                 getChannelHandler().setPurgeURLS(java.lang.Boolean.parseBoolean(data[1]));
             } else if (data[0].equals("linkto")) {
@@ -103,10 +100,13 @@ public class EditChannelCommand extends CommandHandler {
                 getChannelHandler().setNeededAutogreetCommandPower(Integer.parseInt(data[1]));
             }
 
-            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]}, getChannelHandler().getChannel()));
+            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"),
+                    getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]},
+                    getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, false);
             getChannelHandler().writeDB();
         } catch (ArrayIndexOutOfBoundsException e) {
-            getChannelHandler().sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", getChannelHandler(), sender, this,
+                    true, new String[]{}, ""), getChannelHandler().getChannel(), sender, false);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }

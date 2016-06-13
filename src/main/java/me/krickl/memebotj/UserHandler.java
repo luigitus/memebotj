@@ -222,7 +222,7 @@ public class UserHandler implements Comparable<UserHandler> {
         // todo && CommandHandler.checkPermissionsForUser(this,channelHandler.getNeededAutogreetCommandPower(), channelHandler.getNeededAutogreetCommandPower(), channelHandler)
         if (!this.hasAutogreeted && this.enableAutogreets && channelHandler.isAllowAutogreet() && !this.autogreet.equals("")) {
 
-            channelHandler.sendMessage(autogreet, this.channelOrigin, this);
+            channelHandler.sendMessage(autogreet, this.channelOrigin, this, false);
             this.hasAutogreeted = true;
         }
     }

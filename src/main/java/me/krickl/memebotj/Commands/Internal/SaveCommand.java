@@ -23,7 +23,9 @@ public class SaveCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("SAVE"), getChannelHandler(), sender, this, false, new String[]{}, ""), getChannelHandler().getChannel());
+        getChannelHandler().sendMessage(
+                Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("SAVE"), getChannelHandler(),
+                        sender, this, false, new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
         Memebot.saveAll();
     }
 }

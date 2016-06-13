@@ -25,13 +25,13 @@ public class PyramidCommand extends CommandHandler {
             String message = data[0];
             int size = java.lang.Integer.parseInt(data[1]);
             for (int i = 0; i < size; i++) {
-                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender);
+                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender, isWhisper());
                 message = message + " " + data[0];
                 //Thread.sleep(1000)
             }
             int i = size;
             while (i >= 0) {
-                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender);
+                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender, isWhisper());
                 message = message.substring(0, message.length() - data[0].length() - 1);
                 //Thread.sleep(1000)
                 i -= 1;

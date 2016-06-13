@@ -26,12 +26,17 @@ public class JoinCommand extends CommandHandler {
         try {
             for (ChannelHandler channel : Memebot.joinedChannels) {
                 if (channel.getChannel().equals("#" + sender.getUsername().toLowerCase())) {
-                    getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN_FAIL"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
+                    getChannelHandler().sendMessage(
+                            Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN_FAIL"),
+                                    getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""),
+                            getChannelHandler().getChannel(), sender, isWhisper());
                     return;
                 }
             }
             Memebot.joinChannel("#" + sender.getUsername());
-            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("JOIN"),
+                    getChannelHandler(), sender, this, false, new String[]{sender.getUsername()}, ""), getChannelHandler().getChannel(),
+                    sender, isWhisper());
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }

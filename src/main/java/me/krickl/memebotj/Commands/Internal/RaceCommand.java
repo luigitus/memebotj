@@ -28,9 +28,11 @@ public class RaceCommand extends CommandHandler {
             for (String i : data) {
                 getChannelHandler().setCurrentRaceURL(getChannelHandler().getCurrentRaceURL() + "/" + i);
             }
-            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(), sender);
+            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(),
+                    sender, isWhisper());
         } else {
-            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(), sender);
+            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(),
+                    sender, isWhisper());
         }
     }
 }

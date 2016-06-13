@@ -35,7 +35,7 @@ public class EdituserCommand extends CommandHandler {
 
             if (uh.isNewUser() && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
                 getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_NEVER_JOINED", getChannelHandler(), sender,
-                        this, true, new String[]{data[1]}, ""), this.getChannelHandler().getChannel());
+                        this, true, new String[]{data[1]}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
                 return;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -48,7 +48,7 @@ public class EdituserCommand extends CommandHandler {
 
                 if ((newCP + uh.getAutoCommandPower()) > sender.getCommandPower()) {
                     getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_FAILED_UP", getChannelHandler(), sender,
-                            this, true, new String[]{}, ""), this.getChannelHandler().getChannel());
+                            this, true, new String[]{}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
                     return;
                 }
                 uh.setCustomCommandPower(java.lang.Integer.parseInt(data[2]));
@@ -58,7 +58,7 @@ public class EdituserCommand extends CommandHandler {
 
                 if (success) {
                     getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_UP", getChannelHandler(), sender,
-                            this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
+                            this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
                 }
 
             } else if (data[0].equals("save") && checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
@@ -67,7 +67,7 @@ public class EdituserCommand extends CommandHandler {
                 getChannelHandler().sendMessage(sender.getOauth(), this.getChannelHandler().getChannel(), sender, true);
             } else if (data[0].equals("restlogin")) {
                 getChannelHandler().sendMessage(Memebot.formatText("EDIT_USER_RESETLOGIN", getChannelHandler(),
-                        sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel());
+                        sender, this, true, new String[]{data[2]}, ""), this.getChannelHandler().getChannel(), sender, isWhisper());
 
                 sender.setOauth(sender.resetOAuth());
                 sender.setAPIKey(sender.resetOAuth());

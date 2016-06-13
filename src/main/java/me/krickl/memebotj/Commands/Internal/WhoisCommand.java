@@ -35,12 +35,12 @@ public class WhoisCommand extends CommandHandler {
             }
 
             if (uh.isNewUser()) {
-                getChannelHandler().sendMessage(Memebot.formatText("WHOIS_NEW_USER", getChannelHandler(), sender, this, true, new String[]{sender.screenName()}, ""), getChannelHandler().getChannel());
+                getChannelHandler().sendMessage(
+                        Memebot.formatText("WHOIS_NEW_USER", getChannelHandler(), sender, this, true,
+                                new String[]{sender.screenName()}, ""), getChannelHandler().getChannel(), sender, isWhisper());
             }
 
             if (!user.equals("fniure")) {
-                // todo make it render json of user object
-
                 // get json
                 JSONObject jsonObject = (JSONObject) uh.toJSONObject().get("data");
 
@@ -71,7 +71,8 @@ public class WhoisCommand extends CommandHandler {
                         + "|| Is user a bad girl/boy: " + Boolean.toString(swears)
                         + "|| Jackpot wins: " + Integer.toString(sender.getJackpotWins()), this.getChannelHandler().getChannel(), sender); */
             } else {
-                getChannelHandler().sendMessage("Who the **** is even fniure? Last time I checked ennopp had wr and wss the best.");
+                getChannelHandler().sendMessage("Who the **** is even fniure? Last time I checked ennopp had wr and wss the best."
+                , getChannelHandler().getChannel(), sender, isWhisper());
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();

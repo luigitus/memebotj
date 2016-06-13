@@ -25,25 +25,29 @@ public class HelpCommand extends CommandHandler {
         try {
             CommandRefernce j = getChannelHandler().findCommandReferneceForString(data[0], getChannelHandler().getChannelCommands());
             if (j != null) {
-                getChannelHandler().sendMessage(j.getCH().getHelptext(), getChannelHandler().getChannel());
+                getChannelHandler().sendMessage(j.getCH().getHelptext(), getChannelHandler().getChannel(), sender, isWhisper());
                 return;
             }
             for (CommandHandler ch : getChannelHandler().getInternalCommands()) {
                 if (ch.getCommandName().equals(data[0])) {
                     if (ch.getHelptext().equals("null")) {
-                        getChannelHandler().sendMessage(Memebot.formatText("HELP_NOT_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
+                        getChannelHandler().sendMessage(Memebot.formatText("HELP_NOT_FOUND", getChannelHandler(),
+                                sender, this, true, new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
                     } else {
-                        getChannelHandler().sendMessage(ch.getHelptext(), getChannelHandler().getChannel());
+                        getChannelHandler().sendMessage(ch.getHelptext(), getChannelHandler().getChannel(), sender, isWhisper());
                     }
                     return;
                 }
             }
-            getChannelHandler().sendMessage(Memebot.formatText("HELP_NOT_FOUND", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText("HELP_NOT_FOUND", getChannelHandler(), sender, this,
+                    true, new String[]{}, ""), getChannelHandler().getChannel(), sender, isWhisper());
         } catch (ArrayIndexOutOfBoundsException e) {
             if (Memebot.useWeb) {
-                getChannelHandler().sendMessage(Memebot.webBaseURL + "/help", getChannelHandler().getChannel());
+                getChannelHandler().sendMessage(Memebot.webBaseURL + "/help", getChannelHandler().getChannel(), sender, isWhisper());
             } else {
-                getChannelHandler().sendMessage(Memebot.formatText("HELP_SYNTAX", getChannelHandler(), sender, this, true, new String[]{"!help <command>"}, getChannelHandler().getChannel()));
+                getChannelHandler().sendMessage(Memebot.formatText("HELP_SYNTAX", getChannelHandler(), sender, this,
+                        true, new String[]{"!help <command>"}, getChannelHandler().getChannel()),
+                        getChannelHandler().getChannel(), sender, isWhisper());
             }
         }
     }

@@ -24,12 +24,18 @@ public class HugCommand extends CommandHandler {
     public void commandScript(UserHandler sender, String[] data) {
         try {
             if (data[0].contains(Memebot.botNick)) {
-                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_BOT"), getChannelHandler(), sender, this, false, new String[]{}, getChannelHandler().getChannel()));
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_BOT"),
+                        getChannelHandler(), sender, this, false, new String[]{}, getChannelHandler().getChannel()),
+                        getChannelHandler().getChannel(), sender, isWhisper());
             } else {
-                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_SOMEONE"), getChannelHandler(), sender, this, false, new String[]{sender.screenName(), data[0]}, getChannelHandler().getChannel()));
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_SOMEONE"),
+                        getChannelHandler(), sender, this, false, new String[]{sender.screenName(), data[0]},
+                        getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, isWhisper());
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_NOBODY"), getChannelHandler(), sender, this, false, new String[]{sender.screenName()}, ""), getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_NOBODY"),
+                    getChannelHandler(), sender, this, false, new String[]{sender.screenName()}, ""),
+                    getChannelHandler().getChannel(), sender, isWhisper());
         }
     }
 }

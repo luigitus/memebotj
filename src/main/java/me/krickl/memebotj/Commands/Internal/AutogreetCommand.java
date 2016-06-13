@@ -40,9 +40,11 @@ public class AutogreetCommand extends CommandHandler {
                 if (!user.isNewUser()) {
                     user.setAutogreet(newValue);
                     user.writeDB();
-                    message = Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_ADDED"), getChannelHandler(), sender, this, false, new String[]{}, "");
+                    message = Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_ADDED"),
+                            getChannelHandler(), sender, this, false, new String[]{}, "");
                 } else {
-                    message = Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_FAILED"), getChannelHandler(), sender, this, false, new String[]{}, "");
+                    message = Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_FAILED"),
+                            getChannelHandler(), sender, this, false, new String[]{}, "");
                 }
             } else if (data[0].equals("remove") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                 if (!user.isNewUser()) {
@@ -52,13 +54,21 @@ public class AutogreetCommand extends CommandHandler {
                 }
             } else if (data[0].equals("get")) {
                 if (!user.isNewUser()) {
-                    getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_GET"), getChannelHandler(), sender, this, false, new String[]{user.getUsername(), user.getAutogreet()}, getChannelHandler().getChannel()));
+                    getChannelHandler().sendMessage(
+                            Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_GET"),
+                                    getChannelHandler(), sender, this, false, new String[]{user.getUsername(), user.getAutogreet()},
+                                    getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, isWhisper());
                 }
             } else if (data[0].equals("toggle")) {
                 sender.setEnableAutogreets(!sender.isEnableAutogreets());
-                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_TOGGLE"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), Boolean.toString(sender.isEnableAutogreets())}, getChannelHandler().getChannel()));
+                getChannelHandler().sendMessage(
+                        Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("AUTOGREET_TOGGLE"),
+                                getChannelHandler(), sender, this, false, new String[]{sender.getUsername(),
+                                        Boolean.toString(sender.isEnableAutogreets())}, getChannelHandler().getChannel()),
+                        getChannelHandler().getChannel(), sender, isWhisper());
             }
-            getChannelHandler().sendMessage(message, getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(message, getChannelHandler().getChannel(),
+                    sender, isWhisper());
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
