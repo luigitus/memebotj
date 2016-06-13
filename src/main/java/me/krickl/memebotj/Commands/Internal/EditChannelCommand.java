@@ -98,6 +98,8 @@ public class EditChannelCommand extends CommandHandler {
                 getChannelHandler().setLive(Boolean.parseBoolean(data[1]));
             } else if (data[0].equals("autogreetpower")) {
                 getChannelHandler().setNeededAutogreetCommandPower(Integer.parseInt(data[1]));
+            } else if (data[0].equals("discord")) {
+                getChannelHandler().setDiscordChannel(newEntry);
             }
 
             getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"),

@@ -8,6 +8,7 @@ import de.btobastian.javacord.listener.message.MessageCreateListener;
 import me.krickl.memebotj.ChannelHandler;
 import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Exceptions.LoginException;
+import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Utility.MessagePackage;
 
 import java.io.IOException;
@@ -36,8 +37,17 @@ public class DiscordConnectionHandler implements ConnectionInterface {
         api.registerListener(new MessageCreateListener() {
             @Override
             public void onMessageCreate(DiscordAPI api, Message message) {
-                if(message.getContent().equals("!hello")) {
-                    message.reply("world");
+
+                // todo make this less hacky and shit
+                for(ChannelHandler channelHandler : Memebot.joinedChannels) {
+                    System.out.print(message.getChannelReceiver().getServer().getId() + " " + channelHandler.getDiscordChannel() + "\n");
+                    if(channelHandler.getDiscordChannel().contains(message.getChannelReceiver().getServer().getId())) {
+                        String msg = channelHandler.handleMessage("@badges=;color=#4EBD3A;display-name=#readonly#;emotes=;" +
+                                "mod=0;room-id=-1;subscriber=0;turbo=0;user-id=-1;user-type= :#readonly#!#readonly#@#readonly#." +
+                                "tmi.twitch.tv PRIVMSG #discord# :" + message.getContent());
+
+                        message.reply(msg);
+                    }
                 }
             }
         });

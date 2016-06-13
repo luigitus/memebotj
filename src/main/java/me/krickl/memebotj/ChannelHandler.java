@@ -120,6 +120,12 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     private String botMode = "";
 
+    private String discordChannel = "";
+
+    private boolean useDiscord = false;
+
+    private String lastMessage = "";
+
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
         this.connection = connection;
@@ -384,19 +390,21 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         }
     }
 
-    public void handleMessage(String rawmessage) {
+    public String handleMessage(String rawmessage) {
+        lastMessage = "";
+
         useWhisper = false;
         MessagePackage msgPackage = connection.handleMessage(rawmessage, this);
 
         if (msgPackage == null) {
-            return;
+            return lastMessage;
         }
         msgPackage.handleAlias(aliasList);
 
         // if channel does not match ignore the message
-        if (!msgPackage.channel.equals(this.channel)) {
+        if (!msgPackage.channel.equals(this.channel) && !msgPackage.channel.equals("#discord#")) {
             // todo send message to the right channel
-            return;
+            return lastMessage;
         }
 
         if (msgPackage.messageType.equals("WHISPER")) {
@@ -408,9 +416,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         UserHandler sender = msgPackage.sender;
         String msgType = msgPackage.messageType;
 
+        // todo so bad
+        if (msgPackage.channel.equals("#discord#")) {
+            useDiscord = true;
+        }
+
         if (!msgType.equals("PRIVMSG")) {
             useWhisper = false;
-            return;
+            return lastMessage;
         }
 
         //log chat content
@@ -500,6 +513,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         //set user activity
         //sender.setTimeSinceActivity(System.currentTimeMillis())
         useWhisper = false;
+        useDiscord = false;
+
+        return lastMessage;
     }
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper) {
@@ -522,6 +538,12 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         if (this.silentMode) {
             return;
         }
+        if (useDiscord) {
+            // todo holy this is hacky
+            lastMessage = lastMessage + message + "\n";
+            return;
+        }
+
         if (this.currentMessageCount >= me.krickl.memebotj.Memebot.messageLimit) {
             log.warning("Reached global message limit for 30 seconds. try again later");
             this.preventMessageCooldown.startCooldown();
@@ -636,6 +658,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
             streamTitle = (String) mongoHandler.getObject("currenttitle", streamTitle);
             isLive = (boolean) mongoHandler.getObject("islive", isLive);
             neededAutogreetCommandPower = (int) mongoHandler.getObject("neededAutogreetCommandPower", neededAutogreetCommandPower);
+            discordChannel = (String) mongoHandler.getObject("discordChannel", discordChannel);
         }
 
         // read commands
@@ -684,6 +707,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         mongoHandler.updateDocument("currenttitle", streamTitle);
         mongoHandler.updateDocument("islive", isLive);
         mongoHandler.updateDocument("neededAutogreetCommandPower", neededAutogreetCommandPower);
+        mongoHandler.updateDocument("discordChannel", discordChannel);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -786,6 +810,14 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setGame(Game game) {
         this.game = game;
+    }
+
+    public String getDiscordChannel() {
+        return discordChannel;
+    }
+
+    public void setDiscordChannel(String discordChannel) {
+        this.discordChannel = discordChannel;
     }
 
     public Cooldown getUpdateCooldown() {
