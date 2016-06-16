@@ -1,18 +1,20 @@
-package me.krickl.memebotj;
+package me.krickl.memebotj.Channel;
 
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.ConnectionInterface;
-import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.Connection.TMI.IRCConnectionHandler;
 import me.krickl.memebotj.Database.DatabaseInterface;
 import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.JSONInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
+import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.Game;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.ChatColours;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
@@ -38,100 +40,98 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
     // todo old db code - remove soon
     //private MongoCollection<Document> channelCollection = null;
-    DatabaseInterface mongoHandler = null;
-    private BufferedWriter writer = null;
-    private int nextID = 0;
-    private String channel = "";
-    private ConnectionInterface connection = null;
-    private String broadcaster = this.channel.replace("#", "");
-    private HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
-    private Cooldown updateCooldown = new Cooldown(600);
-    private Cooldown shortUpdateCooldown = new Cooldown(60);
-    private ArrayList<CommandReference> channelCommands = new ArrayList<CommandReference>();
-    private ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
+    protected DatabaseInterface mongoHandler = null;
+    protected BufferedWriter writer = null;
+    protected int nextID = 0;
+    protected String channel = "";
+    protected ConnectionInterface connection = null;
+    protected String broadcaster = this.channel.replace("#", "");
+    protected HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
+    protected Cooldown updateCooldown = new Cooldown(600);
+    protected Cooldown shortUpdateCooldown = new Cooldown(60);
+    protected ArrayList<CommandReference> channelCommands = new ArrayList<CommandReference>();
+    protected ArrayList<CommandHandler> internalCommands = new ArrayList<CommandHandler>();
     //this is a collection of channel command namaes
-    private String followerNotification = "";
-    private String raceBaseURL = "http://kadgar.net/live";
-    private String greetMessage = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz";
-    private String currentRaceURL = "";
-    private ArrayList<String> fileNameList = new ArrayList<>();
-    private int maxFileNameLen = 8;
-    private String currentFileName = "";
-    private long streamStartTime = 0;
-    private String local = Memebot.defaultLocal.getLocal();
-    private String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
-    private String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
-    private ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
-    private double pointsPerUpdate = 1.0f;
-    private Thread t = null;
-    private boolean isJoined = true;
-    private boolean allowAutogreet = true;
-    private boolean isLive = false;
-    private int currentMessageCount = 0;
-    private Cooldown messageLimitCooldown = new Cooldown(30);
-    private Cooldown preventMessageCooldown = new Cooldown(30);
-    private String streamTitle = "";
-    private String currentGame = "Not Playing";
-    private SecureRandom random = new SecureRandom();
-    private boolean purgeURLS = false;
-    private boolean givePointsWhenOffline = false;
+    protected String followerNotification = "";
+    protected String raceBaseURL = "http://kadgar.net/live";
+    protected String greetMessage = "Hello I'm {botnick} {version} the dankest irc bot ever RitzMitz";
+    protected String currentRaceURL = "";
+    protected ArrayList<String> fileNameList = new ArrayList<>();
+    protected int maxFileNameLen = 8;
+    protected String currentFileName = "";
+    protected long streamStartTime = 0;
+    protected String local = Memebot.defaultLocal.getLocal();
+    protected String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
+    protected String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
+    protected ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
+    protected double pointsPerUpdate = 1.0f;
+    protected Thread t = null;
+    protected boolean isJoined = true;
+    protected boolean allowAutogreet = true;
+    protected boolean isLive = false;
+    protected int currentMessageCount = 0;
+    protected Cooldown messageLimitCooldown = new Cooldown(30);
+    protected Cooldown preventMessageCooldown = new Cooldown(30);
+    protected String streamTitle = "";
+    protected String currentGame = "Not Playing";
+    protected SecureRandom random = new SecureRandom();
+    protected boolean purgeURLS = false;
+    protected boolean givePointsWhenOffline = false;
 
-    private int linkTimeout = 1;
+    protected int linkTimeout = 1;
 
-    private UserHandler broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
-    private File htmlDirF = new File(this.htmlDir);
-    private UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel, "#readonly#");
-    private boolean allowGreetMessage = false;
+    protected File htmlDirF = new File(this.htmlDir);
+    protected UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel);
+    protected boolean allowGreetMessage = false;
 
-    private double maxPoints = 100000.0f;
+    protected double maxPoints = 100000.0f;
 
-    private double startingPoints = 50.0f;
+    protected double startingPoints = 50.0f;
 
-    private String currencyName = "points";
-    private String currencyEmote = "points";
-    private String followAnnouncement = "";
-    private int maxScreenNameLen = 15;
-    private int maxAmountOfNameInList = 25;
-    private double pointsTax = 0.0f;
-    private UserObject user;
-    private Game game;
-    private boolean silentMode = false;
-    private Localisation localisation = new Localisation(this.local);
-    private String bgImage = "";
+    protected String currencyName = "points";
+    protected String currencyEmote = "points";
+    protected String followAnnouncement = "";
+    protected int maxScreenNameLen = 15;
+    protected int maxAmountOfNameInList = 25;
+    protected double pointsTax = 0.0f;
+    protected UserObject user;
+    protected Game game;
+    protected boolean silentMode = false;
+    protected Localisation localisation = new Localisation(this.local);
+    protected String bgImage = "";
 
-    private boolean useWhisper = false;
-    private Cooldown reconnectCooldown = new Cooldown(40);
-    private String itemDrops = "mm";
-    private String uptimeString = "";
+    protected boolean useWhisper = false;
+    protected Cooldown reconnectCooldown = new Cooldown(40);
+    protected String itemDrops = "mm";
+    protected String uptimeString = "";
 
-    private boolean useAlias = true;
+    protected boolean useAlias = true;
 
-    private boolean pointsUpdateDone = false;
+    protected boolean pointsUpdateDone = false;
 
-    private boolean useRotatingColours = false;
+    protected boolean useRotatingColours = false;
 
-    private Document aliasList = new Document();
+    protected Document aliasList = new Document();
 
-    private Cooldown longUpdateCooldown = new Cooldown(600, 0);
+    protected Cooldown longUpdateCooldown = new Cooldown(600, 0);
 
-    private boolean overrideChannelInformation = false;
+    protected boolean overrideChannelInformation = false;
 
-    private int neededAutogreetCommandPower = 25;
+    protected int neededAutogreetCommandPower = 25;
 
-    private String botMode = "";
+    protected String botMode = "";
 
-    private String discordChannel = "";
+    protected String discordChannel = "";
 
-    private boolean useDiscord = false;
+    protected boolean useDiscord = false;
 
-    private String lastMessage = "";
+    protected String lastMessage = "";
 
     public ChannelHandler(String channel, ConnectionInterface connection) {
         this.channel = channel;
         this.connection = connection;
         this.broadcaster = this.channel.replace("#", "");
-        broadcasterHandler = new UserHandler(this.broadcaster, this.channel);
-        readOnlyUser = new UserHandler("#readonly#", this.channel, "#readonly#");
+        readOnlyUser = new UserHandler("#readonly#", this.channel);
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
@@ -146,12 +146,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        broadcasterHandler.setUserBroadcaster(true);
-
-        broadcasterHandler.setModerator(true);
-
-        this.userList.put(this.broadcaster, broadcasterHandler);
         this.userList.put("#readonly#", readOnlyUser);
 
         if (!htmlDirF.exists()) {
@@ -212,7 +206,9 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 
         CommandHandler issueCommand = new CommandHandler(this, "!issue", "#internal#");
-        issueCommand.editCommand("output", "{sender}: Having issues? Write a bugreport at https://github.com/unlink2/memebotj/issues", new UserHandler("#internal#", this.channel));
+        issueCommand.editCommand("output", "{sender}: Having issues? Write a " +
+                "bugreport at https://github.com/unlink2/memebotj/issues",
+                new UserHandler("#internal#", this.channel));
         this.internalCommands.add(issueCommand);
 
         CommandHandler annoyingDog = new CommandHandler(this, "AnnoyingZ", "#internal#");
@@ -241,48 +237,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public void partChannel(String channel) {
-        this.connection.sendMessageBytes("PART " + channel + "\n");
-        boolean isInList = false;
-        ChannelHandler removeThisCH = null;
-        for (ChannelHandler ch : Memebot.joinedChannels) {
-            if (ch.getChannel().equalsIgnoreCase(channel)) {
-                isInList = true;
-                removeThisCH = ch;
-                break;
-            }
-        }
 
-        if (isInList && removeThisCH != null) {
-            Memebot.joinedChannels.remove(removeThisCH);
-            new File(Memebot.memebotDir + "/channels/" + channel).delete();
-
-        }
-        this.sendMessage("Leaving channel :(", this.channel, null, false);
-        this.isJoined = false;
-        this.t.interrupt();
-        this.connection.close();
-        Memebot.joinedChannels.remove(removeThisCH);
     }
 
-    private void joinChannel(String channel) {
-        this.connection.sendMessageBytes("JOIN " + channel + "\n");
-        boolean isInList = false;
+    protected void joinChannel(String channel) {
 
-        for (ChannelHandler ch : Memebot.joinedChannels) {
-            if (ch.getChannel().equalsIgnoreCase(channel)) {
-                isInList = true;
-                break;
-            }
-        }
-
-        if (!isInList) {
-            try {
-                new File(Memebot.memebotDir + "/channels/" + channel).createNewFile();
-            } catch (IOException e) {
-                log.warning(e.toString());
-            }
-        }
-        this.isJoined = true;
     }
 
     @Override
@@ -391,131 +350,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
     }
 
     public String handleMessage(String rawmessage) {
-        lastMessage = "";
-
-        useWhisper = false;
-        MessagePackage msgPackage = connection.handleMessage(rawmessage, this);
-
-        if (msgPackage == null) {
-            return lastMessage;
-        }
-        msgPackage.handleAlias(aliasList);
-
-        // if channel does not match ignore the message
-        if (!msgPackage.channel.equals(this.channel) && !msgPackage.channel.equals("#discord#")) {
-            // todo send message to the right channel
-            return lastMessage;
-        }
-
-        if (msgPackage.messageType.equals("WHISPER")) {
-            useWhisper = true;
-            msgPackage.messageType = "PRIVMSG";
-        }
-
-        String[] msgContent = msgPackage.messageContent;
-        UserHandler sender = msgPackage.sender;
-        String msgType = msgPackage.messageType;
-
-        // todo so bad
-        if (msgPackage.channel.equals("#discord#")) {
-            useDiscord = true;
-        }
-
-        if (!msgType.equals("PRIVMSG")) {
-            useWhisper = false;
-            return lastMessage;
-        }
-
-        //log chat content
-        String messageString = "";
-        for (String msg : msgContent) {
-            messageString = messageString + msg + " ";
-        }
-        System.out.println("<" + channel + ">" + sender.getUsername() + ": " + messageString);
-
-        String msg = msgContent[0];
-        String[] data = java.util.Arrays.copyOfRange(msgContent, 0, msgContent.length);
-        if (this.purgeURLS) {
-            for (String username : Memebot.globalBanList) {
-                if (sender.getUsername().equals(username) && !sender.isModerator()) {
-                    this.sendMessage("/ban " + sender.getUsername(), channel, null, false);
-                }
-            }
-
-            for (String message : Memebot.urlBanList) {
-                if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.getUsername() + " 1", channel, null, false);
-                }
-            }
-
-            for (String message : Memebot.phraseBanList) {
-                if (rawmessage.contains(message)) {
-                    this.sendMessage("/timeout " + sender.getUsername() + " 1", channel, null, false);
-                }
-            }
-        }
-
-        CommandHandler ch = null;
-        CommandReference cr = null;
-
-        //internal text triggers
-        for (String s : msgContent) {
-            ch = this.findCommandForString(s, this.internalCommands);
-
-            if (ch != null) {
-                if (ch.isTextTrigger()) {
-                    ch.executeCommand(sender, new String[]{"", ""});
-                }
-            }
-        }
-
-        //internal commands
-        ch = this.findCommandForString(msg, this.internalCommands);
-        if (ch != null) {
-            if (!ch.isTextTrigger()) {
-                ch.executeCommand(sender, java.util.Arrays.copyOfRange(data, 1, data.length));
-            }
-        }
-
-        //channel commands
-        cr = this.findCommandReferneceForString(msg, this.channelCommands);
-        if (cr != null) {
-            if (!cr.getCH().isTextTrigger()) {
-                cr.executeCommand(sender, data);
-            }
-        }
-
-        //text triggers
-        for (String s : msgContent) {
-            cr = this.findCommandReferneceForString(s, this.channelCommands);
-
-            if (cr != null) {
-                if (cr.getCH().isTextTrigger()) {
-                    cr.executeCommand(sender, new String[]{"", ""});
-                }
-            }
-        }
-
-        // other channel's commands
-        for (ChannelHandler channelHandler : Memebot.joinedChannels) {
-            for (String och : this.otherLoadedChannels) {
-                String channel = channelHandler.getBroadcaster();
-                if (channelHandler.getChannel().equals(och) || channelHandler.getBroadcaster().equals(och)) {
-                    cr = channelHandler.findCommandReferneceForString(msg.replace(och.replace("#", "") + ".", ""),
-                            channelHandler.getChannelCommands());
-                    if (cr != null && msg.contains(channel)) {
-                        cr.executeCommand(readOnlyUser, data);
-                    }
-                }
-            }
-        }
-
-        //set user activity
-        //sender.setTimeSinceActivity(System.currentTimeMillis())
-        useWhisper = false;
-        useDiscord = false;
-
-        return lastMessage;
+        return "";
     }
 
     public void sendMessage(String mesgessage, String channel, UserHandler sender, boolean whisper) {
@@ -528,66 +363,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void sendMessage(String message, String channel, UserHandler sender, boolean whisper, boolean forcechat,
                             boolean allowIgnored) {
-        String msg = message;
-        if (msg.isEmpty()) {
-            return;
-        }
-        if (!this.preventMessageCooldown.canContinue()) {
-            return;
-        }
-        if (this.silentMode) {
-            return;
-        }
-        if (useDiscord) {
-            // todo holy this is hacky
-            lastMessage = lastMessage + message + "\n";
-            return;
-        }
 
-        if (this.currentMessageCount >= me.krickl.memebotj.Memebot.messageLimit) {
-            log.warning("Reached global message limit for 30 seconds. try again later");
-            this.preventMessageCooldown.startCooldown();
-        }
-        // ignore /ignore to avoid people being ignored by the bot
-        String[] ignoredMessages = new String[]{"/ignore", "/color", ".ignore", ".color", ".unmod", "/unmod",
-                "/mod", ".mod"};
-        for (String ignoredStr : ignoredMessages) {
-            if (msg.startsWith(ignoredStr) && !allowIgnored) {
-                msg = msg.replaceFirst("/", "");
-                msg = msg.replaceFirst(".", "");
-            }
-        }
-
-        this.currentMessageCount += 1;
-        //log to file
-        System.out.println("<" + channel + ">" + msg);
-
-        if(sender == null) {
-            sender = new UserHandler("#internal#", this.getChannel());
-        }
-
-        // force outut to both chat and whisper
-        if (forcechat && (whisper || useWhisper)) {
-            if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
-            } else {
-                this.connection.sendMessage("PRIVMSG " + channel + " :" + msg + "\n");
-            }
-        }
-
-        if (!whisper && !useWhisper) {
-            if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage("PRIVMSG " + sender.getChannelOrigin() + " : " + msg + "\n");
-            } else {
-                this.connection.sendMessage("PRIVMSG " + channel + " :" + msg + "\n");
-            }
-        } else {
-            if (sender.getUsername().equals("#readonly#")) {
-                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " <" + sender.getChannelOrigin() + "> " + msg + "\n");
-            } else {
-                this.connection.sendMessage("PRIVMSG #jtv :/w " + sender.getUsername() + " <" + channel + "> " + msg + "\n");
-            }
-        }
     }
 
     public CommandReference findCommandReferneceForString(String command, ArrayList<CommandReference> commands) {
@@ -1082,14 +858,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     public void setLinkTimeout(int linkTimeout) {
         this.linkTimeout = linkTimeout;
-    }
-
-    public UserHandler getBroadcasterHandler() {
-        return broadcasterHandler;
-    }
-
-    public void setBroadcasterHandler(UserHandler broadcasterHandler) {
-        this.broadcasterHandler = broadcasterHandler;
     }
 
     public File getHtmlDirF() {

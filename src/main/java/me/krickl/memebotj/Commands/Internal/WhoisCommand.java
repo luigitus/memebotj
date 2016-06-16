@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import org.json.simple.JSONObject;
 
@@ -47,7 +47,9 @@ public class WhoisCommand extends CommandHandler {
                 String output = "";
 
                 for (Object key : jsonObject.keySet()) {
-                    output = output + key.toString() + ": " + jsonObject.get(key).toString() + " || ";
+                    if(key != null) {
+                        output = output + key.toString() + ": " + jsonObject.getOrDefault(key, "null").toString() + " || ";
+                    }
                 }
                 getChannelHandler().sendMessage(output, getChannelHandler().getChannel(), sender, isWhisper());
 

@@ -1,9 +1,10 @@
-package me.krickl.memebotj.Connection;
+package me.krickl.memebotj.Connection.TMI;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.MessagePackage;
@@ -117,6 +118,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public MessagePackage handleMessage(String rawircmsg, ChannelHandler channelHandler) {
         String senderName = "";
+        String senderID = "";
         HashMap<String, String> ircTags = new HashMap<String, String>();
         String[] msgContent = {""};
         String[] ircmsgBuffer = rawircmsg.split(" ");
@@ -182,6 +184,8 @@ public class IRCConnectionHandler implements ConnectionInterface {
             }
             i += 1;
         }
+        senderID = ircTags.get("user-id");
+
         if (!channelHandler.getUserList().containsKey(senderName) && !senderName.isEmpty()) {
             UserHandler newUser = new UserHandler(senderName, channelHandler.getChannel());
             channelHandler.getUserList().put(senderName, newUser);

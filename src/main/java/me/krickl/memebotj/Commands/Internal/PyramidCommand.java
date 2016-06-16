@@ -1,8 +1,8 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 
 /**

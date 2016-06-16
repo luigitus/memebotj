@@ -1,7 +1,7 @@
 package me.krickl.memebotj.Twitch;
 
 import com.google.gson.JsonSyntaxException;
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Twitch.Model.Channel;
 import me.krickl.memebotj.Twitch.Model.KrakenRoot;

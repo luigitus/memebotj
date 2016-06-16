@@ -26,11 +26,15 @@ public class MongoHandler implements DatabaseInterface<Document> {
     }
 
     public boolean readDatabase(String id) throws DatabaseReadException {
-        Document query = new Document("_id", id);
+        return readDatabase(id, "_id");
+    }
+
+    public boolean readDatabase(String id, String key) throws DatabaseReadException {
+        Document query = new Document(key, id);
         FindIterable cursor = this.collection.find(query);
         document = (Document) cursor.first();
 
-        log.info("Reading db for id " + id);
+        log.info("Reading db for id: " + id + " key: " + key);
 
         // todo implement the read - data is stored in contents
         if (document == null) {
@@ -41,11 +45,15 @@ public class MongoHandler implements DatabaseInterface<Document> {
         return true;
     }
 
-    //make sure to set document first
     public boolean writeDatabase(String id) {
-        Document query = new Document("_id", id);
+        return writeDatabase(id, "_id");
+    }
 
-        log.info("Writing db for id " + id);
+    //make sure to set document first
+    public boolean writeDatabase(String id, String key) {
+        Document query = new Document(key, id);
+
+        log.info("Writing db for id: " + id + " key: " + key);
 
         try {
             if (this.collection.findOneAndReplace(query, document) == null) {

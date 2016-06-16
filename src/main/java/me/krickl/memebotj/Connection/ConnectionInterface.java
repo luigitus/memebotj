@@ -1,6 +1,6 @@
 package me.krickl.memebotj.Connection;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Utility.MessagePackage;
 

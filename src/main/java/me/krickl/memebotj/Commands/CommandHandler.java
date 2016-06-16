@@ -1,12 +1,12 @@
 package me.krickl.memebotj.Commands;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.JSONInterface;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
@@ -742,7 +742,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public void update() {
         if (isCommandType("timer") && (channelHandler.isLive() || Memebot.debug) && timerCooldown.canContinue()) {
             String[] newArray = new String[0];
-            this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel(), "#internal#"), newArray);
+            this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel()), newArray);
             timerCooldown.startCooldown();
         }
     }

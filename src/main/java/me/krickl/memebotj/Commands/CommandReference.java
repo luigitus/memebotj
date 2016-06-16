@@ -1,7 +1,7 @@
 package me.krickl.memebotj.Commands;
 
-import me.krickl.memebotj.ChannelHandler;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.User.UserHandler;
 
 
 // todo this class needs to be used instead of commandhandlers to have a refrence. it'll make sure to load/unload

@@ -1,11 +1,11 @@
 package me.krickl.memebotj.Web;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bson.Document;
 import org.json.simple.JSONObject;

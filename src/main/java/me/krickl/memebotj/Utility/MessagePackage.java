@@ -1,6 +1,6 @@
 package me.krickl.memebotj.Utility;
 
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import org.bson.Document;
 
 import java.util.ArrayList;

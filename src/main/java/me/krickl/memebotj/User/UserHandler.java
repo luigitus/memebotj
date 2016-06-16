@@ -1,7 +1,9 @@
-package me.krickl.memebotj;
+package me.krickl.memebotj.User;
 
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.apache.commons.codec.binary.Base64;
@@ -21,6 +23,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 06/04/16.
  */
+@Deprecated
 public class UserHandler implements Comparable<UserHandler> {
     public static Logger log = Logger.getLogger(UserHandler.class.getName());
     private boolean isModerator = false;
@@ -67,14 +70,17 @@ public class UserHandler implements Comparable<UserHandler> {
     private boolean isActive = true;
     private Cooldown idleCooldown = new Cooldown(1200);
 
+    // todo remove userhandler identification by id (omg why)
     public UserHandler(String username, String channelOrigin) {
-        this(username, channelOrigin, username);
-    }
-
-    public UserHandler(String username, String channelOrigin, String id) {
-        this.username = username;
         this.channelOrigin = channelOrigin;
-        this.id = id;
+        this.id = "";
+        this.username = username;
+        if(username.equals(channelOrigin.replace("#", ""))) {
+            setModerator(true);
+            setUserBroadcaster(true);
+            setCommandPower(CommandPower.broadcasterAbsolute);
+        }
+
         //userInventory = new Inventory(username, channelOrigin, this);
 
         if (Memebot.useMongo) {
@@ -120,12 +126,25 @@ public class UserHandler implements Comparable<UserHandler> {
 
         try {
             mongoHandler.readDatabase(this.username);
-        } catch (DatabaseReadException | IllegalArgumentException e) {
-            log.warning(e.toString());
+        } catch (DatabaseReadException | IllegalArgumentException e1) {
+            log.warning(e1.toString());
             this.newUser = true;
-            return;
         }
 
+        /*try {
+            mongoHandler.readDatabase(this.id, "_id_new");
+        } catch (DatabaseReadException | IllegalArgumentException e) {
+            try {
+                mongoHandler.readDatabase(this.username);
+            } catch (DatabaseReadException | IllegalArgumentException e1) {
+                log.warning(e1.toString());
+                this.newUser = true;
+            }
+            return;
+        }*/
+
+        this.username = (String) mongoHandler.getObject("_id", this.username);
+        this.id = (String) mongoHandler.getObject("_id_new", this.id);
         this.isModerator = (boolean) mongoHandler.getObject("mod", this.isModerator);
         this.points = (double) mongoHandler.getObject("pointsf", this.points);
         this.autogreet = mongoHandler.getObject("autogreet", this.autogreet).toString();
@@ -614,7 +633,8 @@ public class UserHandler implements Comparable<UserHandler> {
 
         jsonObject.put("points", points);
         jsonObject.put("timeouts", timeouts);
-        jsonObject.put("_id", username);
+        jsonObject.put("_id", id);
+        jsonObject.put("username", username);
         jsonObject.put("_channel", channelOrigin);
         jsonObject.put("joinded_t", timeStampJoined);
         jsonObject.put("joined_str", dateJoined);

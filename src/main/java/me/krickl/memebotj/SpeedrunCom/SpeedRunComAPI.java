@@ -1,6 +1,6 @@
 package me.krickl.memebotj.SpeedrunCom;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.Games;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;

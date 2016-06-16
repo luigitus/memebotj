@@ -12,8 +12,10 @@ import java.util.ArrayList;
  */
 public interface DatabaseInterface<T> {
 
+    boolean readDatabase(String id, String key) throws DatabaseReadException;
     boolean readDatabase(String id) throws DatabaseReadException;
 
+    boolean writeDatabase(String id, String key);
     boolean writeDatabase(String id);
 
     boolean removeDatabase(String id);

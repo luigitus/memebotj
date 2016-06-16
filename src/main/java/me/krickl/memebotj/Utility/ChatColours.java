@@ -1,7 +1,7 @@
 package me.krickl.memebotj.Utility;
 
-import me.krickl.memebotj.ChannelHandler;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.User.UserHandler;
 
 import java.security.SecureRandom;
 

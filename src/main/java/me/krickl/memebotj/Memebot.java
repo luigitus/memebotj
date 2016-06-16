@@ -3,13 +3,16 @@ package me.krickl.memebotj;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.Channel.TMIChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.Discord.DiscordConnectionHandler;
-import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.Connection.TMI.IRCConnectionHandler;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Localisation;
@@ -239,11 +242,11 @@ public class Memebot {
                 connectionInterface = new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport,
                         loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", ""));
 
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), connectionInterface);
+                ChannelHandler newChannel = new TMIChannelHandler(channel.replace("\n\r", ""), connectionInterface);
                 newChannel.start();
                 joinedChannels.add(newChannel);
             } else {
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""), connectionInterface);
+                ChannelHandler newChannel = new TMIChannelHandler(channel.replace("\n\r", ""), connectionInterface);
                 newChannel.start();
                 joinedChannels.add(newChannel);
             }
@@ -445,7 +448,7 @@ public class Memebot {
             // random user as parameter
             List<String> keys = new ArrayList<String>(channelHandler.getUserList().keySet());
             UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())),
-                    new UserHandler("#internal#", channelHandler.getChannel(), "#internal#"));
+                    new UserHandler("#internal#", channelHandler.getChannel()));
             if (sender != null && commandHandler != null) {
                 if (commandHandler.checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
                     formattedOutput = formattedOutput.replace("{randomuserall}", randomUH.getUsername());

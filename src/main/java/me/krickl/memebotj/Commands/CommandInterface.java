@@ -1,6 +1,6 @@
 package me.krickl.memebotj.Commands;
 
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 
 /**
  * This file is part of memebotj.
