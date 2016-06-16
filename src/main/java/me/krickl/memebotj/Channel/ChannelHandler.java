@@ -118,8 +118,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     protected int neededAutogreetCommandPower = 25;
 
-    protected String botMode = "";
-
     protected String discordChannel = "";
 
     protected boolean useDiscord = false;
@@ -134,8 +132,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.info("Joining channel " + this.channel);
-
-        botMode = connection.botMode();
 
         try {
             File f = new File(Memebot.memebotDir + "/logs/" + channel + ".log");
