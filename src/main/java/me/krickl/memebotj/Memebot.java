@@ -9,7 +9,7 @@ import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Connection.ConnectionInterface;
 import me.krickl.memebotj.Connection.Discord.DiscordConnectionHandler;
-import me.krickl.memebotj.Connection.TMI.IRCConnectionHandler;
+import me.krickl.memebotj.Connection.TMI.TMIConnectionHandler;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.User.UserHandler;
@@ -231,7 +231,7 @@ public class Memebot {
     public static void joinChannel(String channel) {
         try {
             File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
-            ConnectionInterface connectionInterface = new IRCConnectionHandler(Memebot.ircServer,
+            ConnectionInterface connectionInterface = new TMIConnectionHandler(Memebot.ircServer,
                     Memebot.ircport, Memebot.botNick, Memebot.botPassword);
             if (login.exists()) {
                 ArrayList<String> loginInfo = (ArrayList<String>)
@@ -239,7 +239,7 @@ public class Memebot {
 
                 Memebot.log.info("Found login file for channel " + channel);
 
-                connectionInterface = new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport,
+                connectionInterface = new TMIConnectionHandler(Memebot.ircServer, Memebot.ircport,
                         loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", ""));
 
                 ChannelHandler newChannel = new TMIChannelHandler(channel.replace("\n\r", ""), connectionInterface);

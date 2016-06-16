@@ -2,6 +2,7 @@ package me.krickl.memebotj.Connection.TMI;
 
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.Protocols;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.User.UserHandler;
@@ -22,7 +23,7 @@ import java.util.Scanner;
  * This file is part of memebotj.
  * Created by unlink on 09/04/16.
  */
-public class IRCConnectionHandler implements ConnectionInterface {
+public class TMIConnectionHandler implements ConnectionInterface {
     String server = "";
     String botNick = "";
     String password = "";
@@ -32,7 +33,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
     DataOutputStream outToServer = null;
     boolean debugMode = false;
 
-    public IRCConnectionHandler(String serverNew, int portNew, String botNickNew, String passwordNew) {
+    public TMIConnectionHandler(String serverNew, int portNew, String botNickNew, String passwordNew) {
         server = serverNew;
         botNick = botNickNew;
         password = passwordNew;
@@ -401,7 +402,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
         return true;
     }
 
-    public String botMode() {
-        return "twitch.tmi";
+    public Protocols botMode() {
+        return Protocols.TMI_TWITCH;
     }
 }

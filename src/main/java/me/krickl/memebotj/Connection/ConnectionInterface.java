@@ -27,5 +27,5 @@ public interface ConnectionInterface {
 
     boolean canReceive();
 
-    String botMode();
+    Protocols botMode();
 }

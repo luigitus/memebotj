@@ -4,7 +4,7 @@ import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Commands.Internal.*;
 import me.krickl.memebotj.Connection.ConnectionInterface;
-import me.krickl.memebotj.Connection.TMI.IRCConnectionHandler;
+import me.krickl.memebotj.Connection.TMI.TMIConnectionHandler;
 import me.krickl.memebotj.Database.DatabaseInterface;
 import me.krickl.memebotj.Database.DatabaseObjectInterface;
 import me.krickl.memebotj.Database.JSONInterface;
@@ -18,7 +18,6 @@ import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.ChatColours;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.Localisation;
-import me.krickl.memebotj.Utility.MessagePackage;
 import org.bson.Document;
 import org.json.simple.JSONObject;
 
@@ -283,7 +282,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
                 log.info(e.toString());
                 // fallback in case of login issues - try again
                 if (this.reconnectCooldown.canContinue()) {
-                    this.connection = new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword);
+                    this.connection = new TMIConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword);
                     reconnectCooldown.startCooldown();
                 }
             }

@@ -7,6 +7,7 @@ import de.btobastian.javacord.entities.message.Message;
 import de.btobastian.javacord.listener.message.MessageCreateListener;
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.Protocols;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Utility.MessagePackage;
@@ -93,7 +94,7 @@ public class DiscordConnectionHandler implements ConnectionInterface {
     }
 
     @Override
-    public String botMode() {
-        return "discord";
+    public Protocols botMode() {
+        return Protocols.DISCORD;
     }
 }
