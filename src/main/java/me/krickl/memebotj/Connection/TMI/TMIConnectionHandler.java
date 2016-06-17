@@ -1,7 +1,7 @@
 package me.krickl.memebotj.Connection.TMI;
 
 import me.krickl.memebotj.Channel.ChannelHandler;
-import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Connection.Protocols;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Memebot;
@@ -23,7 +23,7 @@ import java.util.Scanner;
  * This file is part of memebotj.
  * Created by unlink on 09/04/16.
  */
-public class TMIConnectionHandler implements ConnectionInterface {
+public class TMIConnectionHandler implements IConnection {
     String server = "";
     String botNick = "";
     String password = "";

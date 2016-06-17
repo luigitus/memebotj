@@ -2,7 +2,7 @@ package me.krickl.memebotj.Channel;
 
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
-import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.MessagePackage;
@@ -15,7 +15,7 @@ import java.io.IOException;
  * Created by lukas on 6/16/2016.
  */
 public class TMIChannelHandler extends ChannelHandler {
-    public TMIChannelHandler(String channel, ConnectionInterface connection) {
+    public TMIChannelHandler(String channel, IConnection connection) {
         super(channel, connection);
     }
 

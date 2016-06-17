@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * Created by unlink on 17/04/16.
  * This class will eventually handle all db reads/writes to unify that
  */
-public class MongoHandler implements DatabaseInterface<Document> {
+public class MongoHandler implements IDatabase<Document> {
     public static Logger log = Logger.getLogger(MongoHandler.class.getName());
     Document document = new Document();
     private MongoCollection<Document> collection = null;
@@ -88,6 +88,10 @@ public class MongoHandler implements DatabaseInterface<Document> {
     }
 
     public boolean removeDatabase(String id) {
+        return removeDatabase(id, "_id");
+    }
+
+    public boolean removeDatabase(String id, String key) {
         log.info("Removing db for id " + id);
         try {
             if (document != null) {
@@ -95,6 +99,8 @@ public class MongoHandler implements DatabaseInterface<Document> {
             }
         } catch (java.lang.IllegalArgumentException e) {
             log.warning(e.toString());
+
+            return false;
         }
 
         return true;

@@ -28,7 +28,7 @@ public class TwitchAPI implements Runnable {
     private Thread t = null;
     private int updateCycleMinuets = 7;
     private boolean cycleDone = false;
-    private TwitchKraken service;
+    private ITwitchKraken service;
 
     public TwitchAPI() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -55,7 +55,7 @@ public class TwitchAPI implements Runnable {
                 .client(httpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        service = retrofit.create(TwitchKraken.class);
+        service = retrofit.create(ITwitchKraken.class);
     }
 
     public void start() {

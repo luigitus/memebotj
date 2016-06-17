@@ -14,7 +14,7 @@ import retrofit2.http.Path;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public interface TwitchKraken {
+public interface ITwitchKraken {
     @GET("kraken/")
     Call<KrakenRoot> getRoot(@Header("Authorization") String OAuthToken);
 

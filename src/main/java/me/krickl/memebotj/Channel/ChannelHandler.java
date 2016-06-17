@@ -3,11 +3,11 @@ package me.krickl.memebotj.Channel;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Commands.Internal.*;
-import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Connection.TMI.TMIConnectionHandler;
-import me.krickl.memebotj.Database.DatabaseInterface;
-import me.krickl.memebotj.Database.DatabaseObjectInterface;
-import me.krickl.memebotj.Database.JSONInterface;
+import me.krickl.memebotj.Database.IDatabase;
+import me.krickl.memebotj.Database.IDatabaseObject;
+import me.krickl.memebotj.Database.IJSON;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
@@ -35,15 +35,16 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, DatabaseObjectInterface, JSONInterface {
+public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHandler>, IDatabaseObject,
+        IJSON {
     public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
     // todo old db code - remove soon
     //private MongoCollection<Document> channelCollection = null;
-    protected DatabaseInterface mongoHandler = null;
+    protected IDatabase mongoHandler = null;
     protected BufferedWriter writer = null;
     protected int nextID = 0;
     protected String channel = "";
-    protected ConnectionInterface connection = null;
+    protected IConnection connection = null;
     protected String broadcaster = this.channel.replace("#", "");
     protected HashMap<String, UserHandler> userList = new java.util.HashMap<String, UserHandler>();
     protected Cooldown updateCooldown = new Cooldown(600);
@@ -124,7 +125,7 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
 
     protected String lastMessage = "";
 
-    public ChannelHandler(String channel, ConnectionInterface connection) {
+    public ChannelHandler(String channel, IConnection connection) {
         this.channel = channel;
         this.connection = connection;
         this.broadcaster = this.channel.replace("#", "");
@@ -543,11 +544,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.channel = channel;
     }
 
-    public ConnectionInterface getConnection() {
+    public IConnection getConnection() {
         return connection;
     }
 
-    public void setConnection(ConnectionInterface connection) {
+    public void setConnection(IConnection connection) {
         this.connection = connection;
     }
 
@@ -959,11 +960,11 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.localisation = localisation;
     }
 
-    public DatabaseInterface getMongoHandler() {
+    public IDatabase getMongoHandler() {
         return mongoHandler;
     }
 
-    public void setMongoHandler(DatabaseInterface mongoHandler) {
+    public void setMongoHandler(IDatabase mongoHandler) {
         this.mongoHandler = mongoHandler;
     }
 
@@ -1027,14 +1028,6 @@ public class ChannelHandler implements Runnable, Comparable<ChannelHandler>, Dat
         this.useRotatingColours = useRotatingColours;
     }
 
-
-    public String getBotMode() {
-        return botMode;
-    }
-
-    public void setBotMode(String botMode) {
-        this.botMode = botMode;
-    }
 
     @Override
     public JSONObject toJSONObject() {

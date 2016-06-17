@@ -10,7 +10,7 @@ import retrofit2.http.Query;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public interface SpeedRunCom {
+public interface ISpeedRunCom {
     @GET("users")
     Call<UsersLookup> lookupUser(@Query("lookup") String lookup);
 

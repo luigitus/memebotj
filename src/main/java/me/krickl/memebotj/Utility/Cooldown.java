@@ -1,6 +1,6 @@
 package me.krickl.memebotj.Utility;
 
-import me.krickl.memebotj.Database.JSONInterface;
+import me.krickl.memebotj.Database.IJSON;
 import org.bson.Document;
 import org.json.simple.JSONObject;
 
@@ -8,7 +8,7 @@ import org.json.simple.JSONObject;
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class Cooldown implements JSONInterface {
+public class Cooldown implements IJSON {
 
     int cooldownLength = 0;
     int cooldownStart = 0;

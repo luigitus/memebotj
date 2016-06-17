@@ -10,7 +10,7 @@ import java.io.IOException;
  * This file is part of memebotj.
  * Created by unlink on 09/04/16.
  */
-public interface ConnectionInterface {
+public interface IConnection {
     void ping() throws IOException;
 
     String recvData() throws LoginException;

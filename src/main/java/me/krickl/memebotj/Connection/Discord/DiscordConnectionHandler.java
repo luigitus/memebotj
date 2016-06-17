@@ -6,7 +6,7 @@ import de.btobastian.javacord.Javacord;
 import de.btobastian.javacord.entities.message.Message;
 import de.btobastian.javacord.listener.message.MessageCreateListener;
 import me.krickl.memebotj.Channel.ChannelHandler;
-import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Connection.Protocols;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Memebot;
@@ -18,7 +18,7 @@ import java.io.IOException;
  * This file is part of memebotj.
  * Created by lukas on 6/13/2016.
  */
-public class DiscordConnectionHandler implements ConnectionInterface {
+public class DiscordConnectionHandler implements IConnection {
     DiscordAPI api;
     public DiscordConnectionHandler(String oauth)  {
         api = Javacord.getApi(oauth, true);

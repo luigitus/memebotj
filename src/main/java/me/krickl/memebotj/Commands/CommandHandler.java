@@ -1,8 +1,8 @@
 package me.krickl.memebotj.Commands;
 
 import me.krickl.memebotj.Channel.ChannelHandler;
-import me.krickl.memebotj.Database.DatabaseObjectInterface;
-import me.krickl.memebotj.Database.JSONInterface;
+import me.krickl.memebotj.Database.IDatabaseObject;
+import me.krickl.memebotj.Database.IJSON;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
@@ -24,8 +24,8 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 03/04/16.
  */
-public class CommandHandler implements CommandInterface, Comparable<CommandHandler>, JSONInterface,
-        DatabaseObjectInterface {
+public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJSON,
+        IDatabaseObject {
     public static Logger log = Logger.getLogger(CommandHandler.class.getName());
     protected MongoHandler mongoHandler = null;
     protected boolean canBeEdited = true;

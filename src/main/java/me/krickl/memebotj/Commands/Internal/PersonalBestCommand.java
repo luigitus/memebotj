@@ -4,7 +4,7 @@ import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.*;
-import me.krickl.memebotj.SpeedrunCom.SpeedRunCom;
+import me.krickl.memebotj.SpeedrunCom.ISpeedRunCom;
 import me.krickl.memebotj.User.UserHandler;
 import retrofit2.Call;
 
@@ -64,7 +64,7 @@ public class PersonalBestCommand extends CommandHandler {
 
     private String getPB(String userID, String gameID, String categoryID) {
         try {
-            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            ISpeedRunCom service = Memebot.speedRunComAPI.getService();
             Call<PBLookup> pbs = service.getPersonalBests(userID, gameID);
             ArrayList<RunObject> runs = pbs.execute().body().getData();
             for (RunObject run1 : runs) {
@@ -82,7 +82,7 @@ public class PersonalBestCommand extends CommandHandler {
     private String getPBs(String userID, String gameID, ArrayList<Category> categories) {
         String output = "";
         try {
-            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            ISpeedRunCom service = Memebot.speedRunComAPI.getService();
             Call<PBLookup> pbs = service.getPersonalBests(userID, gameID);
             ArrayList<RunObject> runs = pbs.execute().body().getData();
             for (RunObject run1 : runs) {

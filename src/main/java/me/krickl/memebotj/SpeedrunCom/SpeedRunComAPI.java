@@ -26,7 +26,7 @@ public class SpeedRunComAPI implements Runnable {
     private Thread t = null;
     private int updateCycleMinuets = 10;
 
-    private SpeedRunCom service;
+    private ISpeedRunCom service;
 
     public SpeedRunComAPI() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -51,7 +51,7 @@ public class SpeedRunComAPI implements Runnable {
                 .client(httpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        service = retrofit.create(SpeedRunCom.class);
+        service = retrofit.create(ISpeedRunCom.class);
     }
 
     public void start() {
@@ -140,7 +140,7 @@ public class SpeedRunComAPI implements Runnable {
         }
     }
 
-    public SpeedRunCom getService() {
+    public ISpeedRunCom getService() {
         return service;
     }
 

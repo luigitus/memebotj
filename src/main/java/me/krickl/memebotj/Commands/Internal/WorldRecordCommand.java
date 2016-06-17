@@ -4,7 +4,7 @@ import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.*;
-import me.krickl.memebotj.SpeedrunCom.SpeedRunCom;
+import me.krickl.memebotj.SpeedrunCom.ISpeedRunCom;
 import me.krickl.memebotj.User.UserHandler;
 import retrofit2.Call;
 
@@ -58,7 +58,7 @@ public class WorldRecordCommand extends CommandHandler {
 
     private String[] getWR(String gameID, String categoryID) {
         try {
-            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            ISpeedRunCom service = Memebot.speedRunComAPI.getService();
             Call<WRLookup> wr = service.getWorldRecord(gameID, categoryID, "players");
             RecordObject record = wr.execute().body().getData();
             if (record.getUsername().equalsIgnoreCase("trevperson") && getChannelHandler().getBroadcaster().equals("trevperson")) {
@@ -76,7 +76,7 @@ public class WorldRecordCommand extends CommandHandler {
     private String getWRs(String gameID, ArrayList<Category> categories) {
         String output = "";
         try {
-            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            ISpeedRunCom service = Memebot.speedRunComAPI.getService();
             Call<WRSLookup> wrs = service.getWorldRecords(gameID, "players");
             ArrayList<RecordObject> records = wrs.execute().body().getData();
             for (RecordObject record : records) {

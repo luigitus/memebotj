@@ -11,7 +11,7 @@ import me.krickl.memebotj.User.UserHandler;
  * This file is part of memebotj.
  * Created by unlink on 17/05/16.
  */
-public class CommandReference implements CommandInterface, Comparable<CommandReference> {
+public class CommandReference implements ICommand, Comparable<CommandReference> {
 
     protected String commandName = null;
     protected ChannelHandler channelHandler = null;

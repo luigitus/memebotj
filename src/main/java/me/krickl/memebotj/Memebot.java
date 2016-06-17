@@ -7,7 +7,7 @@ import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Channel.TMIChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
-import me.krickl.memebotj.Connection.ConnectionInterface;
+import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Connection.Discord.DiscordConnectionHandler;
 import me.krickl.memebotj.Connection.TMI.TMIConnectionHandler;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
@@ -231,7 +231,7 @@ public class Memebot {
     public static void joinChannel(String channel) {
         try {
             File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
-            ConnectionInterface connectionInterface = new TMIConnectionHandler(Memebot.ircServer,
+            IConnection connectionInterface = new TMIConnectionHandler(Memebot.ircServer,
                     Memebot.ircport, Memebot.botNick, Memebot.botPassword);
             if (login.exists()) {
                 ArrayList<String> loginInfo = (ArrayList<String>)
