@@ -439,6 +439,9 @@ public class WebHandler {
     public static boolean checkLogin(Request req, String username, String channel) {
         String storedName = req.cookie("login_name");
         String storedOauth = req.cookie("login_oauth");
+        if(username == null || channel == null) {
+            return false;
+        }
         UserHandler user = new UserHandler(username, channel);
 
         if (storedName == null || storedOauth == null) {
