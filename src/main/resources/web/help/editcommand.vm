@@ -115,11 +115,11 @@
     </p>
 
     <code>
-        !counter add</br>
-        !counter add 2</br>
+        !counter +</br>
+        !counter + 2</br>
         !counter set 5</br>
-        !counter sub</br>
-        !counter sub 2</br>
+        !counter -</br>
+        !counter - 2</br>
     </code>
     </br>
 

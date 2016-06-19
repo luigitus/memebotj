@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -700,6 +701,18 @@ public class Memebot {
         }
 
         return dirList;
+    }
+
+    /***
+     * This method creates loggers based on log levels
+     * @param name
+     * @param logLevel
+     * @return
+     */
+    public static Logger getLogger(String name, Level logLevel) {
+        Logger log = Logger.getLogger(name);
+        log.setLevel(logLevel);
+        return log;
     }
 
     public static JSONObject toJSONObject() {

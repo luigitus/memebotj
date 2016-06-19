@@ -9,6 +9,7 @@ import me.krickl.memebotj.Utility.MessagePackage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * This file is part of memebotj.
@@ -60,7 +61,7 @@ public class TMIChannelHandler extends ChannelHandler {
             try {
                 new File(Memebot.memebotDir + "/channels/" + channel).createNewFile();
             } catch (IOException e) {
-                log.warning(e.toString());
+                log.log(Level.WARNING, e.toString());
             }
         }
         this.isJoined = true;
@@ -86,7 +87,7 @@ public class TMIChannelHandler extends ChannelHandler {
         }
 
         if (this.currentMessageCount >= me.krickl.memebotj.Memebot.messageLimit) {
-            log.warning("Reached global message limit for 30 seconds. try again later");
+            log.log(Level.SEVERE ,"Reached global message limit for 30 seconds. try again later");
             this.preventMessageCooldown.startCooldown();
         }
         // ignore /ignore to avoid people being ignored by the bot

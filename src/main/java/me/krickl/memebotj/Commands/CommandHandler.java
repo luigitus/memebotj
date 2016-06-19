@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -461,43 +462,52 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
             } else if (data[1].equals("approve") &&
                     checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
 
+                int index = -1;
                 try {
-                    int index = Integer.parseInt(data[2]) - 1;
-                    if (this.suggestedList.size() > index) {
-                        this.listContent.add(suggestedList.get(index));
-                        suggestedList.remove(suggestedList.get(index));
-                        formattedOutput = Memebot.formatText("APPROVED", channelHandler, sender, this, true,
-                                new String[]{}, "");
-                    } else {
-                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
-                                new String[]{Integer.toString(this.suggestedList.size())}, "");
-                    }
+                    index = Integer.parseInt(data[2]) - 1;
                 } catch (NumberFormatException e) {
                     formattedOutput = e.toString();
                     this.success = false;
+                }
+                if(data[2].equals("last")) {
+                    index = suggestedList.size() - 1;
+                }
+
+                if (this.suggestedList.size() > index) {
+                    this.listContent.add(suggestedList.get(index));
+                    suggestedList.remove(suggestedList.get(index));
+                    formattedOutput = Memebot.formatText("APPROVED", channelHandler, sender, this, true,
+                            new String[]{}, "");
+                } else {
+                    formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                            new String[]{Integer.toString(this.suggestedList.size())}, "");
                 }
 
                 this.startCooldown = false;
             } else if (data[1].equals("deny") && checkPermissions(sender, CommandPower.modAbsolute,
                     CommandPower.modAbsolute)) {
+                int index = -1;
                 try {
-                    int index = Integer.parseInt(data[2]) - 1;
-                    if (!data[2].equals("all")) {
-                        if (this.suggestedList.size() > index) {
-                            suggestedList.remove(suggestedList.get(index));
-                            formattedOutput = Memebot.formatText("DENIED", channelHandler, sender, this, true, new String[]{}, "");
-                        } else {
-                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
-                                    new String[]{Integer.toString(this.suggestedList.size())}, "");
-                        }
-                    } else {
-                        suggestedList.clear();
-                        formattedOutput = Memebot.formatText("DENIED_ALL", channelHandler, sender, this, true,
-                                new String[]{}, "");
-                    }
+                    index = Integer.parseInt(data[2]) - 1;
                 } catch (NumberFormatException e) {
                     formattedOutput = e.toString();
                     this.success = false;
+                }
+                if(data[2].equals("last")) {
+                    index = suggestedList.size() - 1;
+                }
+                if (!data[2].equals("all")) {
+                    if (this.suggestedList.size() > index) {
+                        suggestedList.remove(suggestedList.get(index));
+                        formattedOutput = Memebot.formatText("DENIED", channelHandler, sender, this, true, new String[]{}, "");
+                    } else {
+                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                                new String[]{Integer.toString(this.suggestedList.size())}, "");
+                    }
+                } else {
+                    suggestedList.clear();
+                    formattedOutput = Memebot.formatText("DENIED_ALL", channelHandler, sender, this, true,
+                            new String[]{}, "");
                 }
 
                 this.startCooldown = false;
@@ -532,7 +542,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                         formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
                     }
                 } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-                    log.warning(e.toString());
+                    log.log(Level.WARNING, e.toString());
                     this.success = false;
                     formattedOutput = e.toString();
                 }
@@ -543,7 +553,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                     formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
                     //success = true;
                 } catch (Exception e) {
-                    log.warning(e.toString());
+                    log.log(Level.WARNING, e.toString());
                     formattedOutput = e.toString();
                     success = false;
                 }
@@ -592,7 +602,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i));
                 success = true;
             } catch (IllegalArgumentException e1) {
-                log.warning(e1.toString());
+                log.log(Level.WARNING, e1.toString());
             } finally {
                 // just ignore it
             }
@@ -614,7 +624,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         try {
             modifier = Integer.parseInt(data[2]);
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            log.warning(e.toString());
+            log.log(Level.WARNING, e.toString());
         }
 
         try {
@@ -632,7 +642,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 this.startCooldown = false;
             }
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            log.warning(e.toString());
+            log.log(Level.WARNING, e.toString());
             this.success = false;
         }
 
@@ -838,7 +848,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 success = true;
             }
         } catch (NumberFormatException e) {
-            log.warning(String.format("Screw you Luigitus: %s", e.toString()));
+            log.log(Level.WARNING, String.format("Screw you Luigitus: %s", e.toString()));
         }
         this.writeDB();
 

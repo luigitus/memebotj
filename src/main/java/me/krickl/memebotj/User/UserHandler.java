@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //import me.krickl.memebotj.Inventory.Inventory;
@@ -127,7 +128,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(this.username);
         } catch (DatabaseReadException | IllegalArgumentException e1) {
-            log.warning(e1.toString());
+            log.log(Level.WARNING, e1.toString());
             this.newUser = true;
         }
 
@@ -230,7 +231,7 @@ public class UserHandler implements Comparable<UserHandler> {
 
         //check if user has been marked for removal
         if (this.shouldBeRemoved && this.removeCooldown.canContinue()) {
-            UserHandler.log.info("Removed user " + this.username);
+            UserHandler.log.log(Level.FINE, "Removed user " + this.username);
             return true;
         }
 
@@ -570,7 +571,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(username);
         } catch (DatabaseReadException e) {
-            log.info(e.toString());
+            log.log(Level.FINE, e.toString());
             setOauth(oauth);
             return oauth;
         }
@@ -599,7 +600,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(username);
         } catch (DatabaseReadException e) {
-            log.info(e.toString());
+            log.log(Level.FINE, e.toString());
             setAPIKey(apikey);
             return apikey;
         }

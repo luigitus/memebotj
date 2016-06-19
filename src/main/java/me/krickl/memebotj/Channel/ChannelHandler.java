@@ -29,6 +29,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -132,7 +133,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         readOnlyUser = new UserHandler("#readonly#", this.channel);
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
-        log.info("Joining channel " + this.channel);
+        log.log(Level.FINE, "Joining channel " + this.channel);
 
         try {
             File f = new File(Memebot.memebotDir + "/logs/" + channel + ".log");
@@ -276,7 +277,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
                     this.update();
                 }
             } catch (LoginException e) {
-                log.info(e.toString());
+                log.log(Level.WARNING, e.toString());
                 // fallback in case of login issues - try again
                 if (this.reconnectCooldown.canContinue()) {
                     this.connection = new TMIConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword);
@@ -395,7 +396,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         try {
             mongoHandler.readDatabase(this.channel);
         } catch (DatabaseReadException e) {
-            log.warning(e.toString());
+            log.log(Level.WARNING, e.toString());
         }
 
         if (mongoHandler.getDocument() != null) {
