@@ -99,16 +99,19 @@ public class TwitchAPI implements Runnable {
         try {
             if (Memebot.isTwitchBot) {
                 Call<Streams> streamCall = service.getStream(ch.getBroadcaster());
-                Stream stream = streamCall.execute().body().getStream();
-                if (stream == null) {
-                    ch.setLive(false);
-                    Call<Channel> channelCall = service.getChannel(ch.getBroadcaster());
-                    Channel channel = channelCall.execute().body();
-                    parseChannel(ch, channel);
-                } else {
-                    ch.setLive(true);
-                    // When the stream is live, we get the channel data too! One API call less
-                    parseChannel(ch, stream.getChannel());
+                retrofit2.Response<Streams> response = streamCall.execute();
+                if(response.code() != 404) {
+                    Stream stream = response.body().getStream();
+                    if (stream == null) {
+                        ch.setLive(false);
+                        Call<Channel> channelCall = service.getChannel(ch.getBroadcaster());
+                        Channel channel = channelCall.execute().body();
+                        parseChannel(ch, channel);
+                    } else {
+                        ch.setLive(true);
+                        // When the stream is live, we get the channel data too! One API call less
+                        parseChannel(ch, stream.getChannel());
+                    }
                 }
             } else {
                 ch.setLive(true);
@@ -161,10 +164,10 @@ public class TwitchAPI implements Runnable {
         ch.setStreamTitle(channel.getStatus());
         ch.setCurrentGame(channel.getGame());
         ch.setUptimeString("");
-        if (ch.getCurrentGame() == null) {
+        if (channel.getStatus() == null) {
             ch.setCurrentGame("Not Playing");
         }
-        if (ch.getStreamTitle() == null) {
+        if (channel.getGame() == null) {
             ch.setStreamTitle("");
         }
     }

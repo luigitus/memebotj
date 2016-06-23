@@ -63,7 +63,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
     protected long streamStartTime = 0;
     protected String local = Memebot.defaultLocal.getLocal();
     protected String channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
-    protected String htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
     protected ArrayList<String> otherLoadedChannels = new java.util.ArrayList<String>();
     protected double pointsPerUpdate = 1.0f;
     protected Thread t = null;
@@ -81,7 +80,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
 
     protected int linkTimeout = 1;
 
-    protected File htmlDirF = new File(this.htmlDir);
     protected UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel);
     protected boolean allowGreetMessage = false;
 
@@ -103,7 +101,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
 
     protected boolean useWhisper = false;
     protected Cooldown reconnectCooldown = new Cooldown(40);
-    protected String itemDrops = "mm";
     protected String uptimeString = "";
 
     protected boolean useAlias = true;
@@ -132,7 +129,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.broadcaster = this.channel.replace("#", "");
         readOnlyUser = new UserHandler("#readonly#", this.channel);
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
-        htmlDir = Memebot.htmlDir + "/" + this.broadcaster;
         log.log(Level.FINE, "Joining channel " + this.channel);
 
         try {
@@ -145,9 +141,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         }
         this.userList.put("#readonly#", readOnlyUser);
 
-        if (!htmlDirF.exists()) {
-            htmlDirF.mkdirs();
-        }
         this.joinChannel(this.channel);
 
         if (Memebot.useMongo) {
@@ -421,7 +414,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
             this.pointsTax = (double) mongoHandler.getObject("pointstax", this.pointsTax);
             this.startingPoints = (double) mongoHandler.getObject("startingpoints", this.startingPoints);
             this.bgImage = mongoHandler.getObject("bgImage", this.bgImage).toString();
-            itemDrops = mongoHandler.getObject("itemDrops", this.itemDrops).toString();
             pointsUpdateDone = (boolean) mongoHandler.getObject("pointsupdate", this.pointsUpdateDone);
             aliasList = (Document) mongoHandler.getObject("aliaslist", this.aliasList);
             useRotatingColours = (boolean) mongoHandler.getObject("rotatingcolours", this.useRotatingColours);
@@ -470,7 +462,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         mongoHandler.updateDocument("pointstax", this.pointsTax);
         mongoHandler.updateDocument("startingpoints", this.startingPoints);
         mongoHandler.updateDocument("bgImage", this.bgImage);
-        mongoHandler.updateDocument("itemDrops", this.itemDrops);
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         mongoHandler.updateDocument("aliaslist", this.aliasList);
         mongoHandler.updateDocument("rotatingcolours", this.useRotatingColours);
@@ -705,14 +696,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.channelPageBaseURL = channelPageBaseURL;
     }
 
-    public String getHtmlDir() {
-        return htmlDir;
-    }
-
-    public void setHtmlDir(String htmlDir) {
-        this.htmlDir = htmlDir;
-    }
-
     public ArrayList<String> getOtherLoadedChannels() {
         return otherLoadedChannels;
     }
@@ -857,14 +840,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.linkTimeout = linkTimeout;
     }
 
-    public File getHtmlDirF() {
-        return htmlDirF;
-    }
-
-    public void setHtmlDirF(File htmlDirF) {
-        this.htmlDirF = htmlDirF;
-    }
-
     public UserHandler getReadOnlyUser() {
         return readOnlyUser;
     }
@@ -983,14 +958,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
 
     public void setReconnectCooldown(Cooldown reconnectCooldown) {
         this.reconnectCooldown = reconnectCooldown;
-    }
-
-    public String getItemDrops() {
-        return itemDrops;
-    }
-
-    public void setItemDrops(String itemDrops) {
-        this.itemDrops = itemDrops;
     }
 
     public BufferedWriter getWriter() {

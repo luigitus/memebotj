@@ -79,8 +79,6 @@ public class EditChannelCommand extends CommandHandler {
                 getChannelHandler().setMaxAmountOfNameInList(Integer.parseInt(data[1]));
             } else if (data[0].equals("background")) {
                 getChannelHandler().setBgImage(data[1]);
-            } else if (data[0].equals("itemDrops")) {
-                getChannelHandler().setItemDrops(data[1]);
             } else if (data[0].equals("colour")) {
                 if (!getChannelHandler().getConnection().getBotNick().equals(Memebot.botNick)
                         || checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
