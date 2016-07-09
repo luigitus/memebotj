@@ -5,10 +5,14 @@ import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.User.UserHandler;
+import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.MessagePackage;
+import me.krickl.memebotj.Utility.RNGObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 /**
@@ -16,6 +20,9 @@ import java.util.logging.Level;
  * Created by lukas on 6/16/2016.
  */
 public class TMIChannelHandler extends ChannelHandler {
+    private Cooldown autoRehostCooldown = new Cooldown(900); // autorehost after the cooldown is over
+    private boolean isHosting = false;
+
     public TMIChannelHandler(String channel, IConnection connection) {
         super(channel, connection);
     }
@@ -90,9 +97,10 @@ public class TMIChannelHandler extends ChannelHandler {
             log.log(Level.SEVERE ,"Reached global message limit for 30 seconds. try again later");
             this.preventMessageCooldown.startCooldown();
         }
-        // ignore /ignore to avoid people being ignored by the bot
+        // ignore /ignore to avoid people being ignored by the bot /ban glitch with parameters discovered by CatlyMeows
+        // todo implement proper fix
         String[] ignoredMessages = new String[]{"/ignore", "/color", ".ignore", ".color", ".unmod", "/unmod",
-                "/mod", ".mod"};
+                "/mod", ".mod", "/ban", ".ban", "/timeout", ".timeout"};
         for (String ignoredStr : ignoredMessages) {
             if (msg.startsWith(ignoredStr) && !allowIgnored) {
                 msg = msg.replaceFirst("/", "");
@@ -133,6 +141,31 @@ public class TMIChannelHandler extends ChannelHandler {
     }
 
     @Override
+    public void update() {
+        super.update();
+
+        // autoregost if channel is offline
+        if(!isLive && autoRehostCooldown.canContinue() && !isHosting && enableAutoHost) {
+            ArrayList<String> channelsToHost = new ArrayList<>();
+
+            for(ChannelHandler channelHandler : Memebot.joinedChannels) {
+                if(!channelHandler.isOpOutOfAutofAutohost()) {
+                    channelsToHost.add(channelHandler.getBroadcaster());
+                }
+            }
+            SecureRandom random = new SecureRandom();
+            String hostTarget = channelsToHost.get(random.nextInt(channelsToHost.size() - 1));
+
+            sendMessage("/host" + hostTarget, channel, userList.get("#internal#"), false);
+
+            sendMessage("Auto-Hosting: " + hostTarget, channel, userList.get("#internal#"), false);
+
+            isHosting = false;
+        }
+        autoRehostCooldown.startCooldown();
+    }
+
+    @Override
     public String handleMessage(String rawmessage) {
         lastMessage = "";
 
@@ -148,6 +181,11 @@ public class TMIChannelHandler extends ChannelHandler {
         if (!msgPackage.channel.equals(this.channel) && !msgPackage.channel.equals("#discord#")) {
             // todo send message to the right channel
             return lastMessage;
+        }
+
+        if(msgPackage.messageID.equals("host_off")) {
+            autoRehostCooldown.startCooldown();
+            isHosting = false;
         }
 
         if (msgPackage.messageType.equals("WHISPER")) {

@@ -124,6 +124,7 @@ public class TMIConnectionHandler implements IConnection {
         String[] msgContent = {""};
         String[] ircmsgBuffer = rawircmsg.split(" ");
         String messageType = "UNDEFINED";
+        String messageID = "";
         int i = 0;
 
         String channel = "";
@@ -261,6 +262,9 @@ public class TMIConnectionHandler implements IConnection {
             if (ircTags.containsKey("display-name")) {
                 sender.setNickname(ircTags.get("display-name"));
             }
+            if(ircTags.containsKey("msg-id")) {
+                messageID = ircTags.get("msg-id");
+            }
             if (ircTags.containsKey("user-type")) {
                 if (ircTags.get("user-type").equals("mod") && !sender.isUserBroadcaster()) {
                     sender.setModerator(true);
@@ -295,7 +299,7 @@ public class TMIConnectionHandler implements IConnection {
             }
         }
 
-        return new MessagePackage(msgContent, sender, messageType, channel);
+        return new MessagePackage(msgContent, sender, messageType, channel, messageID);
     }
 
     public void close() {

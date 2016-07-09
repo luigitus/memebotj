@@ -15,12 +15,14 @@ public class MessagePackage {
     public UserHandler sender = null;
     public String messageType = null;
     public String channel = null;
+    public String messageID = null;
 
-    public MessagePackage(String[] content, UserHandler uh, String type, String channel) {
+    public MessagePackage(String[] content, UserHandler uh, String type, String channel, String id) {
         messageContent = content;
         sender = uh;
         messageType = type;
         this.channel = channel;
+        messageID = id;
     }
 
     public void handleAlias(Document aliasDoc) {

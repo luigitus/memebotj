@@ -123,6 +123,9 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
 
     protected String lastMessage = "";
 
+    protected boolean enableAutoHost = false;
+    protected boolean opOutOfAutofAutohost = false;
+
     public ChannelHandler(String channel, IConnection connection) {
         this.channel = channel;
         this.connection = connection;
@@ -424,6 +427,8 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
             isLive = (boolean) mongoHandler.getObject("islive", isLive);
             neededAutogreetCommandPower = (int) mongoHandler.getObject("neededAutogreetCommandPower", neededAutogreetCommandPower);
             discordChannel = (String) mongoHandler.getObject("discordChannel", discordChannel);
+            opOutOfAutofAutohost = (boolean) mongoHandler.getObject("opOutOfAutofAutohost", opOutOfAutofAutohost);
+            enableAutoHost = (boolean) mongoHandler.getObject("enableAutoHost", enableAutoHost);
         }
 
         // read commands
@@ -472,8 +477,8 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         mongoHandler.updateDocument("islive", isLive);
         mongoHandler.updateDocument("neededAutogreetCommandPower", neededAutogreetCommandPower);
         mongoHandler.updateDocument("discordChannel", discordChannel);
-
-        //mongoHandler.setDocument(channelData);
+        mongoHandler.updateDocument("enableAutoHost", enableAutoHost);
+        mongoHandler.updateDocument("opOutOfAutofAutohost", opOutOfAutofAutohost);
     }
 
     public void removeDB() {
@@ -996,6 +1001,38 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.useRotatingColours = useRotatingColours;
     }
 
+
+    public boolean isUseDiscord() {
+        return useDiscord;
+    }
+
+    public void setUseDiscord(boolean useDiscord) {
+        this.useDiscord = useDiscord;
+    }
+
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
+    public boolean isEnableAutoHost() {
+        return enableAutoHost;
+    }
+
+    public void setEnableAutoHost(boolean enableAutoHost) {
+        this.enableAutoHost = enableAutoHost;
+    }
+
+    public boolean isOpOutOfAutofAutohost() {
+        return opOutOfAutofAutohost;
+    }
+
+    public void setOpOutOfAutofAutohost(boolean opOutOfAutofAutohost) {
+        this.opOutOfAutofAutohost = opOutOfAutofAutohost;
+    }
 
     @Override
     public JSONObject toJSONObject() {
