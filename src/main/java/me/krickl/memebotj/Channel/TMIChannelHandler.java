@@ -144,23 +144,25 @@ public class TMIChannelHandler extends ChannelHandler {
     public void update() {
         super.update();
 
-        // autoregost if channel is offline
+        // autorehost if channel is offline
         if(!isLive && autoRehostCooldown.canContinue() && !isHosting && enableAutoHost) {
             ArrayList<String> channelsToHost = new ArrayList<>();
 
             for(ChannelHandler channelHandler : Memebot.joinedChannels) {
-                if(!channelHandler.isOpOutOfAutofAutohost()) {
+                if(!channelHandler.isOpOutOfAutofAutohost() && channelHandler.isLive()) {
                     channelsToHost.add(channelHandler.getBroadcaster());
                 }
             }
-            SecureRandom random = new SecureRandom();
-            String hostTarget = channelsToHost.get(random.nextInt(channelsToHost.size() - 1));
+            if(channelsToHost.size() > 2) {
+                SecureRandom random = new SecureRandom();
+                String hostTarget = channelsToHost.get(random.nextInt(channelsToHost.size() - 1));
 
-            sendMessage("/host" + hostTarget, channel, userList.get("#internal#"), false);
+                sendMessage("/host" + hostTarget, channel, userList.get("#internal#"), false);
 
-            sendMessage("Auto-Hosting: " + hostTarget, channel, userList.get("#internal#"), false);
+                sendMessage("Auto-Hosting: " + hostTarget, channel, userList.get("#internal#"), false);
 
-            isHosting = false;
+                isHosting = true;
+            }
         }
         autoRehostCooldown.startCooldown();
     }

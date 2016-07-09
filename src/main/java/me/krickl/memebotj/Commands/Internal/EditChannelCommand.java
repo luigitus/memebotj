@@ -100,14 +100,22 @@ public class EditChannelCommand extends CommandHandler {
             } else if (data[0].equals("discord")) {
                 getChannelHandler().setDiscordChannel(newEntry);
             } else if(data[0].equals("enableautohost")) {
-                getChannelHandler().setEnableAutoHost(Boolean.parseBoolean(newEntry));
+                getChannelHandler().setEnableAutoHost(Boolean.parseBoolean(data[1]));
             } else if(data[0].equals("hostoptout")) {
-                getChannelHandler().setOpOutOfAutofAutohost(Boolean.parseBoolean(newEntry));
+                getChannelHandler().setOpOutOfAutofAutohost(Boolean.parseBoolean(data[1]));
+            } else {
+                setSuccess(false);
             }
 
-            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"),
-                    getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]},
-                    getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, false);
+            if(isSuccess()) {
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"),
+                        getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]},
+                        getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, false);
+            } else {
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_FAIL"),
+                        getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]},
+                        getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, false);
+            }
             getChannelHandler().writeDB();
         } catch (ArrayIndexOutOfBoundsException e) {
             getChannelHandler().sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", getChannelHandler(), sender, this,
