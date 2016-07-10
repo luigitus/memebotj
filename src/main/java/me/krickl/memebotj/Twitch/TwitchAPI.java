@@ -72,7 +72,7 @@ public class TwitchAPI implements Runnable {
                 update(Memebot.joinedChannels.get(i));
                 if (!(i + 1 == Memebot.joinedChannels.size())) {
                     try {
-                        Memebot.log.info("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                        Memebot.log.log("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                                 + ", pausing before continuing.");
                         if (!Memebot.debug) {
                             Thread.sleep(5000); // 5 second pause
@@ -80,7 +80,7 @@ public class TwitchAPI implements Runnable {
                     } catch (InterruptedException ignored) {
                     }
                 } else {
-                    Memebot.log.info("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                    Memebot.log.log("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                             + ", Update cycle completed. Next update is scheduled in " + updateCycleMinuets + " minuets.");
                     cycleDone = true;
                 }

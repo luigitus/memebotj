@@ -3,6 +3,7 @@ package me.krickl.memebotj.User;
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Log.MLogger;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
  */
 @Deprecated
 public class UserHandler implements Comparable<UserHandler> {
-    public static Logger log = Logger.getLogger(UserHandler.class.getName());
+    public static MLogger log = MLogger.createLogger(UserHandler.class.getName());
     private boolean isModerator = false;
     private boolean isUserBroadcaster = false;
     private boolean newUser = false;
@@ -103,11 +104,11 @@ public class UserHandler implements Comparable<UserHandler> {
         setCommandPower(this.autoCommandPower);
     }
 
-    public static Logger getLog() {
+    public static MLogger getLog() {
         return log;
     }
 
-    public static void setLog(Logger log) {
+    public static void setLog(MLogger log) {
         UserHandler.log = log;
     }
 
@@ -119,7 +120,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(this.username);
         } catch (DatabaseReadException | IllegalArgumentException e1) {
-            log.log(Level.WARNING, e1.toString());
+            log.log(e1.toString());
             this.newUser = true;
         }
 
@@ -208,7 +209,7 @@ public class UserHandler implements Comparable<UserHandler> {
 
         //check if user has been marked for removal
         if (this.shouldBeRemoved && this.removeCooldown.canContinue()) {
-            UserHandler.log.log(Level.FINE, "Removed user " + this.username);
+            UserHandler.log.log("Removed user " + this.username);
             return true;
         }
 
@@ -548,7 +549,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(username);
         } catch (DatabaseReadException e) {
-            log.log(Level.FINE, e.toString());
+            log.log(e.toString());
             setOauth(oauth);
             return oauth;
         }
@@ -577,7 +578,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(username);
         } catch (DatabaseReadException e) {
-            log.log(Level.FINE, e.toString());
+            log.log(e.toString());
             setAPIKey(apikey);
             return apikey;
         }

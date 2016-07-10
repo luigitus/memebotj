@@ -10,6 +10,8 @@ import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Connection.Discord.DiscordConnectionHandler;
 import me.krickl.memebotj.Connection.TMI.TMIConnectionHandler;
+import me.krickl.memebotj.Log.LogLevels;
+import me.krickl.memebotj.Log.MLogger;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.User.UserHandler;
@@ -40,7 +42,7 @@ import java.util.logging.Logger;
 //todo rewrite main class
 public class Memebot {
     public static final int messageLimit = 19; // message limit per 30 seconds
-    public static Logger log = Logger.getLogger(Memebot.class.getName());
+    public static MLogger log = MLogger.createLogger(Memebot.class.getName());
     public static String ircServer = "irc.twitch.tv";
     public static int ircport = 6667;
     public static String mongoHost = "localhost";
@@ -114,7 +116,7 @@ public class Memebot {
                 Memebot.memebotDir = Memebot.home + "/config";
                 Memebot.configFile = Memebot.memebotDir + "/memebot.cfg";
                 Memebot.channelConfig = Memebot.memebotDir + "/channels.cfg";
-                log.info("Set home directory to " + Memebot.home);
+                log.log("Set home directory to " + Memebot.home);
             }
         }
 
@@ -174,7 +176,7 @@ public class Memebot {
                                 Charset.defaultCharset());
 
             } catch (IOException e) {
-                log.warning(e.toString());
+                log.log(e.toString(), LogLevels.ERROR);
             }
         }
     }
@@ -224,7 +226,7 @@ public class Memebot {
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException e) {
-                log.warning(e.toString());
+                log.log(e.toString(), LogLevels.ERROR);
             }
         }
     }
@@ -238,7 +240,7 @@ public class Memebot {
                 ArrayList<String> loginInfo = (ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
 
-                Memebot.log.info("Found login file for channel " + channel);
+                Memebot.log.log("Found login file for channel " + channel);
 
                 connectionInterface = new TMIConnectionHandler(Memebot.ircServer, Memebot.ircport,
                         loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", ""));
@@ -252,7 +254,7 @@ public class Memebot {
                 joinedChannels.add(newChannel);
             }
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
     }
 
@@ -266,12 +268,12 @@ public class Memebot {
                 new File(Memebot.configFile).createNewFile();
                 // save properties
             } catch (IOException e1) {
-                log.warning(e.toString());
+                log.log(e.toString(), LogLevels.ERROR);
             }
 
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
 
         // read botadmin file
@@ -280,7 +282,7 @@ public class Memebot {
             botAdmins = Files.readAllLines(Paths.get(Memebot.memebotDir + "/botadmins.cfg"));
             botAdmins.add("#internal#");
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
 
         Memebot.ircServer = config.getProperty("ircserver", Memebot.ircServer);
@@ -332,7 +334,7 @@ public class Memebot {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
-                    Memebot.log.warning("Process received SIGTERM...");
+                    Memebot.log.log("Process received SIGTERM...");
                     saveAll();
                 }
             });
@@ -342,12 +344,12 @@ public class Memebot {
         File f = new File(memebotDir + "/pid");
         BufferedWriter bw = null;
         try {
-            Memebot.log.info("PID: " + ManagementFactory.getRuntimeMXBean().getName());
+            Memebot.log.log("PID: " + ManagementFactory.getRuntimeMXBean().getName());
             bw = new BufferedWriter(new FileWriter(f));
             bw.write(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
             bw.close();
         } catch (IOException e) {
-            log.info(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
     }
 
@@ -604,7 +606,7 @@ public class Memebot {
 
             in.close();
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
             data = e.toString();
         } finally {
             if (connection != null) {
@@ -665,7 +667,7 @@ public class Memebot {
             in.close();
             bao.close();
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
             return e.toString().getBytes();
         } finally {
             if (connection != null) {

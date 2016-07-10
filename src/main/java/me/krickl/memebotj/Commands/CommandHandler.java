@@ -5,6 +5,8 @@ import me.krickl.memebotj.Database.IDatabaseObject;
 import me.krickl.memebotj.Database.IJSON;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Log.LogLevels;
+import me.krickl.memebotj.Log.MLogger;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
@@ -27,7 +29,7 @@ import java.util.logging.Logger;
  */
 public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJSON,
         IDatabaseObject {
-    public static Logger log = Logger.getLogger(CommandHandler.class.getName());
+    public static MLogger log = MLogger.createLogger(CommandHandler.class.getName());
     protected MongoHandler mongoHandler = null;
     protected boolean canBeEdited = true;
     protected String commandName = null;
@@ -118,11 +120,11 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         }
     }
 
-    public static Logger getLog() {
+    public static MLogger getLog() {
         return log;
     }
 
-    public static void setLog(Logger log) {
+    public static void setLog(MLogger log) {
         CommandHandler.log = log;
     }
 
@@ -542,7 +544,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                         formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
                     }
                 } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-                    log.log(Level.WARNING, e.toString());
+                    log.log(e.toString(), LogLevels.INFO);
                     this.success = false;
                     formattedOutput = e.toString();
                 }
@@ -553,7 +555,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                     formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
                     //success = true;
                 } catch (Exception e) {
-                    log.log(Level.WARNING, e.toString());
+                    log.log(e.toString());
                     formattedOutput = e.toString();
                     success = false;
                 }
@@ -602,7 +604,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i));
                 success = true;
             } catch (IllegalArgumentException e1) {
-                log.log(Level.WARNING, e1.toString());
+                log.log(e1.toString());
             } finally {
                 // just ignore it
             }
@@ -624,7 +626,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         try {
             modifier = Integer.parseInt(data[2]);
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            log.log(Level.WARNING, e.toString());
+            log.log(e.toString());
         }
 
         try {
@@ -642,7 +644,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 this.startCooldown = false;
             }
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            log.log(Level.WARNING, e.toString());
+            log.log(e.toString());
             this.success = false;
         }
 
@@ -848,7 +850,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 success = true;
             }
         } catch (NumberFormatException e) {
-            log.log(Level.WARNING, String.format("Screw you Luigitus: %s", e.toString()));
+            log.log(String.format("Screw you Luigitus: %s", e.toString()));
         }
         this.writeDB();
 

@@ -6,6 +6,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Log.MLogger;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * This class will eventually handle all db reads/writes to unify that
  */
 public class MongoHandler implements IDatabase<Document> {
-    public static Logger log = Logger.getLogger(MongoHandler.class.getName());
+    public static MLogger log = MLogger.createLogger(MongoHandler.class.getName());
     Document document = new Document();
     private MongoCollection<Document> collection = null;
 
@@ -34,7 +35,7 @@ public class MongoHandler implements IDatabase<Document> {
         FindIterable cursor = this.collection.find(query);
         document = (Document) cursor.first();
 
-        log.info("Reading db for id: " + id + " key: " + key);
+        log.log("Reading db for id: " + id + " key: " + key);
 
         // todo implement the read - data is stored in contents
         if (document == null) {
@@ -53,21 +54,21 @@ public class MongoHandler implements IDatabase<Document> {
     public boolean writeDatabase(String id, String key) {
         Document query = new Document(key, id);
 
-        log.info("Writing db for id: " + id + " key: " + key);
+        log.log("Writing db for id: " + id + " key: " + key);
 
         try {
             if (this.collection.findOneAndReplace(query, document) == null) {
                 this.collection.insertOne(document);
             }
         } catch (Exception e) {
-            log.warning(e.toString());
+            log.log(e.toString());
         }
         return true;
     }
 
     public void updateDocument(String key, Object object) {
         if (document == null) {
-            log.info("Warning: Document is null");
+            log.log("Warning: Document is null");
             document = new Document();
         }
         if (document.containsKey(key)) {
@@ -92,13 +93,13 @@ public class MongoHandler implements IDatabase<Document> {
     }
 
     public boolean removeDatabase(String id, String key) {
-        log.info("Removing db for id " + id);
+        log.log("Removing db for id " + id);
         try {
             if (document != null) {
                 this.collection.deleteOne(document);
             }
         } catch (java.lang.IllegalArgumentException e) {
-            log.warning(e.toString());
+            log.log(e.toString());
 
             return false;
         }

@@ -11,6 +11,8 @@ import me.krickl.memebotj.Database.IJSON;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Exceptions.LoginException;
+import me.krickl.memebotj.Log.LogLevels;
+import me.krickl.memebotj.Log.MLogger;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.Game;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
@@ -38,11 +40,10 @@ import java.util.logging.Logger;
  */
 public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHandler>, IDatabaseObject,
         IJSON {
-    public static Logger log = Logger.getLogger(ChannelHandler.class.getName());
+    public static MLogger log = MLogger.createLogger(ChannelHandler.class.getName());
     // todo old db code - remove soon
     //private MongoCollection<Document> channelCollection = null;
     protected IDatabase mongoHandler = null;
-    protected BufferedWriter writer = null;
     protected int nextID = 0;
     protected String channel = "";
     protected IConnection connection = null;
@@ -133,16 +134,16 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.broadcaster = this.channel.replace("#", "");
         readOnlyUser = new UserHandler("#readonly#", this.channel);
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
-        log.log(Level.FINE, "Joining channel " + this.channel);
+        log.log("Joining channel " + this.channel,  LogLevels.INFO);
 
-        try {
+        /*try {
             File f = new File(Memebot.memebotDir + "/logs/" + channel + ".log");
             if (!f.exists())
                 f.createNewFile();
             writer = new BufferedWriter(new FileWriter(f, true));
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         this.userList.put("#readonly#", readOnlyUser);
 
         this.joinChannel(this.channel);
@@ -222,11 +223,11 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         }
     }
 
-    public static Logger getLog() {
+    public static MLogger getLog() {
         return log;
     }
 
-    public static void setLog(Logger log) {
+    public static void setLog(MLogger log) {
         ChannelHandler.log = log;
     }
 
@@ -274,19 +275,13 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
                     this.update();
                 }
             } catch (LoginException e) {
-                log.log(Level.WARNING, e.toString());
+                log.log(e.toString(), LogLevels.WARNING);
                 // fallback in case of login issues - try again
                 if (this.reconnectCooldown.canContinue()) {
                     this.connection = new TMIConnectionHandler(Memebot.ircServer, Memebot.ircport, Memebot.botNick, Memebot.botPassword);
                     reconnectCooldown.startCooldown();
                 }
             }
-        }
-
-        try {
-            writer.close();
-        } catch (IOException e) {
-
         }
     }
 
@@ -389,7 +384,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         try {
             mongoHandler.readDatabase(this.channel);
         } catch (DatabaseReadException e) {
-            log.log(Level.WARNING, e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
 
         if (mongoHandler.getDocument() != null) {
@@ -968,14 +963,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
 
     public void setReconnectCooldown(Cooldown reconnectCooldown) {
         this.reconnectCooldown = reconnectCooldown;
-    }
-
-    public BufferedWriter getWriter() {
-        return writer;
-    }
-
-    public void setWriter(BufferedWriter writer) {
-        this.writer = writer;
     }
 
     public String getUptimeString() {

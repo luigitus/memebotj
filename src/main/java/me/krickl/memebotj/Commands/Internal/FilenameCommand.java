@@ -96,7 +96,7 @@ public class FilenameCommand extends CommandHandler {
                 namecost = Integer.parseInt(newValue);
                 setSuccess(true);
             } catch (NumberFormatException e) {
-                log.info(e.toString());
+                log.log(e.toString());
             }
         }
 

@@ -89,7 +89,7 @@ public class PointsCommand extends CommandHandler {
                 } catch (ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
                 } catch (NumberFormatException e) {
-                    CommandHandler.log.info("This exception is an illusion and is a trap devised by satan!" + e.toString());
+                    CommandHandler.log.log("This exception is an illusion and is a trap devised by satan!" + e.toString());
                     getChannelHandler().sendMessage(Memebot.formatText("POINTS_ERROR_NFE", getChannelHandler(),
                             sender, this, true, new String[]{"NumberFormatException"}, ""), getChannelHandler().getChannel(),
                             sender, isWhisper());

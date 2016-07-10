@@ -3,7 +3,6 @@ package me.krickl.memebotj.Log;
 import me.krickl.memebotj.Memebot;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -12,14 +11,15 @@ import java.util.Calendar;
 /**
  * Created by unlink on 7/10/2016.
  */
-public class Logger {
-    PrintWriter writer;
-    String id;
+public class MLogger {
+    private static LogLevels level = LogLevels.DEBUG;
+    private PrintWriter writer;
+    private String id;
 
-    public Logger(String id) {
+    public MLogger(String id) {
         this.id = id;
         try {
-            File f = new File(Memebot.memebotDir + "/logs/" + id);
+            File f = new File("./config/logs/" + id + ".log");
             if(!f.exists()) {
                 f.createNewFile();
             }
@@ -27,6 +27,14 @@ public class Logger {
         } catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static MLogger createLogger(String id) {
+        return new MLogger(id);
+    }
+
+    public void log(String message) {
+        log(message, LogLevels.INFO);
     }
 
     public void log(String message, LogLevels level) {
@@ -38,10 +46,10 @@ public class Logger {
         Calendar calTime = Calendar.getInstance();
         String strTime = sdfTime.format(calTime.getTime());
 
-        writer.printf("%s <%s>%s %s >> %s", level.toString(), id, strDate, strTime, message);
+        writer.printf("%s <%s>%s %s >> %s\n", level.toString(), id, strDate, strTime, message);
 
         if(Memebot.debug) {
-            System.out.printf("%s <%s>%s %s >> %s", level.toString(), id, strDate, strTime, message);
+            System.out.printf("%s <%s>%s %s >> %s\n", level.toString(), id, strDate, strTime, message);
         }
     }
 }

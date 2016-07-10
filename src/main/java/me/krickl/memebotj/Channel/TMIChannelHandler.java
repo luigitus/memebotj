@@ -68,7 +68,7 @@ public class TMIChannelHandler extends ChannelHandler {
             try {
                 new File(Memebot.memebotDir + "/channels/" + channel).createNewFile();
             } catch (IOException e) {
-                log.log(Level.WARNING, e.toString());
+                log.log(e.toString());
             }
         }
         this.isJoined = true;
@@ -94,7 +94,7 @@ public class TMIChannelHandler extends ChannelHandler {
         }
 
         if (this.currentMessageCount >= me.krickl.memebotj.Memebot.messageLimit) {
-            log.log(Level.SEVERE ,"Reached global message limit for 30 seconds. try again later");
+            log.log("Reached global message limit for 30 seconds. try again later");
             this.preventMessageCooldown.startCooldown();
         }
         // ignore /ignore to avoid people being ignored by the bot /ban glitch with parameters discovered by CatlyMeows

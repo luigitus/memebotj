@@ -116,7 +116,7 @@ public class DampeCommand extends CommandHandler {
                 setSuccess(true);
             }
         } catch (NumberFormatException e) {
-            log.warning(e.toString());
+            log.log(e.toString());
         }
 
         this.writeDB();

@@ -57,7 +57,7 @@ public class SendMessageCommand extends CommandHandler {
                 getChannelHandler().sendMessage(message, sendToChannel, sender, false, true);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            log.warning(e.toString());
+            log.log(e.toString());
         }
     }
 }

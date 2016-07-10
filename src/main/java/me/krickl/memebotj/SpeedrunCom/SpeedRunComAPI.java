@@ -65,7 +65,7 @@ public class SpeedRunComAPI implements Runnable {
     public void run() {
         while (Memebot.twitchAPI != null && !Memebot.twitchAPI.isCycleDone()) {
             try {
-                Memebot.log.info("SpeedRunComAPI: Waiting for first completed cycle.");
+                Memebot.log.log("SpeedRunComAPI: Waiting for first completed cycle.");
                 Thread.sleep(15000);
             } catch (InterruptedException ignored) {
             }
@@ -75,7 +75,7 @@ public class SpeedRunComAPI implements Runnable {
                 update(Memebot.joinedChannels.get(i));
                 if (!(i + 1 == Memebot.joinedChannels.size())) {
                     try {
-                        Memebot.log.info("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                        Memebot.log.log("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                                 + ", pausing before continuing.");
                         if (!Memebot.debug) {
                             Thread.sleep(5000); // 5 second pause
@@ -83,7 +83,7 @@ public class SpeedRunComAPI implements Runnable {
                     } catch (InterruptedException ignored) {
                     }
                 } else {
-                    Memebot.log.info("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                    Memebot.log.log("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                             + ", Update cycle completed. Next update is scheduled in " + updateCycleMinuets + " minuets.");
                 }
             }
