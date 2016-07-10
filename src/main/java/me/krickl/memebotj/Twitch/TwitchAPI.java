@@ -100,7 +100,7 @@ public class TwitchAPI implements Runnable {
             if (Memebot.isTwitchBot) {
                 Call<Streams> streamCall = service.getStream(ch.getBroadcaster());
                 retrofit2.Response<Streams> response = streamCall.execute();
-                if(response.code() >= 300) {
+                if(response.code() <= 300) {
                     Stream stream = response.body().getStream();
                     if (stream == null) {
                         ch.setLive(false);

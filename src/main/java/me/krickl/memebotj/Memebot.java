@@ -502,7 +502,7 @@ public class Memebot {
         formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
         formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
         formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
-        formattedOutput = formattedOutput.replace("{appname}", BuildInfo.buildNumber);
+        formattedOutput = formattedOutput.replace("{build}", BuildInfo.buildNumber);
         formattedOutput = formattedOutput.replace("{builddate}", BuildInfo.timeStamp);
         formattedOutput = formattedOutput.replace("{date}", strDate);
         formattedOutput = formattedOutput.replace("{time}", strTime);
@@ -701,18 +701,6 @@ public class Memebot {
         }
 
         return dirList;
-    }
-
-    /***
-     * This method creates loggers based on log levels
-     * @param name
-     * @param logLevel
-     * @return
-     */
-    public static Logger getLogger(String name, Level logLevel) {
-        Logger log = Logger.getLogger(name);
-        log.setLevel(logLevel);
-        return log;
     }
 
     public static JSONObject toJSONObject() {

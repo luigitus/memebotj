@@ -145,7 +145,7 @@ public class TMIChannelHandler extends ChannelHandler {
         super.update();
 
         // autorehost if channel is offline
-        if(!isLive && autoRehostCooldown.canContinue() && !isHosting && enableAutoHost) {
+        if(!isLive && autoRehostCooldown.canContinue() && !isHosting && enableAutoHost && !isTwitchAPIUpdateFailed()) {
             ArrayList<String> channelsToHost = new ArrayList<>();
 
             for(ChannelHandler channelHandler : Memebot.joinedChannels) {
