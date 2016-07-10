@@ -40,11 +40,10 @@ public class UserHandler implements Comparable<UserHandler> {
     private String channelOrigin = "";
     private String nickname = "";
     private double points = 0.0f;
-    // private boolean isJoined = false
+
     private Cooldown userCooldown = new Cooldown(0);
     private String autogreet = "";
-    // todo old db code - remove soon
-    //MongoCollection<Document> userCollection = null;
+
     private java.util.HashMap<String, Cooldown> userCommandCooldowns = new java.util.HashMap<String, Cooldown>();
     private String modNote = "";
     private SecureRandom random = new SecureRandom();
@@ -63,8 +62,6 @@ public class UserHandler implements Comparable<UserHandler> {
 
     private boolean pointsUpdateDone = false;
 
-    //private Inventory userInventory;
-
     private int lastTimeoutDuration = 0;
     private String lastTimeoutReason = "";
 
@@ -82,16 +79,10 @@ public class UserHandler implements Comparable<UserHandler> {
             setCommandPower(CommandPower.broadcasterAbsolute);
         }
 
-        //userInventory = new Inventory(username, channelOrigin, this);
-
         if (Memebot.useMongo) {
             if (!Memebot.channelsPrivate.contains(this.channelOrigin)) {
-                // todo old db code - remove soon
-                //this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
                 mongoHandler = new MongoHandler(Memebot.db, this.channelOrigin + "_users");
             } else {
-                // todo old db code - remove soon
-                //this.userCollection = Memebot.dbPrivate.getCollection(this.channelOrigin + "_users");
                 mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelOrigin + "_users");
             }
         }
@@ -131,18 +122,6 @@ public class UserHandler implements Comparable<UserHandler> {
             log.log(Level.WARNING, e1.toString());
             this.newUser = true;
         }
-
-        /*try {
-            mongoHandler.readDatabase(this.id, "_id_new");
-        } catch (DatabaseReadException | IllegalArgumentException e) {
-            try {
-                mongoHandler.readDatabase(this.username);
-            } catch (DatabaseReadException | IllegalArgumentException e1) {
-                log.warning(e1.toString());
-                this.newUser = true;
-            }
-            return;
-        }*/
 
         this.username = (String) mongoHandler.getObject("_id", this.username);
         this.id = (String) mongoHandler.getObject("_id_new", this.id);
@@ -205,8 +184,6 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public void update(ChannelHandler channelHandler) {
-        //userInventory.update();
-
         // remove unused cooldowns asap
         ArrayList<String> toRemove = new ArrayList<>();
 

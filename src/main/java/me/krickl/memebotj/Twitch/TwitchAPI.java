@@ -100,7 +100,7 @@ public class TwitchAPI implements Runnable {
             if (Memebot.isTwitchBot) {
                 Call<Streams> streamCall = service.getStream(ch.getBroadcaster());
                 retrofit2.Response<Streams> response = streamCall.execute();
-                if(response.code() != 404) {
+                if(response.code() >= 300) {
                     Stream stream = response.body().getStream();
                     if (stream == null) {
                         ch.setLive(false);
@@ -112,6 +112,10 @@ public class TwitchAPI implements Runnable {
                         // When the stream is live, we get the channel data too! One API call less
                         parseChannel(ch, stream.getChannel());
                     }
+
+                    ch.setTwitchAPIUpdateFailed(false);
+                } else {
+                    ch.setTwitchAPIUpdateFailed(true);
                 }
             } else {
                 ch.setLive(true);

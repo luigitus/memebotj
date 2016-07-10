@@ -125,6 +125,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
 
     protected boolean enableAutoHost = false;
     protected boolean opOutOfAutofAutohost = false;
+    protected boolean twitchAPIUpdateFailed = false;
 
     public ChannelHandler(String channel, IConnection connection) {
         this.channel = channel;
@@ -326,10 +327,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         if (this.updateCooldown.canContinue()) {
             this.updateCooldown.startCooldown();
 
-            //update channel api information
-            //twitchChannelAPI.update();
-            //speedRunComAPI.update();
-
             this.writeDB();
         }
 
@@ -503,6 +500,14 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
     @Override
     public int compareTo(ChannelHandler another) {
         return channel.compareTo(another.getChannel());
+    }
+
+    public boolean isTwitchAPIUpdateFailed() {
+        return twitchAPIUpdateFailed;
+    }
+
+    public void setTwitchAPIUpdateFailed(boolean twitchAPIUpdateFailed) {
+        this.twitchAPIUpdateFailed = twitchAPIUpdateFailed;
     }
 
     public int getNeededAutogreetCommandPower() {
