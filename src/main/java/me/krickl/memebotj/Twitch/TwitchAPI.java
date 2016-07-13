@@ -3,6 +3,7 @@ package me.krickl.memebotj.Twitch;
 import com.google.gson.JsonSyntaxException;
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Memebot;
+import me.krickl.memebotj.Plugins.IPlugin;
 import me.krickl.memebotj.Twitch.Model.Channel;
 import me.krickl.memebotj.Twitch.Model.KrakenRoot;
 import me.krickl.memebotj.Twitch.Model.Stream;
@@ -24,8 +25,7 @@ import java.util.ArrayList;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public class TwitchAPI implements Runnable {
-    private Thread t = null;
+public class TwitchAPI extends IPlugin implements Runnable {
     private int updateCycleMinuets = 7;
     private boolean cycleDone = false;
     private ITwitchKraken service;
@@ -56,13 +56,6 @@ public class TwitchAPI implements Runnable {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         service = retrofit.create(ITwitchKraken.class);
-    }
-
-    public void start() {
-        if (t == null) {
-            t = new Thread(this, "TwitchAPI");
-            t.start();
-        }
     }
 
     @Override
@@ -208,9 +201,5 @@ public class TwitchAPI implements Runnable {
 
     public boolean isCycleDone() {
         return cycleDone;
-    }
-
-    public Thread getT() {
-        return t;
     }
 }

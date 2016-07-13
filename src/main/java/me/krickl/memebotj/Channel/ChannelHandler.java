@@ -993,7 +993,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.useRotatingColours = useRotatingColours;
     }
 
-
     public boolean isUseDiscord() {
         return useDiscord;
     }

@@ -7,11 +7,13 @@ import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Channel.TMIChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Commands.CommandReference;
+import me.krickl.memebotj.Commands.ICommand;
 import me.krickl.memebotj.Connection.IConnection;
 import me.krickl.memebotj.Connection.Discord.DiscordConnectionHandler;
 import me.krickl.memebotj.Connection.TMI.TMIConnectionHandler;
 import me.krickl.memebotj.Log.LogLevels;
 import me.krickl.memebotj.Log.MLogger;
+import me.krickl.memebotj.Plugins.IPlugin;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.User.UserHandler;
@@ -24,7 +26,9 @@ import org.json.simple.JSONObject;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -76,8 +80,7 @@ public class Memebot {
     public static MongoDatabase db = null;
     public static int webPort = 4567;
 
-    public static TwitchAPI twitchAPI = null;
-    public static SpeedRunComAPI speedRunComAPI = null;
+    public static HashMap<String, IPlugin> plugins = new HashMap<>();
 
     //public static MongoCollection<Document> internalCollection = null;
     public static String webBaseURL = "";
@@ -195,10 +198,10 @@ public class Memebot {
             Memebot.joinChannel(channel);
         }
 
-        twitchAPI = new TwitchAPI();
-        twitchAPI.start();
-        speedRunComAPI = new SpeedRunComAPI();
-        speedRunComAPI.start();
+        plugins.put("twitchapi", new TwitchAPI());
+        plugins.get("twitchapi").start();
+        plugins.put("speedruncomapi", new SpeedRunComAPI());
+        plugins.get("speedruncomapi").start();
     }
 
     public static void mainLoop() {
@@ -213,14 +216,14 @@ public class Memebot {
                 }
             }
 
-            if (!twitchAPI.getT().isAlive()) {
-                twitchAPI = new TwitchAPI();
-                twitchAPI.start();
+            if (!plugins.get("twitchapi").getT().isAlive()) {
+                plugins.replace("twitchapi", new TwitchAPI());
+                plugins.get("twitchapi").start();
             }
 
-            if (!speedRunComAPI.getT().isAlive()) {
-                speedRunComAPI = new SpeedRunComAPI();
-                speedRunComAPI.start();
+            if (!plugins.get("speedruncomapi").getT().isAlive()) {
+                plugins.replace("speedruncomapi", new TwitchAPI());
+                plugins.get("speedruncomapi").start();
             }
 
             try {
@@ -541,6 +544,17 @@ public class Memebot {
         }
 
         return formattedOutput;
+    }
+
+    /***
+     * This class will load the internal commands from external classes
+     * This way commands can be reloaded dynamically without a bot restart
+     * @return
+     */
+    public static ArrayList<ICommand> loadPluginCommands() throws MalformedURLException, ClassNotFoundException {
+        ArrayList<ICommand> commands = new ArrayList<>();
+
+        return commands;
     }
 
     /***

@@ -2,9 +2,11 @@ package me.krickl.memebotj.SpeedrunCom;
 
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Memebot;
+import me.krickl.memebotj.Plugins.IPlugin;
 import me.krickl.memebotj.SpeedrunCom.Model.Games;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
 import me.krickl.memebotj.SpeedrunCom.Model.UsersLookup;
+import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.BuildInfo;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -22,7 +24,7 @@ import java.util.ArrayList;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public class SpeedRunComAPI implements Runnable {
+public class SpeedRunComAPI extends IPlugin implements Runnable {
     private Thread t = null;
     private int updateCycleMinuets = 10;
 
@@ -54,16 +56,10 @@ public class SpeedRunComAPI implements Runnable {
         service = retrofit.create(ISpeedRunCom.class);
     }
 
-    public void start() {
-        if (t == null) {
-            t = new Thread(this, "SpeedRunComAPI");
-            t.start();
-        }
-    }
-
     @Override
     public void run() {
-        while (Memebot.twitchAPI != null && !Memebot.twitchAPI.isCycleDone()) {
+        TwitchAPI twitchAPI = (TwitchAPI)Memebot.plugins.get("twitchapi");
+        while (twitchAPI != null && !twitchAPI.isCycleDone()) {
             try {
                 Memebot.log.log("SpeedRunComAPI: Waiting for first completed cycle.");
                 Thread.sleep(15000);
@@ -142,9 +138,5 @@ public class SpeedRunComAPI implements Runnable {
 
     public ISpeedRunCom getService() {
         return service;
-    }
-
-    public Thread getT() {
-        return t;
     }
 }
