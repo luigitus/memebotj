@@ -26,6 +26,7 @@ public class DoggyRaceCommand extends CommandHandler {
         this.setNeededCommandPower(CommandPower.viewerAbsolute);
 
         this.setHelptext(Memebot.formatText("DOGGY_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
+        this.setEnabled(false);
     }
 
     @Override

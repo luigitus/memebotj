@@ -222,7 +222,7 @@ public class Memebot {
             }
 
             if (!plugins.get("speedruncomapi").getT().isAlive()) {
-                plugins.replace("speedruncomapi", new TwitchAPI());
+                plugins.replace("speedruncomapi", new SpeedRunComAPI());
                 plugins.get("speedruncomapi").start();
             }
 
