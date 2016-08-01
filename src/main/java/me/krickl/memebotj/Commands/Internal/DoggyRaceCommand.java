@@ -14,6 +14,7 @@ import java.util.ArrayList;
  * This file is part of memebotj.
  * Created by unlink on 17/05/16.
  */
+@Deprecated
 public class DoggyRaceCommand extends CommandHandler {
     private Document entrants = new Document();
 
@@ -24,7 +25,7 @@ public class DoggyRaceCommand extends CommandHandler {
     @Override
     public void overrideDB() {
         this.setNeededCommandPower(CommandPower.viewerAbsolute);
-
+        this.setEnabled(false);
         this.setHelptext(Memebot.formatText("DOGGY_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
         this.setEnabled(false);
     }

@@ -89,22 +89,14 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         if (Memebot.useMongo) {
             if (!Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel())) {
                 if (dbprefix == null) {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.db.getCollection(this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.db, this.channelHandler.getChannel() + "_commands");
                 } else {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.db.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.db, dbprefix + this.channelHandler.getChannel() + "_commands");
                 }
             } else {
                 if (dbprefix == null) {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.dbPrivate.getCollection(this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelHandler.getChannel() + "_commands");
                 } else {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.dbPrivate.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.dbPrivate, dbprefix + this.channelHandler.getChannel() + "_commands");
                 }
             }
@@ -398,7 +390,8 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         try {
             if (data[1].equals("add") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                 if (listContent.size() >= listLimit) {
-                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true,
+                            new String[]{}, "");
                     this.success = false;
                 } else {
                     String newEntry = "";
@@ -406,7 +399,8 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                         newEntry = newEntry + data[i] + " ";
                     }
                     if (newEntry.isEmpty()) {
-                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
+                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true,
+                                new String[]{}, "");
                         this.success = false;
                     } else {
                         this.listContent.add(newEntry + " " + Memebot.formatText(this.commandScript,
@@ -420,7 +414,8 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 }
             } else if (data[1].equals("suggest")) {
                 if (suggestedList.size() >= listLimit) {
-                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true,
+                            new String[]{}, "");
                     this.success = false;
                 } else {
                     // allow users to suggest quotes
@@ -429,11 +424,13 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                         newEntry = newEntry + data[i] + " ";
                     }
                     if (newEntry.isEmpty()) {
-                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
+                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true,
+                                new String[]{}, "");
                         this.success = false;
                     } else {
                         String newEntryFormatted = newEntry + " " +
-                                Memebot.formatText(this.commandScript, channelHandler, sender, this, false, new String[]{}, "");
+                                Memebot.formatText(this.commandScript, channelHandler, sender, this, false,
+                                        new String[]{}, "");
                         if (!this.suggestedList.contains(newEntryFormatted)) {
                             this.suggestedList.add(newEntryFormatted);
                         }
@@ -457,13 +454,14 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                     }
                     formattedOutput = Memebot.formatText("REPLACED", channelHandler, sender, this, true, new String[]{}, "");
                 } else {
-                    formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                    formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true,
+                            new String[]{}, "");
                 }
 
                 this.startCooldown = false;
             } else if (data[1].equals("approve") &&
                     checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-
+                // todo add ability to approve all or a range of items
                 int index = -1;
                 try {
                     index = Integer.parseInt(data[2]) - 1;
@@ -475,14 +473,24 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                     index = suggestedList.size() - 1;
                 }
 
-                if (this.suggestedList.size() > index) {
-                    this.listContent.add(suggestedList.get(index));
-                    suggestedList.remove(suggestedList.get(index));
-                    formattedOutput = Memebot.formatText("APPROVED", channelHandler, sender, this, true,
-                            new String[]{}, "");
+                if(data[2].equals("all")) {
+                    for(String item : suggestedList) {
+                        this.listContent.add(suggestedList.get(index));
+                        formattedOutput = Memebot.formatText("APPROVED_ALL", channelHandler, sender, this, true,
+                                new String[]{}, "");
+                    }
+
+                    suggestedList.clear();
                 } else {
-                    formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
-                            new String[]{Integer.toString(this.suggestedList.size())}, "");
+                    if (this.suggestedList.size() > index) {
+                        this.listContent.add(suggestedList.get(index));
+                        suggestedList.remove(suggestedList.get(index));
+                        formattedOutput = Memebot.formatText("APPROVED", channelHandler, sender, this, true,
+                                new String[]{}, "");
+                    } else {
+                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                                new String[]{Integer.toString(this.suggestedList.size())}, "");
+                    }
                 }
 
                 this.startCooldown = false;
@@ -552,7 +560,9 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 this.startCooldown = false;
             } else if (data[1].equals("list")) {
                 try {
-                    formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
+                    formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true,
+                            new String[]{channelHandler.getChannelPageBaseURL() + "/" +
+                                    URLEncoder.encode(this.commandName, "UTF-8")}, "");
                     //success = true;
                 } catch (Exception e) {
                     log.log(e.toString());
@@ -601,7 +611,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
             try {
                 Random rand = new Random();
                 int i = rand.nextInt(this.listContent.size());
-                formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i));
+                formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i + 1)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i + 1));
                 success = true;
             } catch (IllegalArgumentException e1) {
                 log.log(e1.toString());

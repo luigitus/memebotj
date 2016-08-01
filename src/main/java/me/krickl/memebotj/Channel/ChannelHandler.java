@@ -41,8 +41,6 @@ import java.util.logging.Logger;
 public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHandler>, IDatabaseObject,
         IJSON {
     public static MLogger log = MLogger.createLogger(ChannelHandler.class.getName());
-    // todo old db code - remove soon
-    //private MongoCollection<Document> channelCollection = null;
     protected IDatabase mongoHandler = null;
     protected int nextID = 0;
     protected String channel = "";
@@ -84,6 +82,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
     protected UserHandler readOnlyUser = new UserHandler("#readonly#", this.channel);
     protected boolean allowGreetMessage = false;
 
+    @Deprecated
     protected double maxPoints = 100000.0f;
 
     protected double startingPoints = 50.0f;
@@ -136,26 +135,14 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         channelPageBaseURL = Memebot.webBaseURL + "/commands/" + this.broadcaster;
         log.log("Joining channel " + this.channel,  LogLevels.INFO);
 
-        /*try {
-            File f = new File(Memebot.memebotDir + "/logs/" + channel + ".log");
-            if (!f.exists())
-                f.createNewFile();
-            writer = new BufferedWriter(new FileWriter(f, true));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
         this.userList.put("#readonly#", readOnlyUser);
 
         this.joinChannel(this.channel);
 
         if (Memebot.useMongo) {
             if (!Memebot.channelsPrivate.contains(this.channel)) {
-                // todo old db code - remove soon
-                //this.channelCollection = Memebot.db.getCollection(this.channel);
                 mongoHandler = new MongoHandler(Memebot.db, this.channel);
             } else {
-                // todo old db code - remove soon
-                //this.channelCollection = Memebot.dbPrivate.getCollection(this.channel);
                 mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channel);
             }
         }
@@ -163,7 +150,6 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.readDB();
         localisation = new Localisation(this.local);
 
-        // todo add all internal commands
         this.internalCommands.add(new AboutCommand(this, "!about", "#internal#"));
         this.internalCommands.add(new AutogreetCommand(this, "!autogreet", "#internal#"));
         this.internalCommands.add(new EditChannelCommand(this, "!channel", "#internal#"));
@@ -189,13 +175,12 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.internalCommands.add(new RestartThreadCommand(this, "!restartt", "#internal#"));
         this.internalCommands.add(new LoginCredentials(this, "!setlogin", "#internal#"));
         this.internalCommands.add(new SongRequestCommand(this, "!songrequest", "#internal#"));
-        //this.internalCommands.add(new GrassCommand(this, "!grass", "#internal#"));
-        //this.internalCommands.add(new InventoryCommand(this, "!inventory", "#internal#"));
         this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         this.internalCommands.add(new WorldRecordCommand(this, "!wr", "#internal#"));
         this.internalCommands.add(new UptimeCommand(this, "!uptime", "#internal#"));
         this.internalCommands.add(new DoggyRaceCommand(this, "!doggy", "#internal#"));
         this.internalCommands.add(new AliasCommand(this, "!alias", "#internal#"));
+        this.internalCommands.add(new BypassCooldownCommand(this, "!bp", "#internal#"));
 
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));

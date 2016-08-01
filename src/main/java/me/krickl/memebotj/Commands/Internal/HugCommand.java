@@ -27,6 +27,10 @@ public class HugCommand extends CommandHandler {
                 getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_BOT"),
                         getChannelHandler(), sender, this, false, new String[]{}, getChannelHandler().getChannel()),
                         getChannelHandler().getChannel(), sender, isWhisper());
+            } else if(data[0].equalsIgnoreCase(sender.getUsername())) {
+                String msg = Memebot.formatText("HUG_SELF", getChannelHandler(), sender, this, true,
+                        new String[]{}, "");
+                getChannelHandler().sendMessage(msg, getChannelHandler().getChannel(), sender, isWhisper());
             } else {
                 getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_SOMEONE"),
                         getChannelHandler(), sender, this, false, new String[]{sender.screenName(), data[0]},
