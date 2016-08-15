@@ -185,7 +185,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
 
-        CommandHandler issueCommand = new CommandHandler(this, "!issue", "#internal#");
+        CommandHandler issueCommand = new CommandHandler(this, "!issue", "#debug#");
         issueCommand.editCommand("output", "{sender}: Having issues? Write a " +
                 "bugreport at https://github.com/unlink2/memebotj/issues",
                 new UserHandler("#internal#", this.channel));

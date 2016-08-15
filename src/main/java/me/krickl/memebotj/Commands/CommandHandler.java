@@ -78,6 +78,8 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
 
     private boolean pointsUpdateDone = false;
 
+    private String mode = "";
+
     private String id = null;
 
     public CommandHandler(ChannelHandler channelHandler, String commandName, String dbprefix) {
@@ -195,6 +197,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         this.state = (int) mongoHandler.getObject("state", this.state);
         this.suggestedList = (ArrayList<String>) mongoHandler.getObject("suggestedList", suggestedList);
         uses = (int) mongoHandler.getObject("uses", uses);
+        mode = (String) mongoHandler.getObject("mode", mode);
         cooldownOffsetPerViewer = (int) mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
         Document cooldownDoc = (Document) mongoHandler.getObject("cooldowndoc",
                 Cooldown.createCooldownDocument(cooldownLength, uses));
@@ -248,6 +251,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         mongoHandler.updateDocument("timercd", this.timerCooldown.getDoc());
         mongoHandler.updateDocument("cooldowndoc", this.cooldown.getDoc());
         mongoHandler.updateDocument("hex_id", this.id);
+        mongoHandler.updateDocument("mode", this.mode);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -549,7 +553,12 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                         formattedOutput = Memebot.formatText("EDITED", channelHandler, sender, this, true, new String[]{}, "");
                         this.success = true;
                     } else {
-                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
+                        if(index == 801) {
+                            formattedOutput = "801 fake " + commandName;
+                        } else {
+                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                                    new String[]{Integer.toString(this.listContent.size())}, "");
+                        }
                     }
                 } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
                     log.log(e.toString(), LogLevels.INFO);
@@ -858,6 +867,9 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
             } else if (modType.equals("timer")) {
                 timerCooldown = new Cooldown(Integer.parseInt(newValue), 0);
                 success = true;
+            } else if(modType.equals("mode")) {
+                mode = newValue;
+                success = true;
             }
         } catch (NumberFormatException e) {
             log.log(String.format("Screw you Luigitus: %s", e.toString()));
@@ -870,6 +882,54 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
     @Override
     public int compareTo(CommandHandler another) {
         return commandName.compareTo(another.getCommandName());
+    }
+
+    public boolean isStartCooldown() {
+        return startCooldown;
+    }
+
+    public void setStartCooldown(boolean startCooldown) {
+        this.startCooldown = startCooldown;
+    }
+
+    public int getListLimit() {
+        return listLimit;
+    }
+
+    public void setListLimit(int listLimit) {
+        this.listLimit = listLimit;
+    }
+
+    public Cooldown getTimerCooldown() {
+        return timerCooldown;
+    }
+
+    public void setTimerCooldown(Cooldown timerCooldown) {
+        this.timerCooldown = timerCooldown;
+    }
+
+    public boolean isPointsUpdateDone() {
+        return pointsUpdateDone;
+    }
+
+    public void setPointsUpdateDone(boolean pointsUpdateDone) {
+        this.pointsUpdateDone = pointsUpdateDone;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getLastOutput() {

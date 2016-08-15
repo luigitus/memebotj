@@ -2,11 +2,14 @@ package me.krickl.memebotj.Commands.Internal;
 
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Database.MongoHandler;
+import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.*;
 import me.krickl.memebotj.SpeedrunCom.ISpeedRunCom;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.User.UserHandler;
+import me.krickl.memebotj.Utility.CommandPower;
 import retrofit2.Call;
 
 import java.io.IOException;
@@ -18,8 +21,18 @@ import java.util.concurrent.TimeUnit;
  * Created by Luigitus on 01/05/16.
  */
 public class WorldRecordCommand extends CommandHandler {
+    private MongoHandler worldRecordOverrideHandler;
+
     public WorldRecordCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
+
+        worldRecordOverrideHandler = new MongoHandler(Memebot.db, "#worldrecords#");
+
+        try {
+            worldRecordOverrideHandler.readDatabase("wrs");
+        } catch(DatabaseReadException e) {
+            log.log(e.toString());
+        }
     }
 
     @Override
@@ -29,6 +42,14 @@ public class WorldRecordCommand extends CommandHandler {
                 if (data[0].equals("list")) {
                     getChannelHandler().sendMessage(formatString(sender, true), getChannelHandler().getChannel(), sender, isWhisper());
                     return;
+                } else if(data[0].equals("issue")) {
+                    String message = Memebot.formatText("WR_ISSUE", getChannelHandler(), sender, this, true,
+                            new String[]{}, "");
+                    getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
+                } else if(data[0].equals("add") && checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
+
+                } else if(data[0].equals("remove") && checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
+
                 }
             } catch (ArrayIndexOutOfBoundsException ignored) {
             }

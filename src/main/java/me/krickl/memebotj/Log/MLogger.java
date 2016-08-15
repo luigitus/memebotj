@@ -1,18 +1,21 @@
 package me.krickl.memebotj.Log;
 
 import me.krickl.memebotj.Memebot;
+import me.krickl.memebotj.Utility.Cooldown;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Properties;
 
 /**
  * Created by unlink on 7/10/2016.
  */
 public class MLogger {
     private static LogLevels level = LogLevels.DEBUG;
+    public static ArrayList<String> allLogs = new ArrayList<String>();
+    public static Cooldown emailInterval = new Cooldown(36000);
     private PrintWriter writer;
     private String id;
 
@@ -38,18 +41,26 @@ public class MLogger {
     }
 
     public void log(String message, LogLevels level) {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd"); // dd/MM/yyyy
-        Calendar cal = Calendar.getInstance();
-        String strDate = sdfDate.format(cal.getTime());
+        try {
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd"); // dd/MM/yyyy
+            Calendar cal = Calendar.getInstance();
+            String strDate = sdfDate.format(cal.getTime());
 
-        SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm:ss a");
-        Calendar calTime = Calendar.getInstance();
-        String strTime = sdfTime.format(calTime.getTime());
+            SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm:ss a");
+            Calendar calTime = Calendar.getInstance();
+            String strTime = sdfTime.format(calTime.getTime());
 
-        writer.printf("%s <%s>%s %s >> %s\n", level.toString(), id, strDate, strTime, message);
+            String formattedMessage = String.format("%s <%s>%s %s >> %s\n", level.toString(), id, strDate, strTime, message);
 
-        if(Memebot.debug) {
-            System.out.printf("%s <%s>%s %s >> %s\n", level.toString(), id, strDate, strTime, message);
+            writer.printf(formattedMessage);
+
+            if (Memebot.debug) {
+                System.out.printf(formattedMessage);
+            }
+
+            allLogs.add(formattedMessage);
+        } catch(java.util.UnknownFormatConversionException e) {
+
         }
     }
 }

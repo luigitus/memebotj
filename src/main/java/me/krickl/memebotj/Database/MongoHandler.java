@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 /**
  * This file is part of memebotj.
  * Created by unlink on 17/04/16.
- * This class will eventually handle all db reads/writes to unify that
+ * This class handles all database reads and writes
  */
 public class MongoHandler implements IDatabase<Document> {
     public static MLogger log = MLogger.createLogger(MongoHandler.class.getName());

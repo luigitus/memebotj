@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  * This file is part of memebotj.
  * Created by unlink on 04/04/16.
  */
-//todo rewrite main class
+// todo rewrite main class
 public class Memebot {
     public static final int messageLimit = 19; // message limit per 30 seconds
     public static MLogger log = MLogger.createLogger(Memebot.class.getName());
@@ -110,6 +110,11 @@ public class Memebot {
     public static String connectionMode = "irc";
 
     public static String discordOauth = "";
+
+    public static String mailToRecipient = "";
+    public static String mailServerAddress = "localhost";
+    public static String mailSender = "";
+    public static String mailServer = "mail.smtp.host";
 
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
@@ -316,6 +321,10 @@ public class Memebot {
         Memebot.cliInput = Boolean.parseBoolean(config.getProperty("climode", Boolean.toString(Memebot.cliInput)));
         Memebot.connectionMode = config.getProperty("connectionmode", Memebot.connectionMode);
         Memebot.discordOauth = config.getProperty("discordOauth", discordOauth);
+        Memebot.mailToRecipient = config.getProperty("mailtorecipient", mailToRecipient);
+        Memebot.mailServer = config.getProperty("mailserveraddress", mailServer);
+        Memebot.mailSender = config.getProperty("mailsender", mailSender);
+        Memebot.mailServer = config.getProperty("mailserver", mailServer);
 
         if (!Memebot.debug) {
             try {

@@ -199,7 +199,7 @@ public class UserHandler implements Comparable<UserHandler> {
             userCommandCooldowns.remove(key);
         }
 
-        //todo implement idle cooldown
+        // todo implement idle cooldown
     }
 
     public boolean canRemove() {
