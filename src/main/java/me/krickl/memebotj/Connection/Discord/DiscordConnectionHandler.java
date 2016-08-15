@@ -46,6 +46,10 @@ public class DiscordConnectionHandler implements IConnection {
                     raw.replace("!tts ", "");
                 }
 
+                if(raw.startsWith("!mejoin")) {
+                    return;
+                }
+
                 // todo make this less hacky and shit
                 for(ChannelHandler channelHandler : Memebot.joinedChannels) {
                     System.out.print(message.getChannelReceiver().getServer().getId() + " " + channelHandler.getDiscordChannel() + "\n");
