@@ -181,6 +181,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.internalCommands.add(new DoggyRaceCommand(this, "!doggy", "#internal#"));
         this.internalCommands.add(new AliasCommand(this, "!alias", "#internal#"));
         this.internalCommands.add(new BypassCooldownCommand(this, "!bp", "#internal#"));
+        this.internalCommands.add(new MorninCommand(this, "@" + getConnection().getBotNick(), "#internal#"));
 
         //this.internalCommands.add(new PersonalBestCommand(this, "!pb", "#internal#"));
         // todo implement this this. internalCommands.add(new LotteryCommand(this, "!lottery", "#internal#"));
