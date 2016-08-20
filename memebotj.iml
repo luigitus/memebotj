@@ -20,43 +20,7 @@
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="inheritedJdk" />
-    <orderEntry type="module-library" exported="">
-      <library name="json-simple.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/json-simple.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="bson.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/bson.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="mongodb-driver.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/mongodb-driver.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="mongodb.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/mongodb.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.2.2" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.10" level="project" />

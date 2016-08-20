@@ -7,13 +7,11 @@ import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.MessagePackage;
-import me.krickl.memebotj.Utility.RNGObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 /**
  * This file is part of memebotj.
@@ -149,7 +147,7 @@ public class TMIChannelHandler extends ChannelHandler {
             ArrayList<String> channelsToHost = new ArrayList<>();
 
             for(ChannelHandler channelHandler : Memebot.joinedChannels) {
-                if(!channelHandler.isOpOutOfAutofAutohost() && channelHandler.isLive()) {
+                if(!channelHandler.isOpOutOfAutohost() && channelHandler.isLive()) {
                     channelsToHost.add(channelHandler.getBroadcaster());
                 }
             }

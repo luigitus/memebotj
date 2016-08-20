@@ -2,6 +2,7 @@ package me.krickl.memebotj.Database;
 
 
 import com.mongodb.Block;
+import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -19,11 +20,12 @@ import java.util.logging.Logger;
  */
 public class MongoHandler implements IDatabase<Document> {
     public static MLogger log = MLogger.createLogger(MongoHandler.class.getName());
+    public static WriteConcern safeWriteConcern = new WriteConcern(1);
     Document document = new Document();
     private MongoCollection<Document> collection = null;
 
     public MongoHandler(MongoDatabase db, String collectionName) {
-        collection = db.getCollection(collectionName);
+        collection = db.getCollection(collectionName).withWriteConcern(safeWriteConcern);
     }
 
     public boolean readDatabase(String id) throws DatabaseReadException {

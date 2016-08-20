@@ -15,6 +15,7 @@ public class MorninCommand extends CommandHandler {
 
     @Override
     public void overrideDB() {
+        this.setUserCooldownLength(10);
     }
 
     @Override

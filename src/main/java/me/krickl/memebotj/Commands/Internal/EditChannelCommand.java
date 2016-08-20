@@ -1,6 +1,5 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
@@ -102,7 +101,7 @@ public class EditChannelCommand extends CommandHandler {
             } else if(data[0].equals("enableautohost")) {
                 getChannelHandler().setEnableAutoHost(Boolean.parseBoolean(data[1]));
             } else if(data[0].equals("hostoptout")) {
-                getChannelHandler().setOpOutOfAutofAutohost(Boolean.parseBoolean(data[1]));
+                getChannelHandler().setOpOutOfAutohost(Boolean.parseBoolean(data[1]));
             } else {
                 setSuccess(false);
             }

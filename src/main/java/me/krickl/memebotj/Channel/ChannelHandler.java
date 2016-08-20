@@ -23,16 +23,10 @@ import me.krickl.memebotj.Utility.Localisation;
 import org.bson.Document;
 import org.json.simple.JSONObject;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This file is part of memebotj.
@@ -124,7 +118,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
     protected String lastMessage = "";
 
     protected boolean enableAutoHost = false;
-    protected boolean opOutOfAutofAutohost = false;
+    protected boolean opOutOfAutohost = false;
     protected boolean twitchAPIUpdateFailed = false;
 
     public ChannelHandler(String channel, IConnection connection) {
@@ -405,7 +399,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
             isLive = (boolean) mongoHandler.getObject("islive", isLive);
             neededAutogreetCommandPower = (int) mongoHandler.getObject("neededAutogreetCommandPower", neededAutogreetCommandPower);
             discordChannel = (String) mongoHandler.getObject("discordChannel", discordChannel);
-            opOutOfAutofAutohost = (boolean) mongoHandler.getObject("opOutOfAutofAutohost", opOutOfAutofAutohost);
+            opOutOfAutohost = (boolean) mongoHandler.getObject("opOutOfAutohost", opOutOfAutohost);
             enableAutoHost = (boolean) mongoHandler.getObject("enableAutoHost", enableAutoHost);
         }
 
@@ -456,7 +450,7 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         mongoHandler.updateDocument("neededAutogreetCommandPower", neededAutogreetCommandPower);
         mongoHandler.updateDocument("discordChannel", discordChannel);
         mongoHandler.updateDocument("enableAutoHost", enableAutoHost);
-        mongoHandler.updateDocument("opOutOfAutofAutohost", opOutOfAutofAutohost);
+        mongoHandler.updateDocument("opOutOfAutohost", opOutOfAutohost);
     }
 
     public void removeDB() {
@@ -1003,12 +997,12 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         this.enableAutoHost = enableAutoHost;
     }
 
-    public boolean isOpOutOfAutofAutohost() {
-        return opOutOfAutofAutohost;
+    public boolean isOpOutOfAutohost() {
+        return opOutOfAutohost;
     }
 
-    public void setOpOutOfAutofAutohost(boolean opOutOfAutofAutohost) {
-        this.opOutOfAutofAutohost = opOutOfAutofAutohost;
+    public void setOpOutOfAutohost(boolean opOutOfAutohost) {
+        this.opOutOfAutohost = opOutOfAutohost;
     }
 
     @Override
