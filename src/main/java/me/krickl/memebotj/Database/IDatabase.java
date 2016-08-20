@@ -30,4 +30,6 @@ public interface IDatabase<T> {
     ArrayList<T> getDocuments();
 
     Document getDocument();
+
+    void update();
 }

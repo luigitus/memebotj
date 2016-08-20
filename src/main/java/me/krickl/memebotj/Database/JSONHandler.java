@@ -63,4 +63,9 @@ public class JSONHandler implements IDatabase {
     public Document getDocument() {
         return null;
     }
+
+    @Override
+    public void update() {
+
+    }
 }

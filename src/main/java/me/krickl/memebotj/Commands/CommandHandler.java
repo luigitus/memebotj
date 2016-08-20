@@ -771,6 +771,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
     }
 
     public void update() {
+        mongoHandler.update();
         if (isCommandType("timer") && (channelHandler.isLive() || Memebot.debug) && timerCooldown.canContinue()) {
             String[] newArray = new String[0];
             this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel()), newArray);

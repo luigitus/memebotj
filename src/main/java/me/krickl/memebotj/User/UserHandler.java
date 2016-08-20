@@ -185,6 +185,7 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public void update(ChannelHandler channelHandler) {
+        mongoHandler.update();
         // remove unused cooldowns asap
         ArrayList<String> toRemove = new ArrayList<>();
 

@@ -274,6 +274,8 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         if (this.shortUpdateCooldown.canContinue()) {
             this.shortUpdateCooldown.startCooldown();
 
+            mongoHandler.update();
+
             ArrayList<String> removeUsers = new java.util.ArrayList<String>();
             Iterator it = this.userList.keySet().iterator();
             while (it.hasNext()) {

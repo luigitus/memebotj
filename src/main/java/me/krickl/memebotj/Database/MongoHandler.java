@@ -12,6 +12,8 @@ import me.krickl.memebotj.Memebot;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -24,6 +26,8 @@ public class MongoHandler implements IDatabase<Document> {
     public static WriteConcern safeWriteConcern = new WriteConcern(Memebot.writeConcernLevel);
     Document document = new Document();
     private MongoCollection<Document> collection = null;
+
+    private HashMap<String, String> outstandingWrites = new HashMap<>();
 
     public MongoHandler(MongoDatabase db, String collectionName) {
         collection = db.getCollection(collectionName).withWriteConcern(safeWriteConcern);
@@ -65,6 +69,10 @@ public class MongoHandler implements IDatabase<Document> {
             }
         } catch (Exception e) {
             log.log(e.toString());
+
+            outstandingWrites.put(id, key);
+
+            return false;
         }
         return true;
     }
@@ -123,6 +131,18 @@ public class MongoHandler implements IDatabase<Document> {
         });
 
         return ret;
+    }
+
+    @Override
+    public void update() {
+        // check every outstanding write and re-try
+        Set<String> keySet = outstandingWrites.keySet();
+        for(String k : keySet) {
+            // the write will automatically be added again in case of a failure
+            writeDatabase(k, outstandingWrites.get(k));
+            // remove last outstanding write
+            outstandingWrites.remove(k);
+        }
     }
 
     public MongoCollection<Document> getCollection() {
