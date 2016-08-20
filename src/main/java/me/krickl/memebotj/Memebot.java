@@ -115,6 +115,7 @@ public class Memebot {
     public static String mailServerAddress = "localhost";
     public static String mailSender = "";
     public static String mailServer = "mail.smtp.host";
+    public static int writeConcernLevel = 1;
 
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
@@ -325,6 +326,7 @@ public class Memebot {
         Memebot.mailServer = config.getProperty("mailserveraddress", mailServer);
         Memebot.mailSender = config.getProperty("mailsender", mailSender);
         Memebot.mailServer = config.getProperty("mailserver", mailServer);
+        Memebot.writeConcernLevel = Integer.parseInt(config.getProperty("writeConcernLevel", Integer.toString(writeConcernLevel)));
 
         if (!Memebot.debug) {
             try {

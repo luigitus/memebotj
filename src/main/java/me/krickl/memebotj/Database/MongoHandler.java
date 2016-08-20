@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Log.MLogger;
+import me.krickl.memebotj.Memebot;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class MongoHandler implements IDatabase<Document> {
     public static MLogger log = MLogger.createLogger(MongoHandler.class.getName());
-    public static WriteConcern safeWriteConcern = new WriteConcern(1);
+    public static WriteConcern safeWriteConcern = new WriteConcern(Memebot.writeConcernLevel);
     Document document = new Document();
     private MongoCollection<Document> collection = null;
 
