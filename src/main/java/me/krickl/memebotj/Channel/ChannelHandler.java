@@ -330,6 +330,11 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
 
     public void sendMessage(String message, String channel, UserHandler sender, boolean whisper, boolean forcechat,
                             boolean allowIgnored) {
+        sendMessage(message, channel, sender, whisper, forcechat, false, 140, false);
+    }
+
+    public void sendMessage(String message, String channel, UserHandler sender, boolean whisper, boolean forcechat,
+                            boolean allowIgnored, int limit, boolean allowSplit) {
 
     }
 

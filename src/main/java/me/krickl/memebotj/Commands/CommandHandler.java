@@ -12,6 +12,8 @@ import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
+import org.bson.codecs.BooleanCodec;
+import org.bson.codecs.IntegerCodec;
 import org.json.simple.JSONObject;
 
 import java.net.URLEncoder;
@@ -81,6 +83,8 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
     private String mode = "";
 
     private String id = null;
+    private int characterLimit = 140;
+    private boolean splitMessage = false;
 
     public CommandHandler(ChannelHandler channelHandler, String commandName, String dbprefix) {
         this.channelHandler = channelHandler;
@@ -198,6 +202,8 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         this.suggestedList = (ArrayList<String>) mongoHandler.getObject("suggestedList", suggestedList);
         uses = (int) mongoHandler.getObject("uses", uses);
         mode = (String) mongoHandler.getObject("mode", mode);
+        characterLimit = (int) mongoHandler.getObject("characterLimit", characterLimit);
+        splitMessage = (boolean) mongoHandler.getObject("splitMessage", splitMessage);
         cooldownOffsetPerViewer = (int) mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
         Document cooldownDoc = (Document) mongoHandler.getObject("cooldowndoc",
                 Cooldown.createCooldownDocument(cooldownLength, uses));
@@ -252,6 +258,8 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         mongoHandler.updateDocument("cooldowndoc", this.cooldown.getDoc());
         mongoHandler.updateDocument("hex_id", this.id);
         mongoHandler.updateDocument("mode", this.mode);
+        mongoHandler.updateDocument("characterLimit", characterLimit);
+        mongoHandler.updateDocument("splitMessage", splitMessage);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -724,6 +732,7 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
         formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, new String[]{}, "");
         formattedScript = Memebot.formatText(formattedScript, channelHandler, sender, this, false, new String[]{}, "");
 
+
         if (!formattedOutput.equals("null")) {
             if (isCommandType("counter") || isCommandType("list") || isCommandType("default") || isCommandType("timer")) {
                 channelHandler.sendMessage(formattedOutput, this.channelHandler.getChannel(), sender, whisper);
@@ -870,6 +879,15 @@ public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJS
                 success = true;
             } else if(modType.equals("mode")) {
                 mode = newValue;
+                success = true;
+            } else if(modType.equals("splitMessage")) {
+                splitMessage = Boolean.parseBoolean(newValue);
+                success = true;
+            } else if(modType.equals("characterLimit")) {
+                characterLimit = Integer.parseInt(newValue);
+                success = true;
+            } else if(modType.equals("appendoutput")) {
+                unformattedOutput = unformattedOutput + " " + newValue;
                 success = true;
             }
         } catch (NumberFormatException e) {

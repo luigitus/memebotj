@@ -74,7 +74,7 @@ public class TMIChannelHandler extends ChannelHandler {
 
     @Override
     public void sendMessage(String message, String channel, UserHandler sender, boolean whisper, boolean forcechat,
-                            boolean allowIgnored) {
+                            boolean allowIgnored, int limit, boolean allowSplit) {
         String msg = message;
         if (msg.isEmpty()) {
             return;
@@ -98,7 +98,7 @@ public class TMIChannelHandler extends ChannelHandler {
         // ignore /ignore to avoid people being ignored by the bot /ban glitch with parameters discovered by CatlyMeows
         // todo implement proper fix
         String[] ignoredMessages = new String[]{"/ignore", "/color", ".ignore", ".color", ".unmod", "/unmod",
-                "/mod", ".mod", "/ban", ".ban", "/timeout", ".timeout"};
+                "/mod", ".mod", "/ban", ".ban", "/timeout", ".timeout", "/w", ".w"};
         for (String ignoredStr : ignoredMessages) {
             if (msg.startsWith(ignoredStr) && !allowIgnored) {
                 msg = msg.replaceFirst("/", "");
@@ -108,7 +108,9 @@ public class TMIChannelHandler extends ChannelHandler {
 
         this.currentMessageCount += 1;
         //log to file
-        System.out.println("<" + channel + ">" + msg);
+        log.log("<" + channel + ">" + msg);
+
+        // todo implement message limit and splitting
 
         if(sender == null) {
             sender = new UserHandler("#internal#", this.getChannel());

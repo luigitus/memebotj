@@ -47,7 +47,8 @@ public class MongoHandler implements IDatabase<Document> {
         // todo implement the read - data is stored in contents
         if (document == null) {
             document = new Document();
-            throw new DatabaseReadException("Document cannot be null - Consider setting default values and writing to database");
+            throw new DatabaseReadException("Document cannot be null - Consider setting default values and writing to database." +
+                    "Created empty document.");
         }
 
         return true;
@@ -79,7 +80,7 @@ public class MongoHandler implements IDatabase<Document> {
 
     public void updateDocument(String key, Object object) {
         if (document == null) {
-            log.log("Warning: Document is null");
+            log.log("Warning: Document is null! Created empty document!");
             document = new Document();
         }
         if (document.containsKey(key)) {
