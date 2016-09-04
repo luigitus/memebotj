@@ -101,8 +101,7 @@ public class TMIChannelHandler extends ChannelHandler {
                 "/mod", ".mod", "/ban", ".ban", "/timeout", ".timeout", "/w", ".w"};
         for (String ignoredStr : ignoredMessages) {
             if (msg.startsWith(ignoredStr) && !allowIgnored) {
-                msg = msg.replaceFirst("/", "");
-                msg = msg.replaceFirst(".", "");
+                msg = msg.replaceFirst(ignoredStr, "[Message starting with ignored string: " + ignoredStr + "]");
             }
         }
 

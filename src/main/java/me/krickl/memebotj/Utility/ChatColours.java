@@ -21,6 +21,6 @@ public class ChatColours {
     }
 
     public static void setColour(ChannelHandler channelHandler, UserHandler sender, String colour) {
-        channelHandler.sendMessage("/color " + colour, channelHandler.getChannel(), sender, false, false, true);
+        channelHandler.sendMessage("/color " + colour, channelHandler.getChannel(), sender, false, false, true, 50, false);
     }
 }
