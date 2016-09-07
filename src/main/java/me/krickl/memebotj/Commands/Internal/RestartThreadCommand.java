@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 
 /**
@@ -22,7 +22,9 @@ public class RestartThreadCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("RESTART"), getChannelHandler(), sender, this, false, new String[]{}, ""), this.getChannelHandler().getChannel());
+        getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("RESTART"),
+                getChannelHandler(), sender, this, false, new String[]{}, ""),
+                this.getChannelHandler().getChannel(), sender, isWhisper());
         Memebot.saveAll();
         getChannelHandler().setJoined(false);
     }

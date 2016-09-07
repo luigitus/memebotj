@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 
 /**
  * This file is part of memebotj.
@@ -24,12 +24,22 @@ public class HugCommand extends CommandHandler {
     public void commandScript(UserHandler sender, String[] data) {
         try {
             if (data[0].contains(Memebot.botNick)) {
-                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_BOT"), getChannelHandler(), sender, this, false, new String[]{}, getChannelHandler().getChannel()));
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_BOT"),
+                        getChannelHandler(), sender, this, false, new String[]{}, getChannelHandler().getChannel()),
+                        getChannelHandler().getChannel(), sender, isWhisper());
+            } else if(data[0].equalsIgnoreCase(sender.getUsername())) {
+                String msg = Memebot.formatText("HUG_SELF", getChannelHandler(), sender, this, true,
+                        new String[]{}, "");
+                getChannelHandler().sendMessage(msg, getChannelHandler().getChannel(), sender, isWhisper());
             } else {
-                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_SOMEONE"), getChannelHandler(), sender, this, false, new String[]{sender.screenName(), data[0]}, getChannelHandler().getChannel()));
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_SOMEONE"),
+                        getChannelHandler(), sender, this, false, new String[]{sender.screenName(), data[0]},
+                        getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, isWhisper());
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_NOBODY"), getChannelHandler(), sender, this, false, new String[]{sender.screenName()}, ""), getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("HUG_NOBODY"),
+                    getChannelHandler(), sender, this, false, new String[]{sender.screenName()}, ""),
+                    getChannelHandler().getChannel(), sender, isWhisper());
         }
     }
 }

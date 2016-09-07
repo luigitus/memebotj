@@ -1,8 +1,9 @@
 package me.krickl.memebotj.Twitch;
 
 import com.google.gson.JsonSyntaxException;
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Memebot;
+import me.krickl.memebotj.Plugins.IPlugin;
 import me.krickl.memebotj.Twitch.Model.Channel;
 import me.krickl.memebotj.Twitch.Model.KrakenRoot;
 import me.krickl.memebotj.Twitch.Model.Stream;
@@ -24,11 +25,10 @@ import java.util.ArrayList;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public class TwitchAPI implements Runnable {
-    private Thread t = null;
+public class TwitchAPI extends IPlugin implements Runnable {
     private int updateCycleMinuets = 7;
     private boolean cycleDone = false;
-    private TwitchKraken service;
+    private ITwitchKraken service;
 
     public TwitchAPI() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -55,24 +55,17 @@ public class TwitchAPI implements Runnable {
                 .client(httpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        service = retrofit.create(TwitchKraken.class);
-    }
-
-    public void start() {
-        if (t == null) {
-            t = new Thread(this, "TwitchAPI");
-            t.start();
-        }
+        service = retrofit.create(ITwitchKraken.class);
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (Memebot.isRunning) {
             for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
                 update(Memebot.joinedChannels.get(i));
                 if (!(i + 1 == Memebot.joinedChannels.size())) {
                     try {
-                        Memebot.log.info("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                        Memebot.log.log("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                                 + ", pausing before continuing.");
                         if (!Memebot.debug) {
                             Thread.sleep(5000); // 5 second pause
@@ -80,7 +73,7 @@ public class TwitchAPI implements Runnable {
                     } catch (InterruptedException ignored) {
                     }
                 } else {
-                    Memebot.log.info("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                    Memebot.log.log("TwitchAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                             + ", Update cycle completed. Next update is scheduled in " + updateCycleMinuets + " minuets.");
                     cycleDone = true;
                 }
@@ -93,22 +86,29 @@ public class TwitchAPI implements Runnable {
     }
 
     public void update(ChannelHandler ch) {
-        if (!runningWithValidClientID()) {
+        if (!runningWithValidClientID() || ch.isOverrideChannelInformation()) {
             return;
         }
         try {
             if (Memebot.isTwitchBot) {
                 Call<Streams> streamCall = service.getStream(ch.getBroadcaster());
-                Stream stream = streamCall.execute().body().getStream();
-                if (stream == null) {
-                    ch.setLive(false);
-                    Call<Channel> channelCall = service.getChannel(ch.getBroadcaster());
-                    Channel channel = channelCall.execute().body();
-                    parseChannel(ch, channel);
+                retrofit2.Response<Streams> response = streamCall.execute();
+                if(response.code() <= 300) {
+                    Stream stream = response.body().getStream();
+                    if (stream == null) {
+                        ch.setLive(false);
+                        Call<Channel> channelCall = service.getChannel(ch.getBroadcaster());
+                        Channel channel = channelCall.execute().body();
+                        parseChannel(ch, channel);
+                    } else {
+                        ch.setLive(true);
+                        // When the stream is live, we get the channel data too! One API call less
+                        parseChannel(ch, stream.getChannel());
+                    }
+
+                    ch.setTwitchAPIUpdateFailed(false);
                 } else {
-                    ch.setLive(true);
-                    // When the stream is live, we get the channel data too! One API call less
-                    parseChannel(ch, stream.getChannel());
+                    ch.setTwitchAPIUpdateFailed(true);
                 }
             } else {
                 ch.setLive(true);
@@ -157,14 +157,14 @@ public class TwitchAPI implements Runnable {
         return false;
     }
 
-    private void parseChannel(ChannelHandler ch ,Channel channel) {
+    private void parseChannel(ChannelHandler ch, Channel channel) {
         ch.setStreamTitle(channel.getStatus());
         ch.setCurrentGame(channel.getGame());
         ch.setUptimeString("");
-        if (ch.getCurrentGame() == null) {
+        if (channel.getStatus() == null) {
             ch.setCurrentGame("Not Playing");
         }
-        if (ch.getStreamTitle() == null) {
+        if (channel.getGame() == null) {
             ch.setStreamTitle("");
         }
     }
@@ -174,7 +174,7 @@ public class TwitchAPI implements Runnable {
             try {
                 Call<KrakenRoot> rootCall = service.getRoot(null);
                 return rootCall.execute().body();
-            } catch (IOException |JsonSyntaxException e) {
+            } catch (IOException | JsonSyntaxException e) {
                 KrakenRoot root = new KrakenRoot();
                 root.setIdentified(false);
                 return root;
@@ -201,9 +201,5 @@ public class TwitchAPI implements Runnable {
 
     public boolean isCycleDone() {
         return cycleDone;
-    }
-
-    public Thread getT() {
-        return t;
     }
 }

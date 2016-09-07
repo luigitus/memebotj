@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 
 /**
@@ -26,7 +26,9 @@ public class PointsCommand extends CommandHandler {
         this.setSuccess(false);
         if (getChannelHandler().getUserList().containsKey(sender.getUsername().toLowerCase())) {
             if (data.length < 1) {
-                getChannelHandler().sendMessage(String.format("%s: %.2f %s", sender.screenName(), getChannelHandler().getUserList().get(sender.getUsername()).getPoints(), getChannelHandler().getCurrencyEmote()), getChannelHandler().getChannel(), sender);
+                getChannelHandler().sendMessage(String.format("%s: %.2f %s", sender.screenName(),
+                        getChannelHandler().getUserList().get(sender.getUsername()).getPoints(),
+                        getChannelHandler().getCurrencyEmote()), getChannelHandler().getChannel(), sender, isWhisper());
             } else {
                 try {
                     UserHandler target = null;
@@ -51,7 +53,10 @@ public class PointsCommand extends CommandHandler {
                             this.setSuccess(true);
                         }
                         if (this.isSuccess()) {
-                            getChannelHandler().sendMessage(Memebot.formatText("POINTS_MOD_NEW_TOTAL", getChannelHandler(), sender, this, true, new String[]{target.screenName(), String.format("%.2f", target.getPoints())}, this.getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender);
+                            getChannelHandler().sendMessage(Memebot.formatText("POINTS_MOD_NEW_TOTAL",
+                                    getChannelHandler(), sender, this, true, new String[]{target.screenName(),
+                                            String.format("%.2f", target.getPoints())}, this.getChannelHandler().getChannel()),
+                                    getChannelHandler().getChannel(), sender, isWhisper());
                         }
                     }
                     if (target != null && !this.isSuccess()) {
@@ -68,17 +73,26 @@ public class PointsCommand extends CommandHandler {
                                     sender.setPoints(sender.getPoints() - (number + number / tax));
                                 }
                                 target.setPoints(target.getPoints() + number);
-                                getChannelHandler().sendMessage(Memebot.formatText("POINTS_SEND", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", number), target.screenName(), String.format("%.2f", tax)}, getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender);
+                                getChannelHandler().sendMessage(
+                                        Memebot.formatText("POINTS_SEND", getChannelHandler(), sender, this, true,
+                                                new String[]{String.format("%.2f", number), target.screenName(),
+                                                        String.format("%.2f", tax)}, getChannelHandler().getChannel()),
+                                        getChannelHandler().getChannel(), sender, isWhisper());
                             } else {
-                                getChannelHandler().sendMessage(Memebot.formatText("POINTS_SEND_FAIL", getChannelHandler(), sender, this, true, new String[]{String.format("%.2f", number + tax)}, ""), this.getChannelHandler().getChannel(), sender);
+                                getChannelHandler().sendMessage(
+                                        Memebot.formatText("POINTS_SEND_FAIL", getChannelHandler(),
+                                                sender, this, true, new String[]{String.format("%.2f", number + tax)}, ""),
+                                        this.getChannelHandler().getChannel(), sender, isWhisper());
                             }
                         }
                     }
                 } catch (ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
                 } catch (NumberFormatException e) {
-                    CommandHandler.log.info("This exception is an illusion and is a trap devised by satan!" + e.toString());
-                    getChannelHandler().sendMessage(Memebot.formatText("POINTS_ERROR_NFE", getChannelHandler(), sender, this, true, new String[]{"NumberFormatException"}, ""), getChannelHandler().getChannel(), sender);
+                    CommandHandler.log.log("This exception is an illusion and is a trap devised by satan!" + e.toString());
+                    getChannelHandler().sendMessage(Memebot.formatText("POINTS_ERROR_NFE", getChannelHandler(),
+                            sender, this, true, new String[]{"NumberFormatException"}, ""), getChannelHandler().getChannel(),
+                            sender, isWhisper());
                 }
             }
         }

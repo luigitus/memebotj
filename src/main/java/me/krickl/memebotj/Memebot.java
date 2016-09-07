@@ -3,12 +3,22 @@ package me.krickl.memebotj;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.Channel.TMIChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.Commands.CommandRefernce;
-import me.krickl.memebotj.Connection.IRCConnectionHandler;
+import me.krickl.memebotj.Commands.CommandReference;
+import me.krickl.memebotj.Commands.ICommand;
+import me.krickl.memebotj.Connection.IConnection;
+import me.krickl.memebotj.Connection.Discord.DiscordConnectionHandler;
+import me.krickl.memebotj.Connection.TMI.TMIConnectionHandler;
+import me.krickl.memebotj.Log.LogLevels;
+import me.krickl.memebotj.Log.MLogger;
+import me.krickl.memebotj.Plugins.IPlugin;
 import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
 import me.krickl.memebotj.Twitch.TwitchAPI;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
+import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Localisation;
 import me.krickl.memebotj.Web.WebHandler;
 import org.json.simple.JSONObject;
@@ -16,7 +26,9 @@ import org.json.simple.JSONObject;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,16 +36,17 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 04/04/16.
  */
-//todo rewrite main class
+// todo rewrite main class
 public class Memebot {
     public static final int messageLimit = 19; // message limit per 30 seconds
-    public static Logger log = Logger.getLogger(Memebot.class.getName());
+    public static MLogger log = MLogger.createLogger(Memebot.class.getName());
     public static String ircServer = "irc.twitch.tv";
     public static int ircport = 6667;
     public static String mongoHost = "localhost";
@@ -67,8 +80,7 @@ public class Memebot {
     public static MongoDatabase db = null;
     public static int webPort = 4567;
 
-    public static TwitchAPI twitchAPI = null;
-    public static SpeedRunComAPI speedRunComAPI = null;
+    public static HashMap<String, IPlugin> plugins = new HashMap<>();
 
     //public static MongoCollection<Document> internalCollection = null;
     public static String webBaseURL = "";
@@ -93,7 +105,17 @@ public class Memebot {
 
     public static boolean cliInput = false;
 
-    public static boolean isRunning = false;
+    public static boolean isRunning = true;
+
+    public static String connectionMode = "irc";
+
+    public static String discordOauth = "";
+
+    public static String mailToRecipient = "";
+    public static String mailServerAddress = "localhost";
+    public static String mailSender = "";
+    public static String mailServer = "mail.smtp.host";
+    public static int writeConcernLevel = 1;
 
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
@@ -103,7 +125,7 @@ public class Memebot {
                 Memebot.memebotDir = Memebot.home + "/config";
                 Memebot.configFile = Memebot.memebotDir + "/memebot.cfg";
                 Memebot.channelConfig = Memebot.memebotDir + "/channels.cfg";
-                log.info("Set home directory to " + Memebot.home);
+                log.log("Set home directory to " + Memebot.home);
             }
         }
 
@@ -152,24 +174,28 @@ public class Memebot {
 
                 urlBanList = (java.util.ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/urlblacklist.cfg"),
-                        Charset.defaultCharset());
+                                Charset.defaultCharset());
 
                 phraseBanList = (java.util.ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/phrasebanlist.cfg"),
-                        Charset.defaultCharset());
+                                Charset.defaultCharset());
 
                 globalBanList = (java.util.ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/globalbanlist.cfg"),
-                        Charset.defaultCharset());
+                                Charset.defaultCharset());
 
             } catch (IOException e) {
-                log.warning(e.toString());
+                log.log(e.toString(), LogLevels.ERROR);
             }
         }
     }
 
     public static void setupConnection() {
         // setup connection
+
+        // todo discord debug code
+        DiscordConnectionHandler discordConnectionHandler = new DiscordConnectionHandler(Memebot.discordOauth);
+        // todo remove
 
         // join channels
         Iterator it = Memebot.channels.iterator();
@@ -178,15 +204,15 @@ public class Memebot {
             Memebot.joinChannel(channel);
         }
 
-        twitchAPI = new TwitchAPI();
-        twitchAPI.start();
-        speedRunComAPI = new SpeedRunComAPI();
-        speedRunComAPI.start();
+        plugins.put("twitchapi", new TwitchAPI());
+        plugins.get("twitchapi").start();
+        plugins.put("speedruncomapi", new SpeedRunComAPI());
+        plugins.get("speedruncomapi").start();
     }
 
     public static void mainLoop() {
         //auto rejoin if a thread crashes
-        while (true) {
+        while (Memebot.isRunning) {
             for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
                 ChannelHandler ch = Memebot.joinedChannels.get(i);
                 if (!ch.getT().isAlive()) {
@@ -196,20 +222,20 @@ public class Memebot {
                 }
             }
 
-            if (!twitchAPI.getT().isAlive()) {
-                twitchAPI = new TwitchAPI();
-                twitchAPI.start();
+            if (!plugins.get("twitchapi").getT().isAlive()) {
+                plugins.replace("twitchapi", new TwitchAPI());
+                plugins.get("twitchapi").start();
             }
 
-            if (!speedRunComAPI.getT().isAlive()) {
-                speedRunComAPI = new SpeedRunComAPI();
-                speedRunComAPI.start();
+            if (!plugins.get("speedruncomapi").getT().isAlive()) {
+                plugins.replace("speedruncomapi", new SpeedRunComAPI());
+                plugins.get("speedruncomapi").start();
             }
 
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException e) {
-                log.warning(e.toString());
+                log.log(e.toString(), LogLevels.ERROR);
             }
         }
     }
@@ -217,26 +243,27 @@ public class Memebot {
     public static void joinChannel(String channel) {
         try {
             File login = new File(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login");
+            IConnection connectionInterface = new TMIConnectionHandler(Memebot.ircServer,
+                    Memebot.ircport, Memebot.botNick, Memebot.botPassword);
             if (login.exists()) {
                 ArrayList<String> loginInfo = (ArrayList<String>)
                         Files.readAllLines(Paths.get(Memebot.memebotDir + "/" + channel.replace("\n\r", "") + ".login"));
 
-                Memebot.log.info("Found login file for channel " + channel);
+                Memebot.log.log("Found login file for channel " + channel);
 
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
-                        new IRCConnectionHandler(Memebot.ircServer, Memebot.ircport, loginInfo.get(0).replace("\n", ""),
-                                loginInfo.get(1).replace("\n", "")));
+                connectionInterface = new TMIConnectionHandler(Memebot.ircServer, Memebot.ircport,
+                        loginInfo.get(0).replace("\n", ""), loginInfo.get(1).replace("\n", ""));
+
+                ChannelHandler newChannel = new TMIChannelHandler(channel.replace("\n\r", ""), connectionInterface);
                 newChannel.start();
                 joinedChannels.add(newChannel);
             } else {
-                ChannelHandler newChannel = new ChannelHandler(channel.replace("\n\r", ""),
-                        new IRCConnectionHandler(Memebot.ircServer,
-                                Memebot.ircport, Memebot.botNick, Memebot.botPassword));
+                ChannelHandler newChannel = new TMIChannelHandler(channel.replace("\n\r", ""), connectionInterface);
                 newChannel.start();
                 joinedChannels.add(newChannel);
             }
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
     }
 
@@ -250,12 +277,12 @@ public class Memebot {
                 new File(Memebot.configFile).createNewFile();
                 // save properties
             } catch (IOException e1) {
-                log.warning(e.toString());
+                log.log(e.toString(), LogLevels.ERROR);
             }
 
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
 
         // read botadmin file
@@ -264,7 +291,7 @@ public class Memebot {
             botAdmins = Files.readAllLines(Paths.get(Memebot.memebotDir + "/botadmins.cfg"));
             botAdmins.add("#internal#");
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
 
         Memebot.ircServer = config.getProperty("ircserver", Memebot.ircServer);
@@ -293,6 +320,13 @@ public class Memebot {
         Memebot.jokeMode = Boolean.parseBoolean(config.getProperty("joke", Boolean.toString(Memebot.jokeMode)));
         Memebot.webPort = Integer.parseInt(config.getProperty("webport", Integer.toString(Memebot.webPort)));
         Memebot.cliInput = Boolean.parseBoolean(config.getProperty("climode", Boolean.toString(Memebot.cliInput)));
+        Memebot.connectionMode = config.getProperty("connectionmode", Memebot.connectionMode);
+        Memebot.discordOauth = config.getProperty("discordOauth", discordOauth);
+        Memebot.mailToRecipient = config.getProperty("mailtorecipient", mailToRecipient);
+        Memebot.mailServer = config.getProperty("mailserveraddress", mailServer);
+        Memebot.mailSender = config.getProperty("mailsender", mailSender);
+        Memebot.mailServer = config.getProperty("mailserver", mailServer);
+        Memebot.writeConcernLevel = Integer.parseInt(config.getProperty("writeConcernLevel", Integer.toString(writeConcernLevel)));
 
         if (!Memebot.debug) {
             try {
@@ -314,7 +348,7 @@ public class Memebot {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
-                    Memebot.log.warning("Process received SIGTERM...");
+                    Memebot.log.log("Process received SIGTERM...");
                     saveAll();
                 }
             });
@@ -324,12 +358,12 @@ public class Memebot {
         File f = new File(memebotDir + "/pid");
         BufferedWriter bw = null;
         try {
-            Memebot.log.info("PID: " + ManagementFactory.getRuntimeMXBean().getName());
+            Memebot.log.log("PID: " + ManagementFactory.getRuntimeMXBean().getName());
             bw = new BufferedWriter(new FileWriter(f));
             bw.write(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
             bw.close();
         } catch (IOException e) {
-            log.info(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
         }
     }
 
@@ -338,7 +372,7 @@ public class Memebot {
         while (it.hasNext()) {
             ChannelHandler ch = (ChannelHandler) it.next();
             ch.writeDB();
-            for (CommandRefernce commandHandler : ch.getChannelCommands()) {
+            for (CommandReference commandHandler : ch.getChannelCommands()) {
                 commandHandler.writeDB();
             }
 
@@ -357,10 +391,10 @@ public class Memebot {
         String[] parsedTemp = toParse.replace("{", "").replace("}", "").split(";");
         String[] parsed = new String[parsedTemp.length];
 
-        for(int i = 0; i < parsedTemp.length; i++) {
-            if(i != 0 && i != 1) {
+        for (int i = 0; i < parsedTemp.length; i++) {
+            if (i != 0 && i != 1) {
                 parsed[i] = parsedTemp[i];
-            } else if(i == 1) {
+            } else if (i == 1) {
                 parsed[i] = "{" + parsedTemp[i] + "}";
             } else {
                 parsed[i] = toParse;
@@ -399,6 +433,7 @@ public class Memebot {
             formattedOutput = formattedOutput.replace("{points}", String.format("%.2f", sender.getPoints()));
             formattedOutput = formattedOutput.replace("{debugsender}", sender.toString());
             int newRan = new Double(sender.getPoints()).intValue();
+
             if (newRan > 0) {
                 formattedOutput = formattedOutput.replace("{randompoints}",
                         Integer.toString(Math.abs(ran.nextInt(newRan))));
@@ -429,8 +464,31 @@ public class Memebot {
 
             // random user as parameter
             List<String> keys = new ArrayList<String>(channelHandler.getUserList().keySet());
-            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())), new UserHandler("#internal#", channelHandler.getChannel(), "#internal#"));
+            UserHandler randomUH = channelHandler.getUserList().getOrDefault(keys.get(ran.nextInt(keys.size())),
+                    new UserHandler("#internal#", channelHandler.getChannel()));
+            if (sender != null && commandHandler != null) {
+                if (commandHandler.checkPermissions(sender, CommandPower.adminAbsolute, CommandPower.adminAbsolute)) {
+                    formattedOutput = formattedOutput.replace("{randomuserall}", randomUH.getUsername());
+                }
+            }
+
+            // todo random user as parameter
+            ArrayList<UserHandler> activeUsers = new ArrayList<>();
+            for (String key : keys) {
+                if (channelHandler.getUserList().get(key).isActive()) {
+                    activeUsers.add(channelHandler.getUserList().get(key));
+                }
+            }
+
+            randomUH = activeUsers.get(ran.nextInt(activeUsers.size()));
             formattedOutput = formattedOutput.replace("{randomuser}", randomUH.getUsername());
+
+            if (formattedOutput.contains("{randomuserdb}")) {
+                // random user from database
+                ArrayList<String> userList = WebHandler.getUserListFromDB(channelHandler.getChannel());
+                formattedOutput = formattedOutput.replace("{randomuserdb}", userList.get(ran.nextInt(userList.size())));
+            }
+
 
             // random USSR as parameter - returns your favourite communist leader
             String[] keysUSSR = {"Vladimir Lenin", "Joseph Stalin", "Georgy Malenkov", "Nikita Khrushchev",
@@ -460,7 +518,7 @@ public class Memebot {
         formattedOutput = formattedOutput.replace("{version}", BuildInfo.version);
         formattedOutput = formattedOutput.replace("{developer}", BuildInfo.dev);
         formattedOutput = formattedOutput.replace("{appname}", BuildInfo.appName);
-        formattedOutput = formattedOutput.replace("{appname}", BuildInfo.buildNumber);
+        formattedOutput = formattedOutput.replace("{build}", BuildInfo.buildNumber);
         formattedOutput = formattedOutput.replace("{builddate}", BuildInfo.timeStamp);
         formattedOutput = formattedOutput.replace("{date}", strDate);
         formattedOutput = formattedOutput.replace("{time}", strTime);
@@ -480,7 +538,7 @@ public class Memebot {
 
                     if (formattedOutput.equals(original) && !formattedOutput.contains("{paramN}")) {
                         formattedOutput = formattedOutput + " " + str;
-                    } else if(formattedOutput.equals(original)) {
+                    } else if (formattedOutput.equals(original)) {
                         paramN = paramN + str + " ";
                     }
                 } else if (alternativeText != null) {
@@ -500,7 +558,19 @@ public class Memebot {
     }
 
     /***
+     * This class will load the internal commands from external classes
+     * This way commands can be reloaded dynamically without a bot restart
+     * @return
+     */
+    public static ArrayList<ICommand> loadPluginCommands() throws MalformedURLException, ClassNotFoundException {
+        ArrayList<ICommand> commands = new ArrayList<>();
+
+        return commands;
+    }
+
+    /***
      * Reads from URL
+     *
      * @param urlString The URL
      * @return String of content
      * @deprecated
@@ -561,7 +631,7 @@ public class Memebot {
 
             in.close();
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
             data = e.toString();
         } finally {
             if (connection != null) {
@@ -622,7 +692,7 @@ public class Memebot {
             in.close();
             bao.close();
         } catch (IOException e) {
-            log.warning(e.toString());
+            log.log(e.toString(), LogLevels.ERROR);
             return e.toString().getBytes();
         } finally {
             if (connection != null) {
@@ -669,7 +739,7 @@ public class Memebot {
         jsonObject.put("dev", BuildInfo.dev);
 
         wrapper.put("data", jsonObject);
-        wrapper.put("links" ,getLinks(Memebot.webBaseURL + "/api", null, null, null));
+        wrapper.put("links", getLinks(Memebot.webBaseURL + "/api", null, null, null));
 
         return wrapper;
     }

@@ -1,7 +1,7 @@
 package me.krickl.memebotj.Utility;
 
-import me.krickl.memebotj.ChannelHandler;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.User.UserHandler;
 
 import java.security.SecureRandom;
 
@@ -21,6 +21,6 @@ public class ChatColours {
     }
 
     public static void setColour(ChannelHandler channelHandler, UserHandler sender, String colour) {
-        channelHandler.sendMessage("/color " + colour, channelHandler.getChannel(), sender, false, false, true);
+        channelHandler.sendMessage("/color " + colour, channelHandler.getChannel(), sender, false, false, true, 50, false);
     }
 }

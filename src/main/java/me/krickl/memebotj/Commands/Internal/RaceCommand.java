@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 
 /**
@@ -28,9 +28,11 @@ public class RaceCommand extends CommandHandler {
             for (String i : data) {
                 getChannelHandler().setCurrentRaceURL(getChannelHandler().getCurrentRaceURL() + "/" + i);
             }
-            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(), sender);
+            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(),
+                    sender, isWhisper());
         } else {
-            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(), sender);
+            getChannelHandler().sendMessage(getChannelHandler().getCurrentRaceURL(), this.getChannelHandler().getChannel(),
+                    sender, isWhisper());
         }
     }
 }

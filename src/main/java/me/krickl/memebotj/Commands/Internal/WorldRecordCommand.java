@@ -1,11 +1,15 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Database.MongoHandler;
+import me.krickl.memebotj.Exceptions.DatabaseReadException;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.SpeedrunCom.Model.*;
-import me.krickl.memebotj.SpeedrunCom.SpeedRunCom;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.SpeedrunCom.ISpeedRunCom;
+import me.krickl.memebotj.SpeedrunCom.SpeedRunComAPI;
+import me.krickl.memebotj.User.UserHandler;
+import me.krickl.memebotj.Utility.CommandPower;
 import retrofit2.Call;
 
 import java.io.IOException;
@@ -17,8 +21,18 @@ import java.util.concurrent.TimeUnit;
  * Created by Luigitus on 01/05/16.
  */
 public class WorldRecordCommand extends CommandHandler {
+    private MongoHandler worldRecordOverrideHandler;
+
     public WorldRecordCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
+
+        worldRecordOverrideHandler = new MongoHandler(Memebot.db, "#worldrecords#");
+
+        try {
+            worldRecordOverrideHandler.readDatabase("wrs");
+        } catch(DatabaseReadException e) {
+            log.log(e.toString());
+        }
     }
 
     @Override
@@ -28,6 +42,14 @@ public class WorldRecordCommand extends CommandHandler {
                 if (data[0].equals("list")) {
                     getChannelHandler().sendMessage(formatString(sender, true), getChannelHandler().getChannel(), sender, isWhisper());
                     return;
+                } else if(data[0].equals("issue")) {
+                    String message = Memebot.formatText("WR_ISSUE", getChannelHandler(), sender, this, true,
+                            new String[]{}, "");
+                    getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
+                } else if(data[0].equals("add") && checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
+
+                } else if(data[0].equals("remove") && checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
+
                 }
             } catch (ArrayIndexOutOfBoundsException ignored) {
             }
@@ -58,13 +80,14 @@ public class WorldRecordCommand extends CommandHandler {
 
     private String[] getWR(String gameID, String categoryID) {
         try {
-            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            SpeedRunComAPI speedRunComAPI = (SpeedRunComAPI) Memebot.plugins.get("speedruncomapi");
+            ISpeedRunCom service = speedRunComAPI.getService();
             Call<WRLookup> wr = service.getWorldRecord(gameID, categoryID, "players");
             RecordObject record = wr.execute().body().getData();
-			if(record.getUsername().equalsIgnoreCase("trevperson") && getChannelHandler().getBroadcaster().equals("trevperson")) {
-				return new String[]{parseTime(record.getTime()),"Me",
-                    record.getTwitchURL() != null ? "- " + record.getTwitchURL() : ""};
-			}
+            if (record.getUsername().equalsIgnoreCase("trevperson") && getChannelHandler().getBroadcaster().equals("trevperson")) {
+                return new String[]{parseTime(record.getTime()), "Me",
+                        record.getTwitchURL() != null ? "- " + record.getTwitchURL() : ""};
+            }
             return new String[]{parseTime(record.getTime()), record.getUsername(),
                     record.getTwitchURL() != null ? "- " + record.getTwitchURL() : ""};
         } catch (IOException e) {
@@ -76,7 +99,8 @@ public class WorldRecordCommand extends CommandHandler {
     private String getWRs(String gameID, ArrayList<Category> categories) {
         String output = "";
         try {
-            SpeedRunCom service = Memebot.speedRunComAPI.getService();
+            SpeedRunComAPI speedRunComAPI = (SpeedRunComAPI) Memebot.plugins.get("speedruncomapi");
+            ISpeedRunCom service = speedRunComAPI.getService();
             Call<WRSLookup> wrs = service.getWorldRecords(gameID, "players");
             ArrayList<RecordObject> records = wrs.execute().body().getData();
             for (RecordObject record : records) {

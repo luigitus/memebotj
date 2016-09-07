@@ -2,25 +2,24 @@ package me.krickl.memebotj.Commands.Internal;
 
 import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
+import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.User.UserHandler;
+import me.krickl.memebotj.Utility.CommandPower;
 
 /**
- * This file is part of memebotj.
- * Created by unlink on 11/04/16.
+ * Created by unlink on 8/7/2016.
  */
-public class DebugCommand extends CommandHandler {
-    public DebugCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
+public class UpdateChannelInformationCommand extends CommandHandler {
+    public UpdateChannelInformationCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
     }
 
     @Override
     public void overrideDB() {
-        this.setHelptext("");
-        this.setNeededCommandPower(75);
-        this.setUserCooldownLength(0);
     }
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
+
     }
 }

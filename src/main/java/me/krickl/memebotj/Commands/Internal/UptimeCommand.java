@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 
 /**
  * This file is part of memebotj.
@@ -21,8 +21,5 @@ public class UptimeCommand extends CommandHandler {
     @Override
     public void commandScript(UserHandler sender, String[] data) {
         // fuck it let's just use this
-        getChannelHandler().sendMessage(Memebot.urlRequest("http://owyn.us/APIs/Uptime.php?Broadcaster="
-                        + getChannelHandler().getBroadcaster()), getChannelHandler().getChannel(),
-                sender, isWhisper());
     }
 }

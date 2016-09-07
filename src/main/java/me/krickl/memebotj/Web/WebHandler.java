@@ -1,12 +1,11 @@
 package me.krickl.memebotj.Web;
 
-import com.mongodb.util.JSON;
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.Commands.CommandRefernce;
+import me.krickl.memebotj.Commands.CommandReference;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bson.Document;
 import org.json.simple.JSONObject;
@@ -71,7 +70,7 @@ public class WebHandler {
             String channel = "#" + req.params(":channel");
             String command = req.params(":command");
             ChannelHandler channelHandler = getChannelForName(channel);
-            CommandRefernce i = null;
+            CommandReference i = null;
             if (channelHandler != null) {
                 i = channelHandler.findCommandReferneceForString(command, channelHandler.getChannelCommands());
             }
@@ -303,10 +302,10 @@ public class WebHandler {
                 channelsObject.put(channelHandler.getChannel(), Memebot.webBaseURL + "/api/channels/" + channelHandler.getBroadcaster());
             }
 
-            channelsObject.put("_id", null);
+            //channelsObject.put("_id", null);
             wrapper.put("data", channelsObject);
             wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/channels", Memebot.webBaseURL + "/api", null
-            , null));
+                    , null));
             return wrapper.toJSONString();
         });
 
@@ -328,18 +327,7 @@ public class WebHandler {
 
             ChannelHandler channelHandler = getChannelForName(channel);
 
-            MongoHandler mh = null;
-            if (Memebot.channelsPrivate.contains(channel)) {
-                mh = new MongoHandler(Memebot.dbPrivate, channel + "_users");
-            } else {
-                mh = new MongoHandler(Memebot.db, channel + "_users");
-            }
-
-            ArrayList<String> userList = new ArrayList<String>();
-            int counter = 0;
-            for (Document doc : mh.getDocuments()) {
-                userList.add(doc.getOrDefault("_id", "#error#").toString());
-            }
+            ArrayList<String> userList = getUserListFromDB(channel);
 
             JSONObject wrapper = new JSONObject();
             JSONObject usersObject = new JSONObject();
@@ -352,13 +340,14 @@ public class WebHandler {
             wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/users/" + channel.replace("#", ""),
                     Memebot.webBaseURL + "/api/channels/" + channel.replace("#", ""), null, null));
 
-            return wrapper.toJSONString();
+            return "{}";
+            //return wrapper.toJSONString();
         });
 
         get("/api/users/:channel/:user", (req, res) -> {
             res.type("application/json");
             UserHandler userHandler = new UserHandler(req.params(":user"), "#" + req.params(":channel"));
-            if(userHandler.isNewUser()) {
+            if (userHandler.isNewUser()) {
                 res.status(404);
                 return "{}";
             }
@@ -370,7 +359,7 @@ public class WebHandler {
             JSONObject wrapper = new JSONObject();
             JSONObject commandsObject = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            for (CommandRefernce commandHandler : channelHandler.getChannelCommands()) {
+            for (CommandReference commandHandler : channelHandler.getChannelCommands()) {
                 commandsObject.put(commandHandler.getCommandName(), Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandHandler.getCommandName());
             }
             commandsObject.put("_id", channelHandler.getChannel());
@@ -388,7 +377,7 @@ public class WebHandler {
             JSONObject aliasObjects = new JSONObject();
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
 
-            for(String alias : channelHandler.getAliasList().keySet()) {
+            for (String alias : channelHandler.getAliasList().keySet()) {
                 aliasObjects.put(alias, channelHandler.getAliasList().get(alias).toString());
             }
 
@@ -403,7 +392,7 @@ public class WebHandler {
         get("/api/commands/:channel/:command", (req, res) -> {
             res.type("application/json");
             ChannelHandler channelHandler = getChannelForName("#" + req.params(":channel"));
-            CommandRefernce commandHandler = channelHandler.findCommandReferneceForString(req.params(":command"),
+            CommandReference commandHandler = channelHandler.findCommandReferneceForString(req.params(":command"),
                     channelHandler.getChannelCommands());
 
             if (commandHandler != null) {
@@ -450,6 +439,9 @@ public class WebHandler {
     public static boolean checkLogin(Request req, String username, String channel) {
         String storedName = req.cookie("login_name");
         String storedOauth = req.cookie("login_oauth");
+        if(username == null || channel == null) {
+            return false;
+        }
         UserHandler user = new UserHandler(username, channel);
 
         if (storedName == null || storedOauth == null) {
@@ -493,5 +485,22 @@ public class WebHandler {
 
     public static String sha1HexString(String toDigest) {
         return DigestUtils.sha1Hex(toDigest);
+    }
+
+    public static ArrayList<String> getUserListFromDB(String channel) {
+        MongoHandler mh = null;
+        if (Memebot.channelsPrivate.contains(channel)) {
+            mh = new MongoHandler(Memebot.dbPrivate, channel + "_users");
+        } else {
+            mh = new MongoHandler(Memebot.db, channel + "_users");
+        }
+
+        ArrayList<String> userList = new ArrayList<String>();
+        int counter = 0;
+        for (Document doc : mh.getDocuments()) {
+            userList.add(doc.getOrDefault("_id", "#error#").toString());
+        }
+
+        return userList;
     }
 }

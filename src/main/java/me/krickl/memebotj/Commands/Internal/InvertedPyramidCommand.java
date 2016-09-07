@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 
 /**
@@ -33,14 +33,14 @@ public class InvertedPyramidCommand extends CommandHandler {
             }
             int i = size - 1;
             while (i >= 0) {
-                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender);
+                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender, isWhisper());
                 message = message.substring(0, message.length() - data[0].length() - 1);
                 //Thread.sleep(1000)
                 i -= 1;
             }
             message = data[0];
             for (i = 0; i <= size; i++) {
-                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender);
+                getChannelHandler().sendMessage(message, this.getChannelHandler().getChannel(), sender, isWhisper());
                 message = message + " " + data[0];
                 //Thread.sleep(1000)
             }

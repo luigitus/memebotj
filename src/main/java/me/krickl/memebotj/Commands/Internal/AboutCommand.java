@@ -1,8 +1,8 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.BuildInfo;
 
 /**
@@ -23,8 +23,11 @@ public class AboutCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        getChannelHandler().sendMessage(BuildInfo.appName + " version " + BuildInfo.version + ". Developed by " + BuildInfo.dev, this.getChannelHandler().getChannel());
-        getChannelHandler().sendMessage("Fork me RitzMitz : https://github.com/unlink2/memebotj");
-        getChannelHandler().sendMessage("Just type !mejoin in chat to get me! :)", this.getChannelHandler().getChannel());
+        getChannelHandler().sendMessage(BuildInfo.appName + " version " + BuildInfo.version + ". Developed by " +
+                BuildInfo.dev, this.getChannelHandler().getChannel(), sender, isWhisper());
+        getChannelHandler().sendMessage("Fork me RitzMitz : https://github.com/unlink2/memebotj", this.getChannelHandler().getChannel(),
+                sender, isWhisper());
+        getChannelHandler().sendMessage("Just type !mejoin in chat to get me! :)", this.getChannelHandler().getChannel(),
+                sender, isWhisper());
     }
 }

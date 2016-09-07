@@ -1,15 +1,19 @@
 package me.krickl.memebotj.Commands;
 
-import me.krickl.memebotj.ChannelHandler;
-import me.krickl.memebotj.Database.DatabaseObjectInterface;
-import me.krickl.memebotj.Database.JSONInterface;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.Database.IDatabaseObject;
+import me.krickl.memebotj.Database.IJSON;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
+import me.krickl.memebotj.Log.LogLevels;
+import me.krickl.memebotj.Log.MLogger;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.bson.Document;
+import org.bson.codecs.BooleanCodec;
+import org.bson.codecs.IntegerCodec;
 import org.json.simple.JSONObject;
 
 import java.net.URLEncoder;
@@ -18,15 +22,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 03/04/16.
  */
-public class CommandHandler implements CommandInterface, Comparable<CommandHandler>, JSONInterface,
-        DatabaseObjectInterface {
-    public static Logger log = Logger.getLogger(CommandHandler.class.getName());
+public class CommandHandler implements ICommand, Comparable<CommandHandler>, IJSON,
+        IDatabaseObject {
+    public static MLogger log = MLogger.createLogger(CommandHandler.class.getName());
     protected MongoHandler mongoHandler = null;
     protected boolean canBeEdited = true;
     protected String commandName = null;
@@ -75,30 +80,29 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     private boolean pointsUpdateDone = false;
 
+    private String mode = "";
+
+    private String id = null;
+    private int characterLimit = 140;
+    private boolean splitMessage = false;
+
     public CommandHandler(ChannelHandler channelHandler, String commandName, String dbprefix) {
         this.channelHandler = channelHandler;
         this.commandName = commandName;
         removeCooldown.startCooldown();
+        id = channelHandler.getNextID();
 
         if (Memebot.useMongo) {
             if (!Memebot.channelsPrivate.contains(this.getChannelHandler().getChannel())) {
                 if (dbprefix == null) {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.db.getCollection(this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.db, this.channelHandler.getChannel() + "_commands");
                 } else {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.db.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.db, dbprefix + this.channelHandler.getChannel() + "_commands");
                 }
             } else {
                 if (dbprefix == null) {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.dbPrivate.getCollection(this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelHandler.getChannel() + "_commands");
                 } else {
-                    // todo old db code - remove soon
-                    //this.commandCollection = Memebot.dbPrivate.getCollection(dbprefix + this.channelHandler.getChannel() + "_commands");
                     mongoHandler = new MongoHandler(Memebot.dbPrivate, dbprefix + this.channelHandler.getChannel() + "_commands");
                 }
             }
@@ -108,21 +112,22 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         readDB();
         overrideDB();
 
-        if(!pointsUpdateDone) {
+        if (!pointsUpdateDone) {
             cost = cost / 10;
             pointsUpdateDone = true;
         }
     }
 
-    public static Logger getLog() {
+    public static MLogger getLog() {
         return log;
     }
 
-    public static void setLog(Logger log) {
+    public static void setLog(MLogger log) {
         CommandHandler.log = log;
     }
 
-    public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
+    public static boolean checkPermissionsForUser(UserHandler senderObject, int reqPermLevel, int secondPerm,
+                                                  ChannelHandler channelHandler) {
         String senderName = senderObject.getUsername();
 
         Iterator it = Memebot.botAdmins.iterator();
@@ -137,7 +142,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             return false;
         }
 
-        if (reqPermLevel <= channelHandler.getUserList().get(senderName).getCommandPower() && secondPerm <= senderObject.getCommandPower()) {
+        if (reqPermLevel <= channelHandler.getUserList().get(senderName).getCommandPower() &&
+                secondPerm <= senderObject.getCommandPower()) {
             return true;
         }
 
@@ -148,6 +154,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         }
 
         return false;
+    }
+
+    public boolean checkPermissions(UserHandler senderObject, int reqPermLevel, int secondPerm) {
+        return checkPermissionsForUser(senderObject, reqPermLevel, secondPerm, getChannelHandler());
     }
 
     public void readDB() {
@@ -162,6 +172,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         }
 
         this.commandName = mongoHandler.getObject("command", this.commandName).toString();
+        this.id = mongoHandler.getObject("hex_id", this.id).toString();
         this.cooldownLength = (int) mongoHandler.getObject("cooldown", this.cooldownLength);
         this.helptext = mongoHandler.getObject("helptext", this.helptext).toString();
         this.parameters = (int) mongoHandler.getObject("param", this.parameters);
@@ -190,7 +201,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         this.state = (int) mongoHandler.getObject("state", this.state);
         this.suggestedList = (ArrayList<String>) mongoHandler.getObject("suggestedList", suggestedList);
         uses = (int) mongoHandler.getObject("uses", uses);
-        cooldownOffsetPerViewer = (int)mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
+        mode = (String) mongoHandler.getObject("mode", mode);
+        characterLimit = (int) mongoHandler.getObject("characterLimit", characterLimit);
+        splitMessage = (boolean) mongoHandler.getObject("splitMessage", splitMessage);
+        cooldownOffsetPerViewer = (int) mongoHandler.getObject("usercdoffset", cooldownOffsetPerViewer);
         Document cooldownDoc = (Document) mongoHandler.getObject("cooldowndoc",
                 Cooldown.createCooldownDocument(cooldownLength, uses));
 
@@ -208,9 +222,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public void setDB() {
         mongoHandler.updateDocument("_id", this.commandName);
         mongoHandler.updateDocument("command", this.commandName);
-        mongoHandler.updateDocument("cooldown", new Integer(this.cooldownLength));
+        mongoHandler.updateDocument("cooldown", this.cooldownLength);
         mongoHandler.updateDocument("helptext", this.helptext);
-        mongoHandler.updateDocument("param", new Integer(this.parameters));
+        mongoHandler.updateDocument("param", this.parameters);
         mongoHandler.updateDocument("cmdtype", this.commandType);
         mongoHandler.updateDocument("output", this.unformattedOutput);
         mongoHandler.updateDocument("qsuffix", this.quoteSuffix);
@@ -242,6 +256,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         mongoHandler.updateDocument("pointsupdate", this.pointsUpdateDone);
         mongoHandler.updateDocument("timercd", this.timerCooldown.getDoc());
         mongoHandler.updateDocument("cooldowndoc", this.cooldown.getDoc());
+        mongoHandler.updateDocument("hex_id", this.id);
+        mongoHandler.updateDocument("mode", this.mode);
+        mongoHandler.updateDocument("characterLimit", characterLimit);
+        mongoHandler.updateDocument("splitMessage", splitMessage);
 
         //mongoHandler.setDocument(channelData);
     }
@@ -273,14 +291,14 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public boolean handleCooldown(UserHandler sender) {
-        if(!this.startCooldown) {
+        if (!this.startCooldown) {
             return false;
         }
         // check global cooldown
         if ((!this.cooldown.canContinue() || !sender.getUserCooldown().canContinue())
                 && !checkPermissions(sender, this.neededCooldownBypassPower, this.neededCooldownBypassPower)) {
             if (Memebot.debug) {
-                channelHandler.sendMessage("Cooldown true");
+                channelHandler.sendMessage("Cooldown true", getChannelHandler().getChannel(), sender, false);
             }
             return true;
         }
@@ -298,7 +316,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         if (!sender.getUserCommandCooldowns().get(this.commandName).canContinue()
                 && !checkPermissions(sender, this.neededCooldownBypassPower, this.neededCooldownBypassPower)) {
             if (Memebot.debug) {
-                channelHandler.sendMessage("Cooldown true " + this.toString());
+                channelHandler.sendMessage("Cooldown true " + this.toString(), getChannelHandler().getChannel(), sender, false);
             }
             return true;
         }
@@ -315,11 +333,11 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             }
             sender.getUserCommandCooldowns().get(this.commandName).startCooldown(channelHandler.getViewerNumber() *
                     (userCooldownLength /
-                    100 * cooldownOffsetPerViewer));
+                            100 * cooldownOffsetPerViewer));
             sender.setPoints(sender.getPoints() - this.cost);
 
             if (Memebot.debug) {
-                channelHandler.sendMessage("Cooldown started " + this.toString());
+                channelHandler.sendMessage("Cooldown started " + this.toString(), getChannelHandler().getChannel(), sender, false);
             }
 
             return true;
@@ -330,20 +348,20 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     public boolean checkCost(UserHandler sender, double cost) {
         if (sender.getPoints() >= cost || checkPermissions(sender, CommandPower.adminAbsolute, 0)) {
             if (Memebot.debug) {
-                channelHandler.sendMessage("Cost true " + this.toString());
+                channelHandler.sendMessage("Cost true " + this.toString(), getChannelHandler().getChannel(), sender, false);
             }
             return true;
         }
 
         if (cost <= 0) {
             if (Memebot.debug) {
-                channelHandler.sendMessage("Cost true " + this.toString());
+                channelHandler.sendMessage("Cost true " + this.toString(), getChannelHandler().getChannel(), sender, false);
             }
             return true;
         }
 
         if (Memebot.debug) {
-            channelHandler.sendMessage("Cost false " + this.toString());
+            channelHandler.sendMessage("Cost false " + this.toString(), getChannelHandler().getChannel(), sender, false);
         }
 
         return false;
@@ -359,8 +377,22 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         return data;
     }
 
+
+    public boolean isCommandType(String type) {
+        boolean isType = false;
+
+        for (String t : commandType.split(",")) {
+            if (t.equals(type)) {
+                isType = true;
+            }
+        }
+
+        return isType;
+    }
+
     /***
      * This method handles list command specific actions
+     *
      * @param sender
      * @param data
      * @param formattedOutput
@@ -369,8 +401,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     private String handleListCommand(UserHandler sender, String data[], String formattedOutput) {
         try {
             if (data[1].equals("add") && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-                if(listContent.size() >= listLimit) {
-                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                if (listContent.size() >= listLimit) {
+                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true,
+                            new String[]{}, "");
                     this.success = false;
                 } else {
                     String newEntry = "";
@@ -378,7 +411,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         newEntry = newEntry + data[i] + " ";
                     }
                     if (newEntry.isEmpty()) {
-                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
+                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true,
+                                new String[]{}, "");
                         this.success = false;
                     } else {
                         this.listContent.add(newEntry + " " + Memebot.formatText(this.commandScript,
@@ -391,8 +425,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                     this.startCooldown = false;
                 }
             } else if (data[1].equals("suggest")) {
-                if(suggestedList.size() >= listLimit) {
-                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                if (suggestedList.size() >= listLimit) {
+                    formattedOutput = Memebot.formatText("LIMIT_ERROR", channelHandler, sender, this, true,
+                            new String[]{}, "");
                     this.success = false;
                 } else {
                     // allow users to suggest quotes
@@ -401,11 +436,13 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         newEntry = newEntry + data[i] + " ";
                     }
                     if (newEntry.isEmpty()) {
-                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true, new String[]{}, "");
+                        formattedOutput = Memebot.formatText("NOT_ADDED", channelHandler, sender, this, true,
+                                new String[]{}, "");
                         this.success = false;
                     } else {
                         String newEntryFormatted = newEntry + " " +
-                                Memebot.formatText(this.commandScript, channelHandler, sender, this, false, new String[]{}, "");
+                                Memebot.formatText(this.commandScript, channelHandler, sender, this, false,
+                                        new String[]{}, "");
                         if (!this.suggestedList.contains(newEntryFormatted)) {
                             this.suggestedList.add(newEntryFormatted);
                         }
@@ -429,15 +466,34 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                     }
                     formattedOutput = Memebot.formatText("REPLACED", channelHandler, sender, this, true, new String[]{}, "");
                 } else {
-                    formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true, new String[]{}, "");
+                    formattedOutput = Memebot.formatText("REPLACED_ERROR", channelHandler, sender, this, true,
+                            new String[]{}, "");
                 }
 
                 this.startCooldown = false;
             } else if (data[1].equals("approve") &&
                     checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
-
+                // todo add ability to approve all or a range of items
+                int index = -1;
                 try {
-                    int index = Integer.parseInt(data[2]) - 1;
+                    index = Integer.parseInt(data[2]) - 1;
+                } catch (NumberFormatException e) {
+                    formattedOutput = e.toString();
+                    this.success = false;
+                }
+                if(data[2].equals("last")) {
+                    index = suggestedList.size() - 1;
+                }
+
+                if(data[2].equals("all")) {
+                    for(String item : suggestedList) {
+                        this.listContent.add(suggestedList.get(index));
+                        formattedOutput = Memebot.formatText("APPROVED_ALL", channelHandler, sender, this, true,
+                                new String[]{}, "");
+                    }
+
+                    suggestedList.clear();
+                } else {
                     if (this.suggestedList.size() > index) {
                         this.listContent.add(suggestedList.get(index));
                         suggestedList.remove(suggestedList.get(index));
@@ -447,32 +503,33 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
                                 new String[]{Integer.toString(this.suggestedList.size())}, "");
                     }
-                } catch (NumberFormatException e) {
-                    formattedOutput = e.toString();
-                    this.success = false;
                 }
 
                 this.startCooldown = false;
             } else if (data[1].equals("deny") && checkPermissions(sender, CommandPower.modAbsolute,
                     CommandPower.modAbsolute)) {
+                int index = -1;
                 try {
-                    int index = Integer.parseInt(data[2]) - 1;
-                    if (!data[2].equals("all")) {
-                        if (this.suggestedList.size() > index) {
-                            suggestedList.remove(suggestedList.get(index));
-                            formattedOutput = Memebot.formatText("DENIED", channelHandler, sender, this, true, new String[]{}, "");
-                        } else {
-                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
-                                    new String[]{Integer.toString(this.suggestedList.size())}, "");
-                        }
-                    } else {
-                        suggestedList.clear();
-                        formattedOutput = Memebot.formatText("DENIED_ALL", channelHandler, sender, this, true,
-                                new String[]{}, "");
-                    }
+                    index = Integer.parseInt(data[2]) - 1;
                 } catch (NumberFormatException e) {
                     formattedOutput = e.toString();
                     this.success = false;
+                }
+                if(data[2].equals("last")) {
+                    index = suggestedList.size() - 1;
+                }
+                if (!data[2].equals("all")) {
+                    if (this.suggestedList.size() > index) {
+                        suggestedList.remove(suggestedList.get(index));
+                        formattedOutput = Memebot.formatText("DENIED", channelHandler, sender, this, true, new String[]{}, "");
+                    } else {
+                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                                new String[]{Integer.toString(this.suggestedList.size())}, "");
+                    }
+                } else {
+                    suggestedList.clear();
+                    formattedOutput = Memebot.formatText("DENIED_ALL", channelHandler, sender, this, true,
+                            new String[]{}, "");
                 }
 
                 this.startCooldown = false;
@@ -504,10 +561,15 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                         formattedOutput = Memebot.formatText("EDITED", channelHandler, sender, this, true, new String[]{}, "");
                         this.success = true;
                     } else {
-                        formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true, new String[]{Integer.toString(this.listContent.size())}, "");
+                        if(index == 801) {
+                            formattedOutput = "801 fake " + commandName;
+                        } else {
+                            formattedOutput = Memebot.formatText("OOB", channelHandler, sender, this, true,
+                                    new String[]{Integer.toString(this.listContent.size())}, "");
+                        }
                     }
                 } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-                    log.warning(e.toString());
+                    log.log(e.toString(), LogLevels.INFO);
                     this.success = false;
                     formattedOutput = e.toString();
                 }
@@ -515,10 +577,12 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 this.startCooldown = false;
             } else if (data[1].equals("list")) {
                 try {
-                    formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true, new String[]{channelHandler.getChannelPageBaseURL() + "/" + URLEncoder.encode(this.commandName, "UTF-8")}, "");
+                    formattedOutput = Memebot.formatText("LIST", channelHandler, sender, this, true,
+                            new String[]{channelHandler.getChannelPageBaseURL() + "/" +
+                                    URLEncoder.encode(this.commandName, "UTF-8")}, "");
                     //success = true;
                 } catch (Exception e) {
-                    log.warning(e.toString());
+                    log.log(e.toString());
                     formattedOutput = e.toString();
                     success = false;
                 }
@@ -547,8 +611,9 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                     // find all contents of list containing the required string
                     ArrayList<String> tempList = new ArrayList<>();
                     for (String str : listContent) {
-                        if (str.contains(query)) {
-                            formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(number)) + str + this.quoteSuffix.replace("{number}", Integer.toString(number));
+                        if (str.toLowerCase().contains(query.toLowerCase())) {
+                            formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(number)) +
+                                    str + this.quoteSuffix.replace("{number}", Integer.toString(number));
                             number += 1;
                             tempList.add(formattedOutput);
                         }
@@ -563,10 +628,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             try {
                 Random rand = new Random();
                 int i = rand.nextInt(this.listContent.size());
-                formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i));
+                formattedOutput = this.quotePrefix.replace("{number}", Integer.toString(i + 1)) + " " + this.listContent.get(i) + " " + this.quoteSuffix.replace("{number}", Integer.toString(i + 1));
                 success = true;
             } catch (IllegalArgumentException e1) {
-                log.warning(e1.toString());
+                log.log(e1.toString());
             } finally {
                 // just ignore it
             }
@@ -577,6 +642,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
 
     /***
      * This method handles counter command specific actions
+     *
      * @param sender
      * @param data
      * @param formattedOutput
@@ -587,15 +653,15 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         try {
             modifier = Integer.parseInt(data[2]);
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            log.warning(e.toString());
+            log.log(e.toString());
         }
 
         try {
-            if (data[1].equals("add")
+            if (data[1].equals("+")
                     && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                 counter = counter + modifier;
                 this.startCooldown = false;
-            } else if (data[1].equals("sub")
+            } else if (data[1].equals("-")
                     && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
                 counter = counter - modifier;
                 this.startCooldown = false;
@@ -605,7 +671,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 this.startCooldown = false;
             }
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            log.warning(e.toString());
+            log.log(e.toString());
             this.success = false;
         }
 
@@ -628,7 +694,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         if (!this.checkCost(sender, this.cost)) {
             channelHandler.sendMessage(Memebot.formatText("POINTS_NOT_ENOUGH", channelHandler, sender, this,
                     true, new String[]{String.format("%f", (float) this.cost)}, ""), this.channelHandler.getChannel(),
-                    sender);
+                    sender, false);
             return false;
         }
 
@@ -640,9 +706,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         int counterStart = 1;
 
         // todo list needs clear and import command
-        if (commandType.equals("list")) {
+        if (isCommandType("list")) {
             formattedOutput = handleListCommand(sender, data, formattedOutput);
-        } else if (commandType.equals("counter")) {
+        }
+        if (isCommandType("counter")) {
             formattedOutput = handleCounterCommand(sender, data, formattedOutput);
         }
 
@@ -657,7 +724,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         if (counterStart < this.parameters + 1) {
             formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false,
                     java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
-            if(!commandType.equals("state")) {
+            if (isCommandType("state")) {
                 formattedScript = Memebot.formatText(commandScript, channelHandler, sender, this, false,
                         java.util.Arrays.copyOfRange(data, counterStart, this.parameters + 1), this.helptext);
             }
@@ -665,18 +732,19 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         formattedOutput = Memebot.formatText(formattedOutput, channelHandler, sender, this, false, new String[]{}, "");
         formattedScript = Memebot.formatText(formattedScript, channelHandler, sender, this, false, new String[]{}, "");
 
+
         if (!formattedOutput.equals("null")) {
-            if (commandType.equals("counter") || commandType.equals("list") || commandType.equals("default") || commandType.equals("timer")) {
+            if (isCommandType("counter") || isCommandType("list") || isCommandType("default") || isCommandType("timer")) {
                 channelHandler.sendMessage(formattedOutput, this.channelHandler.getChannel(), sender, whisper);
                 success = true;
             }
 
             String channel = this.channelHandler.getChannel();
 
-            if (commandType.equals("default") || commandType.equals("timer")) {
+            if (isCommandType("default") || isCommandType("timer")) {
                 channelHandler.sendMessage(formattedScript, channel, sender, whisper);
                 success = true;
-            } else if (commandType.equals("state")) {
+            } else if (isCommandType("state")) {
                 if (state == 0) {
                     channelHandler.sendMessage(formattedOutput, channel, sender, whisper);
                     success = true;
@@ -712,9 +780,10 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     }
 
     public void update() {
-        if (this.commandType.equals("timer") && (channelHandler.isLive() || Memebot.debug) && timerCooldown.canContinue()) {
+        mongoHandler.update();
+        if (isCommandType("timer") && (channelHandler.isLive() || Memebot.debug) && timerCooldown.canContinue()) {
             String[] newArray = new String[0];
-            this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel(), "#internal#"), newArray);
+            this.executeCommand(new UserHandler("#internal#", this.channelHandler.getChannel()), newArray);
             timerCooldown.startCooldown();
         }
     }
@@ -769,7 +838,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 this.setTextTrigger(Boolean.parseBoolean(newValue));
                 success = true;
             } else if (modType.equals("access")) {
-                if(checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
+                if (checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
                     this.setNeededCommandPower(Integer.parseInt(newValue));
                     success = true;
                 }
@@ -786,7 +855,7 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
                 setAllowPicksFromList(Boolean.parseBoolean(newValue));
                 success = true;
             } else if (modType.equals("cooldownbypasspower")) {
-                if(checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
+                if (checkPermissions(sender, Integer.parseInt(newValue), Integer.parseInt(newValue))) {
                     this.setNeededCooldownBypassPower(Integer.parseInt(newValue));
                     success = true;
                 }
@@ -802,15 +871,27 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
             } else if (modType.equals("uses")) {
                 setUses(Integer.parseInt(newValue));
                 success = true;
-            } else if(modType.equals("cooldownoffset")) {
+            } else if (modType.equals("cooldownoffset")) {
                 setCooldownOffsetPerViewer(Integer.parseInt(newValue));
                 success = true;
-            } else if(modType.equals("timer")) {
+            } else if (modType.equals("timer")) {
                 timerCooldown = new Cooldown(Integer.parseInt(newValue), 0);
+                success = true;
+            } else if(modType.equals("mode")) {
+                mode = newValue;
+                success = true;
+            } else if(modType.equals("splitMessage")) {
+                splitMessage = Boolean.parseBoolean(newValue);
+                success = true;
+            } else if(modType.equals("characterLimit")) {
+                characterLimit = Integer.parseInt(newValue);
+                success = true;
+            } else if(modType.equals("appendoutput")) {
+                unformattedOutput = unformattedOutput + " " + newValue;
                 success = true;
             }
         } catch (NumberFormatException e) {
-            log.warning(String.format("Screw you Luigitus: %s", e.toString()));
+            log.log(String.format("Screw you Luigitus: %s", e.toString()));
         }
         this.writeDB();
 
@@ -820,6 +901,54 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
     @Override
     public int compareTo(CommandHandler another) {
         return commandName.compareTo(another.getCommandName());
+    }
+
+    public boolean isStartCooldown() {
+        return startCooldown;
+    }
+
+    public void setStartCooldown(boolean startCooldown) {
+        this.startCooldown = startCooldown;
+    }
+
+    public int getListLimit() {
+        return listLimit;
+    }
+
+    public void setListLimit(int listLimit) {
+        this.listLimit = listLimit;
+    }
+
+    public Cooldown getTimerCooldown() {
+        return timerCooldown;
+    }
+
+    public void setTimerCooldown(Cooldown timerCooldown) {
+        this.timerCooldown = timerCooldown;
+    }
+
+    public boolean isPointsUpdateDone() {
+        return pointsUpdateDone;
+    }
+
+    public void setPointsUpdateDone(boolean pointsUpdateDone) {
+        this.pointsUpdateDone = pointsUpdateDone;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getLastOutput() {
@@ -1119,11 +1248,12 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         this.cooldownOffsetPerViewer = cooldownOffsetPerViewer;
     }
 
+    @Override
     public JSONObject toJSONObject() {
         JSONObject wrapper = new JSONObject();
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("_id", commandName);
+        jsonObject.put("name", commandName);
         jsonObject.put("_channel", channelHandler.getChannel());
         jsonObject.put("execcounter", execCounter);
         jsonObject.put("listcontent", listContent);
@@ -1134,6 +1264,8 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         jsonObject.put("neededpower", neededCommandPower);
         jsonObject.put("qprefix", quotePrefix);
         jsonObject.put("qsuffix", quoteSuffix);
+        jsonObject.put("commandtype", commandType);
+        jsonObject.put("_id", id);
 
         wrapper.put("data", jsonObject);
         wrapper.put("links", Memebot.getLinks(Memebot.webBaseURL + "/api/commands/" + channelHandler.getBroadcaster() + "/" + commandName,
@@ -1143,8 +1275,14 @@ public class CommandHandler implements CommandInterface, Comparable<CommandHandl
         return wrapper;
     }
 
+    @Override
     public String toJSONSString() {
         return toJSONObject().toJSONString();
+    }
+
+    @Override
+    public boolean fromJSON(String jsonString) {
+        return false;
     }
 
     // this method returns true if the object can be removed from memeory

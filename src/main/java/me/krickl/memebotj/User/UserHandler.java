@@ -1,8 +1,10 @@
-package me.krickl.memebotj;
+package me.krickl.memebotj.User;
 
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Database.MongoHandler;
 import me.krickl.memebotj.Exceptions.DatabaseReadException;
-//import me.krickl.memebotj.Inventory.Inventory;
+import me.krickl.memebotj.Log.MLogger;
+import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import org.apache.commons.codec.binary.Base64;
@@ -14,14 +16,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+//import me.krickl.memebotj.Inventory.Inventory;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 06/04/16.
  */
+@Deprecated
 public class UserHandler implements Comparable<UserHandler> {
-    public static Logger log = Logger.getLogger(UserHandler.class.getName());
+    public static MLogger log = MLogger.createLogger(UserHandler.class.getName());
     private boolean isModerator = false;
     private boolean isUserBroadcaster = false;
     private boolean newUser = false;
@@ -35,11 +41,10 @@ public class UserHandler implements Comparable<UserHandler> {
     private String channelOrigin = "";
     private String nickname = "";
     private double points = 0.0f;
-    // private boolean isJoined = false
+
     private Cooldown userCooldown = new Cooldown(0);
     private String autogreet = "";
-    // todo old db code - remove soon
-    //MongoCollection<Document> userCollection = null;
+
     private java.util.HashMap<String, Cooldown> userCommandCooldowns = new java.util.HashMap<String, Cooldown>();
     private String modNote = "";
     private SecureRandom random = new SecureRandom();
@@ -58,29 +63,27 @@ public class UserHandler implements Comparable<UserHandler> {
 
     private boolean pointsUpdateDone = false;
 
-    //private Inventory userInventory;
-
     private int lastTimeoutDuration = 0;
     private String lastTimeoutReason = "";
 
-    public UserHandler(String username, String channelOrigin) {
-        this(username, channelOrigin, username);
-    }
+    private boolean isActive = true;
+    private Cooldown idleCooldown = new Cooldown(1200);
 
-    public UserHandler(String username, String channelOrigin, String id) {
-        this.username = username;
+    // todo remove userhandler identification by id (omg why)
+    public UserHandler(String username, String channelOrigin) {
         this.channelOrigin = channelOrigin;
-        this.id = id;
-        //userInventory = new Inventory(username, channelOrigin, this);
+        this.id = "";
+        this.username = username;
+        if(username.equals(channelOrigin.replace("#", ""))) {
+            setModerator(true);
+            setUserBroadcaster(true);
+            setCommandPower(CommandPower.broadcasterAbsolute);
+        }
 
         if (Memebot.useMongo) {
             if (!Memebot.channelsPrivate.contains(this.channelOrigin)) {
-                // todo old db code - remove soon
-                //this.userCollection = Memebot.db.getCollection(this.channelOrigin + "_users");
                 mongoHandler = new MongoHandler(Memebot.db, this.channelOrigin + "_users");
             } else {
-                // todo old db code - remove soon
-                //this.userCollection = Memebot.dbPrivate.getCollection(this.channelOrigin + "_users");
                 mongoHandler = new MongoHandler(Memebot.dbPrivate, this.channelOrigin + "_users");
             }
         }
@@ -93,7 +96,7 @@ public class UserHandler implements Comparable<UserHandler> {
         }
 
         //points update - reduce every points related segment
-        if(!this.pointsUpdateDone) {
+        if (!this.pointsUpdateDone) {
             this.points = points / 10;
             this.pointsUpdateDone = true;
         }
@@ -101,11 +104,11 @@ public class UserHandler implements Comparable<UserHandler> {
         setCommandPower(this.autoCommandPower);
     }
 
-    public static Logger getLog() {
+    public static MLogger getLog() {
         return log;
     }
 
-    public static void setLog(Logger log) {
+    public static void setLog(MLogger log) {
         UserHandler.log = log;
     }
 
@@ -116,12 +119,13 @@ public class UserHandler implements Comparable<UserHandler> {
 
         try {
             mongoHandler.readDatabase(this.username);
-        } catch (DatabaseReadException | IllegalArgumentException e) {
-            log.warning(e.toString());
+        } catch (DatabaseReadException | IllegalArgumentException e1) {
+            log.log(e1.toString());
             this.newUser = true;
-            return;
         }
 
+        this.username = (String) mongoHandler.getObject("_id", this.username);
+        this.id = (String) mongoHandler.getObject("_id_new", this.id);
         this.isModerator = (boolean) mongoHandler.getObject("mod", this.isModerator);
         this.points = (double) mongoHandler.getObject("pointsf", this.points);
         this.autogreet = mongoHandler.getObject("autogreet", this.autogreet).toString();
@@ -181,21 +185,22 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public void update(ChannelHandler channelHandler) {
-        //userInventory.update();
-
+        mongoHandler.update();
         // remove unused cooldowns asap
         ArrayList<String> toRemove = new ArrayList<>();
 
-        for(String key : userCommandCooldowns.keySet()) {
+        for (String key : userCommandCooldowns.keySet()) {
             Cooldown cooldown = userCommandCooldowns.get(key);
-            if(cooldown.canContinue()) {
+            if (cooldown.canContinue()) {
                 toRemove.add(key);
             }
         }
 
-        for(String key : toRemove) {
+        for (String key : toRemove) {
             userCommandCooldowns.remove(key);
         }
+
+        // todo implement idle cooldown
     }
 
     public boolean canRemove() {
@@ -205,7 +210,7 @@ public class UserHandler implements Comparable<UserHandler> {
 
         //check if user has been marked for removal
         if (this.shouldBeRemoved && this.removeCooldown.canContinue()) {
-            UserHandler.log.info("Removed user " + this.username);
+            UserHandler.log.log("Removed user " + this.username);
             return true;
         }
 
@@ -213,8 +218,10 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public void sendAutogreet(ChannelHandler channelHandler) {
+        // todo && CommandHandler.checkPermissionsForUser(this,channelHandler.getNeededAutogreetCommandPower(), channelHandler.getNeededAutogreetCommandPower(), channelHandler)
         if (!this.hasAutogreeted && this.enableAutogreets && channelHandler.isAllowAutogreet() && !this.autogreet.equals("")) {
-            channelHandler.sendMessage(autogreet, this.channelOrigin, this);
+
+            channelHandler.sendMessage(autogreet, this.channelOrigin, this, false);
             this.hasAutogreeted = true;
         }
     }
@@ -270,6 +277,14 @@ public class UserHandler implements Comparable<UserHandler> {
         isModerator = moderator;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
     public boolean isUserBroadcaster() {
         return isUserBroadcaster;
     }
@@ -295,7 +310,7 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public int getCommandPower() {
-        if(this.constantCommandPower >= 0 && this.constantCommandPower >= commandPower) {
+        if (this.constantCommandPower >= 0 && this.constantCommandPower >= commandPower) {
             // constant command power can be used to assign a constant value to a user
             // this will be used for permissions on the website
             return constantCommandPower;
@@ -535,7 +550,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(username);
         } catch (DatabaseReadException e) {
-            log.info(e.toString());
+            log.log(e.toString());
             setOauth(oauth);
             return oauth;
         }
@@ -564,7 +579,7 @@ public class UserHandler implements Comparable<UserHandler> {
         try {
             mongoHandler.readDatabase(username);
         } catch (DatabaseReadException e) {
-            log.info(e.toString());
+            log.log(e.toString());
             setAPIKey(apikey);
             return apikey;
         }
@@ -579,11 +594,8 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public boolean isUserACat() {
-        if (username.contains("cat") || username.contains("kitty")) {
-            return true;
-        }
+        return username.contains("cat") || username.contains("kitty");
 
-        return false;
     }
 
     public void setAPIKey(String key) {
@@ -601,7 +613,8 @@ public class UserHandler implements Comparable<UserHandler> {
 
         jsonObject.put("points", points);
         jsonObject.put("timeouts", timeouts);
-        jsonObject.put("_id", username);
+        jsonObject.put("_id", id);
+        jsonObject.put("username", username);
         jsonObject.put("_channel", channelOrigin);
         jsonObject.put("joinded_t", timeStampJoined);
         jsonObject.put("joined_str", dateJoined);

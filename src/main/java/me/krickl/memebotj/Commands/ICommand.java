@@ -1,12 +1,12 @@
 package me.krickl.memebotj.Commands;
 
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 03/04/16.
  */
-public interface CommandInterface {
+public interface ICommand {
     void readDB();
 
     void removeDB();

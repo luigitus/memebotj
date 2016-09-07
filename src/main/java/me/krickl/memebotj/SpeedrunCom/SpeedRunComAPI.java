@@ -1,11 +1,12 @@
 package me.krickl.memebotj.SpeedrunCom;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.SpeedrunCom.Model.Game;
+import me.krickl.memebotj.Plugins.IPlugin;
 import me.krickl.memebotj.SpeedrunCom.Model.Games;
 import me.krickl.memebotj.SpeedrunCom.Model.UserObject;
 import me.krickl.memebotj.SpeedrunCom.Model.UsersLookup;
+import me.krickl.memebotj.Twitch.TwitchAPI;
 import me.krickl.memebotj.Utility.BuildInfo;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -23,11 +24,11 @@ import java.util.ArrayList;
  * This file is part of memebotj.
  * Created by Luigitus on 01/05/16.
  */
-public class SpeedRunComAPI implements Runnable {
+public class SpeedRunComAPI extends IPlugin implements Runnable {
     private Thread t = null;
     private int updateCycleMinuets = 10;
 
-    private SpeedRunCom service;
+    private ISpeedRunCom service;
 
     public SpeedRunComAPI() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -52,31 +53,25 @@ public class SpeedRunComAPI implements Runnable {
                 .client(httpClient.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        service = retrofit.create(SpeedRunCom.class);
-    }
-
-    public void start() {
-        if (t == null) {
-            t = new Thread(this, "SpeedRunComAPI");
-            t.start();
-        }
+        service = retrofit.create(ISpeedRunCom.class);
     }
 
     @Override
     public void run() {
-        while (Memebot.twitchAPI != null && !Memebot.twitchAPI.isCycleDone()) {
+        TwitchAPI twitchAPI = (TwitchAPI)Memebot.plugins.get("twitchapi");
+        while (twitchAPI != null && !twitchAPI.isCycleDone()) {
             try {
-                Memebot.log.info("SpeedRunComAPI: Waiting for first completed cycle.");
+                Memebot.log.log("SpeedRunComAPI: Waiting for first completed cycle.");
                 Thread.sleep(15000);
             } catch (InterruptedException ignored) {
             }
         }
-        while (true) {
+        while (Memebot.isRunning) {
             for (int i = 0; i < Memebot.joinedChannels.size(); i++) {
                 update(Memebot.joinedChannels.get(i));
                 if (!(i + 1 == Memebot.joinedChannels.size())) {
                     try {
-                        Memebot.log.info("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                        Memebot.log.log("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                                 + ", pausing before continuing.");
                         if (!Memebot.debug) {
                             Thread.sleep(5000); // 5 second pause
@@ -84,7 +79,7 @@ public class SpeedRunComAPI implements Runnable {
                     } catch (InterruptedException ignored) {
                     }
                 } else {
-                    Memebot.log.info("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
+                    Memebot.log.log("SpeedRunComAPI: Request executed for " + Memebot.joinedChannels.get(i).getChannel()
                             + ", Update cycle completed. Next update is scheduled in " + updateCycleMinuets + " minuets.");
                 }
             }
@@ -93,6 +88,8 @@ public class SpeedRunComAPI implements Runnable {
             } catch (InterruptedException ignored) {
             }
         }
+
+        System.out.println("Thread end");
     }
 
     public void update(ChannelHandler channelHandler) {
@@ -139,11 +136,7 @@ public class SpeedRunComAPI implements Runnable {
         }
     }
 
-    public SpeedRunCom getService() {
+    public ISpeedRunCom getService() {
         return service;
-    }
-
-    public Thread getT() {
-        return t;
     }
 }

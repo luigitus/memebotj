@@ -1,6 +1,6 @@
 package me.krickl.memebotj.Connection;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Utility.MessagePackage;
 
@@ -10,7 +10,7 @@ import java.io.IOException;
  * This file is part of memebotj.
  * Created by unlink on 09/04/16.
  */
-public interface ConnectionInterface {
+public interface IConnection {
     void ping() throws IOException;
 
     String recvData() throws LoginException;
@@ -24,4 +24,8 @@ public interface ConnectionInterface {
     void sendMessageBytes(String msg);
 
     String getBotNick();
+
+    boolean canReceive();
+
+    Protocols botMode();
 }

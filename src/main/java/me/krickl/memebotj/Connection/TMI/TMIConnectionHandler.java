@@ -1,9 +1,11 @@
-package me.krickl.memebotj.Connection;
+package me.krickl.memebotj.Connection.TMI;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
+import me.krickl.memebotj.Connection.IConnection;
+import me.krickl.memebotj.Connection.Protocols;
 import me.krickl.memebotj.Exceptions.LoginException;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Cooldown;
 import me.krickl.memebotj.Utility.MessagePackage;
@@ -21,7 +23,7 @@ import java.util.Scanner;
  * This file is part of memebotj.
  * Created by unlink on 09/04/16.
  */
-public class IRCConnectionHandler implements ConnectionInterface {
+public class TMIConnectionHandler implements IConnection {
     String server = "";
     String botNick = "";
     String password = "";
@@ -31,7 +33,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
     DataOutputStream outToServer = null;
     boolean debugMode = false;
 
-    public IRCConnectionHandler(String serverNew, int portNew, String botNickNew, String passwordNew) {
+    public TMIConnectionHandler(String serverNew, int portNew, String botNickNew, String passwordNew) {
         server = serverNew;
         botNick = botNickNew;
         password = passwordNew;
@@ -117,10 +119,12 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public MessagePackage handleMessage(String rawircmsg, ChannelHandler channelHandler) {
         String senderName = "";
+        String senderID = "";
         HashMap<String, String> ircTags = new HashMap<String, String>();
         String[] msgContent = {""};
         String[] ircmsgBuffer = rawircmsg.split(" ");
         String messageType = "UNDEFINED";
+        String messageID = "";
         int i = 0;
 
         String channel = "";
@@ -182,6 +186,8 @@ public class IRCConnectionHandler implements ConnectionInterface {
             }
             i += 1;
         }
+        senderID = ircTags.get("user-id");
+
         if (!channelHandler.getUserList().containsKey(senderName) && !senderName.isEmpty()) {
             UserHandler newUser = new UserHandler(senderName, channelHandler.getChannel());
             channelHandler.getUserList().put(senderName, newUser);
@@ -256,6 +262,9 @@ public class IRCConnectionHandler implements ConnectionInterface {
             if (ircTags.containsKey("display-name")) {
                 sender.setNickname(ircTags.get("display-name"));
             }
+            if(ircTags.containsKey("msg-id")) {
+                messageID = ircTags.get("msg-id");
+            }
             if (ircTags.containsKey("user-type")) {
                 if (ircTags.get("user-type").equals("mod") && !sender.isUserBroadcaster()) {
                     sender.setModerator(true);
@@ -290,7 +299,7 @@ public class IRCConnectionHandler implements ConnectionInterface {
             }
         }
 
-        return new MessagePackage(msgContent, sender, messageType, channel);
+        return new MessagePackage(msgContent, sender, messageType, channel, messageID);
     }
 
     public void close() {
@@ -391,5 +400,13 @@ public class IRCConnectionHandler implements ConnectionInterface {
 
     public void setDebugMode(boolean debugMode) {
         this.debugMode = debugMode;
+    }
+
+    public boolean canReceive() {
+        return true;
+    }
+
+    public Protocols botMode() {
+        return Protocols.TMI_TWITCH;
     }
 }

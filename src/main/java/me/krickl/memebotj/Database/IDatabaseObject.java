@@ -4,7 +4,7 @@ package me.krickl.memebotj.Database;
  * This file is part of memebotj.
  * Created by unlink on 02/05/16.
  */
-public interface DatabaseObjectInterface {
+public interface IDatabaseObject {
     void writeDB();
 
     void readDB();

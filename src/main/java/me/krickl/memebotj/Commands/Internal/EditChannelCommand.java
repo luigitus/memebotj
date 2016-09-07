@@ -1,9 +1,9 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.ChatColours;
 import me.krickl.memebotj.Utility.CommandPower;
 import me.krickl.memebotj.Utility.Localisation;
@@ -12,8 +12,8 @@ import me.krickl.memebotj.Utility.Localisation;
  * This file is part of memebotj.
  * Created by unlink on 11/04/16.
  */
-public class EditChannel extends CommandHandler {
-    public EditChannel(ChannelHandler channelHandler, String commandName, String dbprefix) {
+public class EditChannelCommand extends CommandHandler {
+    public EditChannelCommand(ChannelHandler channelHandler, String commandName, String dbprefix) {
         super(channelHandler, commandName, dbprefix);
     }
 
@@ -52,13 +52,10 @@ public class EditChannel extends CommandHandler {
                 }
             } else if (data[0].equals("allowautogreet")) {
                 getChannelHandler().setAllowAutogreet(!getChannelHandler().isAllowAutogreet());
-                getChannelHandler().sendMessage(String.format("Autogreet set to %s", java.lang.Boolean.toString(getChannelHandler().isAllowAutogreet())), getChannelHandler().getChannel());
             } else if (data[0].equals("maxnamelen")) {
                 getChannelHandler().setMaxFileNameLen(java.lang.Short.parseShort(data[1]));
-                getChannelHandler().sendMessage("Changed max filename length to " + data[1], getChannelHandler().getChannel());
             } else if (data[0].equals("ppi")) {
                 getChannelHandler().setPointsPerUpdate(java.lang.Double.parseDouble(data[1]));
-                getChannelHandler().sendMessage("Changed max ppi to " + data[1], getChannelHandler().getChannel());
             } else if (data[0].equals("purgelinks")) {
                 getChannelHandler().setPurgeURLS(java.lang.Boolean.parseBoolean(data[1]));
             } else if (data[0].equals("linkto")) {
@@ -82,21 +79,46 @@ public class EditChannel extends CommandHandler {
                 getChannelHandler().setMaxAmountOfNameInList(Integer.parseInt(data[1]));
             } else if (data[0].equals("background")) {
                 getChannelHandler().setBgImage(data[1]);
-            } else if (data[0].equals("itemDrops")) {
-                getChannelHandler().setItemDrops(data[1]);
-            } else if(data[0].equals("colour")) {
-                if(!getChannelHandler().getConnection().getBotNick().equals(Memebot.botNick)
+            } else if (data[0].equals("colour")) {
+                if (!getChannelHandler().getConnection().getBotNick().equals(Memebot.botNick)
                         || checkPermissions(sender, CommandPower.botModAbsolute, CommandPower.botModAbsolute)) {
                     ChatColours.setColour(getChannelHandler(), sender, data[1]);
                 }
-            } else if(data[0].equals("colourrotation")) {
+            } else if (data[0].equals("colourrotation")) {
                 getChannelHandler().setUseRotatingColours(Boolean.parseBoolean(data[1]));
+            } else if (data[0].equals("setoverride")) {
+                getChannelHandler().setOverrideChannelInformation(Boolean.parseBoolean(data[1]));
+            } else if (data[0].equals("overridetitle")) {
+                getChannelHandler().setStreamTitle(newEntry);
+            } else if (data[0].equals("overridegame")) {
+                getChannelHandler().setCurrentGame(newEntry);
+            } else if (data[0].equals("setlive")) {
+                getChannelHandler().setLive(Boolean.parseBoolean(data[1]));
+            } else if (data[0].equals("autogreetpower")) {
+                getChannelHandler().setNeededAutogreetCommandPower(Integer.parseInt(data[1]));
+            } else if (data[0].equals("discord")) {
+                getChannelHandler().setDiscordChannel(newEntry);
+            } else if(data[0].equals("enableautohost")) {
+                getChannelHandler().setEnableAutoHost(Boolean.parseBoolean(data[1]));
+            } else if(data[0].equals("hostoptout")) {
+                getChannelHandler().setOpOutOfAutohost(Boolean.parseBoolean(data[1]));
+            } else {
+                setSuccess(false);
             }
 
-            getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"), getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]}, getChannelHandler().getChannel()));
+            if(isSuccess()) {
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_OK"),
+                        getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]},
+                        getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, false);
+            } else {
+                getChannelHandler().sendMessage(Memebot.formatText(getChannelHandler().getLocalisation().localisedStringFor("EDIT_CHANNEL_FAIL"),
+                        getChannelHandler(), sender, this, false, new String[]{sender.getUsername(), data[0], data[1]},
+                        getChannelHandler().getChannel()), getChannelHandler().getChannel(), sender, false);
+            }
             getChannelHandler().writeDB();
         } catch (ArrayIndexOutOfBoundsException e) {
-            getChannelHandler().sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", getChannelHandler(), sender, this, true, new String[]{}, ""), getChannelHandler().getChannel());
+            getChannelHandler().sendMessage(Memebot.formatText("CHCHANNEL_SYNTAX", getChannelHandler(), sender, this,
+                    true, new String[]{}, ""), getChannelHandler().getChannel(), sender, false);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }

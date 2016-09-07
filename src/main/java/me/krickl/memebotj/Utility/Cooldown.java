@@ -1,6 +1,6 @@
 package me.krickl.memebotj.Utility;
 
-import me.krickl.memebotj.Database.JSONInterface;
+import me.krickl.memebotj.Database.IJSON;
 import org.bson.Document;
 import org.json.simple.JSONObject;
 
@@ -8,7 +8,7 @@ import org.json.simple.JSONObject;
  * This file is part of memebotj.
  * Created by unlink on 07/04/16.
  */
-public class Cooldown implements JSONInterface {
+public class Cooldown implements IJSON {
 
     int cooldownLength = 0;
     int cooldownStart = 0;
@@ -31,11 +31,11 @@ public class Cooldown implements JSONInterface {
 
     public Cooldown(Document doc) {
         this.doc = doc;
-        cooldownLength = (int)doc.getOrDefault("lenght", cooldownLength);
-        cooldownStart = (int)doc.getOrDefault("start", cooldownStart);
-        cooldownEnd = (int)doc.getOrDefault("end", cooldownEnd);
-        uses = (int)doc.getOrDefault("uses", uses);
-        cooldownAfterUses = (int)doc.getOrDefault("cdafteruses", cooldownAfterUses);
+        cooldownLength = (int) doc.getOrDefault("lenght", cooldownLength);
+        cooldownStart = (int) doc.getOrDefault("start", cooldownStart);
+        cooldownEnd = (int) doc.getOrDefault("end", cooldownEnd);
+        uses = (int) doc.getOrDefault("uses", uses);
+        cooldownAfterUses = (int) doc.getOrDefault("cdafteruses", cooldownAfterUses);
     }
 
     public Cooldown(int length, int uses) {
@@ -69,6 +69,7 @@ public class Cooldown implements JSONInterface {
 
     /***
      * This method returns a document that can be used to store the cooldown in database
+     *
      * @return
      */
     public Document getDoc() {
@@ -113,5 +114,10 @@ public class Cooldown implements JSONInterface {
     @Override
     public String toJSONSString() {
         return null;
+    }
+
+    @Override
+    public boolean fromJSON(String jsonString) {
+        return false;
     }
 }

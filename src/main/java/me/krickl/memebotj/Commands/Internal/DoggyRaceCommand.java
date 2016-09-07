@@ -1,20 +1,20 @@
 package me.krickl.memebotj.Commands.Internal;
 
-import me.krickl.memebotj.ChannelHandler;
+import me.krickl.memebotj.Channel.ChannelHandler;
 import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
-import me.krickl.memebotj.UserHandler;
+import me.krickl.memebotj.User.UserHandler;
 import me.krickl.memebotj.Utility.CommandPower;
 import org.bson.Document;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * This file is part of memebotj.
  * Created by unlink on 17/05/16.
  */
+@Deprecated
 public class DoggyRaceCommand extends CommandHandler {
     private Document entrants = new Document();
 
@@ -25,8 +25,9 @@ public class DoggyRaceCommand extends CommandHandler {
     @Override
     public void overrideDB() {
         this.setNeededCommandPower(CommandPower.viewerAbsolute);
-
+        this.setEnabled(false);
         this.setHelptext(Memebot.formatText("DOGGY_SYNTAX", getChannelHandler(), null, this, true, new String[]{}, ""));
+        this.setEnabled(false);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class DoggyRaceCommand extends CommandHandler {
 
         super.readDB();
 
-        entrants = (Document)mongoHandler.getObject("entrants", entrants);
+        entrants = (Document) mongoHandler.getObject("entrants", entrants);
     }
 
     @Override
@@ -51,17 +52,17 @@ public class DoggyRaceCommand extends CommandHandler {
         int minEntrants = 10;
         int viewerPercentage = 10;
 
-        if(data.length >= 1) {
-            if(data[0].equals("enter") && data.length >= 3) {
+        if (data.length >= 1) {
+            if (data[0].equals("enter") && data.length >= 3) {
                 //enter doggy race
-                if(!entrants.containsKey(sender.getUsername())) {
+                if (!entrants.containsKey(sender.getUsername())) {
                     String message = Memebot.formatText("DOGGY_ENTER", getChannelHandler(), sender, this, true, new
                             String[]{data[2], data[1]}, "");
 
                     getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
 
                     try {
-                        if(checkCost(sender, Double.parseDouble(data[2]))) {
+                        if (checkCost(sender, Double.parseDouble(data[2]))) {
                             message = Memebot.formatText("DOGGY_ENTER_NFE", getChannelHandler(), sender, this, true, new
                                     String[]{data[1], data[2]}, "");
 
@@ -71,7 +72,7 @@ public class DoggyRaceCommand extends CommandHandler {
                         entrants.append(sender.getUsername(), new Document().append("bet", Double.parseDouble(data[2]))
                                 .append("doggy", data[1]));
                         sender.setPoints(sender.getPoints() - Double.parseDouble(data[2]));
-                    } catch(NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         message = Memebot.formatText("DOGGY_ENTER_NFE", getChannelHandler(), sender, this, true, new
                                 String[]{data[1], data[2]}, "");
 
@@ -84,9 +85,9 @@ public class DoggyRaceCommand extends CommandHandler {
                     getChannelHandler().sendMessage(message, getChannelHandler().getChannel(), sender, isWhisper());
                 }
 
-            } else if(data[0].equals("status")) {
+            } else if (data[0].equals("status")) {
                 int startAt = minEntrants;
-                if(getChannelHandler().getViewerNumber() / viewerPercentage > minEntrants) {
+                if (getChannelHandler().getViewerNumber() / viewerPercentage > minEntrants) {
                     startAt = getChannelHandler().getViewerNumber();
                 }
                 String message = Memebot.formatText("DOGGY_STATUS", getChannelHandler(), sender, this, true, new
@@ -99,19 +100,19 @@ public class DoggyRaceCommand extends CommandHandler {
         }
 
         //start doggy race at X
-        if(entrants.keySet().size() >= minEntrants
+        if (entrants.keySet().size() >= minEntrants
                 && entrants.keySet().size() >= (getChannelHandler().getViewerNumber() / viewerPercentage)) {
             SecureRandom random = new SecureRandom();
 
             ArrayList<String> entracnesKeys = new ArrayList();
-            for(String keys : entrants.keySet()) {
+            for (String keys : entrants.keySet()) {
                 entracnesKeys.add(keys);
             }
 
             // continue until only one person is left
-            while(entracnesKeys.size() > 3) {
+            while (entracnesKeys.size() > 3) {
                 // round 1
-                for (int i = 0; i< entracnesKeys.size(); i++) {
+                for (int i = 0; i < entracnesKeys.size(); i++) {
                     if (!random.nextBoolean() && entracnesKeys.size() > 3) {
                         entracnesKeys.remove(i);
                     }
@@ -119,7 +120,7 @@ public class DoggyRaceCommand extends CommandHandler {
             }
 
             String winners = "";
-            for(int i = 2; i >= 0; i--) {
+            for (int i = 2; i >= 0; i--) {
                 Document winner = (Document) entrants.get(entracnesKeys.get(i));
                 String winnerName = entracnesKeys.get(i);
 
