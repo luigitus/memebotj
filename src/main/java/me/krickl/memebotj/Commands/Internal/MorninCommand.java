@@ -5,6 +5,8 @@ import me.krickl.memebotj.Commands.CommandHandler;
 import me.krickl.memebotj.Memebot;
 import me.krickl.memebotj.User.UserHandler;
 
+import java.security.SecureRandom;
+
 /**
  * Created by unlink on 8/16/2016.
  */
@@ -20,13 +22,32 @@ public class MorninCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
-        String output = "";
-        for(String s : data) {
-            output = output + s + " ";
+
+        boolean whenIs = false;
+        if(data.length > 1) {
+            if(data[0].equals("when") && data[1].equals("is")) {
+                whenIs = true;
+            }
         }
-        String formatted = Memebot.formatText("@{sender} " + output, getChannelHandler(), sender,
-                this, false, new String[]{}, "");
-        getChannelHandler().sendMessage(formatted, getChannelHandler().getChannel(),
-                sender, isWhisper());
+
+        if(!whenIs) {
+            String output = "";
+            for (String s : data) {
+                output = output + s + " ";
+            }
+            String formatted = Memebot.formatText("@{sender} " + output, getChannelHandler(), sender,
+                    this, false, new String[]{}, "");
+            getChannelHandler().sendMessage(formatted, getChannelHandler().getChannel(),
+                    sender, isWhisper());
+        } else {
+            String[] whenIsList = {"Never", "At 8:01 AM CEST", "Tomorrow"};
+
+            SecureRandom ran = new SecureRandom();
+
+            String formatted = Memebot.formatText("@{sender}: " + whenIsList[ran.nextInt(whenIsList.length)], getChannelHandler(), sender,
+                    this, false, new String[]{}, "");
+            getChannelHandler().sendMessage(formatted, getChannelHandler().getChannel(),
+                    sender, isWhisper());
+        }
     }
 }

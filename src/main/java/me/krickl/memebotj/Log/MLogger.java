@@ -7,6 +7,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.FormatFlagsConversionMismatchException;
 import java.util.Properties;
 
 /**
@@ -50,12 +51,16 @@ public class MLogger {
             Calendar calTime = Calendar.getInstance();
             String strTime = sdfTime.format(calTime.getTime());
 
-            String formattedMessage = String.format("%s <%s>%s %s >> %s\n", level.toString(), id, strDate, strTime, message);
+            String formattedMessage = "<null>";
+            try {
+                formattedMessage = String.format("%s <%s>%s %s >> %s\n", level.toString(), id, strDate, strTime, message);
+                writer.printf(formattedMessage);
 
-            writer.printf(formattedMessage);
+                if (Memebot.debug) {
+                    System.out.printf(formattedMessage);
+                }
+            } catch(FormatFlagsConversionMismatchException e) {
 
-            if (Memebot.debug) {
-                System.out.printf(formattedMessage);
             }
 
             allLogs.add(formattedMessage);

@@ -23,7 +23,37 @@ public class RaceCommand extends CommandHandler {
 
     @Override
     public void commandScript(UserHandler sender, String[] data) {
+
         if (data.length >= 1 && checkPermissions(sender, CommandPower.modAbsolute, CommandPower.modAbsolute)) {
+            if(data.length >= 2) {
+                if(data[0].equals("countdown")) {
+                    int time = 0;
+                    try {
+                        time = Integer.parseInt(data[1]);
+                    } catch(NumberFormatException e) {
+
+                    }
+                    if(time > 15) {
+                        time = 15;
+                    }
+                    for(int i = time + 1; i >= 0; i--) {
+                        try {
+                            if(i == 0) {
+                                getChannelHandler().sendMessage("go!", this.getChannelHandler().getChannel(),
+                                        sender, isWhisper());
+                            } else {
+                                getChannelHandler().sendMessage(String.format("%d", i), this.getChannelHandler().getChannel(),
+                                        sender, isWhisper());
+                            }
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    return;
+                }
+            }
             getChannelHandler().setCurrentRaceURL(getChannelHandler().getRaceBaseURL() + "/" + getChannelHandler().getBroadcaster());
             for (String i : data) {
                 getChannelHandler().setCurrentRaceURL(getChannelHandler().getCurrentRaceURL() + "/" + i);
