@@ -99,7 +99,7 @@ public class SpeedRunComAPI extends IPlugin implements Runnable {
         updateGame(channelHandler);
     }
 
-    public void updateUser(ChannelHandler ch) {
+    private void updateUser(ChannelHandler ch) {
         Call<UsersLookup> userLookup = service.lookupUser(ch.getBroadcaster());
         try {
             ArrayList<UserObject> users = userLookup.execute().body().getData();
@@ -111,11 +111,11 @@ public class SpeedRunComAPI extends IPlugin implements Runnable {
         }
     }
 
-    public void updateGame(ChannelHandler ch) {
+    private void updateGame(ChannelHandler ch) {
         String currentGame = ch.getCurrentGame();
         if (!currentGame.equals("Not Playing") && !currentGame.equals("")) {
             if (ch.getGame() == null) {
-                Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
+                Call<Games> gameLookup = service.lookupGame(currentGame, null, "categories");
                 try {
                     ch.setGame(gameLookup.execute().body().getData().get(0));
                 } catch (IOException e) {
@@ -124,7 +124,7 @@ public class SpeedRunComAPI extends IPlugin implements Runnable {
                 return;
             }
             if (!ch.getGame().getName().equals(currentGame)) {
-                Call<Games> gameLookup = service.lookupGame(currentGame, "categories");
+                Call<Games> gameLookup = service.lookupGame(currentGame, null, "categories");
                 try {
                     ch.setGame(gameLookup.execute().body().getData().get(0));
                 } catch (IOException e) {

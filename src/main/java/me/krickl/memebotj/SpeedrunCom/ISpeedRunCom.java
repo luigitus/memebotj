@@ -18,10 +18,10 @@ public interface ISpeedRunCom {
     Call<UserLookup> getUser(@Path("userID") String userID);
 
     @GET("games")
-    Call<Games> lookupGame(@Query("name") String name, @Query("embed") String embed);
+    Call<Games> lookupGame(@Query("name") String name, @Query("abbreviation") String abbreviation, @Query("embed") String embed);
 
-    @GET("users/{id}/personal-bests")
-    Call<PBLookup> getPersonalBests(@Path("id") String id, @Query("game") String game);
+    @GET("users/{userID}/personal-bests")
+    Call<PBLookup> getPersonalBests(@Path("userID") String userID, @Query("game") String game);
 
     @GET("leaderboards/{gameID}/category/{category}?top=1")
     Call<WRLookup> getWorldRecord(@Path("gameID") String gameID, @Path("category") String category, @Query("embed") String embed);
