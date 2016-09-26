@@ -274,7 +274,9 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         if (this.shortUpdateCooldown.canContinue()) {
             this.shortUpdateCooldown.startCooldown();
 
-            mongoHandler.update();
+            if (Memebot.useMongo) {
+                mongoHandler.update();
+            }
 
             ArrayList<String> removeUsers = new java.util.ArrayList<String>();
             Iterator it = this.userList.keySet().iterator();
@@ -304,7 +306,9 @@ public class ChannelHandler implements IChannel, Runnable, Comparable<ChannelHan
         if (this.updateCooldown.canContinue()) {
             this.updateCooldown.startCooldown();
 
-            this.writeDB();
+            if (Memebot.useMongo) {
+                this.writeDB();
+            }
         }
 
         if (this.longUpdateCooldown.canContinue()) {
