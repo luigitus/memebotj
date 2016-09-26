@@ -185,7 +185,9 @@ public class UserHandler implements Comparable<UserHandler> {
     }
 
     public void update(ChannelHandler channelHandler) {
-        mongoHandler.update();
+        if (Memebot.useMongo) {
+            mongoHandler.update();
+        }
         // remove unused cooldowns asap
         ArrayList<String> toRemove = new ArrayList<>();
 
@@ -364,7 +366,7 @@ public class UserHandler implements Comparable<UserHandler> {
             }
         }
 
-        this.writeDB();
+            this.writeDB();
 
         return result;
     }
