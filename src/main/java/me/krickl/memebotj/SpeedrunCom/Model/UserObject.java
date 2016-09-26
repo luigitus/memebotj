@@ -51,7 +51,14 @@ public class UserObject {
     }
 
     public String getTwitch() {
-        return twitch.getUri();
+        if (twitch != null) {
+            return twitch.getUri();
+        }
+        return null;
+    }
+
+    public void setTwitch(TwitchURL twitch) {
+        this.twitch = twitch;
     }
 
 }
