@@ -9,8 +9,7 @@ import me.krickl.memebotj.User.UserHandler;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bson.Document;
 import org.json.simple.JSONObject;
-import spark.ModelAndView;
-import spark.Request;
+import spark.*;
 import spark.template.velocity.VelocityTemplateEngine;
 
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ public class WebHandler {
     public static void webHandler() {
         externalStaticFileLocation("./public");
         port(Memebot.webPort);
+        setupCORS();
 
         get("/channels", (req, res) -> {
             return "Coming soon(tm)";
@@ -502,5 +502,26 @@ public class WebHandler {
         }
 
         return userList;
+    }
+
+    private static void setupCORS() {
+        HashMap<String, String> corsHeaders = new HashMap<>();
+        corsHeaders.put("Access-Control-Allow-Methods", "GET");
+        corsHeaders.put("Access-Control-Allow-Origin", "*");
+        corsHeaders.put("Access-Control-Allow-Headers",
+                "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
+        corsHeaders.put("Access-Control-Allow-Credentials", "true");
+
+        Filter filter = new Filter() {
+            @Override
+            public void handle(Request request, Response response) throws Exception {
+                if (request.pathInfo().startsWith("/api")) {
+                    corsHeaders.forEach((key, value) -> {
+                        response.header(key, value);
+                    });
+                }
+            }
+        };
+        Spark.after(filter);
     }
 }
